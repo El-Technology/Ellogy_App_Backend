@@ -11,5 +11,6 @@ namespace UserManager.DAL.Models
         public string Password { get; set; }
         public string Organization { get; set; }
         public string Department { get; set; }
+        public string Salt { get; set; }
     }
 }

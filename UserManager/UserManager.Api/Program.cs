@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using UserManager.Common;
+using UserManager.DAL.Context;
 using UserManager.DAL.Extensions;
 
 namespace UserManager.Api
@@ -16,15 +18,17 @@ namespace UserManager.Api
             AddMiddleware(app);
 
             app.MapControllers();
+            MigrateDatabase(app);
+
             app.Run();
         }
-
 
         private static void AddServices(WebApplicationBuilder builder)
         {
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddHealthChecks();
 
             builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
         }
@@ -38,8 +42,20 @@ namespace UserManager.Api
             }
 
             app.UseHttpsRedirection();
-
+            app.UseHealthChecks("/health");
             app.UseAuthorization();
+        }
+
+        private static void MigrateDatabase(IHost app)
+        {
+            using var scope = app.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            var context = services.GetRequiredService<UserManagerDbContext>();
+            if (context.Database.GetPendingMigrations().Any())
+            {
+                context.Database.Migrate();
+            }
         }
     }
 }
