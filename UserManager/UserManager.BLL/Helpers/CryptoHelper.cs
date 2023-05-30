@@ -16,6 +16,12 @@ public static class CryptoHelper
         return Convert.ToBase64String(salt);
     }
 
+    public static bool ConfirmPassword(string password, string salt, string hashedPassword)
+    {
+        var newHashPassword = GetHashPassword(password, salt);
+        return string.Equals(hashedPassword, newHashPassword, StringComparison.InvariantCulture);
+    }
+
     public static string GetHashPassword(string password, string salt)
     {
         using var sha256 = SHA256.Create();

@@ -22,7 +22,6 @@ public class UserRepository : IUserRepository
 
     public async Task<bool> CheckEmail(string email)
     {
-        var a = await _context.Users.ToListAsync();
         return await _context.Users.AnyAsync(e => e.Email == email);
     }
 
@@ -35,5 +34,10 @@ public class UserRepository : IUserRepository
     {
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
+    }
+
+    public Task<User?> GetUserByEmailAsync(string email)
+    {
+        return _context.Users.FirstOrDefaultAsync(e => e.Email == email);
     }
 }

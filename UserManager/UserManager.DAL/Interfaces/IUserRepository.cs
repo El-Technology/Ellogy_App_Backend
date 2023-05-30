@@ -9,4 +9,5 @@ public interface IUserRepository
     public ValueTask<User?> GetUserByIdAsync(Guid id);
 
     public Task<bool> CheckEmail(string email);
+    public Task<User?> GetUserByEmailAsync(string email);
 }

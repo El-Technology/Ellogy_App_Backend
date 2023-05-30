@@ -9,7 +9,8 @@ public static class DiExtension
     public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
     {
         return services
-            .AddScoped<IRegisterService, RegisterService>();
+            .AddScoped<IRegisterService, RegisterService>()
+            .AddScoped<ILoginService, LoginService>();
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)
