@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\UserManager.BLL\UserManager.BLL.csproj" />
     <ProjectReference Include="..\UserManager.Common\UserManager.Common.csproj" />
     <ProjectReference Include="..\UserManager.DAL\UserManager.DAL.csproj" />
   </ItemGroup>

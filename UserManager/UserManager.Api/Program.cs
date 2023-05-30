@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using UserManager.BLL.Extensions;
 using UserManager.Common;
 using UserManager.DAL.Context;
 using UserManager.DAL.Extensions;
@@ -31,6 +32,8 @@ namespace UserManager.Api
             builder.Services.AddHealthChecks();
 
             builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
+            builder.Services.AddBusinessLayer();
+            builder.Services.AddMapping();
         }
 
         private static void AddMiddleware(WebApplication app)

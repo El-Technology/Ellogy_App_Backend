@@ -31,6 +31,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(100);
         builder.Property(c => c.Salt)
             .IsRequired()
-            .HasMaxLength(10);
+            .HasMaxLength(100);
     }
 }
