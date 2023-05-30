@@ -10,6 +10,9 @@ namespace UserManager.Api.Controllers;
 [Route("api/[controller]/")]
 public class AuthController : Controller
 {
+    private const string CookieName = "Token";
+    private const int CookieExpireInMinutes = 60;
+
     private readonly IRegisterService _registerService;
     private readonly ILoginService _loginService;
 
@@ -41,6 +44,16 @@ public class AuthController : Controller
         try
         {
             var jwtToken = await _loginService.LoginUser(email, password);
+
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddMinutes(CookieExpireInMinutes),
+                HttpOnly = true,
+                Secure = true,
+                Path = "/"
+            };
+
+            Response.Cookies.Append(CookieName, jwtToken, cookieOptions);
             return Ok(jwtToken);
         }
         catch (UserNotFoundException exception)
