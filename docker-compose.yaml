@@ -1,5 +1,20 @@
 version: "3.9"
 services:
+  user_manager:
+    build:
+      context: ./UserManager
+      dockerfile: UserManager.Api/Dockerfile
+    environment:
+      ConnectionString: "Host=postgresql_database;Port=5432;Database=ellogy;Username=admin;Password=admin"
+      JwtSecretKey: "jN(Z6[)r;k]eA@9ISBfQVIO=TW6s5j4]"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - "7077:443"
+      - "5281:80"
+    depends_on:
+      - postgresql_database
+    networks:
+      - postgres
   postgresql_database:
     image: postgres:15.2 
     environment:
