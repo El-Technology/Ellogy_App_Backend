@@ -1,5 +1,19 @@
 version: "3.9"
 services:
+  api_gateway:
+    build:
+      context: ./OcelotApiGateway
+      dockerfile: OcelotApiGateway/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      Ocelot_Conf: "local"
+    ports:
+      - "7060:443"
+      - "5211:80"
+    depends_on:
+      - postgresql_database
+    networks:
+      - postgres
   user_manager:
     build:
       context: ./UserManager

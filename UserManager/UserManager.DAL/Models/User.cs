@@ -1,4 +1,6 @@
-﻿#pragma warning disable CS8618
+﻿using UserManager.DAL.Enums;
+
+#pragma warning disable CS8618
 namespace UserManager.DAL.Models
 {
     public class User
@@ -12,5 +14,6 @@ namespace UserManager.DAL.Models
         public string Organization { get; set; }
         public string Department { get; set; }
         public string Salt { get; set; }
+        public RoleEnum Role { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿#pragma warning disable CS8618
+﻿// ReSharper disable UnusedAutoPropertyAccessor.Global
+#pragma warning disable CS8618
 namespace UserManager.BLL.Dtos;
 
 public class UserRegisterRequestDto

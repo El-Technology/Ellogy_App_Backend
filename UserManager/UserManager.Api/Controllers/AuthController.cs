@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 using UserManager.BLL.Dtos;
-using UserManager.BLL.Exceptions;
+using UserManager.BLL.Dtos.LoginDtos;
 using UserManager.BLL.Interfaces;
 
 namespace UserManager.Api.Controllers;
@@ -26,43 +25,25 @@ public class AuthController : Controller
     [Route("register")]
     public async Task<IActionResult> Register([FromBody] UserRegisterRequestDto userRegister)
     {
-        try
-        {
-            var user = await _registerService.RegisterUser(userRegister);
-            return Ok(user);
-        }
-        catch (UserAlreadyExistException exception)
-        {
-            return NotFound(exception.Message);
-        }
+        await _registerService.RegisterUserAsync(userRegister);
+        return Ok();
     }
 
-    [HttpGet]
+    [HttpPost]
     [Route("login")]
-    public async Task<IActionResult> Login([Required] string email, [Required] string password)
+    public async Task<IActionResult> Login(LoginRequestDto loginUser)
     {
-        try
-        {
-            var jwtToken = await _loginService.LoginUser(email, password);
+        var user = await _loginService.LoginUser(loginUser);
 
-            var cookieOptions = new CookieOptions
-            {
-                Expires = DateTime.Now.AddMinutes(CookieExpireInMinutes),
-                HttpOnly = true,
-                Secure = true,
-                Path = "/"
-            };
+        var cookieOptions = new CookieOptions
+        {
+            Expires = DateTime.Now.AddMinutes(CookieExpireInMinutes),
+            HttpOnly = true,
+            Secure = true,
+            Path = "/"
+        };
 
-            Response.Cookies.Append(CookieName, jwtToken, cookieOptions);
-            return Ok(jwtToken);
-        }
-        catch (UserNotFoundException exception)
-        {
-            return NotFound(exception.Message);
-        }
-        catch (FailedLoginException exception)
-        {
-            return Unauthorized(exception.Message);
-        }
+        Response.Cookies.Append(CookieName, user.Jwt, cookieOptions);
+        return Ok(user);
     }
 }

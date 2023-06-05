@@ -1,6 +1,8 @@
-﻿namespace UserManager.BLL.Interfaces;
+﻿using UserManager.BLL.Dtos.LoginDtos;
+
+namespace UserManager.BLL.Interfaces;
 
 public interface ILoginService
 {
-    public Task<string> LoginUser(string email, string password);
+    public Task<LoginResponseDto> LoginUser(LoginRequestDto loginUser);
 }

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using UserManager.Api.Middlewares;
 using UserManager.BLL.Extensions;
 using UserManager.Common;
 using UserManager.DAL.Context;
@@ -47,6 +48,8 @@ namespace UserManager.Api
             app.UseHttpsRedirection();
             app.UseHealthChecks("/health");
             app.UseAuthorization();
+
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
         }
 
         private static void MigrateDatabase(IHost app)

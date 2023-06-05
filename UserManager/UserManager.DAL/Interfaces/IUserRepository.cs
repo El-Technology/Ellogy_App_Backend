@@ -8,6 +8,6 @@ public interface IUserRepository
     public Task UpdateUserAsync(User user);
     public ValueTask<User?> GetUserByIdAsync(Guid id);
 
-    public Task<bool> CheckEmail(string email);
+    public Task<bool> CheckEmailIsExistAsync(string email);
     public Task<User?> GetUserByEmailAsync(string email);
 }

@@ -1,7 +1,9 @@
-﻿#pragma warning disable CS8618
-namespace UserManager.BLL.Dtos;
+﻿using UserManager.DAL.Enums;
 
-public class UserRegisterResponseDto
+#pragma warning disable CS8618
+namespace UserManager.BLL.Dtos.LoginDtos;
+
+public class LoginResponseDto
 {
     public Guid Id { get; set; }
     public string FirstName { get; set; }
@@ -10,4 +12,6 @@ public class UserRegisterResponseDto
     public string PhoneNumber { get; set; }
     public string Organization { get; set; }
     public string Department { get; set; }
+    public string Jwt { get; set; }
+    public RoleEnum Role { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using UserManager.DAL.Enums;
 using UserManager.DAL.Models;
 
 namespace UserManager.DAL.Context.Configurations;
@@ -32,5 +33,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(c => c.Salt)
             .IsRequired()
             .HasMaxLength(100);
+        builder.Property(c => c.Role)
+            .IsRequired()
+            .HasDefaultValue(RoleEnum.User);
     }
 }

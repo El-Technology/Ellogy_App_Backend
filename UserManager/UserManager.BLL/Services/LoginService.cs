@@ -1,4 +1,6 @@
-﻿using UserManager.BLL.Exceptions;
+﻿using AutoMapper;
+using UserManager.BLL.Dtos.LoginDtos;
+using UserManager.BLL.Exceptions;
 using UserManager.BLL.Helpers;
 using UserManager.BLL.Interfaces;
 using UserManager.DAL.Interfaces;
@@ -8,19 +10,24 @@ namespace UserManager.BLL.Services;
 public class LoginService : ILoginService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IMapper _mapper;
 
-    public LoginService(IUserRepository userRepository)
+    public LoginService(IUserRepository userRepository, IMapper mapper)
     {
         _userRepository = userRepository;
+        _mapper = mapper;
     }
 
-    public async Task<string> LoginUser(string email, string password)
+    public async Task<LoginResponseDto> LoginUser(LoginRequestDto loginUser)
     {
-        var user = await _userRepository.GetUserByEmailAsync(email) ?? throw new UserNotFoundException(email);
+        var user = await _userRepository.GetUserByEmailAsync(loginUser.Email) ?? throw new UserNotFoundException(loginUser.Email);
 
-        if (!CryptoHelper.ConfirmPassword(password, user.Salt, user.Password))
+        if (!CryptoHelper.ConfirmPassword(loginUser.Password, user.Salt, user.Password))
             throw new FailedLoginException();
 
-        return JwtHelper.GenerateJwt(user);
+        var loginedUser = _mapper.Map<LoginResponseDto>(user);
+        loginedUser.Jwt = JwtHelper.GenerateJwt(user);
+
+        return loginedUser;
     }
 }

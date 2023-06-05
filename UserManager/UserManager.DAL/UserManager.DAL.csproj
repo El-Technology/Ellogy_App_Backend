@@ -10,6 +10,7 @@
     <Folder Include="Context\Configurations\" />
     <Folder Include="Extensions\" />
     <Folder Include="Interfaces\" />
+    <Folder Include="Enums\" />
     <Folder Include="Repositories\" />
   </ItemGroup>
 

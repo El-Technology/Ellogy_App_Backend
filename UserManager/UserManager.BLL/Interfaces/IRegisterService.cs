@@ -4,5 +4,5 @@ namespace UserManager.BLL.Interfaces;
 
 public interface IRegisterService
 {
-    public Task<UserRegisterResponseDto> RegisterUser(UserRegisterRequestDto userRegister);
+    public Task RegisterUserAsync(UserRegisterRequestDto userRegister);
 }
