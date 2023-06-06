@@ -1,7 +1,7 @@
 ﻿using System.Net;
-using UserManager.BLL.Exceptions;
+using TicketsManager.BLL.Exceptions;
 
-namespace UserManager.Api.Middlewares;
+namespace TicketsManager.Api.Middlewares;
 
 public class ExceptionHandlerMiddleware
 {
@@ -20,16 +20,6 @@ public class ExceptionHandlerMiddleware
         try
         {
             await _next(context);
-        }
-        //TODO inherit from base CustomApiException
-        //TODO rewrite with when
-        catch (FailedLoginException ex)
-        {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.BadRequest, ex.Message);
-        }
-        catch (UserAlreadyExistException ex)
-        {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.NotFound, ex.Message);
         }
         catch (UserNotFoundException ex)
         {
