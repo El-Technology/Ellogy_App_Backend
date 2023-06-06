@@ -1,9 +1,9 @@
-﻿using TicketsManager.DAL.Enums;
+﻿using TicketsManager.BLL.Dtos.MessageDtos;
+using TicketsManager.DAL.Enums;
 
-#pragma warning disable CS8618
-namespace TicketsManager.DAL.Models;
+namespace TicketsManager.BLL.Dtos.TicketDtos;
 
-public class Ticket
+public class TicketResponseDto
 {
     public Guid Id { get; set; }
     public string Title { get; set; }
@@ -14,8 +14,5 @@ public class Ticket
     public DateTime? UpdatedDate { get; set; }
     public TicketStatusEnum Status { get; set; }
 
-    public ICollection<Message> TicketMessages { get; set; } = new List<Message>();
-
-    public Guid UserId { get; set; }
-    public User User { get; set; }
+    public ICollection<MessageResponseDto> TicketMessages { get; set; } = new List<MessageResponseDto>();
 }

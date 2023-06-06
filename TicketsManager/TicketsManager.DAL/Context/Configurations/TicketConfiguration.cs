@@ -20,21 +20,15 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
             .IsRequired();
         builder.Property(c => c.CreatedDate)
             .IsRequired();
-        builder.Property(c => c.UpdatedDate)
-            .IsRequired();
+        builder.Property(c => c.UpdatedDate);
         builder.Property(c => c.Comment)
             .HasMaxLength(250);
         builder.Property(c => c.Summary)
-            .IsRequired()
             .HasMaxLength(250);
 
         builder.HasOne(e => e.User)
             .WithMany(e => e.UserTickets)
             .HasForeignKey(e => e.UserId)
             .IsRequired();
-
-        builder.HasMany(c => c.TicketMessages)
-            .WithOne()
-            .HasForeignKey(c => c.TicketId);
     }
 }
