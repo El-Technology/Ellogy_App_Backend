@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketsManager.Api", "TicketsManager\TicketsManager.Api.csproj", "{8D8088DA-A0D8-4F56-ACB7-59FCC8684616}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketsManager.Api", "TicketsManager.Api\TicketsManager.Api.csproj", "{8D8088DA-A0D8-4F56-ACB7-59FCC8684616}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TicketsManager.BLL", "TicketsManager.BLL\TicketsManager.BLL.csproj", "{1DAE9E63-AFE0-441A-90A5-EE17AA069921}"
 EndProject
