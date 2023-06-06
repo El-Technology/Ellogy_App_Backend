@@ -26,23 +26,23 @@ services:
       - "7077:443"
       - "5281:80"
     depends_on:
-      - postgresql_database
+      - api_gateway
     networks:
       - postgres
-    user_manager:
-      build:
-        context: ./TicketsManager
-        dockerfile: TicketsManager.Api/Dockerfile
-      environment:
-        ConnectionString: "Host=postgresql_database;Port=5432;Database=ellogy;Username=admin;Password=admin"
-        ASPNETCORE_ENVIRONMENT: "Development"
-      ports:
-        - "7077:443"
-        - "5281:80"
-      depends_on:
-        - postgresql_database
-      networks:
-        - postgres
+  ticket_manager:
+    build:
+      context: ./TicketsManager
+      dockerfile: TicketsManager.Api/Dockerfile
+    environment:
+      ConnectionString: "Host=postgresql_database;Port=5432;Database=ellogy;Username=admin;Password=admin"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    ports:
+      - "7188:443"
+      - "5041:80"
+    depends_on:
+      - api_gateway
+    networks:
+      - postgres
   postgresql_database:
     image: postgres:15.2 
     environment:

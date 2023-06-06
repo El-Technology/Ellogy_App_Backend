@@ -7,7 +7,7 @@ on:
 jobs:
   deploy:
     env:
-      SSH_HOST: ${{ vars.SSH_HOST }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
       SSH_USER: ${{ vars.REMOTE_USER }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
       ENVNAME: ${{ vars.ENVNAME }} 
@@ -17,61 +17,22 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v3
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET }}
-          aws-region: eu-central-1
+      - name: Login to GitHub Packages
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-
-      - name: Build, tag, and push docker image of UserManager to Amazon ECR
+      - name: Build, tag, and push docker image of UserManager to Github Packages
         id: build-UserManager-image
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: education_platform/user_manger
           IMAGE_TAG: ${{github.run_number}}
-          PROJECT_PATH: ./UserManager/EducationPlatform.UserManager
+          IMAGE_NAME: UserManager
+          PROJECT_PATH: ./UserManager/
           CONTEXT: .
-          FILEPATH: ./EducationPlatform.UserManager.Api/Dockerfile               
+          FILEPATH: ./UserManager.Api/Dockerfile               
         run: | 
           cd ${PROJECT_PATH}
-          docker build -t ${REGISTRY}/${REPOSITORY}:${ENVNAME}-${IMAGE_TAG} -f ${FILEPATH} ${CONTEXT}
-          docker push ${REGISTRY}/${REPOSITORY}:${ENVNAME}-${IMAGE_TAG}
-          echo "::set-output name=image::$REGISTRY/$REPOSITORY:$ENVNAME-$IMAGE_TAG"
-          
-      - name: Build, tag, and push docker image of RankingStatisticManager to Amazon ECR
-        id: build-RankingStatisticManager-image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: education_platform/ranking_and_statistics
-          IMAGE_TAG: ${{github.run_number}}
-          PROJECT_PATH: ./RankingsAndStatisticsManager/EducationPlatform.RSManager
-          CONTEXT: .
-          FILEPATH: EducationPlatform.RS.Api/Dockerfile  
-        run: | 
-          cd ${PROJECT_PATH}
-          docker build -t ${REGISTRY}/${REPOSITORY}:${ENVNAME}-${IMAGE_TAG} -f ${FILEPATH} ${CONTEXT}
-          docker push ${REGISTRY}/${REPOSITORY}:${ENVNAME}-${IMAGE_TAG}
-          echo "::set-output name=image::$REGISTRY/$REPOSITORY:$ENVNAME-$IMAGE_TAG"
-
-      - name: Build, tag, and push docker image of GameManager to Amazon ECR
-        id: build-GameManager-image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: education_platform/game_manager
-          IMAGE_TAG: ${{github.run_number}}
-          PROJECT_PATH: ./GameManager/EducationPlatform.GameManager
-          CONTEXT: .
-          FILEPATH: EducationPlatform.GameManager.Api/Dockerfile  
-        run: | 
-            cd ${PROJECT_PATH}
-            docker build -t ${REGISTRY}/${REPOSITORY}:${ENVNAME}-${IMAGE_TAG} -f ${FILEPATH} ${CONTEXT}
-            docker push ${REGISTRY}/${REPOSITORY}:${ENVNAME}-${IMAGE_TAG}
-            echo "::set-output name=image::$REGISTRY/$REPOSITORY:$ENVNAME-$IMAGE_TAG"
+          docker build -t docker.pkg.github.com/${{ github.repository }}/${IMAGE_NAME}:${ENVNAME}-${IMAGE_TAG} -f ${FILEPATH} ${CONTEXT}
+          docker push docker.pkg.github.com/${{ github.repository }}/${IMAGE_NAME}:${ENVNAME}-${IMAGE_TAG}
+          echo "::set-output name=image::docker.pkg.github.com/${{ github.repository }}/${IMAGE_NAME}:${ENVNAME}-${IMAGE_TAG}"
 
       - name: Configure SSH
         run: |
@@ -90,17 +51,8 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           SERVICE1_IMAGE: ${{ steps.build-UserManager-image.outputs.image }}
-          SERVICE2_IMAGE: ${{ steps.build-RankingStatisticManager-image.outputs.image }}
-          SERVICE3_IMAGE: ${{ steps.build-GameManager-image.outputs.image }}
-          SERVICE1_NAME: fiveplatform_userManager
-          SERVICE2_NAME: fiveplatform_rankingAndStatistic
-          SERVICE3_NAME: fiveplatform_gameManager
-          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_ACCESS_SECRET: ${{ secrets.AWS_ACCESS_SECRET }}
-          AWS_REGION: eu-central-1
+    
           ConnectionString_UserManager: ${{secrets.CONNECTIONSTRING_USERMANAGER}}
-          ConnectionString_RSManager: ${{secrets.CONNECTIONSTRING_RSMANAGER}}
-          ConnectionString_GameManager: ${{secrets.CONNECTIONSTRING_GAMEMANAGER}}
           Environment: ${{ vars.ENVNAME }} 
         run: |
           ssh ec2 bash -s <<EOF
@@ -109,26 +61,15 @@ jobs:
           docker rm -f $(docker ps -a -q)
           apt install awscli -y
           sudo snap install yq
-          aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${REGISTRY}
 
           cd EducationPlatformBackend
 
           export SERVICE1_NAME=$SERVICE1_NAME
-          export SERVICE2_NAME=$SERVICE2_NAME
-          export SERVICE3_NAME=$SERVICE3_NAME
           export SERVICE1_IMAGE=$SERVICE1_IMAGE
-          export SERVICE2_IMAGE=$SERVICE2_IMAGE
-          export SERVICE3_IMAGE=$SERVICE3_IMAGE
 
           yq e -i ".services.$SERVICE1_NAME.image=env(SERVICE1_IMAGE)" docker-compose.yml
-          yq e -i ".services.$SERVICE2_NAME.image=env(SERVICE2_IMAGE)" docker-compose.yml
-          yq e -i ".services.$SERVICE3_NAME.image=env(SERVICE3_IMAGE)" docker-compose.yml
-
+          
           export ConnectionString_UserManager="$ConnectionString_UserManager"
-          export ConnectionString_RSManager="$ConnectionString_RSManager"
-          export ConnectionString_GameManager="$ConnectionString_GameManager"
-          export AWS_ACCESS_KEY=$AWS_ACCESS_KEY
-          export AWS_ACCESS_SECRET=$AWS_ACCESS_SECRET
           export Environment=$Environment
 
           docker-compose up -d
