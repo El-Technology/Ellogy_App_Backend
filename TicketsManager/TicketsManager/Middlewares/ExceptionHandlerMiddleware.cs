@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using TicketsManager.BLL.Exceptions;
 
 namespace TicketsManager.Api.Middlewares;
 
@@ -19,6 +20,10 @@ public class ExceptionHandlerMiddleware
         try
         {
             await _next(context);
+        }
+        catch (UserNotFoundException ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.NotFound, ex.Message);
         }
         catch (Exception ex)
         {

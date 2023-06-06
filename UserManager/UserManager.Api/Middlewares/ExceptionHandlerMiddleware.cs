@@ -21,6 +21,8 @@ public class ExceptionHandlerMiddleware
         {
             await _next(context);
         }
+        //TODO inherit from base CustomApiException
+        //TODO rewrite with when
         catch (FailedLoginException ex)
         {
             await HandleExceptionAsync(context, ex.Message, HttpStatusCode.BadRequest, ex.Message);

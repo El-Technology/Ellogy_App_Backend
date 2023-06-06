@@ -12,7 +12,7 @@ using TicketsManager.DAL.Context;
 namespace TicketsManager.DAL.Migrations
 {
     [DbContext(typeof(TicketsManagerDbContext))]
-    [Migration("20230605172609_InitMigration")]
+    [Migration("20230606084159_InitMigration")]
     partial class InitMigration
     {
         /// <inheritdoc />
@@ -43,14 +43,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("TicketId1")
-                        .HasColumnType("uuid");
-
                     b.HasKey("Id");
 
                     b.HasIndex("TicketId");
-
-                    b.HasIndex("TicketId1");
 
                     b.ToTable("Messages", (string)null);
                 });
@@ -62,15 +57,13 @@ namespace TicketsManager.DAL.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Comment")
-                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
-                    b.Property<DateOnly>("CreatedDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
@@ -78,7 +71,6 @@ namespace TicketsManager.DAL.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Summary")
-                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
@@ -87,8 +79,8 @@ namespace TicketsManager.DAL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<DateOnly>("UpdatedDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -108,20 +100,14 @@ namespace TicketsManager.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.Message", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.Ticket", null)
+                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
                         .WithMany("TicketMessages")
                         .HasForeignKey("TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
-                        .WithMany()
-                        .HasForeignKey("TicketId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

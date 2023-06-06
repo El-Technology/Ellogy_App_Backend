@@ -1,0 +1,21 @@
+﻿using AutoMapper;
+using TicketsManager.BLL.Dtos.MessageDtos;
+using TicketsManager.DAL.Models;
+
+namespace TicketsManager.BLL.Mapping;
+
+public class MessageProfile : Profile
+{
+    public MessageProfile()
+    {
+        CreateMap<MessageCreateRequestDto, Message>()
+            .ForMember(dest => dest.Id, opts =>
+                opts.MapFrom(new GuidValueResolver()))
+            .ForMember(dest => dest.TicketId, opts =>
+                opts.Ignore())
+            .ForMember(dest => dest.Ticket, opts =>
+                opts.Ignore());
+
+        CreateMap<Message, MessageResponseDto>();
+    }
+}

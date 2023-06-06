@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using TicketsManager.Api.Middlewares;
 using TicketsManager.BLL.Extensions;
 using TicketsManager.Common;
@@ -20,7 +21,9 @@ app.Run();
 
 static void AddServices(WebApplicationBuilder builder)
 {
-    builder.Services.AddControllers();
+    builder.Services.AddControllers().AddJsonOptions(x =>
+        x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+    ;
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddHealthChecks();

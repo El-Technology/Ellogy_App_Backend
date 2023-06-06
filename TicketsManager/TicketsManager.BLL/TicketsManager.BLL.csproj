@@ -7,9 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\" />
+    <Folder Include="Dtos\MessageDtos\" />
     <Folder Include="Interfaces\" />
-    <Folder Include="Mapping\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
@@ -18,6 +17,10 @@
     <PackageReference Include="AutoMapper.Collection" Version="9.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TicketsManager.DAL\TicketsManager.DAL.csproj" />
   </ItemGroup>
 
 </Project>

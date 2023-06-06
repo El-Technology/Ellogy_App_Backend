@@ -6,7 +6,7 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "ConnectionString": "Host=localhost;Port=5432;Database=ellogy;Username=admin;Password=admin"
+        "ConnectionString": "Host=localhost;Port=5432;Database=ellogy;Username=admin;Password=admin;Include Error Detail=true"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:7188;http://localhost:5041"
