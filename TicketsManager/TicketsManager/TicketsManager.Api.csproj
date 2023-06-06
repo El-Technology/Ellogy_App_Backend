@@ -14,11 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\TicketsManager.BLL\TicketsManager.BLL.csproj" />
     <ProjectReference Include="..\TicketsManager.Common\TicketsManager.Common.csproj" />
     <ProjectReference Include="..\TicketsManager.DAL\TicketsManager.DAL.csproj" />
