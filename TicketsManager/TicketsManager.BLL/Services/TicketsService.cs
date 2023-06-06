@@ -37,7 +37,7 @@ public class TicketsService : ITicketsService
     public async Task<TicketResponseDto> CreateTicketAsync(TicketCreateRequestDto createTicketRequest, Guid userId)
     {
         var user = await _userRepository.GetUserAsync(userId) ?? throw new UserNotFoundException(userId);
-        var mappedTicket = MapTicket(createTicketRequest, user);
+        var mappedTicket = MapCreateTicket(createTicketRequest, user);
 
         await _ticketsRepository.CreateTicketAsync(mappedTicket);
 
@@ -45,7 +45,7 @@ public class TicketsService : ITicketsService
         return returnTicket;
     }
 
-    private Ticket MapTicket(TicketCreateRequestDto createTicketRequest, User user)
+    private Ticket MapCreateTicket(TicketCreateRequestDto createTicketRequest, User user)
     {
         var mappedTicket = _mapper.Map<Ticket>(createTicketRequest);
         mappedTicket.User = user;
@@ -54,5 +54,26 @@ public class TicketsService : ITicketsService
             message.Ticket = mappedTicket;
 
         return mappedTicket;
+    }
+
+    public async Task DeleteTicketAsync(Guid id)
+    {
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(id);
+        if (ticket is null)
+            throw new TicketNotFoundException(id);
+
+        await _ticketsRepository.DeleteTicketAsync(ticket);
+    }
+
+    public async Task<TicketResponseDto> UpdateTicketAsync(TicketUpdateRequestDto ticketUpdate)
+    {
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketUpdate.Id);
+        if (ticket is null)
+            throw new TicketNotFoundException(ticketUpdate.Id);
+
+        var mappedTicket = _mapper.Map(ticketUpdate, ticket);
+        await _ticketsRepository.UpdateTicketAsync(mappedTicket);
+
+        return _mapper.Map<TicketResponseDto>(mappedTicket);
     }
 }

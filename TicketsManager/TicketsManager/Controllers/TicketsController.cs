@@ -31,4 +31,19 @@ public class TicketsController : Controller
         var createdTicket = await _ticketsService.CreateTicketAsync(createTicketRequest, userId);
         return Ok(createdTicket);
     }
+
+    [HttpDelete]
+    [Route("{id:guid}")]
+    public async Task<IActionResult> DeleteTicket([Required] Guid id)
+    {
+        await _ticketsService.DeleteTicketAsync(id);
+        return Ok();
+    }
+
+    [HttpPut]
+    public async Task<IActionResult> UpdateTicket([FromBody] TicketUpdateRequestDto ticketUpdateRequest)
+    {
+        var ticket = await _ticketsService.UpdateTicketAsync(ticketUpdateRequest);
+        return Ok(ticket);
+    }
 }

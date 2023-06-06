@@ -18,6 +18,7 @@ public class TicketsRepository : ITicketsRepository
     public async Task<ICollection<Ticket>> GetAllTicketsAsync(Guid userId)
     {
         var user = await _context.Users
+            .AsNoTracking()
             .Include(e => e.UserTickets)
             .ThenInclude(e => e.TicketMessages)
             .FirstOrDefaultAsync(e => e.Id == userId);
@@ -33,9 +34,13 @@ public class TicketsRepository : ITicketsRepository
         await _context.SaveChangesAsync();
     }
 
-    public ValueTask<Ticket?> GetTicketByIdAsync(Guid id)
+    public Task<Ticket?> GetTicketByIdAsync(Guid id)
     {
-        return _context.Tickets.FindAsync(id);
+        return _context.Tickets
+            .Include(e => e.User)
+            .Include(e => e.TicketMessages)
+            .AsTracking()
+            .FirstOrDefaultAsync(e => e.Id == id);
     }
 
     public async Task DeleteTicketAsync(Ticket ticket)
@@ -48,5 +53,10 @@ public class TicketsRepository : ITicketsRepository
     {
         _context.Tickets.Update(ticket);
         await _context.SaveChangesAsync();
+    }
+
+    public Task<bool> CheckIfTicketExistAsync(Guid id)
+    {
+        return _context.Tickets.AnyAsync(e => e.Id == id);
     }
 }
