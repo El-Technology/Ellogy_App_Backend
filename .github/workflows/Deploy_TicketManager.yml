@@ -1,4 +1,4 @@
-name: Build and push Api Gateway
+name: Build and push tickets manager
 on:
   push:
     branches:
@@ -11,7 +11,7 @@ jobs:
       SSH_USER: ${{ vars.REMOTE_USER }}
       SSH_KEY: ${{ secrets.SSH_KEY }}
       ENVNAME: ${{ vars.ENVNAME }} 
-      MICROSERVICE_NAME: 'api_gateway'
+      MICROSERVICE_NAME: 'ticket_manager'
 
     runs-on: ubuntu-latest
     steps:
@@ -29,13 +29,13 @@ jobs:
         with:
           string: ${{ env.REPO_NAME }}
         
-      - name: Build, tag, and push docker image of ApiGateway to Github Packages
-        id: build-ApiGateway-image
+      - name: Build, tag, and push docker image of TicketsManager to Github Packages
+        id: build-TicketsManager-image
         env:
           REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
-          PROJECT_PATH: ./OcelotApiGateway/
+          PROJECT_PATH: ./TicketsManager/
           CONTEXT: .
-          FILEPATH: ./OcelotApiGateway/Dockerfile
+          FILEPATH: ./TicketsManager.Api/Dockerfile
         run: | 
           cd ${PROJECT_PATH}
           docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
@@ -49,8 +49,8 @@ jobs:
         with:
           string: ${{ env.PACKAGE_NAME }}
 
-      - name: Delete old ApiGateway images
-        id: delete-ApiGateway-images
+      - name: Delete old TicketsManager images
+        id: delete-TicketsManager-images
         uses: actions/delete-package-versions@v4.1.1
         with:
           package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
@@ -75,7 +75,8 @@ jobs:
           SERVICE_NAME: ${{ env.MICROSERVICE_NAME }}
           SERVICE_IMAGE: ${{ steps.imageName-lowercase.outputs.lowercase }}
     
-          Ocelot_Conf : azure
+          ConnectionString: ${{secrets.CONNECTIONSTRING}}
+          JwtSecretKey : ${{secrets.JWT_SECRET_KEY }}
         run: |
           ssh VM bash -s <<EOF
           sudo su
@@ -91,8 +92,9 @@ jobs:
           export SERVICE_IMAGE=$SERVICE_IMAGE
 
           yq e -i ".services.$SERVICE_NAME.image=env(SERVICE_IMAGE)" docker-compose.yaml
-
-          export OcelotConfiguration="$Ocelot_Conf"
           
+          export ConnectionString="$ConnectionString"
+          export JwtSecretKey="$JwtSecretKey"
+
           docker-compose up -d
           EOF
