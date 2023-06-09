@@ -36,6 +36,7 @@ services:
     environment:
       ConnectionString: "Host=postgresql_database;Port=5432;Database=ellogy;Username=admin;Password=admin"
       ASPNETCORE_ENVIRONMENT: "Development"
+      JwtSecretKey: "jN(Z6[)r;k]eA@9ISBfQVIO=TW6s5j4]"
     ports:
       - "7188:443"
       - "5041:80"
