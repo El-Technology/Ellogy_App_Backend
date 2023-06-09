@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TicketsManager.BLL.Dtos.MessageDtos;
 using TicketsManager.BLL.Interfaces;
 
 namespace TicketsManager.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]/")]
     [ApiController]
     public class MessagesController : ControllerBase
