@@ -82,6 +82,7 @@ jobs:
           sudo su
           
           docker rm -f $(docker ps -a -q)
+          docker network rm $(docker network ls)
           sudo snap install yq
 
           docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
