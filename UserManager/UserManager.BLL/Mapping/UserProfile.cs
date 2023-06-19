@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using UserManager.BLL.Dtos;
 using UserManager.BLL.Dtos.LoginDtos;
 using UserManager.BLL.Helpers;
 using UserManager.DAL.Enums;

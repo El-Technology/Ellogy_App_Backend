@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using System.Reflection;
 using UserManager.Api.Middlewares;
 using UserManager.BLL.Extensions;
 using UserManager.Common;
@@ -29,7 +31,21 @@ namespace UserManager.Api
         {
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo()
+                {
+                    Title = "Ellogy. User Manager service API",
+                    Version = "v1",
+                });
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+                c.IncludeXmlComments(xmlPath);
+            });
+
             builder.Services.AddHealthChecks();
 
             builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);

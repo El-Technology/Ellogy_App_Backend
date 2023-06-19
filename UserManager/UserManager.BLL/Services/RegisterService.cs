@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using UserManager.BLL.Dtos;
 using UserManager.BLL.Exceptions;
 using UserManager.BLL.Helpers;
 using UserManager.BLL.Interfaces;

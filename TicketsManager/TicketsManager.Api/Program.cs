@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
+using System.Reflection;
 using System.Text.Json.Serialization;
 using TicketsManager.Api.Middlewares;
 using TicketsManager.BLL.Extensions;
@@ -47,9 +48,9 @@ static void AddServices(WebApplicationBuilder builder)
 
     builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v1", new() { Title = "Ellogy API", Version = "v1" });
+        c.SwaggerDoc("v1", new() { Title = "Ellogy. Tickets Manager service API", Version = "v1" });
 
-        c.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
             Description = "Standard Authorization header using Bearer scheme, e.g. \"bearer {token}\"",
             In = ParameterLocation.Header,
@@ -58,6 +59,11 @@ static void AddServices(WebApplicationBuilder builder)
         });
 
         c.OperationFilter<SecurityRequirementsOperationFilter>();
+
+        var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+        c.IncludeXmlComments(xmlPath);
     });
 
     builder.Services.AddHealthChecks();
