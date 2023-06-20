@@ -31,6 +31,16 @@ namespace UserManager.Api
         {
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
 
             builder.Services.AddSwaggerGen(c =>
             {
@@ -55,6 +65,8 @@ namespace UserManager.Api
 
         private static void AddMiddleware(WebApplication app)
         {
+            app.UseCors();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
