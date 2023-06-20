@@ -32,8 +32,7 @@ static void AddServices(WebApplicationBuilder builder)
         {
             builder.AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyMethod()
-                .AllowCredentials();
+                .AllowAnyMethod();
         });
     });
 
