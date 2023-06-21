@@ -9,12 +9,19 @@ inputs:
     required: true
   DockerfilePath:
     required: true
+  GithubToken:
+    required: true
+
+outputs:
+  ServiceImage:
+    value: ${{ steps.imageName-lowercase.outputs.lowercase }}
 
 runs:
   using: "composite"
   steps:
     - name: Login to GitHub Packages
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+      shell: bash
+      run: echo "${{ inputs.GithubToken }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
     - name: Convert to repository name lowercase
       id: imageName-lowercase
@@ -26,6 +33,7 @@ runs:
       
     - name: Build, tag, and push docker image to Github Packages
       id: build-image
+      shell: bash
       env:
         REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
         PROJECT_PATH: ${{ inputs.MicrserviceProjectPath }}

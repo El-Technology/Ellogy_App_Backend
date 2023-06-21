@@ -1,98 +1,98 @@
-name: Build and push Api Gateway
-on:
-  push:
-    branches:
-      - develop
+# name: Build and push Api Gateway
+# on:
+#   push:
+#     branches:
+#       - develop
 
-jobs:
-  deploy:
-    env:
-      SSH_HOST: ${{ secrets.SSH_HOST }}
-      SSH_USER: ${{ vars.REMOTE_USER }}
-      SSH_KEY: ${{ secrets.SSH_KEY }}
-      ENVNAME: ${{ vars.ENVNAME }} 
-      MICROSERVICE_NAME: 'api_gateway'
+# jobs:
+#   deploy:
+#     env:
+#       SSH_HOST: ${{ secrets.SSH_HOST }}
+#       SSH_USER: ${{ vars.REMOTE_USER }}
+#       SSH_KEY: ${{ secrets.SSH_KEY }}
+#       ENVNAME: ${{ vars.ENVNAME }} 
+#       MICROSERVICE_NAME: 'api_gateway'
 
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get Code
-        uses: actions/checkout@v3
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Get Code
+#         uses: actions/checkout@v3
 
-      - name: Login to GitHub Packages
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+#       - name: Login to GitHub Packages
+#         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
-      - name: Convert to repository name lowercase
-        id: imageName-lowercase
-        uses: ASzc/change-string-case-action@v5
-        env:
-          REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{env.MICROSERVICE_NAME}}:${{env.ENVNAME}}-${{github.run_number}}
-        with:
-          string: ${{ env.REPO_NAME }}
+#       - name: Convert to repository name lowercase
+#         id: imageName-lowercase
+#         uses: ASzc/change-string-case-action@v5
+#         env:
+#           REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{env.MICROSERVICE_NAME}}:${{env.ENVNAME}}-${{github.run_number}}
+#         with:
+#           string: ${{ env.REPO_NAME }}
         
-      - name: Build, tag, and push docker image of ApiGateway to Github Packages
-        id: build-ApiGateway-image
-        env:
-          REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
-          PROJECT_PATH: ./OcelotApiGateway/
-          CONTEXT: .
-          FILEPATH: ./OcelotApiGateway/Dockerfile
-        run: | 
-          cd ${PROJECT_PATH}
-          docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
-          docker push ${REPOSITORY_NAME}
+#       - name: Build, tag, and push docker image of ApiGateway to Github Packages
+#         id: build-ApiGateway-image
+#         env:
+#           REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
+#           PROJECT_PATH: ./OcelotApiGateway/
+#           CONTEXT: .
+#           FILEPATH: ./OcelotApiGateway/Dockerfile
+#         run: | 
+#           cd ${PROJECT_PATH}
+#           docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
+#           docker push ${REPOSITORY_NAME}
 
-      - name: Get lowercase package name
-        id: packageName-lowercase
-        uses: ASzc/change-string-case-action@v5
-        env:
-          PACKAGE_NAME: ${{ github.event.repository.name }}/${{env.MICROSERVICE_NAME}}
-        with:
-          string: ${{ env.PACKAGE_NAME }}
+#       - name: Get lowercase package name
+#         id: packageName-lowercase
+#         uses: ASzc/change-string-case-action@v5
+#         env:
+#           PACKAGE_NAME: ${{ github.event.repository.name }}/${{env.MICROSERVICE_NAME}}
+#         with:
+#           string: ${{ env.PACKAGE_NAME }}
 
-      - name: Delete old ApiGateway images
-        id: delete-ApiGateway-images
-        uses: actions/delete-package-versions@v4.1.1
-        with:
-          package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
-          package-type: 'container'
-          min-versions-to-keep: 2
+#       - name: Delete old ApiGateway images
+#         id: delete-ApiGateway-images
+#         uses: actions/delete-package-versions@v4.1.1
+#         with:
+#           package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
+#           package-type: 'container'
+#           min-versions-to-keep: 2
 
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/github-actions-key
-          chmod 600 ~/.ssh/github-actions-key
-          cat >>~/.ssh/config <<END
-          Host VM
-            HostName $SSH_HOST
-            User $SSH_USER
-            IdentityFile ~/.ssh/github-actions-key
-            StrictHostKeyChecking no
-          END
+#       - name: Configure SSH
+#         run: |
+#           mkdir -p ~/.ssh/
+#           echo "$SSH_KEY" > ~/.ssh/github-actions-key
+#           chmod 600 ~/.ssh/github-actions-key
+#           cat >>~/.ssh/config <<END
+#           Host VM
+#             HostName $SSH_HOST
+#             User $SSH_USER
+#             IdentityFile ~/.ssh/github-actions-key
+#             StrictHostKeyChecking no
+#           END
 
-      - name: Deploy to VM
-        env:
-          SERVICE_NAME: ${{ env.MICROSERVICE_NAME }}
-          SERVICE_IMAGE: ${{ steps.imageName-lowercase.outputs.lowercase }}
+#       - name: Deploy to VM
+#         env:
+#           SERVICE_NAME: ${{ env.MICROSERVICE_NAME }}
+#           SERVICE_IMAGE: ${{ steps.imageName-lowercase.outputs.lowercase }}
     
-          Ocelot_Conf : azure
-        run: |
-          ssh VM bash -s <<EOF
-          sudo su
+#           Ocelot_Conf : azure
+#         run: |
+#           ssh VM bash -s <<EOF
+#           sudo su
           
-          docker rm -f $(docker ps -a -q)
-          sudo snap install yq
+#           docker rm -f $(docker ps -a -q)
+#           sudo snap install yq
 
-          docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+#           docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
 
-          cd Ellogy
+#           cd Ellogy
 
-          export SERVICE_NAME=$SERVICE_NAME
-          export SERVICE_IMAGE=$SERVICE_IMAGE
+#           export SERVICE_NAME=$SERVICE_NAME
+#           export SERVICE_IMAGE=$SERVICE_IMAGE
 
-          yq e -i ".services.$SERVICE_NAME.image=env(SERVICE_IMAGE)" docker-compose.yaml
+#           yq e -i ".services.$SERVICE_NAME.image=env(SERVICE_IMAGE)" docker-compose.yaml
 
-          export OcelotConfiguration="$Ocelot_Conf"
+#           export OcelotConfiguration="$Ocelot_Conf"
           
-          docker-compose up -d
-          EOF
+#           docker-compose up -d
+#           EOF

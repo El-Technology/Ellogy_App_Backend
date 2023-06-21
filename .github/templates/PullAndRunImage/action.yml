@@ -1,0 +1,65 @@
+name: Pull And Run Image
+
+inputs:
+  SshHost: 
+    required: true
+  SshUser:
+    required: true
+  SshKey:
+    required: true
+  ServiceName:
+    required: true
+  ServiceImage:
+    required: true
+  GithubToken:
+    required: true
+  ConnectionString:
+    required: false
+  JwtSecretKey:
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Configure SSH
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh/
+        echo "${{ inputs.SshKey }}" > ~/.ssh/github-actions-key
+        chmod 600 ~/.ssh/github-actions-key
+        cat >>~/.ssh/config <<END
+        Host VM
+          HostName ${{ inputs.SshHost }}
+          User ${{ inputs.SshUser }}
+          IdentityFile ~/.ssh/github-actions-key
+          StrictHostKeyChecking no
+        END
+
+    - name: Deploy to VM
+      shell: bash
+      env:
+        SERVICE_NAME: ${{ inputs.ServiceName }}
+        SERVICE_IMAGE: ${{ inputs.ServiceImage }}
+    
+        ConnectionString: ${{ inputs.ConnectionString }}
+        JwtSecretKey : ${{ inputs.JwtSecretKey }}
+      run: |
+        ssh VM bash -s <<EOF
+        sudo su
+          
+        docker rm -f $(docker ps -a -q)
+        sudo snap install yq
+
+        docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ inputs.GithubToken }}
+
+        cd Ellogy
+
+        export SERVICE_NAME=$SERVICE_NAME
+        export SERVICE_IMAGE=$SERVICE_IMAGE
+        export ConnectionString="$ConnectionString"
+        export JwtSecretKey="$JwtSecretKey"
+
+        yq e -i ".services.$SERVICE_NAME.image=env(SERVICE_IMAGE)" docker-compose.yaml
+          
+        docker-compose up -d
+        EOF

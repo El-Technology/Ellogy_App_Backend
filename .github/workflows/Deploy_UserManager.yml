@@ -22,50 +22,23 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Build and push image
-        uses: .github/templates/PushImage
+        id: build-push-image
+        uses: "./.github/templates/PushImage"
         with: 
           MicroServiceName: user_manager
           Environment: ${{ env.ENVNAME }}
           MicrserviceProjectPath: ./UserManager/
           DockerfilePath: ./UserManager.Api/Dockerfile
+          GithubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/github-actions-key
-          chmod 600 ~/.ssh/github-actions-key
-          cat >>~/.ssh/config <<END
-          Host VM
-            HostName $SSH_HOST
-            User $SSH_USER
-            IdentityFile ~/.ssh/github-actions-key
-            StrictHostKeyChecking no
-          END
-
-      - name: Deploy to VM
-        env:
-          SERVICE1_NAME: ${{ env.MICROSERVICE_NAME }}
-          SERVICE1_IMAGE: ${{ steps.imageName-lowercase.outputs.lowercase }}
-    
+      - name: Pull and run image
+        uses: "./.github/templates/PullAndRunImage"
+        with: 
+          SshHost: ${{ env.SSH_HOST }}
+          SshUser: ${{ env.SSH_USER }}
+          SshKey: ${{ env.SSH_KEY }}
+          ServiceName: ${{ env.MICROSERVICE_NAME }}
+          ServiceImage: ${{ steps.build-push-image.outputs.ServiceImage }}
+          JwtSecretKey:  ${{ secrets.JWT_SECRET_KEY }}
           ConnectionString: ${{secrets.CONNECTIONSTRING}}
-          JwtSecretKey : ${{secrets.JWT_SECRET_KEY }}
-        run: |
-          ssh VM bash -s <<EOF
-          sudo su
-          
-          docker rm -f $(docker ps -a -q)
-          sudo snap install yq
-
-          docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-
-          cd Ellogy
-
-          export SERVICE1_NAME=$SERVICE1_NAME
-          export SERVICE1_IMAGE=$SERVICE1_IMAGE
-          export ConnectionString="$ConnectionString"
-          export JwtSecretKey="$JwtSecretKey"
-
-          yq e -i ".services.$SERVICE1_NAME.image=env(SERVICE1_IMAGE)" docker-compose.yaml
-          
-          docker-compose up -d
-          EOF
+          GithubToken: ${{ secrets.GITHUB_TOKEN }}
