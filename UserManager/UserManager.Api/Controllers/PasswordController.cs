@@ -19,13 +19,13 @@ public class PasswordController : Controller
     [Route("forgotPassword")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPassword)
     {
-        await _passwordService.ForgotPasswordAsync(forgotPassword);
-        return Ok();
+        var url = await _passwordService.ForgotPasswordAsync(forgotPassword);
+        return Ok(url);
     }
 
     [HttpPost]
     [Route("resetPassword")]
-    public async Task<IActionResult> ForgotPassword([FromBody] ResetPasswordDto resetPassword)
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPassword)
     {
         await _passwordService.ResetPasswordAsync(resetPassword);
         return Ok();

@@ -20,7 +20,7 @@ public class PasswordService : IPasswordService
         _forgotPasswordRepository = forgotPasswordRepository;
     }
 
-    public async Task ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
+    public async Task<string> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
     {
         if (!(await _userRepository.CheckEmailIsExistAsync(forgotPasswordDto.Email)))
             throw new UserNotFoundException(forgotPasswordDto.Email);
@@ -32,13 +32,25 @@ public class PasswordService : IPasswordService
         await _forgotPasswordRepository.AddForgotTokenAsync(forgotPasswordEntry);
 
         var resetPasswordUrl = $"{forgotPasswordDto.RedirectUrl}?$userId={HttpUtility.UrlEncode(userId.ToString())}&token={HttpUtility.UrlEncode(token)}";
+        return resetPasswordUrl;
     }
 
     public async Task ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
     {
+        resetPasswordDto.Token = HttpUtility.UrlDecode(resetPasswordDto.Token);
         if (!await _forgotPasswordRepository.ValidateResetRequestAsync(resetPasswordDto.UserId, resetPasswordDto.Token))
             throw new PasswordResetFailedException();
 
+        var user = await _userRepository.GetUserByIdAsync(resetPasswordDto.UserId) ?? throw new UserNotFoundException();
 
+        var newSalt = CryptoHelper.GenerateSalt();
+        var hashedNewPassword = CryptoHelper.GetHashPassword(resetPasswordDto.Password, newSalt);
+
+        user.Password = hashedNewPassword;
+        user.Salt = newSalt;
+
+        await _userRepository.UpdateUserAsync(user);
+
+        await _forgotPasswordRepository.InvalidateTokenAsync(resetPasswordDto.Token, resetPasswordDto.UserId);
     }
 }

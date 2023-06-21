@@ -9,12 +9,7 @@ public class ForgotPasswordConfiguration : IEntityTypeConfiguration<ForgotPasswo
     public void Configure(EntityTypeBuilder<ForgotPassword> builder)
     {
         builder.ToTable("ForgotPassword");
-        builder.HasKey(c => c.Id);
-        builder.Property(c => c.UserId)
-            .IsRequired();
-        builder.Property(c => c.Token)
-            .IsRequired()
-            .HasMaxLength(100);
+        builder.HasKey(c => new { c.UserId, c.Token });
         builder.Property(c => c.IsValid)
             .IsRequired();
         builder.Property(c => c.ExpireDate)

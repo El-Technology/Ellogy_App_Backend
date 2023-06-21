@@ -4,6 +4,6 @@ namespace UserManager.BLL.Interfaces;
 
 public interface IPasswordService
 {
-    public Task ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto);
+    public Task<string> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto);
     public Task ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
 }

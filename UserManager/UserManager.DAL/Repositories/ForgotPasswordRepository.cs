@@ -22,9 +22,19 @@ public class ForgotPasswordRepository : IForgotPasswordRepository
 
     public Task<bool> ValidateResetRequestAsync(Guid userId, string token)
     {
-        return _context.ForgotPasswords.AnyAsync(e => e.Id == userId
+        return _context.ForgotPasswords.AnyAsync(e => e.UserId == userId
                                                         && e.Token == token
-                                                        && e.ExpireDate <= DateTime.UtcNow
+                                                        && e.ExpireDate >= DateTime.UtcNow
                                                         && e.IsValid);
+    }
+
+    public async Task InvalidateTokenAsync(string token, Guid userId)
+    {
+        var entry = await _context.ForgotPasswords.FindAsync(userId, token);
+        if (entry is null)
+            return;
+
+        entry.IsValid = false;
+        await _context.SaveChangesAsync();
     }
 }
