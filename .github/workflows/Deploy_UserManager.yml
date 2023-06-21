@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - develop
+    paths:
+      - UserManager/**
+      - .github/**
 
 jobs:
   deploy:
@@ -17,45 +20,14 @@ jobs:
     steps:
       - name: Get Code
         uses: actions/checkout@v3
-
-      - name: Login to GitHub Packages
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-
-      - name: Convert to repository name lowercase
-        id: imageName-lowercase
-        uses: ASzc/change-string-case-action@v5
-        env:
-          REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{env.MICROSERVICE_NAME}}:${{env.ENVNAME}}-${{github.run_number}}
-        with:
-          string: ${{ env.REPO_NAME }}
-        
-      - name: Build, tag, and push docker image of UserManager to Github Packages
-        id: build-UserManager-image
-        env:
-          REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
-          PROJECT_PATH: ./UserManager/
-          CONTEXT: .
-          FILEPATH: ./UserManager.Api/Dockerfile
-        run: | 
-          cd ${PROJECT_PATH}
-          docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
-          docker push ${REPOSITORY_NAME}
-
-      - name: Get lowercase package name
-        id: packageName-lowercase
-        uses: ASzc/change-string-case-action@v5
-        env:
-          PACKAGE_NAME: ${{ github.event.repository.name }}/${{env.MICROSERVICE_NAME}}
-        with:
-          string: ${{ env.PACKAGE_NAME }}
-
-      - name: Delete old UserManager images
-        id: delete-UserManager-images
-        uses: actions/delete-package-versions@v4.1.1
-        with:
-          package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
-          package-type: 'container'
-          min-versions-to-keep: 2
+      
+      - name: Build and push image
+        uses: .github/templates/PushImage
+        with: 
+          MicroServiceName: user_manager
+          Environment: ${{ env.ENVNAME }}
+          MicrserviceProjectPath: ./UserManager/
+          DockerfilePath: ./UserManager.Api/Dockerfile
 
       - name: Configure SSH
         run: |

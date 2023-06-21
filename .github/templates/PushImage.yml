@@ -1,0 +1,53 @@
+name: Push Image
+
+inputs:
+  MicroServiceName: 
+    required: true
+  Environment:
+    required: true
+  MicrserviceProjectPath:
+    required: true
+  DockerfilePath:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Login to GitHub Packages
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+    - name: Convert to repository name lowercase
+      id: imageName-lowercase
+      uses: ASzc/change-string-case-action@v5
+      env:
+        REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{ inputs.MicroServiceName }}:${{ inputs.Environment }}-${{github.run_number}}
+      with:
+        string: ${{ env.REPO_NAME }}
+      
+    - name: Build, tag, and push docker image to Github Packages
+      id: build-image
+      env:
+        REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
+        PROJECT_PATH: ${{ inputs.MicrserviceProjectPath }}
+        CONTEXT: .
+        FILEPATH: ${{ inputs.DockerfilePath }}
+      run: | 
+        cd ${PROJECT_PATH}
+        docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
+        docker push ${REPOSITORY_NAME}
+
+    - name: Get lowercase package name
+      id: packageName-lowercase
+      uses: ASzc/change-string-case-action@v5
+      env:
+        PACKAGE_NAME: ${{ github.event.repository.name }}/${{ inputs.MicroServiceName }}
+      with:
+        string: ${{ env.PACKAGE_NAME }}
+
+    - name: Delete old images
+      id: delete-images
+      uses: actions/delete-package-versions@v4.1.1
+      with:
+        package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
+        package-type: 'container'
+        min-versions-to-keep: 2
