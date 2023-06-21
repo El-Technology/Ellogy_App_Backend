@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UserManager.Common;
-using UserManager.DAL.Context.Configurations;
 using UserManager.DAL.Models;
 
 namespace UserManager.DAL.Context;
@@ -8,6 +7,7 @@ namespace UserManager.DAL.Context;
 public class UserManagerDbContext : DbContext
 {
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<ForgotPassword> ForgotPasswords { get; set; } = null!;
 
     public UserManagerDbContext() { }
 
@@ -24,6 +24,6 @@ public class UserManagerDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserManagerDbContext).Assembly);
     }
 }

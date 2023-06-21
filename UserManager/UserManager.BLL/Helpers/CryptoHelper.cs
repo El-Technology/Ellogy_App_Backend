@@ -40,4 +40,9 @@ public static class CryptoHelper
 
         return sBuilder.ToString();
     }
+
+    public static string GenerateToken()
+    {
+        return GenerateSalt();
+    }
 }

@@ -10,7 +10,8 @@ public static class DiExtension
     {
         return services
             .AddScoped<IRegisterService, RegisterService>()
-            .AddScoped<ILoginService, LoginService>();
+            .AddScoped<ILoginService, LoginService>()
+            .AddScoped<IPasswordService, PasswordService>();
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)

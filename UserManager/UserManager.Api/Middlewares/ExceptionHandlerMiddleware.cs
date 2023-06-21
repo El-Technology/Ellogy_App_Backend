@@ -35,6 +35,10 @@ public class ExceptionHandlerMiddleware
         {
             await HandleExceptionAsync(context, ex.Message, HttpStatusCode.NotFound, ex.Message);
         }
+        catch (PasswordResetFailedException ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.BadRequest, ex.Message);
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, ex.Message,

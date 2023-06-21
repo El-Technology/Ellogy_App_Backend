@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UserManager.DAL.Context;
@@ -11,9 +12,11 @@ using UserManager.DAL.Context;
 namespace UserManager.DAL.Migrations
 {
     [DbContext(typeof(UserManagerDbContext))]
-    partial class UserManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230621104233_AddForgotPasswordTable")]
+    partial class AddForgotPasswordTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,7 +31,7 @@ namespace UserManager.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTimeOffset>("ExpireDate")
+                    b.Property<DateTime>("ExpireDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsValid")

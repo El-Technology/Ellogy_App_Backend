@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Dtos\LoginDtos\" />
+    <Folder Include="Dtos\PasswordDtos\" />
     <Folder Include="Interfaces\" />
     <Folder Include="Exceptions\" />
     <Folder Include="Services\" />
