@@ -13,14 +13,16 @@ public class PasswordService : IPasswordService
     private readonly TimeSpan _tokenTtl = TimeSpan.FromDays(1);
     private readonly IUserRepository _userRepository;
     private readonly IForgotPasswordRepository _forgotPasswordRepository;
+    private readonly IMailService _mailService;
 
-    public PasswordService(IUserRepository userRepository, IForgotPasswordRepository forgotPasswordRepository)
+    public PasswordService(IUserRepository userRepository, IForgotPasswordRepository forgotPasswordRepository, IMailService mailService)
     {
         _userRepository = userRepository;
         _forgotPasswordRepository = forgotPasswordRepository;
+        _mailService = mailService;
     }
 
-    public async Task<string> ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
+    public async Task ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
     {
         if (!(await _userRepository.CheckEmailIsExistAsync(forgotPasswordDto.Email)))
             throw new UserNotFoundException(forgotPasswordDto.Email);
@@ -32,7 +34,7 @@ public class PasswordService : IPasswordService
         await _forgotPasswordRepository.AddForgotTokenAsync(forgotPasswordEntry);
 
         var resetPasswordUrl = $"{forgotPasswordDto.RedirectUrl}?$userId={HttpUtility.UrlEncode(userId.ToString())}&token={HttpUtility.UrlEncode(token)}";
-        return resetPasswordUrl;
+        await _mailService.SendPasswordResetLetterAsync("google.com", forgotPasswordDto.Email, "Andrew");
     }
 
     public async Task ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
