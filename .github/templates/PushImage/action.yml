@@ -19,6 +19,9 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Get Code
+      uses: actions/checkout@v3
+      
     - name: Login to GitHub Packages
       shell: bash
       run: echo "${{ inputs.GithubToken }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
