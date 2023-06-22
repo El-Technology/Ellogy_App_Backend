@@ -25,9 +25,9 @@ jobs:
         id: build-push-image
         uses: "./.github/templates/PushImage"
         with: 
-          MicroServiceName: user_manager
+          MicroServiceName: ${{ env.MICROSERVICE_NAME }}
           Environment: ${{ env.ENVNAME }}
-          MicrserviceProjectPath: ./UserManager/
+          MicrserviceProjectPath: ./UserManager
           DockerfilePath: ./UserManager.Api/Dockerfile
           GithubToken: ${{ secrets.GITHUB_TOKEN }}
 

@@ -27,7 +27,7 @@ jobs:
         with: 
           MicroServiceName: ticket_manager
           Environment: ${{ env.ENVNAME }}
-          MicrserviceProjectPath: ./TicketsManager/
+          MicrserviceProjectPath: ./TicketsManager
           DockerfilePath: ./TicketsManager.Api/Dockerfile
           GithubToken: ${{ secrets.GITHUB_TOKEN }}
 
