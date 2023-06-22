@@ -17,10 +17,6 @@ inputs:
     required: false
   JwtSecretKey:
     required: false
-  JwtSecretKey:
-    required: false
-  JwtSecretKey:
-    required: false
   
 runs:
   using: "composite"

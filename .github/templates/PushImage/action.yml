@@ -5,7 +5,7 @@ inputs:
     required: true
   Environment:
     required: true
-  MicrserviceProjectPath:
+  MicroserviceProjectPath:
     required: true
   DockerfilePath:
     required: true
@@ -36,7 +36,7 @@ runs:
       shell: bash
       env:
         REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
-        PROJECT_PATH: ${{ inputs.MicrserviceProjectPath }}
+        PROJECT_PATH: ${{ inputs.MicroserviceProjectPath }}
         CONTEXT: .
         FILEPATH: ${{ inputs.DockerfilePath }}
       run: | 
