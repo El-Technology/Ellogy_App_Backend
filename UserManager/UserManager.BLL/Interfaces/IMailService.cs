@@ -1,6 +1,8 @@
-﻿namespace UserManager.BLL.Interfaces;
+﻿using UserManager.BLL.Dtos.MailDtos;
+
+namespace UserManager.BLL.Interfaces;
 
 public interface IMailService
 {
-    public Task SendPasswordResetLetterAsync(string resetPasswordUrl, string receiverEmail, string name);
+    public Task SendPasswordResetLetterAsync(ResetPasswordLetterDto resetPasswordLetterDto);
 }

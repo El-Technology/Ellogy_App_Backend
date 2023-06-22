@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SendGrid.Extensions.DependencyInjection;
+using RestSharp;
 using UserManager.BLL.Interfaces;
 using UserManager.BLL.Services;
 using UserManager.Common;
@@ -10,13 +10,17 @@ public static class DiExtension
 {
     public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
     {
-        services.AddSendGrid(s => s.ApiKey = EnvironmentVariables.SendGridApiKey);
-
         return services
             .AddScoped<IRegisterService, RegisterService>()
             .AddScoped<ILoginService, LoginService>()
             .AddScoped<IPasswordService, PasswordService>()
-            .AddScoped<IMailService, MailService>();
+            .AddScoped<IMailService, MailService>()
+            .AddRestSharpClient();
+    }
+
+    private static IServiceCollection AddRestSharpClient(this IServiceCollection services)
+    {
+        return services.AddScoped<IRestClient, RestClient>(_ => new(MailOptions.GetRestClientOptions()));
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)

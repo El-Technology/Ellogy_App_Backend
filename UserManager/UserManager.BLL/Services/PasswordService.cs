@@ -28,13 +28,14 @@ public class PasswordService : IPasswordService
             throw new UserNotFoundException(forgotPasswordDto.Email);
 
         var token = CryptoHelper.GenerateToken();
-        var userId = (await _userRepository.GetUserByEmailAsync(forgotPasswordDto.Email))!.Id;
+        var user = (await _userRepository.GetUserByEmailAsync(forgotPasswordDto.Email))!;
 
-        var forgotPasswordEntry = new ForgotPassword(token, userId, _tokenTtl);
+        var forgotPasswordEntry = new ForgotPassword(token, user.Id, _tokenTtl);
         await _forgotPasswordRepository.AddForgotTokenAsync(forgotPasswordEntry);
 
-        var resetPasswordUrl = $"{forgotPasswordDto.RedirectUrl}?$userId={HttpUtility.UrlEncode(userId.ToString())}&token={HttpUtility.UrlEncode(token)}";
-        await _mailService.SendPasswordResetLetterAsync("google.com", forgotPasswordDto.Email, "Andrew");
+        var resetPasswordUrl = $"{forgotPasswordDto.RedirectUrl}?$userId={HttpUtility.UrlEncode(user.Id.ToString())}&token={HttpUtility.UrlEncode(token)}";
+        await _mailService.SendPasswordResetLetterAsync(
+            new(resetPasswordUrl, forgotPasswordDto.Email, user.FirstName));
     }
 
     public async Task ResetPasswordAsync(ResetPasswordDto resetPasswordDto)

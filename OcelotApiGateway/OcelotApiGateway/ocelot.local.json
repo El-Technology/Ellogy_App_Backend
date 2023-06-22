@@ -36,6 +36,30 @@
         }
       ]
     },
+    {
+      "UpstreamPathTemplate": "/gateway/auth/forgotPassword",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Password/forgotPassword",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user_manager",
+          "Port": 80
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/auth/resetPassword",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Password/resetPassword",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user_manager",
+          "Port": 80
+        }
+      ]
+    },
 
 
     {

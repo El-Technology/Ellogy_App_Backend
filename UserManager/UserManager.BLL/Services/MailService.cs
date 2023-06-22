@@ -1,33 +1,46 @@
-﻿using SendGrid;
-using SendGrid.Helpers.Mail;
+﻿using RestSharp;
+using System.Text.Json;
+using UserManager.BLL.Dtos.MailDtos;
 using UserManager.BLL.Interfaces;
+using UserManager.Common;
 
 namespace UserManager.BLL.Services;
 
 public class MailService : IMailService
 {
-    private readonly ISendGridClient _sendGridClient;
+    private readonly IRestClient _restClient;
 
-    private const string SenderEmail = "Andriy.Ratushniak@fivesysdev.com";
-
-    public MailService(ISendGridClient sendGridClient)
+    public MailService(IRestClient restClient)
     {
-        _sendGridClient = sendGridClient;
+        _restClient = restClient;
     }
 
-    public async Task SendPasswordResetLetterAsync(string resetPasswordUrl, string receiverEmail, string name)
+    //TODO add retries
+    public async Task SendPasswordResetLetterAsync(ResetPasswordLetterDto resetPasswordLetterDto)
     {
-        var from = new EmailAddress(SenderEmail, "Ellogy");
-        var to = new EmailAddress(receiverEmail, name);
+        var request = GetRestRequest(resetPasswordLetterDto);
 
-        var templateId = "d-58b84d7175164058a11ce56952ee889e";
-        var dynamicTemplateData = new
+        await _restClient.ExecuteAsync(request);
+        _restClient.Dispose();
+    }
+
+    //TODO rewrite and make builder or like this
+    private static RestRequest GetRestRequest(ResetPasswordLetterDto resetPasswordLetterDto)
+    {
+        var request = new RestRequest("/messages", Method.Post);
+        request.AddParameter("domain", EnvironmentVariables.MailgunDomain, ParameterType.UrlSegment);
+        request.AddParameter("from", MailOptions.FromMail);
+        request.AddParameter("to", $"{resetPasswordLetterDto.UserName} <{resetPasswordLetterDto.UserEmail}>");
+        request.AddParameter("subject", MailOptions.MessageSubject);
+        request.AddParameter("template", MailOptions.TemplateName);
+
+        var templateDataObject = new
         {
-            passwordResetUrl = resetPasswordUrl
+            resetPasswordLink = resetPasswordLetterDto.ResetPasswordUrl
         };
-        var msg = MailHelper.CreateSingleTemplateEmail(from, to, templateId, dynamicTemplateData);
+        var templateDataString = JsonSerializer.Serialize(templateDataObject);
+        request.AddParameter("h:X-Mailgun-Variables", templateDataString);
 
-        var response = await _sendGridClient.SendEmailAsync(msg);
-        Console.WriteLine(await response.Body.ReadAsStringAsync());
+        return request;
     }
 }
