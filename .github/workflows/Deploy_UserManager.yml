@@ -77,7 +77,7 @@ jobs:
       - name: Deploy to VM
         env:
           SERVICE_NAME: ${{ env.MICROSERVICE_NAME }}
-          SERVICE_IMAGE: ${{ steps.build-push-image.outputs.ServiceImage }}
+          SERVICE_IMAGE: ${{ steps.imageName-lowercase.outputs.lowercase }}
       
           ConnectionString: ${{ secrets.CONNECTIONSTRING }}
           JwtSecretKey : ${{ secrets.JWT_SECRET_KEY }}
