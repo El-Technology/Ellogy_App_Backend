@@ -33,17 +33,28 @@ jobs:
           DockerfilePath: ./OcelotApiGateway.Api/Dockerfile
           GithubToken: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull and run image
-        uses: "./.github/templates/PullAndRunImage"
-        with: 
-          SshHost: ${{ env.SSH_HOST }}
-          SshUser: ${{ env.SSH_USER }}
-          SshKey: ${{ env.SSH_KEY }}
-          ServiceName: ${{ env.MICROSERVICE_NAME }}
-          ServiceImage: ${{ steps.build-push-image.outputs.ServiceImage }}
-          JwtSecretKey:  ${{ secrets.JWT_SECRET_KEY }}
-          ConnectionString: ${{secrets.CONNECTIONSTRING}}
-          GithubToken: ${{ secrets.GITHUB_TOKEN }}
+  deploy:
+      env:
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        SSH_USER: ${{ vars.REMOTE_USER }}
+        SSH_KEY: ${{ secrets.SSH_KEY }}
+        ENVNAME: ${{ vars.ENVNAME }} 
+        MICROSERVICE_NAME: 'user_manager'
+
+      runs-on: ubuntu-latest
+      steps:
+        - name: Get Code
+          uses: actions/checkout@v3
+        
+        - name: Build and push image
+          id: build-push-image
+          uses: "./.github/templates/PushImage"
+          with: 
+            MicroServiceName: user_manager
+            Environment: ${{ env.ENVNAME }}
+            MicrserviceProjectPath: ./UserManager/
+            DockerfilePath: ./UserManager.Api/Dockerfile
+            GithubToken: ${{ secrets.GITHUB_TOKEN }}
 
   deploy_tiket_manager:
     env:
@@ -66,16 +77,4 @@ jobs:
           Environment: ${{ env.ENVNAME }}
           MicrserviceProjectPath: ./TicketsManager/
           DockerfilePath: ./TicketsManager.Api/Dockerfile
-          GithubToken: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull and run image
-        uses: "./.github/templates/PullAndRunImage"
-        with: 
-          SshHost: ${{ env.SSH_HOST }}
-          SshUser: ${{ env.SSH_USER }}
-          SshKey: ${{ env.SSH_KEY }}
-          ServiceName: ${{ env.MICROSERVICE_NAME }}
-          ServiceImage: ${{ steps.build-push-image.outputs.ServiceImage }}
-          JwtSecretKey:  ${{ secrets.JWT_SECRET_KEY }}
-          ConnectionString: ${{secrets.CONNECTIONSTRING}}
           GithubToken: ${{ secrets.GITHUB_TOKEN }}
