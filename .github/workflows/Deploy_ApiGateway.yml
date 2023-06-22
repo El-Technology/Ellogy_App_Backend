@@ -25,10 +25,10 @@ jobs:
         id: build-push-image
         uses: "./.github/templates/PushImage"
         with: 
-          MicroServiceName: ticket_manager
+          MicroServiceName: ${{ env.MICROSERVICE_NAME }}
           Environment: ${{ env.ENVNAME }}
-          MicrserviceProjectPath: ./OcelotApiGateway/
-          DockerfilePath: ./OcelotApiGateway.Api/Dockerfile
+          MicrserviceProjectPath: "./OcelotApiGateway/"
+          DockerfilePath: "./OcelotApiGateway.Api/Dockerfile"
           GithubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull and run image
