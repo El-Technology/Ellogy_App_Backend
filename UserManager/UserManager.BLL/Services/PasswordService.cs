@@ -33,7 +33,7 @@ public class PasswordService : IPasswordService
         var forgotPasswordEntry = new ForgotPassword(token, user.Id, _tokenTtl);
         await _forgotPasswordRepository.AddForgotTokenAsync(forgotPasswordEntry);
 
-        var resetPasswordUrl = $"{forgotPasswordDto.RedirectUrl}?$userId={HttpUtility.UrlEncode(user.Id.ToString())}&token={HttpUtility.UrlEncode(token)}";
+        var resetPasswordUrl = $"{forgotPasswordDto.RedirectUrl}?userId={HttpUtility.UrlEncode(user.Id.ToString())}&token={HttpUtility.UrlEncode(token)}";
         await _mailService.SendPasswordResetLetterAsync(
             new(resetPasswordUrl, forgotPasswordDto.Email, user.FirstName));
     }
