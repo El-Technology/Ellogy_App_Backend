@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using TicketsManager.BLL.Dtos.TicketDtos;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common.Helpers.Pagination;
 
 namespace TicketsManager.Api.Controllers
 {
@@ -25,15 +26,16 @@ namespace TicketsManager.Api.Controllers
         /// Retrieves all tickets associated with the specified user.
         /// </summary>
         /// <param name="userId">The unique identifier of the user.</param>
-        /// <returns>An <see cref="List{TicketResponseDto}"/> containing the list of tickets.</returns>
+        /// <param name="paginateRequest">Data for getting paginating list of output items.</param>
+        /// <returns>An <see cref="PaginationResponseDtoionResponseDto{T}"/> containing the list of tickets.</returns>
         [ProducesResponseType(typeof(List<TicketResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-        [HttpGet]
+        [HttpPost]
         [Route("tickets/{userId:guid}")]
-        public async Task<IActionResult> GetAllTickets([Required] Guid userId)
+        public async Task<IActionResult> GetAllTickets([Required] Guid userId, [FromBody] PaginationRequestDto paginateRequest)
         {
-            var tickets = await _ticketsService.GetAllTicketsAsync(userId);
+            var tickets = await _ticketsService.GetTicketsAsync(userId, paginateRequest);
             return Ok(tickets);
         }
 

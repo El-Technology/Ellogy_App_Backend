@@ -2,6 +2,7 @@
 using TicketsManager.BLL.Dtos.TicketDtos;
 using TicketsManager.BLL.Exceptions;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common.Helpers.Pagination;
 using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models;
@@ -21,12 +22,13 @@ public class TicketsService : ITicketsService
         _userRepository = userRepository;
     }
 
-    public async Task<ICollection<TicketResponseDto>> GetAllTicketsAsync(Guid userId)
+    public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest)
     {
         try
         {
-            var tickets = await _ticketsRepository.GetAllTicketsAsync(userId);
-            return _mapper.Map<ICollection<TicketResponseDto>>(tickets);
+            var tickets = await _ticketsRepository.GetTicketsAsync(userId, paginateRequest);
+
+            return _mapper.Map<PaginationResponseDto<TicketResponseDto>>(tickets);
         }
         catch (EntityNotFoundException ex)
         {
@@ -58,18 +60,16 @@ public class TicketsService : ITicketsService
 
     public async Task DeleteTicketAsync(Guid id)
     {
-        var ticket = await _ticketsRepository.GetTicketByIdAsync(id);
-        if (ticket is null)
-            throw new TicketNotFoundException(id);
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
+                     ?? throw new TicketNotFoundException(id);
 
         await _ticketsRepository.DeleteTicketAsync(ticket);
     }
 
     public async Task<TicketResponseDto> UpdateTicketAsync(TicketUpdateRequestDto ticketUpdate)
     {
-        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketUpdate.Id);
-        if (ticket is null)
-            throw new TicketNotFoundException(ticketUpdate.Id);
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketUpdate.Id)
+                     ?? throw new TicketNotFoundException(ticketUpdate.Id);
 
         var mappedTicket = _mapper.Map(ticketUpdate, ticket);
         await _ticketsRepository.UpdateTicketAsync(mappedTicket);

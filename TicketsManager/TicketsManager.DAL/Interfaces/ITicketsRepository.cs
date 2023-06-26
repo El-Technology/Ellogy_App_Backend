@@ -1,10 +1,11 @@
-﻿using TicketsManager.DAL.Models;
+﻿using TicketsManager.Common.Helpers.Pagination;
+using TicketsManager.DAL.Models;
 
 namespace TicketsManager.DAL.Interfaces;
 
 public interface ITicketsRepository
 {
-    Task<ICollection<Ticket>> GetAllTicketsAsync(Guid id);
+    Task<PaginationResponseDto<Ticket>> GetTicketsAsync(Guid id, PaginationRequestDto paginateRequest);
     Task CreateTicketAsync(Ticket ticket);
     Task<Ticket?> GetTicketByIdAsync(Guid id);
     Task UpdateTicketAsync(Ticket ticket);

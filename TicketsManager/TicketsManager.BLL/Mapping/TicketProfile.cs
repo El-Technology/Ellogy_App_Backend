@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using TicketsManager.BLL.Dtos.TicketDtos;
+using TicketsManager.Common.Helpers.Pagination;
 using TicketsManager.DAL.Models;
 
 namespace TicketsManager.BLL.Mapping;
@@ -35,5 +36,7 @@ public class TicketProfile : Profile
                 opts.Ignore())
             .ForMember(dest => dest.UserId, opts =>
                 opts.Ignore());
+
+        CreateMap<PaginationResponseDto<Ticket>, PaginationResponseDto<TicketResponseDto>>();
     }
 }
