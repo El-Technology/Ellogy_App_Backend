@@ -1,4 +1,6 @@
-﻿/// <summary>
+﻿namespace UserManager.BLL.Dtos.LoginDtos;
+
+/// <summary>
 /// Represents the login credentials of a user.
 /// </summary>
 public class LoginRequestDto

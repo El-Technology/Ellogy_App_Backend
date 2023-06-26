@@ -1,4 +1,6 @@
-﻿namespace UserManager.BLL.Interfaces;
+﻿using UserManager.BLL.Dtos.RegisterDtos;
+
+namespace UserManager.BLL.Interfaces;
 
 public interface IRegisterService
 {

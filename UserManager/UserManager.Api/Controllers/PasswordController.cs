@@ -37,7 +37,7 @@ namespace UserManager.Api.Controllers
         /// <summary>
         /// Resets the user's password.
         /// </summary>
-        /// <param name="resetPassword">The ResetPasswordDto containing the user's id, token, and new password.</param>
+        /// <param name="resetPassword">The ResetPasswordDto containing the forgot password entry id, token, and new password.</param>
         /// <returns><see cref="StatusCodes.Status200OK"/> if password reset is successful or
         /// <br/><see cref="StatusCodes.Status404NotFound"/> or <see cref="StatusCodes.Status500InternalServerError"/></returns>
         [ProducesResponseType(StatusCodes.Status200OK)]

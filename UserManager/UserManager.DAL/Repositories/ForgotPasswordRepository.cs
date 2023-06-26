@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using UserManager.Common.Helpers;
 using UserManager.DAL.Context;
 using UserManager.DAL.Interfaces;
 using UserManager.DAL.Models;
@@ -20,17 +20,19 @@ public class ForgotPasswordRepository : IForgotPasswordRepository
         await _context.SaveChangesAsync();
     }
 
-    public Task<bool> ValidateResetRequestAsync(Guid userId, string token)
+    public async Task<bool> ValidateResetRequestAsync(Guid id, string token)
     {
-        return _context.ForgotPasswords.AnyAsync(e => e.UserId == userId
-                                                        && e.Token == token
-                                                        && e.ExpireDate >= DateTime.UtcNow
-                                                        && e.IsValid);
+        var forgotPasswordEntry = await _context.ForgotPasswords.FindAsync(id);
+
+        return forgotPasswordEntry is not null &&
+               CryptoHelper.GetHash(forgotPasswordEntry.Token) == token &&
+               forgotPasswordEntry.ExpireDate >= DateTime.UtcNow &&
+               forgotPasswordEntry.IsValid;
     }
 
-    public async Task InvalidateTokenAsync(string token, Guid userId)
+    public async Task InvalidateTokenAsync(Guid id)
     {
-        var entry = await _context.ForgotPasswords.FindAsync(userId, token);
+        var entry = await _context.ForgotPasswords.FindAsync(id);
         if (entry is null)
             return;
 

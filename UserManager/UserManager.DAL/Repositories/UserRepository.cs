@@ -29,6 +29,11 @@ public class UserRepository : IUserRepository
     {
         return _context.Users.FindAsync(id);
     }
+    public async Task<User?> GetUserByForgetPasswordIdAsync(Guid id)
+    {
+        var userId = (await _context.ForgotPasswords.FindAsync(id))?.UserId;
+        return await _context.Users.FindAsync(userId);
+    }
 
     public async Task UpdateUserAsync(User user)
     {

@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace UserManager.BLL.Helpers;
+namespace UserManager.Common.Helpers;
 
 public static class CryptoHelper
 {
@@ -18,16 +18,16 @@ public static class CryptoHelper
 
     public static bool ConfirmPassword(string password, string salt, string hashedPassword)
     {
-        var newHashPassword = GetHashPassword(password, salt);
+        var newHashPassword = GetHash(password, salt);
         return string.Equals(hashedPassword, newHashPassword, StringComparison.InvariantCulture);
     }
 
-    public static string GetHashPassword(string password, string salt)
+    public static string GetHash(string inputString, string salt = "")
     {
         using var sha256 = SHA256.Create();
-        password = string.Concat(password, salt);
+        inputString = string.Concat(inputString, salt);
 
-        return GetHash(sha256, password);
+        return GetHash(sha256, inputString);
     }
 
     private static string GetHash(HashAlgorithm hashAlgorithm, string input)

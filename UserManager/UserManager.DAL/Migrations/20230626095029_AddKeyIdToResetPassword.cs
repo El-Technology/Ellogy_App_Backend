@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace UserManager.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class AddForgotPasswordTable : Migration
+    public partial class AddKeyIdToResetPassword : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,7 +16,7 @@ namespace UserManager.DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Token = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Token = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     ExpireDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     IsValid = table.Column<bool>(type: "boolean", nullable: false)

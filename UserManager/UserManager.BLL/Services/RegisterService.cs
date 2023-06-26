@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
+using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Exceptions;
-using UserManager.BLL.Helpers;
 using UserManager.BLL.Interfaces;
+using UserManager.Common.Helpers;
 using UserManager.DAL.Interfaces;
 using UserManager.DAL.Models;
 
@@ -21,7 +22,7 @@ public class RegisterService : IRegisterService
     public async Task RegisterUserAsync(UserRegisterRequestDto userRegister)
     {
         var user = _mapper.Map<User>(userRegister);
-        user.Password = CryptoHelper.GetHashPassword(userRegister.Password, user.Salt);
+        user.Password = CryptoHelper.GetHash(userRegister.Password, user.Salt);
 
         if (await _userRepository.CheckEmailIsExistAsync(user.Email))
             throw new UserAlreadyExistException(user.Email);

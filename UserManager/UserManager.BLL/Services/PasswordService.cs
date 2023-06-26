@@ -1,8 +1,8 @@
 ﻿using System.Web;
 using UserManager.BLL.Dtos.PasswordDtos;
 using UserManager.BLL.Exceptions;
-using UserManager.BLL.Helpers;
 using UserManager.BLL.Interfaces;
+using UserManager.Common.Helpers;
 using UserManager.DAL.Interfaces;
 using UserManager.DAL.Models;
 
@@ -14,6 +14,8 @@ public class PasswordService : IPasswordService
     private readonly IUserRepository _userRepository;
     private readonly IForgotPasswordRepository _forgotPasswordRepository;
     private readonly IMailService _mailService;
+
+    private const string PasswordResetUrlTemplate = "{0}?id={1}&token={2}";
 
     public PasswordService(IUserRepository userRepository, IForgotPasswordRepository forgotPasswordRepository, IMailService mailService)
     {
@@ -33,7 +35,10 @@ public class PasswordService : IPasswordService
         var forgotPasswordEntry = new ForgotPassword(token, user.Id, _tokenTtl);
         await _forgotPasswordRepository.AddForgotTokenAsync(forgotPasswordEntry);
 
-        var resetPasswordUrl = $"{forgotPasswordDto.RedirectUrl}?$userId={HttpUtility.UrlEncode(user.Id.ToString())}&token={HttpUtility.UrlEncode(token)}";
+        var hashToken = CryptoHelper.GetHash(token);
+        var resetPasswordUrl = string.Format(PasswordResetUrlTemplate, forgotPasswordDto.RedirectUrl,
+            HttpUtility.UrlEncode(forgotPasswordEntry.Id.ToString()), HttpUtility.UrlEncode(hashToken));
+
         await _mailService.SendPasswordResetLetterAsync(
             new(resetPasswordUrl, forgotPasswordDto.Email, user.FirstName));
     }
@@ -41,19 +46,20 @@ public class PasswordService : IPasswordService
     public async Task ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
     {
         resetPasswordDto.Token = HttpUtility.UrlDecode(resetPasswordDto.Token);
-        if (!await _forgotPasswordRepository.ValidateResetRequestAsync(resetPasswordDto.UserId, resetPasswordDto.Token))
+
+        if (!await _forgotPasswordRepository.ValidateResetRequestAsync(resetPasswordDto.Id, resetPasswordDto.Token))
             throw new PasswordResetFailedException();
 
-        var user = await _userRepository.GetUserByIdAsync(resetPasswordDto.UserId) ?? throw new UserNotFoundException();
+        var user = await _userRepository.GetUserByForgetPasswordIdAsync(resetPasswordDto.Id) ?? throw new UserNotFoundException();
 
         var newSalt = CryptoHelper.GenerateSalt();
-        var hashedNewPassword = CryptoHelper.GetHashPassword(resetPasswordDto.Password, newSalt);
+        var hashedNewPassword = CryptoHelper.GetHash(resetPasswordDto.Password, newSalt);
 
         user.Password = hashedNewPassword;
         user.Salt = newSalt;
 
         await _userRepository.UpdateUserAsync(user);
 
-        await _forgotPasswordRepository.InvalidateTokenAsync(resetPasswordDto.Token, resetPasswordDto.UserId);
+        await _forgotPasswordRepository.InvalidateTokenAsync(resetPasswordDto.Id);
     }
 }

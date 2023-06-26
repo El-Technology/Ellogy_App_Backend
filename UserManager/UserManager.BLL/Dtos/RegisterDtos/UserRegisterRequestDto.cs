@@ -1,4 +1,6 @@
-﻿/// <summary>
+﻿namespace UserManager.BLL.Dtos.RegisterDtos;
+
+/// <summary>
 /// Represents the data required to register a new user.
 /// </summary>
 public class UserRegisterRequestDto

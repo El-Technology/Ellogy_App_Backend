@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using UserManager.BLL.Dtos.LoginDtos;
-using UserManager.BLL.Helpers;
+using UserManager.BLL.Dtos.RegisterDtos;
+using UserManager.Common.Helpers;
 using UserManager.DAL.Enums;
 using UserManager.DAL.Models;
 

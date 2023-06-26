@@ -5,6 +5,6 @@ namespace UserManager.DAL.Interfaces;
 public interface IForgotPasswordRepository
 {
     public Task AddForgotTokenAsync(ForgotPassword forgotPasswordEntry);
-    public Task<bool> ValidateResetRequestAsync(Guid userId, string token);
-    public Task InvalidateTokenAsync(string token, Guid userId);
+    public Task<bool> ValidateResetRequestAsync(Guid id, string token);
+    public Task InvalidateTokenAsync(Guid id);
 }

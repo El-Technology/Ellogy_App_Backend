@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UserManager.BLL.Dtos.LoginDtos;
+using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Interfaces;
 
 namespace UserManager.Api.Controllers;

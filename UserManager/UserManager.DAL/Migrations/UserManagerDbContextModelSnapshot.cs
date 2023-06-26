@@ -24,11 +24,9 @@ namespace UserManager.DAL.Migrations
 
             modelBuilder.Entity("UserManager.DAL.Models.ForgotPassword", b =>
                 {
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Token")
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("ExpireDate")
                         .HasColumnType("timestamp with time zone");
@@ -36,7 +34,14 @@ namespace UserManager.DAL.Migrations
                     b.Property<bool>("IsValid")
                         .HasColumnType("boolean");
 
-                    b.HasKey("UserId", "Token");
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
 
                     b.ToTable("ForgotPassword", (string)null);
                 });
