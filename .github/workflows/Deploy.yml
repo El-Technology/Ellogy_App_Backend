@@ -8,73 +8,270 @@ on:
       - OcelotApiGateway/**
       - UserManager/**
       - .github/**
+      
+env:
+  SSH_HOST: ${{ secrets.SSH_HOST }}
+  SSH_USER: ${{ vars.REMOTE_USER }}
+  SSH_KEY: ${{ secrets.SSH_KEY }}
+  ENVNAME: ${{ vars.ENVNAME }} 
 
 jobs:
-  deploy_api_gateway:
-    env:
-      SSH_HOST: ${{ secrets.SSH_HOST }}
-      SSH_USER: ${{ vars.REMOTE_USER }}
-      SSH_KEY: ${{ secrets.SSH_KEY }}
-      ENVNAME: ${{ vars.ENVNAME }} 
+  changes:
+    runs-on: ubuntu-latest
+    
+    outputs:
+      OcelotApiGateway: ${{ steps.changes.outputs.OcelotApiGateway }}
+      UserManager: ${{ steps.changes.outputs.UserManager }}
+      TicketsManager: ${{ steps.changes.outputs.TicketsManager }}
+      Workflow: ${{ steps.changes.outputs.Workflow }}
+      
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+     
+      - name: Check changes  
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+           filters: |
+              OcelotApiGateway:
+                - 'OcelotApiGateway/**'
+              UserManager:
+                - 'UserManager/**'
+              TicketsManager:
+                - 'TicketsManager/**'
+              Workflow:
+                - '.github/**'
+                      
+  build_api_gateway:
+    env:  
       MICROSERVICE_NAME: 'api_gateway'
-
+      
+    outputs:
+      MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+      MicroserviceImage: ${{ steps.imageName-lowercase.outputs.lowercase }}
+      
+    needs: changes
+    if: ${{ needs.changes.outputs.OcelotApiGateway == 'true' || needs.changes.outputs.Workflow == 'true' }}
+    
     runs-on: ubuntu-latest
     steps:
       - name: Get Code
         uses: actions/checkout@v3
-      
-      - name: Build and push image
-        id: build-push-image
-        uses: "./.github/templates/PushImage"
-        with: 
-          MicroServiceName: ticket_manager
-          Environment: ${{ env.ENVNAME }}
-          MicrserviceProjectPath: ./OcelotApiGateway/
-          DockerfilePath: ./OcelotApiGateway.Api/Dockerfile
-          GithubToken: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy:
-      env:
-        SSH_HOST: ${{ secrets.SSH_HOST }}
-        SSH_USER: ${{ vars.REMOTE_USER }}
-        SSH_KEY: ${{ secrets.SSH_KEY }}
-        ENVNAME: ${{ vars.ENVNAME }} 
-        MICROSERVICE_NAME: 'user_manager'
+      - name: Login to GitHub Packages
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
 
-      runs-on: ubuntu-latest
-      steps:
-        - name: Get Code
-          uses: actions/checkout@v3
+      - name: Convert to repository name lowercase
+        id: imageName-lowercase
+        uses: ASzc/change-string-case-action@v5
+        env:
+          REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{env.MICROSERVICE_NAME}}:${{env.ENVNAME}}-${{github.run_number}}
+        with:
+          string: ${{ env.REPO_NAME }}
         
-        - name: Build and push image
-          id: build-push-image
-          uses: "./.github/templates/PushImage"
-          with: 
-            MicroServiceName: user_manager
-            Environment: ${{ env.ENVNAME }}
-            MicrserviceProjectPath: ./UserManager/
-            DockerfilePath: ./UserManager.Api/Dockerfile
-            GithubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build, tag, and push docker image of ApiGateway to Github Packages
+        id: build-ApiGateway-image
+        env:
+          REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
+          PROJECT_PATH: ./OcelotApiGateway/
+          CONTEXT: .
+          FILEPATH: ./OcelotApiGateway/Dockerfile
+        run: | 
+          cd ${PROJECT_PATH}
+          docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
+          docker push ${REPOSITORY_NAME}
 
-  deploy_tiket_manager:
+      - name: Get lowercase package name
+        id: packageName-lowercase
+        uses: ASzc/change-string-case-action@v5
+        env:
+          PACKAGE_NAME: ${{ github.event.repository.name }}/${{env.MICROSERVICE_NAME}}
+        with:
+          string: ${{ env.PACKAGE_NAME }}
+
+      - name: Delete old ApiGateway images
+        id: delete-ApiGateway-images
+        uses: actions/delete-package-versions@v4.1.1
+        with:
+          package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
+          package-type: 'container'
+          min-versions-to-keep: 2
+
+  build_user_manager:
     env:
-      SSH_HOST: ${{ secrets.SSH_HOST }}
-      SSH_USER: ${{ vars.REMOTE_USER }}
-      SSH_KEY: ${{ secrets.SSH_KEY }}
-      ENVNAME: ${{ vars.ENVNAME }} 
-      MICROSERVICE_NAME: 'ticket_manager'
-
+      MICROSERVICE_NAME: 'user_manager'
+    
+    outputs:
+      MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+      MicroserviceImage: ${{ steps.imageName-lowercase.outputs.lowercase }}
+      
+    needs: changes
+    if: ${{ needs.changes.outputs.UserManager == 'true' || needs.changes.outputs.Workflow == 'true' }}
+    
     runs-on: ubuntu-latest
     steps:
       - name: Get Code
         uses: actions/checkout@v3
+
+      - name: Login to GitHub Packages
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Convert to repository name lowercase
+        id: imageName-lowercase
+        uses: ASzc/change-string-case-action@v5
+        env:
+          REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{env.MICROSERVICE_NAME}}:${{env.ENVNAME}}-${{github.run_number}}
+        with:
+          string: ${{ env.REPO_NAME }}
+        
+      - name: Build, tag, and push docker image of UserManager to Github Packages
+        id: build-UserManager-image
+        env:
+          REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
+          PROJECT_PATH: ./UserManager/
+          CONTEXT: .
+          FILEPATH: ./UserManager.Api/Dockerfile
+        run: | 
+          cd ${PROJECT_PATH}
+          docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
+          docker push ${REPOSITORY_NAME}
+
+      - name: Get lowercase package name
+        id: packageName-lowercase
+        uses: ASzc/change-string-case-action@v5
+        env:
+          PACKAGE_NAME: ${{ github.event.repository.name }}/${{env.MICROSERVICE_NAME}}
+        with:
+          string: ${{ env.PACKAGE_NAME }}
+
+      - name: Delete old UserManager images
+        id: delete-UserManager-images
+        uses: actions/delete-package-versions@v4.1.1
+        with:
+          package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
+          package-type: 'container'
+          min-versions-to-keep: 2
+
+  build_ticket_manager:
+    env:
+      MICROSERVICE_NAME: 'ticket_manager'
+  
+    outputs:
+      MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+      MicroserviceImage: ${{ steps.imageName-lowercase.outputs.lowercase }}
       
-      - name: Build and push image
-        id: build-push-image
-        uses: "./.github/templates/PushImage"
-        with: 
-          MicroServiceName: ticket_manager
-          Environment: ${{ env.ENVNAME }}
-          MicrserviceProjectPath: ./TicketsManager/
-          DockerfilePath: ./TicketsManager.Api/Dockerfile
-          GithubToken: ${{ secrets.GITHUB_TOKEN }}
+    needs: changes
+    if: ${{ needs.changes.outputs.TicketsManager == 'true' || needs.changes.outputs.Workflow == 'true' }}   
+    
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Packages
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
+      - name: Convert to repository name lowercase
+        id: imageName-lowercase
+        uses: ASzc/change-string-case-action@v5
+        env:
+          REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{env.MICROSERVICE_NAME}}:${{env.ENVNAME}}-${{github.run_number}}
+        with:
+          string: ${{ env.REPO_NAME }}
+        
+      - name: Build, tag, and push docker image of TicketsManager to Github Packages
+        id: build-TicketsManager-image
+        env:
+          REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
+          PROJECT_PATH: ./TicketsManager/
+          CONTEXT: .
+          FILEPATH: ./TicketsManager.Api/Dockerfile
+        run: | 
+          cd ${PROJECT_PATH}
+          docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
+          docker push ${REPOSITORY_NAME}
+
+      - name: Get lowercase package name
+        id: packageName-lowercase
+        uses: ASzc/change-string-case-action@v5
+        env:
+          PACKAGE_NAME: ${{ github.event.repository.name }}/${{env.MICROSERVICE_NAME}}
+        with:
+          string: ${{ env.PACKAGE_NAME }}
+
+      - name: Delete old TicketsManager images
+        id: delete-TicketsManager-images
+        uses: actions/delete-package-versions@v4.1.1
+        with:
+          package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
+          package-type: 'container'
+          min-versions-to-keep: 2
+
+  deploy_microservices:
+    needs: [build_api_gateway, build_user_manager, build_ticket_manager]
+    
+    runs-on: ubuntu-latest
+    steps:
+    - name: Configure SSH
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$SSH_KEY" > ~/.ssh/github-actions-key
+        chmod 600 ~/.ssh/github-actions-key
+        cat >>~/.ssh/config <<END
+        Host VM
+          HostName $SSH_HOST
+          User $SSH_USER
+          IdentityFile ~/.ssh/github-actions-key
+          StrictHostKeyChecking no
+        END
+
+    - name: Deploy to VM
+      env:
+        SERVICE_NAME1: ${{ needs.build_api_gateway.outputs.MicroserviceName }}
+        SERVICE_IMAGE1: ${{ needs.build_api_gateway.outputs.MicroserviceImage }}
+        
+        SERVICE_NAME2: ${{ needs.build_user_manager.outputs.MicroserviceName }}
+        SERVICE_IMAGE2: ${{ needs.build_user_manager.outputs.MicroserviceImage }}
+        
+        SERVICE_NAME3: ${{ needs.build_ticket_manager.outputs.MicroserviceName }}
+        SERVICE_IMAGE3: ${{ needs.build_ticket_manager.outputs.MicroserviceImage }}
+        
+        MailgunDomain : ${{ secrets.MAILGUN_DOMAIN }}
+        MailgunApiKey : ${{ secrets.MAILGUN_APIKEY }}
+        
+        Ocelot_Conf : azure
+        
+        ConnectionString: ${{secrets.CONNECTIONSTRING}}
+        JwtSecretKey : ${{secrets.JWT_SECRET_KEY }}
+      run: |
+        ssh VM bash -s <<EOF
+        sudo su
+          
+        docker rm -f $(docker ps -a -q)
+        sudo snap install yq
+
+        docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+
+        cd Ellogy
+
+        export SERVICE_NAME1=$SERVICE_NAME1
+        export SERVICE_IMAGE1=$SERVICE_IMAGE1
+        export SERVICE_NAME2=$SERVICE_NAME2
+        export SERVICE_IMAGE2=$SERVICE_IMAGE2
+        export SERVICE_NAME3=$SERVICE_NAME3
+        export SERVICE_IMAGE3=$SERVICE_IMAGE3
+
+        yq e -i ".services.$SERVICE_NAME1.image=env(SERVICE_IMAGE1)" docker-compose.yaml
+        yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
+        yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
+        
+        export ConnectionString="$ConnectionString"
+        export JwtSecretKey="$JwtSecretKey"
+        export OcelotConfiguration="$Ocelot_Conf"
+        export MailgunDomain="$MailgunDomain"
+        export MailgunApiKey="$MailgunApiKey"
+        
+        docker-compose up -d
+        EOF
+  
