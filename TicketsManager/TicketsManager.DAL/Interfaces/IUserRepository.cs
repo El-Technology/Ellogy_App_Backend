@@ -4,5 +4,6 @@ namespace TicketsManager.DAL.Interfaces;
 
 public interface IUserRepository
 {
-    ValueTask<User?> GetUserAsync(Guid id);
+    public ValueTask<User?> GetUserAsync(Guid id);
+    public Task<bool> CheckIfUserExistAsync(Guid id);
 }

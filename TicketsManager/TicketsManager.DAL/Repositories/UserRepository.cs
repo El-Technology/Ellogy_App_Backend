@@ -1,4 +1,5 @@
-﻿using TicketsManager.DAL.Context;
+﻿using Microsoft.EntityFrameworkCore;
+using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models;
 
@@ -16,5 +17,10 @@ public class UserRepository : IUserRepository
     public ValueTask<User?> GetUserAsync(Guid id)
     {
         return _dbContext.Users.FindAsync(id);
+    }
+
+    public Task<bool> CheckIfUserExistAsync(Guid id)
+    {
+        return _dbContext.Users.AnyAsync(e => e.Id == id);
     }
 }

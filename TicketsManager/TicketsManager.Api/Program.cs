@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Filters;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using TicketsManager.Api.Middlewares;
@@ -45,25 +44,37 @@ static void AddServices(WebApplicationBuilder builder)
         x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
     builder.Services.AddEndpointsApiExplorer();
-
-    builder.Services.AddSwaggerGen(c =>
+    builder.Services.AddSwaggerGen(options =>
     {
-        c.SwaggerDoc("v1", new() { Title = "Ellogy. Tickets Manager service API", Version = "v1" });
+        options.SwaggerDoc("v1", new() { Title = "Ellogy. Tickets Manager service API", Version = "v1" });
 
-        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
-            Description = "Standard Authorization header using Bearer scheme, e.g. \"bearer {token}\"",
-            In = ParameterLocation.Header,
-            Name = "Authorization",
-            Type = SecuritySchemeType.ApiKey
+            Description = "JWT Authorization header using the Bearer scheme. Just paste token value in field.",
+            Type = SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT"
         });
 
-        c.OperationFilter<SecurityRequirementsOperationFilter>();
+        options.AddSecurityRequirement(new()
+        {
+            {
+                new()
+                {
+                    Reference = new()
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new List<string>()
+            }
+        });
 
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
-        c.IncludeXmlComments(xmlPath);
+        options.IncludeXmlComments(xmlPath);
     });
 
     builder.Services.AddHealthChecks();

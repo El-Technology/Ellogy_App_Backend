@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using TicketsManager.BLL.Dtos.TicketDtos;
 using TicketsManager.BLL.Interfaces;
-using TicketsManager.Common.Helpers.Pagination;
+using TicketsManager.Common.Dtos;
 
 namespace TicketsManager.Api.Controllers
 {
     /// <summary>
     /// Represents the API endpoints for managing tickets.
     /// </summary>
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     [Route("api/[controller]/")]
     public class TicketsController : Controller
@@ -27,7 +28,7 @@ namespace TicketsManager.Api.Controllers
         /// </summary>
         /// <param name="userId">The unique identifier of the user.</param>
         /// <param name="paginateRequest">Data for getting paginating list of output items.</param>
-        /// <returns>An <see cref="PaginationResponseDtoionResponseDto{T}"/> containing the list of tickets.</returns>
+        /// <returns>An <see cref="PaginationResponseDto{TicketResponseDto}"/> containing the list of tickets.</returns>
         [ProducesResponseType(typeof(List<TicketResponseDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
@@ -36,6 +37,23 @@ namespace TicketsManager.Api.Controllers
         public async Task<IActionResult> GetAllTickets([Required] Guid userId, [FromBody] PaginationRequestDto paginateRequest)
         {
             var tickets = await _ticketsService.GetTicketsAsync(userId, paginateRequest);
+            return Ok(tickets);
+        }
+
+        /// <summary>
+        /// Get all tickets by user and search criteria, which checks if tickets title contains some string
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user.</param>
+        /// <param name="searchRequest">Data <see cref="SearchTicketsRequestDto"/> for searching tickets, also contains pagination model.</param>
+        /// <returns>An <see cref="PaginationResponseDto{TicketResponseDto}"/> containing the list of tickets.</returns>
+        [ProducesResponseType(typeof(List<TicketResponseDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        [HttpPost]
+        [Route("search/{userId:guid}")]
+        public async Task<IActionResult> SearchTickets([Required] Guid userId, [FromBody] SearchTicketsRequestDto searchRequest)
+        {
+            var tickets = await _ticketsService.SearchTicketsByNameAsync(userId, searchRequest);
             return Ok(tickets);
         }
 

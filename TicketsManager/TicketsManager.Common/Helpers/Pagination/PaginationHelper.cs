@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TicketsManager.Common.Dtos;
 
 namespace TicketsManager.Common.Helpers.Pagination;
 
@@ -22,7 +23,7 @@ public static class PaginationHelper
         };
     }
 
-    public static PaginationResponseDto<T> GetPaginatedCollectionAsync<T>(this ICollection<T> queryable, PaginationRequestDto paginationFilter)
+    public static PaginationResponseDto<T> GetPaginatedCollectionAsync<T>(this IEnumerable<T> queryable, PaginationRequestDto paginationFilter)
         where T : class
     {
         var entities = queryable
@@ -33,7 +34,7 @@ public static class PaginationHelper
         return new()
         {
             RecordsReturned = entities.Count,
-            TotalRecordsFound = queryable.Count,
+            TotalRecordsFound = queryable.Count(),
             CurrentPageNumber = paginationFilter.CurrentPageNumber,
             RecordsPerPage = paginationFilter.RecordsPerPage,
             Data = entities

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using TicketsManager.BLL.Dtos.TicketDtos;
-using TicketsManager.Common.Helpers.Pagination;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Models;
 
 namespace TicketsManager.BLL.Mapping;

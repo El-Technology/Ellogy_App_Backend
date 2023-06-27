@@ -1,4 +1,4 @@
-﻿namespace TicketsManager.Common.Helpers.Pagination;
+﻿namespace TicketsManager.Common.Dtos;
 
 /// <summary>
 /// Custom class that represents the paginated response

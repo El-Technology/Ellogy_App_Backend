@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TicketsManager.Common.Dtos;
 using TicketsManager.Common.Helpers.Pagination;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Exceptions;
@@ -27,6 +28,19 @@ public class TicketsRepository : ITicketsRepository
         return user is null
             ? throw new EntityNotFoundException(typeof(User))
             : user.UserTickets.GetPaginatedCollectionAsync(paginateRequest);
+    }
+
+    public async Task<PaginationResponseDto<Ticket>> FindTicketsAsync(Guid userId, SearchTicketsRequestDto searchTicketsRequest)
+    {
+        var user = await _context.Users
+            .AsNoTracking()
+            .Include(e => e.UserTickets)
+            .ThenInclude(e => e.TicketMessages)
+            .FirstOrDefaultAsync(e => e.Id == userId) ?? throw new EntityNotFoundException(typeof(User));
+
+        return user.UserTickets
+            .Where(e => e.Title.Contains(searchTicketsRequest.TicketTitle, StringComparison.InvariantCultureIgnoreCase))
+            .GetPaginatedCollectionAsync(searchTicketsRequest.Pagination);
     }
 
     public async Task CreateTicketAsync(Ticket ticket)

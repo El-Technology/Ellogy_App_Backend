@@ -2,7 +2,7 @@
 using TicketsManager.BLL.Dtos.TicketDtos;
 using TicketsManager.BLL.Exceptions;
 using TicketsManager.BLL.Interfaces;
-using TicketsManager.Common.Helpers.Pagination;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models;
@@ -29,6 +29,19 @@ public class TicketsService : ITicketsService
             var tickets = await _ticketsRepository.GetTicketsAsync(userId, paginateRequest);
 
             return _mapper.Map<PaginationResponseDto<TicketResponseDto>>(tickets);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            throw new UserNotFoundException(userId, ex);
+        }
+    }
+
+    public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(Guid userId, SearchTicketsRequestDto searchRequest)
+    {
+        try
+        {
+            var findTickets = await _ticketsRepository.FindTicketsAsync(userId, searchRequest);
+            return _mapper.Map<PaginationResponseDto<TicketResponseDto>>(findTickets);
         }
         catch (EntityNotFoundException ex)
         {
