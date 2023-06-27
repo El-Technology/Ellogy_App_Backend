@@ -87,6 +87,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/gateway/Tickets/search/{userId}",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Tickets/search/{userId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "ticket_manager",
+          "Port": 80
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/gateway/Tickets/{id}",
       "UpstreamHttpMethod": [ "Post", "Delete" ],
       "DownstreamPathTemplate": "/api/Tickets/{id}",

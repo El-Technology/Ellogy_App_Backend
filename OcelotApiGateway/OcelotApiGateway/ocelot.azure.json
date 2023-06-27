@@ -1,7 +1,7 @@
 {
   "Routes": [
     {
-      "UpstreamPathTemplate": "/health",
+      "UpstreamPathTemplate": "/gateway/health",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/health",
       "DownstreamScheme": "http",
@@ -13,7 +13,7 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/auth/register",
+      "UpstreamPathTemplate": "/gateway/auth/register",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/auth/register",
       "DownstreamScheme": "http",
@@ -25,9 +25,33 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/auth/login",
+      "UpstreamPathTemplate": "/gateway/auth/login",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/auth/login",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user_manager",
+          "Port": 80
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/auth/forgotPassword",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Password/forgotPassword",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user_manager",
+          "Port": 80
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/auth/resetPassword",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Password/resetPassword",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -39,7 +63,7 @@
 
 
     {
-      "UpstreamPathTemplate": "/Messages/createMessage",
+      "UpstreamPathTemplate": "/gateway/Messages/createMessage",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Messages",
       "DownstreamScheme": "http",
@@ -51,8 +75,8 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/Tickets/getAllTickets/{userId}",
-      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamPathTemplate": "/gateway/Tickets/getTickets/{userId}",
+      "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Tickets/tickets/{userId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -63,7 +87,19 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/Tickets/{id}",
+      "UpstreamPathTemplate": "/gateway/Tickets/search/{userId}",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Tickets/search/{userId}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "ticket_manager",
+          "Port": 80
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/Tickets/{id}",
       "UpstreamHttpMethod": [ "Post", "Delete" ],
       "DownstreamPathTemplate": "/api/Tickets/{id}",
       "DownstreamScheme": "http",
@@ -75,7 +111,7 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/Tickets",
+      "UpstreamPathTemplate": "/gateway/Tickets",
       "UpstreamHttpMethod": [ "Put" ],
       "DownstreamPathTemplate": "/api/Tickets/",
       "DownstreamScheme": "http",
