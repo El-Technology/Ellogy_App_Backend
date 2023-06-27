@@ -28,6 +28,7 @@ jobs:
       - uses: dorny/paths-filter@v2
         id: changes
         with:
+           token: ${{ secrets.GITHUB_TOKEN }}
            filters: |
               OcelotApiGateway:
                 - 'OcelotApiGateway/**'
@@ -35,7 +36,7 @@ jobs:
                 - 'UserManager/**'
               TicketsManager:
                 - 'TicketsManager/**'
-                
+                      
   build_api_gateway:
     env:  
       MICROSERVICE_NAME: 'api_gateway'
