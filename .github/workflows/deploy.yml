@@ -25,10 +25,13 @@ jobs:
       TicketsManager: ${{ steps.changes.outputs.TicketsManager }}
       
     steps:
-      - uses: dorny/paths-filter@v2
+      - name: Get Code
+        uses: actions/checkout@v3
+     
+      - name: Check changes  
+        uses: dorny/paths-filter@v2
         id: changes
         with:
-           token: ${{ secrets.GITHUB_TOKEN }}
            filters: |
               OcelotApiGateway:
                 - 'OcelotApiGateway/**'
