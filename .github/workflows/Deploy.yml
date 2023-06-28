@@ -237,8 +237,7 @@ jobs:
         SERVICE_NAME3: ${{ needs.build_ticket_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE3: ${{ needs.build_ticket_manager.outputs.MicroserviceImage }}
         
-        MailgunDomain : ${{ secrets.MAILGUN_DOMAIN }}
-        MailgunApiKey : ${{ secrets.MAILGUN_APIKEY }}
+        CommunicationServiceConnectionString : ${{ secrets.COMMUNICATION_SERVICE_CONNECTION_STRING }}
         
         Ocelot_Conf : azure
         
@@ -269,8 +268,7 @@ jobs:
         export ConnectionString="$ConnectionString"
         export JwtSecretKey="$JwtSecretKey"
         export OcelotConfiguration="$Ocelot_Conf"
-        export MailgunDomain="$MailgunDomain"
-        export MailgunApiKey="$MailgunApiKey"
+        export CommunicationServiceConnectionString="$CommunicationServiceConnectionString"
         
         docker-compose up -d
         EOF
