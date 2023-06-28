@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using RestSharp;
+﻿using Azure.Communication.Email;
+using Microsoft.Extensions.DependencyInjection;
 using UserManager.BLL.Interfaces;
 using UserManager.BLL.Services;
 using UserManager.Common;
@@ -15,12 +15,7 @@ public static class DiExtension
             .AddScoped<ILoginService, LoginService>()
             .AddScoped<IPasswordService, PasswordService>()
             .AddScoped<IMailService, MailService>()
-            .AddRestSharpClient();
-    }
-
-    private static IServiceCollection AddRestSharpClient(this IServiceCollection services)
-    {
-        return services.AddScoped<IRestClient, RestClient>(_ => new(MailOptions.GetRestClientOptions()));
+            .AddScoped<EmailClient>(_ => new(EnvironmentVariables.CommunicationServiceConnectionString));
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)

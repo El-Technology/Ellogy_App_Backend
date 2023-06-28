@@ -7,6 +7,7 @@ using UserManager.DAL.Models;
 
 namespace UserManager.BLL.Mapping
 {
+    //TODO remove business logic from mapping
     public class UserProfile : Profile
     {
         public UserProfile()

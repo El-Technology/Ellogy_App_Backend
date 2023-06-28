@@ -1,46 +1,42 @@
-﻿using RestSharp;
-using System.Text.Json;
+﻿using Azure;
+using Azure.Communication.Email;
 using UserManager.BLL.Dtos.MailDtos;
 using UserManager.BLL.Interfaces;
 using UserManager.Common;
+using UserManager.Common.Helpers;
 
 namespace UserManager.BLL.Services;
 
 public class MailService : IMailService
 {
-    private readonly IRestClient _restClient;
+    private readonly EmailClient _emailClient;
 
-    public MailService(IRestClient restClient)
+    private static readonly List<string> ResetPasswordDirectories = new() { "..", "UserManager.BLL", "EmailLettersTemplate", "ResetPasswordTemplate.html" };
+    private const string ResetLinkPlaceholder = "{{{resetPasswordLink}}}";
+
+    public MailService(EmailClient emailClient)
     {
-        _restClient = restClient;
+        _emailClient = emailClient;
     }
 
     //TODO add retries
     public async Task SendPasswordResetLetterAsync(ResetPasswordLetterDto resetPasswordLetterDto)
     {
-        var request = GetRestRequest(resetPasswordLetterDto);
+        var emailMessage = GetEmailMessage(resetPasswordLetterDto);
 
-        await _restClient.ExecuteAsync(request);
-        _restClient.Dispose();
+        var emailSendOperation = await _emailClient.SendAsync(WaitUntil.Started, emailMessage);
     }
 
-    //TODO rewrite and make builder or like this
-    private static RestRequest GetRestRequest(ResetPasswordLetterDto resetPasswordLetterDto)
+    private static EmailMessage GetEmailMessage(ResetPasswordLetterDto resetPasswordLetterDto)
     {
-        var request = new RestRequest("/messages", Method.Post);
-        request.AddParameter("domain", EnvironmentVariables.MailgunDomain, ParameterType.UrlSegment);
-        request.AddParameter("from", MailOptions.FromMail);
-        request.AddParameter("to", $"{resetPasswordLetterDto.UserName} <{resetPasswordLetterDto.UserEmail}>");
-        request.AddParameter("subject", MailOptions.MessageSubject);
-        request.AddParameter("template", MailOptions.TemplateName);
+        var htmlLetterContent = File.ReadAllText(PathBuilderHelper.BuildPath(ResetPasswordDirectories));
+        htmlLetterContent = htmlLetterContent.Replace(ResetLinkPlaceholder, resetPasswordLetterDto.ResetPasswordUrl);
 
-        var templateDataObject = new
+        var emailContent = new EmailContent(MailOptions.MessageSubject)
         {
-            resetPasswordLink = resetPasswordLetterDto.ResetPasswordUrl
+            Html = htmlLetterContent
         };
-        var templateDataString = JsonSerializer.Serialize(templateDataObject);
-        request.AddParameter("h:X-Mailgun-Variables", templateDataString);
 
-        return request;
+        return new(MailOptions.FromMail, resetPasswordLetterDto.UserEmail, emailContent);
     }
 }

@@ -9,6 +9,7 @@ using UserManager.DAL.Extensions;
 
 namespace UserManager.Api
 {
+    //TODO add health checks
     public class Program
     {
         public static void Main(string[] args)
