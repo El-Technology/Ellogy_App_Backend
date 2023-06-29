@@ -238,12 +238,12 @@ jobs:
         SERVICE_NAME3: ${{ needs.build_ticket_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE3: ${{ needs.build_ticket_manager.outputs.MicroserviceImage }}
         
-        COMMUNICATION_SERVICE_CONNECTION_STRING : ${{ secrets.COMMUNICATION_SERVICE_CONNECTION_STRING }}
+        COMMUNICATION_SERVICE_CONNECTION_STRING: ${{ secrets.COMMUNICATION_SERVICE_CONNECTION_STRING }}
         
-        OCELOT_CONF : azure
+        OCELOT_CONF: azure
         
         CONNECTION_STRING: ${{secrets.CONNECTIONSTRING}}
-        JWT_SECRET_KEY : ${{secrets.JWT_SECRET_KEY }}
+        JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY }}
       run: |
         ssh VM bash -s <<EOF
         sudo su
