@@ -1,19 +1,22 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 using System.Reflection;
+using dotenv.net;
 using UserManager.Api.Middlewares;
 using UserManager.BLL.Extensions;
 using UserManager.Common;
+using UserManager.Common.Helpers;
 using UserManager.DAL.Context;
 using UserManager.DAL.Extensions;
 
 namespace UserManager.Api
 {
     //TODO add health checks
-    public class Program
+    public static class Program
     {
+        private static readonly List<string> EnvPathes = new() { "..", "..", ".env" };
         public static void Main(string[] args)
         {
+            DotEnv.Load(new(envFilePaths: new List<string> {PathBuilderHelper.BuildPath(EnvPathes)}));
             var builder = WebApplication.CreateBuilder(args);
 
             AddServices(builder);
@@ -35,7 +38,7 @@ namespace UserManager.Api
 
             builder.Services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo()
+                c.SwaggerDoc("v1", new()
                 {
                     Title = "Ellogy. User Manager service API",
                     Version = "v1",

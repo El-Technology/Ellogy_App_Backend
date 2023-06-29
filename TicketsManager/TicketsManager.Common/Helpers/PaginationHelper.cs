@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketsManager.Common.Dtos;
 
-namespace TicketsManager.Common.Helpers.Pagination;
+namespace TicketsManager.Common.Helpers;
 
 public static class PaginationHelper
 {

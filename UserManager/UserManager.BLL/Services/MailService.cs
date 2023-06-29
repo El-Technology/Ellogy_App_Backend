@@ -11,7 +11,7 @@ public class MailService : IMailService
 {
     private readonly EmailClient _emailClient;
 
-    private static readonly List<string> ResetPasswordDirectories = new() { "..", "UserManager.BLL", "EmailLettersTemplate", "ResetPasswordTemplate.html" };
+    private static readonly List<string> ResetPasswordDirectories = new() {AppContext.BaseDirectory, "ResetPasswordTemplate.html" };
     private const string ResetLinkPlaceholder = "{{{resetPasswordLink}}}";
 
     public MailService(EmailClient emailClient)

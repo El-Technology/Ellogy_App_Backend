@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketsManager.Common.Dtos;
-using TicketsManager.Common.Helpers.Pagination;
+using TicketsManager.Common.Helpers;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Interfaces;

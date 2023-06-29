@@ -4,11 +4,16 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using dotenv.net;
 using TicketsManager.Api.Middlewares;
 using TicketsManager.BLL.Extensions;
 using TicketsManager.Common;
+using TicketsManager.Common.Helpers;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Extensions;
+
+List<string> envPaths = new() { "..", "..", ".env" };
+DotEnv.Load(new(envFilePaths: new List<string> {PathBuilderHelper.BuildPath(envPaths)}));
 
 var builder = WebApplication.CreateBuilder(args);
 
