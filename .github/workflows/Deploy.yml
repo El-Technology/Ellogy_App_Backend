@@ -266,10 +266,10 @@ jobs:
         yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
         
-        export ConnectionString="$ConnectionString"
-        export JwtSecretKey="$JwtSecretKey"
-        export OcelotConfiguration="$Ocelot_Conf"
-        export CommunicationServiceConnectionString="$CommunicationServiceConnectionString"
+        export CONNECTION_STRING="$ConnectionString"
+        export JWT_SECRET_KEY="$JwtSecretKey"
+        export OCELOT_CONF="$Ocelot_Conf"
+        export COMMUNICATION_SERVICE_CONNECTION_STRING="$CommunicationServiceConnectionString"
         
         docker-compose up -d
         EOF
