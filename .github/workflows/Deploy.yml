@@ -248,12 +248,12 @@ jobs:
         ssh VM bash -s <<EOF
         sudo su
           
-        docker-compose down
         sudo snap install yq
 
         docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
 
         cd Ellogy
+        docker-compose down
 
         export SERVICE_NAME1=$SERVICE_NAME1
         export SERVICE_IMAGE1=$SERVICE_IMAGE1
