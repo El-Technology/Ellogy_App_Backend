@@ -266,6 +266,8 @@ jobs:
         yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
         
+        echo $OCELOT_CONF
+
         export CONNECTION_STRING="$CONNECTION_STRING"
         export JWT_SECRET_KEY="$JWT_SECRET_KEY"
         export OCELOT_CONF="$OCELOT_CONF"
