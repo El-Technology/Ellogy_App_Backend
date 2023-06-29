@@ -209,6 +209,7 @@ jobs:
           min-versions-to-keep: 2
 
   deploy_microservices:
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
     needs: [build_api_gateway, build_user_manager, build_ticket_manager]
     
     runs-on: ubuntu-latest
