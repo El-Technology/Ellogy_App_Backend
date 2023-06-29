@@ -238,12 +238,12 @@ jobs:
         SERVICE_NAME3: ${{ needs.build_ticket_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE3: ${{ needs.build_ticket_manager.outputs.MicroserviceImage }}
         
-        CommunicationServiceConnectionString : ${{ secrets.COMMUNICATION_SERVICE_CONNECTION_STRING }}
+        COMMUNICATION_SERVICE_CONNECTION_STRING : ${{ secrets.COMMUNICATION_SERVICE_CONNECTION_STRING }}
         
-        Ocelot_Conf : azure
+        OCELOT_CONF : azure
         
-        ConnectionString: ${{secrets.CONNECTIONSTRING}}
-        JwtSecretKey : ${{secrets.JWT_SECRET_KEY }}
+        CONNECTION_STRING: ${{secrets.CONNECTIONSTRING}}
+        JWT_SECRET_KEY : ${{secrets.JWT_SECRET_KEY }}
       run: |
         ssh VM bash -s <<EOF
         sudo su
@@ -266,10 +266,10 @@ jobs:
         yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
         
-        export CONNECTION_STRING="$ConnectionString"
-        export JWT_SECRET_KEY="$JwtSecretKey"
-        export OCELOT_CONF="$Ocelot_Conf"
-        export COMMUNICATION_SERVICE_CONNECTION_STRING="$CommunicationServiceConnectionString"
+        export CONNECTION_STRING="$CONNECTION_STRING"
+        export JWT_SECRET_KEY="$JWT_SECRET_KEY"
+        export OCELOT_CONF="$OCELOT_CONF"
+        export COMMUNICATION_SERVICE_CONNECTION_STRING="$COMMUNICATION_SERVICE_CONNECTION_STRING"
         
         docker-compose up -d
         EOF
