@@ -432,3 +432,5 @@ FodyWeavers.xsd
 *.sln.iml
 /UserManager/UserManager.Api/Properties/launchSettings.json
 *.env
+TicketsManager/TicketsManager.Api/Properties/launchSettings.json
+UserManager/UserManager.Api/Properties/launchSettings.json
