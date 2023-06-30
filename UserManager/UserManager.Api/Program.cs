@@ -1,10 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
-using dotenv.net;
 using UserManager.Api.Middlewares;
 using UserManager.BLL.Extensions;
 using UserManager.Common;
-using UserManager.Common.Helpers;
 using UserManager.DAL.Context;
 using UserManager.DAL.Extensions;
 
@@ -13,10 +11,8 @@ namespace UserManager.Api
     //TODO add health checks
     public static class Program
     {
-        private static readonly List<string> EnvPathes = new() { "..", "..", ".env" };
         public static void Main(string[] args)
         {
-            DotEnv.Load(new(envFilePaths: new List<string> {PathBuilderHelper.BuildPath(EnvPathes)}));
             var builder = WebApplication.CreateBuilder(args);
 
             AddServices(builder);

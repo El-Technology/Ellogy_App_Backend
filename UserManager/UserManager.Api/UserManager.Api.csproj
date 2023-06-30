@@ -8,9 +8,9 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
+  
 
   <ItemGroup>
-    <PackageReference Include="dotenv.net" Version="3.1.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
     <Content Include="../UserManager.BLL/EmailLettersTemplate/**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
