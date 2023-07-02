@@ -46,10 +46,13 @@ jobs:
   build_api_gateway:
     env:  
       MICROSERVICE_NAME: 'api_gateway'
+      PROJECT_PATH: './OcelotApiGateway/'
+      CONTEXT: '.'
+      DOCKERFILEPATH: './OcelotApiGateway/Dockerfile'
       
     outputs:
-      MicroserviceName: ${{ env.MICROSERVICE_NAME }}
-      MicroserviceImage: ${{ steps.imageName-lowercase.outputs.lowercase }}
+      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
+      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
       
     needs: changes
     if: ${{ needs.changes.outputs.OcelotApiGateway == 'true' || needs.changes.outputs.Workflow == 'true' }}
@@ -59,52 +62,27 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v3
 
-      - name: Login to GitHub Packages
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-
-      - name: Convert to repository name lowercase
-        id: imageName-lowercase
-        uses: ASzc/change-string-case-action@v5
-        env:
-          REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{env.MICROSERVICE_NAME}}:${{env.ENVNAME}}-${{github.run_number}}
-        with:
-          string: ${{ env.REPO_NAME }}
-        
-      - name: Build, tag, and push docker image of ApiGateway to Github Packages
-        id: build-ApiGateway-image
-        env:
-          REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
-          PROJECT_PATH: ./OcelotApiGateway/
-          CONTEXT: .
-          FILEPATH: ./OcelotApiGateway/Dockerfile
-        run: | 
-          cd ${PROJECT_PATH}
-          docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
-          docker push ${REPOSITORY_NAME}
-
-      - name: Get lowercase package name
-        id: packageName-lowercase
-        uses: ASzc/change-string-case-action@v5
-        env:
-          PACKAGE_NAME: ${{ github.event.repository.name }}/${{env.MICROSERVICE_NAME}}
-        with:
-          string: ${{ env.PACKAGE_NAME }}
-
-      - name: Delete old ApiGateway images
-        id: delete-ApiGateway-images
-        uses: actions/delete-package-versions@v4.1.1
-        with:
-          package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
-          package-type: 'container'
-          min-versions-to-keep: 2
+      - name: Build and push image of API Gateway
+        id: build-n-push
+        uses: ./.github/actions/Build-n-push
+        with: 
+          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+          Environment: ${{ env.ENVNAME }}
+          ProjectPath: ${{ env.PROJECT_PATH }}
+          Context: ${{ env.CONTEXT }}
+          DockerfilePath: ${{ env.DOCKERFILEPATH }}
+          Token: ${{ secrets.GITHUB_TOKEN }}
 
   build_user_manager:
     env:
       MICROSERVICE_NAME: 'user_manager'
+      PROJECT_PATH: './UserManager/'
+      CONTEXT: '.'
+      DOCKERFILEPATH: './UserManager.Api/Dockerfile'
     
     outputs:
-      MicroserviceName: ${{ env.MICROSERVICE_NAME }}
-      MicroserviceImage: ${{ steps.imageName-lowercase.outputs.lowercase }}
+      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
+      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
       
     needs: changes
     if: ${{ needs.changes.outputs.UserManager == 'true' || needs.changes.outputs.Workflow == 'true' }}
@@ -113,53 +91,28 @@ jobs:
     steps:
       - name: Get Code
         uses: actions/checkout@v3
-
-      - name: Login to GitHub Packages
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-
-      - name: Convert to repository name lowercase
-        id: imageName-lowercase
-        uses: ASzc/change-string-case-action@v5
-        env:
-          REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{env.MICROSERVICE_NAME}}:${{env.ENVNAME}}-${{github.run_number}}
-        with:
-          string: ${{ env.REPO_NAME }}
-        
-      - name: Build, tag, and push docker image of UserManager to Github Packages
-        id: build-UserManager-image
-        env:
-          REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
-          PROJECT_PATH: ./UserManager/
-          CONTEXT: .
-          FILEPATH: ./UserManager.Api/Dockerfile
-        run: | 
-          cd ${PROJECT_PATH}
-          docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
-          docker push ${REPOSITORY_NAME}
-
-      - name: Get lowercase package name
-        id: packageName-lowercase
-        uses: ASzc/change-string-case-action@v5
-        env:
-          PACKAGE_NAME: ${{ github.event.repository.name }}/${{env.MICROSERVICE_NAME}}
-        with:
-          string: ${{ env.PACKAGE_NAME }}
-
-      - name: Delete old UserManager images
-        id: delete-UserManager-images
-        uses: actions/delete-package-versions@v4.1.1
-        with:
-          package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
-          package-type: 'container'
-          min-versions-to-keep: 2
+      
+      - name: Build and push image of User Manager
+        id: build-n-push
+        uses: ./.github/actions/Build-n-push
+        with: 
+          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+          Environment: ${{ env.ENVNAME }}
+          ProjectPath: ${{ env.PROJECT_PATH }}
+          Context: ${{ env.CONTEXT }}
+          DockerfilePath: ${{ env.DOCKERFILEPATH }}
+          Token: ${{ secrets.GITHUB_TOKEN }}
 
   build_ticket_manager:
     env:
       MICROSERVICE_NAME: 'ticket_manager'
+      PROJECT_PATH: './TicketsManager/'
+      CONTEXT: '.'
+      DOCKERFILEPATH: './TicketsManager.Api/Dockerfile'
   
     outputs:
-      MicroserviceName: ${{ env.MICROSERVICE_NAME }}
-      MicroserviceImage: ${{ steps.imageName-lowercase.outputs.lowercase }}
+      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
+      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
       
     needs: changes
     if: ${{ needs.changes.outputs.TicketsManager == 'true' || needs.changes.outputs.Workflow == 'true' }}   
@@ -169,44 +122,16 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v3
 
-      - name: Login to GitHub Packages
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-
-      - name: Convert to repository name lowercase
-        id: imageName-lowercase
-        uses: ASzc/change-string-case-action@v5
-        env:
-          REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{env.MICROSERVICE_NAME}}:${{env.ENVNAME}}-${{github.run_number}}
-        with:
-          string: ${{ env.REPO_NAME }}
-        
-      - name: Build, tag, and push docker image of TicketsManager to Github Packages
-        id: build-TicketsManager-image
-        env:
-          REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
-          PROJECT_PATH: ./TicketsManager/
-          CONTEXT: .
-          FILEPATH: ./TicketsManager.Api/Dockerfile
-        run: | 
-          cd ${PROJECT_PATH}
-          docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
-          docker push ${REPOSITORY_NAME}
-
-      - name: Get lowercase package name
-        id: packageName-lowercase
-        uses: ASzc/change-string-case-action@v5
-        env:
-          PACKAGE_NAME: ${{ github.event.repository.name }}/${{env.MICROSERVICE_NAME}}
-        with:
-          string: ${{ env.PACKAGE_NAME }}
-
-      - name: Delete old TicketsManager images
-        id: delete-TicketsManager-images
-        uses: actions/delete-package-versions@v4.1.1
-        with:
-          package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
-          package-type: 'container'
-          min-versions-to-keep: 2
+      - name: Build and push image of User Manager
+        id: build-n-push
+        uses: ./.github/actions/Build-n-push
+        with: 
+          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+          Environment: ${{ env.ENVNAME }}
+          ProjectPath: ${{ env.PROJECT_PATH }}
+          Context: ${{ env.CONTEXT }}
+          DockerfilePath: ${{ env.DOCKERFILEPATH }}
+          Token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy_microservices:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
