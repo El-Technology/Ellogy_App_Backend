@@ -16,12 +16,12 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         /// <summary>
         /// The description of the ticket.
         /// </summary>
-        public string Description { get; set; }
+        public string? Description { get; set; }
         
         /// <summary>
         /// The summary that generate ChatGPT.
         /// </summary>
-        public string Summary { get; set; }
+        public string? Summary { get; set; }
 
         /// <summary>
         /// The date and time when the ticket is created.
