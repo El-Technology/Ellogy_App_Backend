@@ -63,10 +63,10 @@ public class TicketsService : ITicketsService
     private Ticket MapCreateTicket(TicketCreateRequestDto createTicketRequest, User user)
     {
         var mappedTicket = _mapper.Map<Ticket>(createTicketRequest);
-        mappedTicket.User = user;
+        mappedTicket.UserId = user.Id;
 
         foreach (var message in mappedTicket.TicketMessages)
-            message.Ticket = mappedTicket;
+            message.TicketId = mappedTicket.Id;
 
         return mappedTicket;
     }
@@ -79,10 +79,10 @@ public class TicketsService : ITicketsService
         await _ticketsRepository.DeleteTicketAsync(ticket);
     }
 
-    public async Task<TicketResponseDto> UpdateTicketAsync(TicketUpdateRequestDto ticketUpdate)
+    public async Task<TicketResponseDto> UpdateTicketAsync(Guid id, TicketUpdateRequestDto ticketUpdate)
     {
-        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketUpdate.Id)
-                     ?? throw new TicketNotFoundException(ticketUpdate.Id);
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
+                     ?? throw new TicketNotFoundException(id);
 
         var mappedTicket = _mapper.Map(ticketUpdate, ticket);
         await _ticketsRepository.UpdateTicketAsync(mappedTicket);

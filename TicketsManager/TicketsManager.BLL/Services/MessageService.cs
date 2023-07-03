@@ -20,12 +20,12 @@ public class MessageService : IMessageService
         _ticketsRepository = ticketsRepository;
     }
 
-    public async Task<MessageResponseDto> CreateMessageAsync(MessageCreateRequestDto messageCreateRequest)
+    public async Task<MessageResponseDto> CreateMessageAsync(MessagesCreateRequestDto messagesCreateRequest)
     {
-        if (!await _ticketsRepository.CheckIfTicketExistAsync(messageCreateRequest.TicketId))
-            throw new TicketNotFoundException(messageCreateRequest.TicketId);
+        if (!await _ticketsRepository.CheckIfTicketExistAsync(messagesCreateRequest.TicketId))
+            throw new TicketNotFoundException(messagesCreateRequest.TicketId);
 
-        var mappedMessage = _mapper.Map<Message>(messageCreateRequest);
+        var mappedMessage = _mapper.Map<Message>(messagesCreateRequest);
         await _messagesRepository.CreateMessageAsync(mappedMessage);
 
         return _mapper.Map<MessageResponseDto>(mappedMessage);

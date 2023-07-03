@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketsManager.Common.Dtos;
-using TicketsManager.Common.Helpers;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Exceptions;
+using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models;
 
@@ -11,36 +11,28 @@ namespace TicketsManager.DAL.Repositories;
 public class TicketsRepository : ITicketsRepository
 {
     private readonly TicketsManagerDbContext _context;
+    private readonly IUserRepository _userRepository;
 
-    public TicketsRepository(TicketsManagerDbContext context)
+    public TicketsRepository(TicketsManagerDbContext context, IUserRepository userRepository)
     {
         _context = context;
+        _userRepository = userRepository;
     }
-
+    
     public async Task<PaginationResponseDto<Ticket>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest)
     {
-        var user = await _context.Users
-            .AsNoTracking()
-            .Include(e => e.UserTickets)
-            .ThenInclude(e => e.TicketMessages)
-            .FirstOrDefaultAsync(e => e.Id == userId);
+        var user = await _userRepository.GetUserAsync(userId) ?? throw new EntityNotFoundException(typeof(User));
 
-        return user is null
-            ? throw new EntityNotFoundException(typeof(User))
-            : user.UserTickets.GetPaginatedCollectionAsync(paginateRequest);
+        return user.UserTickets.GetFinalResult(paginateRequest);
     }
 
     public async Task<PaginationResponseDto<Ticket>> FindTicketsAsync(Guid userId, SearchTicketsRequestDto searchTicketsRequest)
     {
-        var user = await _context.Users
-            .AsNoTracking()
-            .Include(e => e.UserTickets)
-            .ThenInclude(e => e.TicketMessages)
-            .FirstOrDefaultAsync(e => e.Id == userId) ?? throw new EntityNotFoundException(typeof(User));
+        var user = await _userRepository.GetUserAsync(userId) ?? throw new EntityNotFoundException(typeof(User));
 
         return user.UserTickets
             .Where(e => e.Title.Contains(searchTicketsRequest.TicketTitle, StringComparison.InvariantCultureIgnoreCase))
-            .GetPaginatedCollectionAsync(searchTicketsRequest.Pagination);
+            .GetFinalResult(searchTicketsRequest.Pagination);
     }
 
     public async Task CreateTicketAsync(Ticket ticket)

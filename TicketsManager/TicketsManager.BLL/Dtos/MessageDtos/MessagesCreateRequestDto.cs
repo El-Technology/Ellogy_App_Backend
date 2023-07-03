@@ -3,21 +3,16 @@
     /// <summary>
     /// Represents the request data for creating a new message.
     /// </summary>
-    public class MessageCreateRequestDto
+    public class MessagesCreateRequestDto
     {
         /// <summary>
         /// The unique identifier of the ticket associated with the message.
         /// </summary>
         public Guid TicketId { get; set; }
-
+        
         /// <summary>
-        /// The sender of the message.
+        /// The list of messages for ticket.
         /// </summary>
-        public string Sender { get; set; }
-
-        /// <summary>
-        /// The content of the message.
-        /// </summary>
-        public string Content { get; set; }
+        public List<MessageDto> Messages { get; set; }
     }
 }

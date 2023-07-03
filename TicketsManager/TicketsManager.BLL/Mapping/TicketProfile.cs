@@ -13,9 +13,7 @@ public class TicketProfile : Profile
             .ForMember(dest => dest.Id, opts =>
                 opts.MapFrom(new GuidValueResolver()))
             .ForMember(dest => dest.TicketMessages, opts =>
-                opts.MapFrom(_ => new List<Message>()))
-            .ForMember(dest => dest.Summary, opts =>
-                opts.Ignore())
+                opts.MapFrom(_ => _.Messages))
             .ForMember(dest => dest.Comment, opts =>
                 opts.Ignore())
             .ForMember(dest => dest.UpdatedDate, opts =>
@@ -29,9 +27,11 @@ public class TicketProfile : Profile
 
         CreateMap<TicketUpdateRequestDto, Ticket>()
             .ForMember(dest => dest.TicketMessages, opts =>
-                opts.Ignore())
+                opts.MapFrom(_ => _.Messages))
             .ForMember(dest => dest.CreatedDate, opts =>
                 opts.Ignore())
+            .ForMember(dest => dest.UpdatedDate, opts =>
+                opts.MapFrom(_ => DateTime.UtcNow))
             .ForMember(dest => dest.User, opts =>
                 opts.Ignore())
             .ForMember(dest => dest.UserId, opts =>

@@ -1,4 +1,5 @@
-﻿using TicketsManager.DAL.Enums;
+﻿using TicketsManager.BLL.Dtos.MessageDtos;
+using TicketsManager.DAL.Enums;
 
 namespace TicketsManager.BLL.Dtos.TicketDtos
 {
@@ -7,11 +8,6 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
     /// </summary>
     public class TicketUpdateRequestDto
     {
-        /// <summary>
-        /// The unique identifier of the ticket.
-        /// </summary>
-        public Guid Id { get; set; }
-
         /// <summary>
         /// The updated title of the ticket.
         /// </summary>
@@ -33,13 +29,13 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         public string? Comment { get; set; }
 
         /// <summary>
-        /// The updated date and time when the ticket was last updated.
-        /// </summary>
-        public DateTime? UpdatedDate { get; set; }
-
-        /// <summary>
         /// The updated status of the ticket.
         /// </summary>
         public TicketStatusEnum Status { get; set; }
+        
+        /// <summary>
+        /// The messages list of ticket.
+        /// </summary>
+        public List<MessageDto> Messages { get; set; }
     }
 }

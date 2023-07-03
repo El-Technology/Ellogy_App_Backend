@@ -1,4 +1,5 @@
-﻿using TicketsManager.DAL.Enums;
+﻿using TicketsManager.BLL.Dtos.MessageDtos;
+using TicketsManager.DAL.Enums;
 
 namespace TicketsManager.BLL.Dtos.TicketDtos
 {
@@ -16,6 +17,11 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         /// The description of the ticket.
         /// </summary>
         public string Description { get; set; }
+        
+        /// <summary>
+        /// The summary that generate ChatGPT.
+        /// </summary>
+        public string Summary { get; set; }
 
         /// <summary>
         /// The date and time when the ticket is created.
@@ -26,5 +32,10 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         /// The status of the ticket.
         /// </summary>
         public TicketStatusEnum Status { get; set; }
+        
+        /// <summary>
+        /// The messages list of ticket.
+        /// </summary>
+        public List<MessageDto> Messages { get; set; }
     }
 }

@@ -63,18 +63,6 @@
 
 
     {
-      "UpstreamPathTemplate": "/gateway/Messages/createMessage",
-      "UpstreamHttpMethod": [ "Post" ],
-      "DownstreamPathTemplate": "/api/Messages",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "ticket_manager",
-          "Port": 80
-        }
-      ]
-    },
-    {
       "UpstreamPathTemplate": "/gateway/Tickets/getTickets/{userId}",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Tickets/tickets/{userId}",
@@ -100,20 +88,8 @@
     },
     {
       "UpstreamPathTemplate": "/gateway/Tickets/{id}",
-      "UpstreamHttpMethod": [ "Post", "Delete" ],
+      "UpstreamHttpMethod": [ "Post", "Delete", "Put" ],
       "DownstreamPathTemplate": "/api/Tickets/{id}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "ticket_manager",
-          "Port": 80
-        }
-      ]
-    },
-    {
-      "UpstreamPathTemplate": "/gateway/Tickets",
-      "UpstreamHttpMethod": [ "Put" ],
-      "DownstreamPathTemplate": "/api/Tickets/",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {

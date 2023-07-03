@@ -7,20 +7,24 @@ namespace TicketsManager.DAL.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private readonly TicketsManagerDbContext _dbContext;
+    private readonly TicketsManagerDbContext _context;
 
-    public UserRepository(TicketsManagerDbContext dbContext)
+    public UserRepository(TicketsManagerDbContext context)
     {
-        _dbContext = dbContext;
+        _context = context;
     }
 
-    public ValueTask<User?> GetUserAsync(Guid id)
+    public Task<User?> GetUserAsync(Guid id)
     {
-        return _dbContext.Users.FindAsync(id);
+        return _context.Users
+            .AsNoTracking()
+            .Include(e => e.UserTickets)
+            .ThenInclude(e => e.TicketMessages)
+            .FirstOrDefaultAsync(e => e.Id == id);
     }
 
     public Task<bool> CheckIfUserExistAsync(Guid id)
     {
-        return _dbContext.Users.AnyAsync(e => e.Id == id);
+        return _context.Users.AnyAsync(e => e.Id == id);
     }
 }

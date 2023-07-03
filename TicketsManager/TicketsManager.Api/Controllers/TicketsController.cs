@@ -34,7 +34,7 @@ namespace TicketsManager.Api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [HttpPost]
         [Route("tickets/{userId:guid}")]
-        public async Task<IActionResult> GetAllTickets([Required] Guid userId, [FromBody] PaginationRequestDto paginateRequest)
+        public async Task<IActionResult> GetTickets([Required] Guid userId, [FromBody] PaginationRequestDto paginateRequest)
         {
             var tickets = await _ticketsService.GetTicketsAsync(userId, paginateRequest);
             return Ok(tickets);
@@ -68,7 +68,7 @@ namespace TicketsManager.Api.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         [HttpPost]
         [Route("{userId:guid}")]
-        public async Task<IActionResult> CreateTicket([FromBody] TicketCreateRequestDto createTicketRequest, [Required] Guid userId)
+        public async Task<IActionResult> CreateTicket([Required] Guid userId, [FromBody] TicketCreateRequestDto createTicketRequest)
         {
             var createdTicket = await _ticketsService.CreateTicketAsync(createTicketRequest, userId);
             return Ok(createdTicket);
@@ -93,13 +93,14 @@ namespace TicketsManager.Api.Controllers
         /// Updates the details of a ticket.
         /// </summary>
         /// <param name="ticketUpdateRequest">The updated data for the ticket.</param>
+        /// <param name="userId">The id of the user, to which belongs that ticke.</param>
         /// <returns>An <see cref="IActionResult"/> containing the updated ticket.</returns>
         [ProducesResponseType(typeof(TicketResponseDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-        [HttpPut]
-        public async Task<IActionResult> UpdateTicket([FromBody] TicketUpdateRequestDto ticketUpdateRequest)
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateTicket(Guid id, [FromBody] TicketUpdateRequestDto ticketUpdateRequest)
         {
-            var ticket = await _ticketsService.UpdateTicketAsync(ticketUpdateRequest);
+            var ticket = await _ticketsService.UpdateTicketAsync(id, ticketUpdateRequest);
             return Ok(ticket);
         }
     }

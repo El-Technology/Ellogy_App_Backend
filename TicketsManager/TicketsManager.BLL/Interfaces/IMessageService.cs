@@ -4,5 +4,5 @@ namespace TicketsManager.BLL.Interfaces;
 
 public interface IMessageService
 {
-    Task<MessageResponseDto> CreateMessageAsync(MessageCreateRequestDto messageCreateRequest);
+    Task<MessageResponseDto> CreateMessageAsync(MessagesCreateRequestDto messagesCreateRequest);
 }
