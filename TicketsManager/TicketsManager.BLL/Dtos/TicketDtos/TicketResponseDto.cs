@@ -51,6 +51,6 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         /// <summary>
         /// The collection of messages associated with the ticket.
         /// </summary>
-        public List<MessageResponseDto> TicketMessages { get; set; }
+        public List<MessageResponseDto> Messages { get; set; }
     }
 }
