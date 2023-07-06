@@ -4,6 +4,7 @@ using UserManager.BLL.Dtos.MailDtos;
 using UserManager.BLL.Interfaces;
 using UserManager.Common;
 using UserManager.Common.Helpers;
+using UserManager.Common.Options;
 
 namespace UserManager.BLL.Services;
 

@@ -8,6 +8,7 @@ public class UserManagerDbContext : DbContext
 {
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<ForgotPassword> ForgotPasswords { get; set; } = null!;
+    public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
     public UserManagerDbContext() { }
 

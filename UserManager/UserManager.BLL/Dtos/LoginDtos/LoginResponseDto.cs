@@ -46,6 +46,11 @@ namespace UserManager.BLL.Dtos.LoginDtos
         /// The JSON Web Token (JWT) generated for the user.
         /// </summary>
         public string Jwt { get; set; }
+        
+        /// <summary>
+        /// The refresh token for the future requests of refreshing the JWT.
+        /// </summary>
+        public string RefreshToken { get; set; }
 
         /// <summary>
         /// The role assigned to the user.

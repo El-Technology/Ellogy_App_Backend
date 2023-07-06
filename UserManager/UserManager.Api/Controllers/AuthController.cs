@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UserManager.BLL.Dtos.LoginDtos;
+using UserManager.BLL.Dtos.RefreshTokenDtos;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Interfaces;
 
@@ -9,16 +10,11 @@ namespace UserManager.Api.Controllers;
 [Route("api/[controller]/")]
 public class AuthController : Controller
 {
-    private const string CookieName = "Token";
-    private const int CookieExpireInMinutes = 60;
-
-    private readonly IRegisterService _registerService;
-    private readonly ILoginService _loginService;
-
-    public AuthController(IRegisterService registerService, ILoginService loginService)
+    private readonly IAuthService _authService;
+    
+    public AuthController(IAuthService authService)
     {
-        _registerService = registerService;
-        _loginService = loginService;
+        _authService = authService;
     }
 
     /// <summary>
@@ -34,7 +30,7 @@ public class AuthController : Controller
     [Route("register")]
     public async Task<IActionResult> Register([FromBody] UserRegisterRequestDto userRegister)
     {
-        await _registerService.RegisterUserAsync(userRegister);
+        await _authService.RegisterUserAsync(userRegister);
         return Ok();
     }
 
@@ -56,17 +52,24 @@ public class AuthController : Controller
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginUser)
     {
-        var user = await _loginService.LoginUser(loginUser);
+        var user = await _authService.LoginUser(loginUser);
 
         var cookieOptions = new CookieOptions
         {
-            Expires = DateTime.Now.AddMinutes(CookieExpireInMinutes),
+            Expires = DateTime.Now.AddMinutes(Common.Options.CookieOptions.CookieExpireInMinutes),
             HttpOnly = true,
             Secure = true,
             Path = "/"
         };
 
-        Response.Cookies.Append(CookieName, user.Jwt, cookieOptions);
+        Response.Cookies.Append(Common.Options.CookieOptions.CookieName, user.Jwt, cookieOptions);
         return Ok(user);
+    }
+    
+    [HttpPost]
+    [Route("refreshToken")]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto refreshTokenRequest)
+    {
+        return Ok();
     }
 }

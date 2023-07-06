@@ -11,8 +11,7 @@ public static class DiExtension
     public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
     {
         return services
-            .AddScoped<IRegisterService, RegisterService>()
-            .AddScoped<ILoginService, LoginService>()
+            .AddScoped<IAuthService, AuthService>()
             .AddScoped<IPasswordService, PasswordService>()
             .AddScoped<IMailService, MailService>()
             .AddScoped<EmailClient>(_ => new(EnvironmentVariables.CommunicationServiceConnectionString));

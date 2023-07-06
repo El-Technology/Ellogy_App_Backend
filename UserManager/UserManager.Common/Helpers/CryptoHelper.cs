@@ -6,7 +6,7 @@ namespace UserManager.Common.Helpers;
 public static class CryptoHelper
 {
     private const int SaltLength = 32;
-    public static string GenerateSalt()
+    public static string GenerateSalt(int length = SaltLength)
     {
         using var rng = RandomNumberGenerator.Create();
 
@@ -41,7 +41,7 @@ public static class CryptoHelper
         return sBuilder.ToString();
     }
 
-    public static string GenerateToken()
+    public static string GenerateToken(int length = SaltLength)
     {
         return GenerateSalt();
     }

@@ -2,6 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using UserManager.Common;
+using UserManager.Common.Options;
 using UserManager.DAL.Models;
 
 namespace UserManager.BLL.Helpers;
