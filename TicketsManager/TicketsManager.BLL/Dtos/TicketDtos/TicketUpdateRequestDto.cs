@@ -22,6 +22,11 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         /// The updated summary of the ticket.
         /// </summary>
         public string? Summary { get; set; }
+        
+        /// <summary>
+        /// The context of all conversation with bot.
+        /// </summary>
+        public string? Context { get; set; }
 
         /// <summary>
         /// The updated comment associated with the ticket.

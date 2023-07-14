@@ -9,6 +9,7 @@ public class Ticket
     public string Title { get; set; }
     public string? Description { get; set; }
     public string? Summary { get; set; }
+    public string? Context { get; set; }
     public string? Comment { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }

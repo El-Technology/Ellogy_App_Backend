@@ -25,6 +25,7 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
             .HasMaxLength(250);
         builder.Property(c => c.Summary)
             .HasMaxLength(250);
+        builder.Property(c => c.Context);
 
         builder.HasOne(e => e.User)
             .WithMany(e => e.UserTickets)
