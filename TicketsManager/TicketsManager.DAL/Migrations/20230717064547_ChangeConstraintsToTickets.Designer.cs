@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TicketsManager.DAL.Context;
@@ -11,9 +12,11 @@ using TicketsManager.DAL.Context;
 namespace TicketsManager.DAL.Migrations
 {
     [DbContext(typeof(TicketsManagerDbContext))]
-    partial class TicketsManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230717064547_ChangeConstraintsToTickets")]
+    partial class ChangeConstraintsToTickets
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
