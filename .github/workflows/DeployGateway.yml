@@ -48,6 +48,12 @@ jobs:
       URL: ${{ needs.build_api_gateway.outputs.MicroserviceImage }}
 
     steps:
+      - name: Login to docker registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
