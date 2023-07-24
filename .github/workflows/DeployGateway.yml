@@ -5,7 +5,7 @@ on:
       - develop
     paths:
       - OcelotApiGateway/**
-      - .github/**
+      - .github/workflows/DeployGateway.yml
       
 env:
   ENVNAME: ${{ vars.ENVNAME }} 
@@ -48,6 +48,14 @@ jobs:
       URL: ${{ needs.build_api_gateway.outputs.MicroserviceImage }}
 
     steps:
+      - name: Update secret on PR deployment slot
+        uses: Azure/cli@v1.0.7
+        with:
+          inlineScript: az webapp config container set
+            --name EllogyApiGateway 
+            --resource-group AI_SmartGoals
+            --docker-registry-server-user ${{ github.actor }}
+            --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
