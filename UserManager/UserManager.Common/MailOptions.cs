@@ -2,6 +2,6 @@
 
 public static class MailOptions
 {
-    public const string FromMail = "EllogySupport@6959ccbc-ae45-407c-a578-55283cccf80d.azurecomm.net";
+    public const string FromMail = "EllogySupport@58081eda-db9a-42e2-89fc-2ca643882e67.azurecomm.net";
     public const string MessageSubject = "Password Reset";
 }
