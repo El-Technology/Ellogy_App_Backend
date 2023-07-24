@@ -49,13 +49,14 @@ jobs:
 
     steps:
       - name: Update secret on PR deployment slot
-        uses: Azure/cli@v1.0.7
+        uses: azure/app-service-deploy@v1
         with:
-          inlineScript: az webapp config container set
-            --name EllogyApiGateway 
-            --resource-group AI_SmartGoals
-            --docker-registry-server-user ${{ github.actor }}
-            --docker-registry-server-password ${{ secrets.GITHUB_TOKEN }}
+          app-name: EllogyApiGateway
+          app-service-plan: ASP-AISmartGoals-b5bd
+          resource-group: AI_SmartGoals
+          registry-login-server: packages.github.com
+          registry-username: ${{ github.actor }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
