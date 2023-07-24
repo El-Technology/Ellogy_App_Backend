@@ -1,0 +1,58 @@
+name: Build and deploy API Gateway
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - OcelotApiGateway/**
+      - .github/**
+      
+env:
+  ENVNAME: ${{ vars.ENVNAME }} 
+  AZURE_WEBAPP_NAME: "EllogyApiGateway"
+
+jobs:
+  build_api_gateway:
+    env:  
+      MICROSERVICE_NAME: 'api_gateway'
+      PROJECT_PATH: './OcelotApiGateway/'
+      CONTEXT: '.'
+      DOCKERFILEPATH: './OcelotApiGateway/Dockerfile'
+      
+    outputs:
+      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
+      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
+        
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+
+      - name: Build and push image of API Gateway
+        id: build-n-push
+        uses: ./.github/actions/Build-n-push
+        with: 
+          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+          Environment: ${{ env.ENVNAME }}
+          ProjectPath: ${{ env.PROJECT_PATH }}
+          Context: ${{ env.CONTEXT }}
+          DockerfilePath: ${{ env.DOCKERFILEPATH }}
+          Token: ${{ secrets.GITHUB_TOKEN }}
+          
+  deploy:
+    runs-on: ubuntu-latest
+
+    needs: build_api_gateway
+
+    env:
+      URL: ${{ needs.build_api_gateway.outputs.MicroserviceImage }}
+
+    steps:
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@85270a1854658d167ab239bce43949edb336fa7c
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          images: 'ghcr.io/${{ env.URL }}'
