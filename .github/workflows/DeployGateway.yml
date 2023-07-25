@@ -5,7 +5,7 @@ on:
       - develop
     paths:
       - OcelotApiGateway/**
-      - .github/**
+      - .github/workflows/DeployGateway.yml
 
 env:
   ENVNAME: ${{ vars.ENVNAME }} 
