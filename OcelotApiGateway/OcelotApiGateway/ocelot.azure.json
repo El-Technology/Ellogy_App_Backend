@@ -1,7 +1,8 @@
 {
   "Routes": [
     {
-      "UpstreamPathTemplate": "/gateway/health", //user manager
+      //user manager
+      "UpstreamPathTemplate": "/gateway/health",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/health",
       "DownstreamScheme": "http",
