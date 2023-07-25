@@ -8,8 +8,14 @@ public class MessageProfile : Profile
 {
     public MessageProfile()
     {
-        CreateMap<Message, MessageResponseDto>();
-        
-        CreateMap<MessageDto, Message>();
+        CreateMap<Message, MessageResponseDto>()
+            .ForMember(dest => dest.Action, opts =>
+            opts.MapFrom(_ => new ActionDto { State = _.ActionState, Type = _.ActionType }));
+
+        CreateMap<MessageDto, Message>()
+            .ForMember(dest => dest.ActionState, opts =>
+                opts.MapFrom(_ => _.Action.State))
+            .ForMember(dest => dest.ActionType, opts =>
+                opts.MapFrom(_ => _.Action.Type));
     }
 }

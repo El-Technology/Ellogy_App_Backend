@@ -28,6 +28,12 @@ namespace TicketsManager.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("ActionState")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ActionType")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");

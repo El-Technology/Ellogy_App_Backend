@@ -1,4 +1,6 @@
-﻿namespace TicketsManager.BLL.Dtos.MessageDtos;
+﻿using TicketsManager.DAL.Enums;
+
+namespace TicketsManager.BLL.Dtos.MessageDtos;
 
 public class MessageDto
 {
@@ -16,4 +18,9 @@ public class MessageDto
 	/// The time when message was sent.
 	/// </summary>
 	public DateTime SendTime { get; set; }
+
+    /// <summary>
+    /// Represents the type and the state of message.
+    /// </summary>
+    public ActionDto Action { get; set; }
 }
