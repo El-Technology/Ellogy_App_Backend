@@ -4,7 +4,7 @@ namespace TicketsManager.BLL.Dtos.MessageDtos
 {
     public class ActionDto
     {
-        public MessageActionStateEnum State { get; set; }
-        public MessageActionTypeEnum Type { get; set; }
+        public MessageActionStateEnum? State { get; set; }
+        public MessageActionTypeEnum? Type { get; set; }
     }
 }

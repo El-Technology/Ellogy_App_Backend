@@ -10,8 +10,8 @@ public class Message
     public string Sender { get; set; }
     public string Content { get; set; }
     public DateTime SendTime { get; set; }
-    public MessageActionTypeEnum ActionType { get; set; }
-    public MessageActionStateEnum ActionState { get; set; }
+    public MessageActionTypeEnum? ActionType { get; set; }
+    public MessageActionStateEnum? ActionState { get; set; }
 
     public Ticket Ticket { get; set; }
     public Guid TicketId { get; set; }

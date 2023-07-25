@@ -14,8 +14,8 @@ public class MessageProfile : Profile
 
         CreateMap<MessageDto, Message>()
             .ForMember(dest => dest.ActionState, opts =>
-                opts.MapFrom(_ => _.Action.State))
+                opts.MapFrom(_ => _.Action != null ? _.Action.State : null))
             .ForMember(dest => dest.ActionType, opts =>
-                opts.MapFrom(_ => _.Action.Type));
+                opts.MapFrom(_ => _.Action != null ? _.Action.Type : null));
     }
 }

@@ -22,5 +22,5 @@ public class MessageDto
     /// <summary>
     /// Represents the type and the state of message.
     /// </summary>
-    public ActionDto Action { get; set; }
+    public ActionDto? Action { get; set; }
 }
