@@ -24,7 +24,7 @@ public class TicketProfile : Profile
                 opts.Ignore());
 
         CreateMap<Ticket, TicketResponseDto>()
-            .ForMember(e => e.Messages, opts => 
+            .ForMember(dest => dest.Messages, opts =>
                 opts.MapFrom(_ => _.TicketMessages));
 
         CreateMap<TicketUpdateRequestDto, Ticket>()

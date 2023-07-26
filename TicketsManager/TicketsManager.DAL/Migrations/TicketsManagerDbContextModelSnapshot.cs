@@ -77,9 +77,6 @@ namespace TicketsManager.DAL.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Summary")
-                        .HasColumnType("text");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -96,6 +93,26 @@ namespace TicketsManager.DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Tickets", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsPotential")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TicketSummaries", (string)null);
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.User", b =>
@@ -131,9 +148,22 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                        .WithMany("TicketSummaries")
+                        .HasForeignKey("Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
                 {
                     b.Navigation("TicketMessages");
+
+                    b.Navigation("TicketSummaries");
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.User", b =>

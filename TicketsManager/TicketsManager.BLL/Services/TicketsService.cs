@@ -68,6 +68,12 @@ public class TicketsService : ITicketsService
         foreach (var message in mappedTicket.TicketMessages)
             message.TicketId = mappedTicket.Id;
 
+        foreach (var summary in mappedTicket.TicketSummaries)
+        {
+            summary.TicketId = mappedTicket.Id;
+            summary.Ticket = mappedTicket;
+        }
+
         return mappedTicket;
     }
 

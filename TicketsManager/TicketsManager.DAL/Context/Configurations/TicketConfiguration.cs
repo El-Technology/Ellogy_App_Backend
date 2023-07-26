@@ -21,7 +21,6 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
             .IsRequired();
         builder.Property(c => c.UpdatedDate);
         builder.Property(c => c.Comment);
-        builder.Property(c => c.Summary);
         builder.Property(c => c.Context);
 
         builder.HasOne(e => e.User)
