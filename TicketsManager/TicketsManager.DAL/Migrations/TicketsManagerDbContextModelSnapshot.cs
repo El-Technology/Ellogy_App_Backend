@@ -98,6 +98,7 @@ namespace TicketsManager.DAL.Migrations
             modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
                 {
                     b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<string>("Data")
@@ -111,6 +112,8 @@ namespace TicketsManager.DAL.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
 
                     b.ToTable("TicketSummaries", (string)null);
                 });
@@ -152,7 +155,7 @@ namespace TicketsManager.DAL.Migrations
                 {
                     b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
                         .WithMany("TicketSummaries")
-                        .HasForeignKey("Id")
+                        .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

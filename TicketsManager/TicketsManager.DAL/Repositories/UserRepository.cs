@@ -8,30 +8,32 @@ namespace TicketsManager.DAL.Repositories;
 
 public class UserRepository : IUserRepository
 {
-	private readonly TicketsManagerDbContext _context;
+    private readonly TicketsManagerDbContext _context;
 
-	public UserRepository(TicketsManagerDbContext context)
-	{
-		_context = context;
-	}
+    public UserRepository(TicketsManagerDbContext context)
+    {
+        _context = context;
+    }
 
-	public async Task<User> GetUserAsync(Guid id)
-	{
-		var user = await _context.Users
-					   .AsNoTracking()
-					   .Include(e => e.UserTickets)
-					   .ThenInclude(e => e.TicketMessages)
-					   .FirstOrDefaultAsync(e => e.Id == id)
-				   ?? throw new EntityNotFoundException(typeof(User));
+    public async Task<User> GetUserAsync(Guid id)
+    {
+        var user = await _context.Users
+                       .AsNoTracking()
+                       .Include(u => u.UserTickets)
+                       .ThenInclude(t => t.TicketMessages)
+                       .Include(u => u.UserTickets)
+                       .ThenInclude(t => t.TicketSummaries)
+                       .FirstOrDefaultAsync(e => e.Id == id)
+                   ?? throw new EntityNotFoundException(typeof(User));
 
-		foreach (var ticket in user.UserTickets)
-			ticket.TicketMessages = ticket.TicketMessages.OrderBy(e => e.SendTime).ToList();
+        foreach (var ticket in user.UserTickets)
+            ticket.TicketMessages = ticket.TicketMessages.OrderBy(e => e.SendTime).ToList();
 
-		return user;
-	}
+        return user;
+    }
 
-	public Task<bool> CheckIfUserExistAsync(Guid id)
-	{
-		return _context.Users.AnyAsync(e => e.Id == id);
-	}
+    public Task<bool> CheckIfUserExistAsync(Guid id)
+    {
+        return _context.Users.AnyAsync(e => e.Id == id);
+    }
 }

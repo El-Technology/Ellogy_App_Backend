@@ -17,7 +17,7 @@ public class TicketsRepository : ITicketsRepository
         _context = context;
         _userRepository = userRepository;
     }
-    
+
     public async Task<PaginationResponseDto<Ticket>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest)
     {
         var user = await _userRepository.GetUserAsync(userId);
@@ -45,6 +45,7 @@ public class TicketsRepository : ITicketsRepository
         return _context.Tickets
             .Include(e => e.User)
             .Include(e => e.TicketMessages)
+            .Include(e => e.TicketSummaries)
             .AsTracking()
             .FirstOrDefaultAsync(e => e.Id == id);
     }
