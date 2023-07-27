@@ -4,6 +4,15 @@ namespace UserManager.Common;
 
 public static class EnvironmentVariables
 {
+    public static string AzureServiceBusConnectionString
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING");
+            return variable is null ? throw new EnvironmentVariableNotFoundException("AZURE_SERVICE_BUS_CONNECTION_STRING") : variable;
+        }
+
+    }
     public static string ConnectionString
     {
         get
