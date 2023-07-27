@@ -6,7 +6,9 @@ on:
     paths:
       - TicketsManager/**
       - UserManager/**
-      - .github/**
+      - .github/workflows/Deploy.yml
+      - .github/actions/** 
+      - '!UserManager/NotificationService/**'
       
 env:
   SSH_HOST: ${{ secrets.SSH_HOST }}
