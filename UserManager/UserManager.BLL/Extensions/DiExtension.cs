@@ -16,7 +16,6 @@ public static class DiExtension
             .AddScoped<IRegisterService, RegisterService>()
             .AddScoped<ILoginService, LoginService>()
             .AddScoped<IPasswordService, PasswordService>()
-            .AddScoped<EmailClient>(_ => new(EnvironmentVariables.CommunicationServiceConnectionString))
             .AddScoped<ServiceBusClient>(_ => new(EnvironmentVariables.AzureServiceBusConnectionString));
     }
 

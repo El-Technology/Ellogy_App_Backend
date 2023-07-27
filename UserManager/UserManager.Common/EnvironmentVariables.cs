@@ -31,15 +31,6 @@ public static class EnvironmentVariables
         }
 
     }
-    public static string CommunicationServiceConnectionString
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("COMMUNICATION_SERVICE_CONNECTION_STRING");
-            return variable is null ? throw new EnvironmentVariableNotFoundException("COMMUNICATION_SERVICE_CONNECTION_STRING") : variable;
-        }
-
-    }
     public static string EmailClientConnectionString
     {
         get
