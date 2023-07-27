@@ -26,10 +26,10 @@ jobs:
 
     - name: Build Azure Function
       run: |
-      cd ${{ env.WORKING_DIRECTORY }}
-      dotnet restore
-      dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
-      dotnet publish --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}"
+        cd ${{ env.WORKING_DIRECTORY }}
+        dotnet restore
+        dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore
+        dotnet publish --configuration ${{ env.CONFIGURATION }} --no-build --output "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}"
 
     - name: Deploy to Azure Function App
       uses: Azure/functions-action@v1
