@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "NotificationService": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7206"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 34257,
+      "useSSL": false
+    }
+  }
+}

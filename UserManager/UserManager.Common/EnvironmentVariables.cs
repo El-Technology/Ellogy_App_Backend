@@ -4,12 +4,48 @@ namespace UserManager.Common;
 
 public static class EnvironmentVariables
 {
-	public static readonly string? ConnectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") 
-													  ?? throw new EnvironmentVariableNotFoundException("CONNECTION_STRING");
-	
-    public static readonly string? JwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") 
-												  ?? throw new EnvironmentVariableNotFoundException("JWT_SECRET_KEY");
-	
-    public static readonly string? CommunicationServiceConnectionString = Environment.GetEnvironmentVariable("COMMUNICATION_SERVICE_CONNECTION_STRING") 
-                                                                          ?? throw new EnvironmentVariableNotFoundException("COMMUNICATION_SERVICE_CONNECTION_STRING");
+    public static string ConnectionString
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            return variable is null ? throw new EnvironmentVariableNotFoundException("CONNECTION_STRING") : variable;
+        }
+
+    }
+    public static string JwtSecretKey
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+            return variable is null ? throw new EnvironmentVariableNotFoundException("JWT_SECRET_KEY") : variable;
+        }
+
+    }
+    public static string CommunicationServiceConnectionString
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("COMMUNICATION_SERVICE_CONNECTION_STRING");
+            return variable is null ? throw new EnvironmentVariableNotFoundException("COMMUNICATION_SERVICE_CONNECTION_STRING") : variable;
+        }
+
+    }
+    public static string EmailClientConnectionString
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("EMAIL_CLIENT_CONNECTION_STRING");
+            return variable is null ? throw new EnvironmentVariableNotFoundException("EMAIL_CLIENT_CONNECTION_STRING") : variable;
+        }
+
+    }
+    public static string BlobStorageConnectionString
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING");
+            return variable is null ? throw new EnvironmentVariableNotFoundException("BLOB_STORAGE_CONNECTION_STRING") : variable;
+        }
+    }
 }
