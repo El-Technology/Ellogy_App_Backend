@@ -1,4 +1,5 @@
 ﻿using TicketsManager.BLL.Dtos.MessageDtos;
+using TicketsManager.BLL.Dtos.TicketSummaryDtos;
 using TicketsManager.DAL.Enums;
 
 namespace TicketsManager.BLL.Dtos.TicketDtos
@@ -19,9 +20,14 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         public string Description { get; set; }
 
         /// <summary>
-        /// The updated summary of the ticket.
+        /// The updated list of summaries of the ticket.
         /// </summary>
-        public string? Summary { get; set; }
+        public List<TicketSummaryFullDto>? TicketSummaries { get; set; }
+
+        /// <summary>
+        /// The context of all conversation with bot.
+        /// </summary>
+        public string? Context { get; set; }
 
         /// <summary>
         /// The updated comment associated with the ticket.
@@ -32,7 +38,7 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         /// The updated status of the ticket.
         /// </summary>
         public TicketStatusEnum Status { get; set; }
-        
+
         /// <summary>
         /// The messages list of ticket.
         /// </summary>

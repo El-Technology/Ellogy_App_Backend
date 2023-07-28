@@ -28,9 +28,18 @@ namespace TicketsManager.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int?>("ActionState")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ActionType")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime>("SendTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Sender")
                         .IsRequired()
@@ -54,27 +63,24 @@ namespace TicketsManager.DAL.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("Comment")
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
+                        .HasColumnType("text");
+
+                    b.Property<string>("Context")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Summary")
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
-
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("timestamp with time zone");
@@ -87,6 +93,29 @@ namespace TicketsManager.DAL.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Tickets", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsPotential")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketSummaries", (string)null);
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.User", b =>
@@ -122,9 +151,22 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                        .WithMany("TicketSummaries")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
                 {
                     b.Navigation("TicketMessages");
+
+                    b.Navigation("TicketSummaries");
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.User", b =>

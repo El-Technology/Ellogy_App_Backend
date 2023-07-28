@@ -4,5 +4,5 @@ namespace TicketsManager.DAL.Interfaces;
 
 public interface IMessagesRepository
 {
-    Task CreateMessageAsync(Message message);
+    public Task<List<Message>> GetMessagesByTicketId(Guid ticketId);
 }

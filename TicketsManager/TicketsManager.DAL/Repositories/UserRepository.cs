@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketsManager.DAL.Context;
+using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models;
 
@@ -14,13 +15,21 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public Task<User?> GetUserAsync(Guid id)
+    public async Task<User> GetUserAsync(Guid id)
     {
-        return _context.Users
-            .AsNoTracking()
-            .Include(e => e.UserTickets)
-            .ThenInclude(e => e.TicketMessages)
-            .FirstOrDefaultAsync(e => e.Id == id);
+        var user = await _context.Users
+                       .AsNoTracking()
+                       .Include(u => u.UserTickets)
+                       .ThenInclude(t => t.TicketMessages)
+                       .Include(u => u.UserTickets)
+                       .ThenInclude(t => t.TicketSummaries)
+                       .FirstOrDefaultAsync(e => e.Id == id)
+                   ?? throw new EntityNotFoundException(typeof(User));
+
+        foreach (var ticket in user.UserTickets)
+            ticket.TicketMessages = ticket.TicketMessages.OrderBy(e => e.SendTime).ToList();
+
+        return user;
     }
 
     public Task<bool> CheckIfUserExistAsync(Guid id)

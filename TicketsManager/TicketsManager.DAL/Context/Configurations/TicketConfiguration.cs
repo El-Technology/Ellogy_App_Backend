@@ -13,18 +13,15 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
 
         builder.Property(c => c.Title)
             .IsRequired()
-            .HasMaxLength(50);
-        builder.Property(c => c.Description)
             .HasMaxLength(250);
+        builder.Property(c => c.Description);
         builder.Property(c => c.Status)
             .IsRequired();
         builder.Property(c => c.CreatedDate)
             .IsRequired();
         builder.Property(c => c.UpdatedDate);
-        builder.Property(c => c.Comment)
-            .HasMaxLength(250);
-        builder.Property(c => c.Summary)
-            .HasMaxLength(250);
+        builder.Property(c => c.Comment);
+        builder.Property(c => c.Context);
 
         builder.HasOne(e => e.User)
             .WithMany(e => e.UserTickets)

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
-using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models;
@@ -18,17 +17,17 @@ public class TicketsRepository : ITicketsRepository
         _context = context;
         _userRepository = userRepository;
     }
-    
+
     public async Task<PaginationResponseDto<Ticket>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest)
     {
-        var user = await _userRepository.GetUserAsync(userId) ?? throw new EntityNotFoundException(typeof(User));
+        var user = await _userRepository.GetUserAsync(userId);
 
         return user.UserTickets.GetFinalResult(paginateRequest);
     }
 
     public async Task<PaginationResponseDto<Ticket>> FindTicketsAsync(Guid userId, SearchTicketsRequestDto searchTicketsRequest)
     {
-        var user = await _userRepository.GetUserAsync(userId) ?? throw new EntityNotFoundException(typeof(User));
+        var user = await _userRepository.GetUserAsync(userId);
 
         return user.UserTickets
             .Where(e => e.Title.Contains(searchTicketsRequest.TicketTitle, StringComparison.InvariantCultureIgnoreCase))
@@ -46,6 +45,7 @@ public class TicketsRepository : ITicketsRepository
         return _context.Tickets
             .Include(e => e.User)
             .Include(e => e.TicketMessages)
+            .Include(e => e.TicketSummaries)
             .AsTracking()
             .FirstOrDefaultAsync(e => e.Id == id);
     }

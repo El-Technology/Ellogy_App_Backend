@@ -1,14 +1,15 @@
 {
   "Routes": [
     {
+      //user manager
       "UpstreamPathTemplate": "/gateway/health",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/health",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "20.21.124.185",
+          "Port": 5281
         }
       ]
     },
@@ -19,8 +20,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "20.21.124.185",
+          "Port": 5281
         }
       ]
     },
@@ -31,8 +32,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "20.21.124.185",
+          "Port": 5281
         }
       ]
     },
@@ -43,8 +44,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "20.21.124.185",
+          "Port": 5281
         }
       ]
     },
@@ -55,8 +56,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "20.21.124.185",
+          "Port": 5281
         }
       ]
     },
@@ -69,8 +70,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "ticket_manager",
-          "Port": 80
+          "Host": "20.21.124.185",
+          "Port": 5041
         }
       ]
     },
@@ -81,8 +82,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "ticket_manager",
-          "Port": 80
+          "Host": "20.21.124.185",
+          "Port": 5041
         }
       ]
     },
@@ -93,8 +94,8 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "ticket_manager",
-          "Port": 80
+          "Host": "20.21.124.185",
+          "Port": 5041
         }
       ]
     }

@@ -1,8 +1,10 @@
-﻿using System.Web;
+﻿using System.Dynamic;
+using System.Web;
 using UserManager.BLL.Dtos.PasswordDtos;
 using UserManager.BLL.Exceptions;
 using UserManager.BLL.Interfaces;
 using UserManager.Common.Helpers;
+using UserManager.Common.Models.NotificationModels;
 using UserManager.DAL.Interfaces;
 using UserManager.DAL.Models;
 
@@ -13,20 +15,26 @@ public class PasswordService : IPasswordService
     private readonly TimeSpan _tokenTtl = TimeSpan.FromDays(1);
     private readonly IUserRepository _userRepository;
     private readonly IForgotPasswordRepository _forgotPasswordRepository;
-    private readonly IMailService _mailService;
+    private readonly INotificationQueueService _notificationQueueService;
 
+    private readonly NotificationModel _notificationModel = new()
+    {
+        Type = NotificationTypeEnum.ResetPassword,
+        Way = NotificationWayEnum.Email
+    };
     private const string PasswordResetUrlTemplate = "{0}?id={1}&token={2}";
+    private const string ResetPasswordPattern = "{{{resetPasswordLink}}}";
 
-    public PasswordService(IUserRepository userRepository, IForgotPasswordRepository forgotPasswordRepository, IMailService mailService)
+    public PasswordService(IUserRepository userRepository, IForgotPasswordRepository forgotPasswordRepository, INotificationQueueService notificationQueueService)
     {
         _userRepository = userRepository;
         _forgotPasswordRepository = forgotPasswordRepository;
-        _mailService = mailService;
+        _notificationQueueService = notificationQueueService;
     }
 
     public async Task ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
     {
-        if (!(await _userRepository.CheckEmailIsExistAsync(forgotPasswordDto.Email)))
+        if (!await _userRepository.CheckEmailIsExistAsync(forgotPasswordDto.Email))
             throw new UserNotFoundException(forgotPasswordDto.Email);
 
         var token = CryptoHelper.GenerateToken();
@@ -39,8 +47,11 @@ public class PasswordService : IPasswordService
         var resetPasswordUrl = string.Format(PasswordResetUrlTemplate, forgotPasswordDto.RedirectUrl,
             HttpUtility.UrlEncode(forgotPasswordEntry.Id.ToString()), HttpUtility.UrlEncode(hashToken));
 
-        await _mailService.SendPasswordResetLetterAsync(
-            new(resetPasswordUrl, forgotPasswordDto.Email, user.FirstName));
+
+        _notificationModel.Consumer = forgotPasswordDto.Email;
+        _notificationModel.MetaData = new() { { ResetPasswordPattern, resetPasswordUrl } };
+
+        await _notificationQueueService.SendNotificationAsync(_notificationModel);
     }
 
     public async Task ResetPasswordAsync(ResetPasswordDto resetPasswordDto)

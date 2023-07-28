@@ -5,9 +5,10 @@ on:
       - develop
     paths:
       - TicketsManager/**
-      - OcelotApiGateway/**
       - UserManager/**
-      - .github/**
+      - .github/workflows/Deploy.yml
+      - .github/actions/** 
+      - '!UserManager/NotificationService/**'
       
 env:
   SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -20,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     
     outputs:
-      OcelotApiGateway: ${{ steps.changes.outputs.OcelotApiGateway }}
       UserManager: ${{ steps.changes.outputs.UserManager }}
       TicketsManager: ${{ steps.changes.outputs.TicketsManager }}
       Workflow: ${{ steps.changes.outputs.Workflow }}
@@ -34,8 +34,6 @@ jobs:
         id: changes
         with:
            filters: |
-              OcelotApiGateway:
-                - 'OcelotApiGateway/**'
               UserManager:
                 - 'UserManager/**'
               TicketsManager:
@@ -43,36 +41,6 @@ jobs:
               Workflow:
                 - '.github/**'
                       
-  build_api_gateway:
-    env:  
-      MICROSERVICE_NAME: 'api_gateway'
-      PROJECT_PATH: './OcelotApiGateway/'
-      CONTEXT: '.'
-      DOCKERFILEPATH: './OcelotApiGateway/Dockerfile'
-      
-    outputs:
-      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
-      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
-      
-    needs: changes
-    if: ${{ needs.changes.outputs.OcelotApiGateway == 'true' || needs.changes.outputs.Workflow == 'true' }}
-    
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get Code
-        uses: actions/checkout@v3
-
-      - name: Build and push image of API Gateway
-        id: build-n-push
-        uses: ./.github/actions/Build-n-push
-        with: 
-          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
-          Environment: ${{ env.ENVNAME }}
-          ProjectPath: ${{ env.PROJECT_PATH }}
-          Context: ${{ env.CONTEXT }}
-          DockerfilePath: ${{ env.DOCKERFILEPATH }}
-          Token: ${{ secrets.GITHUB_TOKEN }}
-
   build_user_manager:
     env:
       MICROSERVICE_NAME: 'user_manager'
@@ -135,7 +103,7 @@ jobs:
 
   deploy_microservices:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-    needs: [build_api_gateway, build_user_manager, build_ticket_manager]
+    needs: [build_user_manager, build_ticket_manager]
     
     runs-on: ubuntu-latest
     steps:
@@ -153,17 +121,14 @@ jobs:
         END
 
     - name: Deploy to VM
-      env:
-        SERVICE_NAME1: ${{ needs.build_api_gateway.outputs.MicroserviceName }}
-        SERVICE_IMAGE1: ${{ needs.build_api_gateway.outputs.MicroserviceImage }}
-        
+      env:     
         SERVICE_NAME2: ${{ needs.build_user_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE2: ${{ needs.build_user_manager.outputs.MicroserviceImage }}
         
         SERVICE_NAME3: ${{ needs.build_ticket_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE3: ${{ needs.build_ticket_manager.outputs.MicroserviceImage }}
         
-        COMMUNICATION_SERVICE_CONNECTION_STRING: ${{ secrets.COMMUNICATION_SERVICE_CONNECTION_STRING }}
+        AZURE_SERVICE_BUS_CONNECTION_STRING: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING }}
         
         OCELOT_CONF: azure
         
@@ -180,23 +145,17 @@ jobs:
         cd Ellogy
         docker-compose down
 
-        export SERVICE_NAME1=$SERVICE_NAME1
-        export SERVICE_IMAGE1=$SERVICE_IMAGE1
         export SERVICE_NAME2=$SERVICE_NAME2
         export SERVICE_IMAGE2=$SERVICE_IMAGE2
         export SERVICE_NAME3=$SERVICE_NAME3
         export SERVICE_IMAGE3=$SERVICE_IMAGE3
 
-        yq e -i ".services.$SERVICE_NAME1.image=env(SERVICE_IMAGE1)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
-        
-        echo $OCELOT_CONF
 
         export CONNECTION_STRING="$CONNECTION_STRING"
         export JWT_SECRET_KEY="$JWT_SECRET_KEY"
-        export OCELOT_CONF="$OCELOT_CONF"
-        export COMMUNICATION_SERVICE_CONNECTION_STRING="$COMMUNICATION_SERVICE_CONNECTION_STRING"
+        export AZURE_SERVICE_BUS_CONNECTION_STRING="$AZURE_SERVICE_BUS_CONNECTION_STRING"
         
         docker-compose up -d
         EOF

@@ -16,6 +16,10 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
             .HasMaxLength(50);
         builder.Property(c => c.Content)
             .IsRequired();
+        builder.Property(c => c.SendTime)
+            .IsRequired();
+        builder.Property(c => c.ActionType);
+        builder.Property(c => c.ActionState);
 
         builder.HasOne(c => c.Ticket)
             .WithMany(c => c.TicketMessages)

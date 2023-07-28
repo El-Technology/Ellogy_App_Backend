@@ -23,7 +23,9 @@ public class TicketProfile : Profile
             .ForMember(dest => dest.UserId, opts =>
                 opts.Ignore());
 
-        CreateMap<Ticket, TicketResponseDto>();
+        CreateMap<Ticket, TicketResponseDto>()
+            .ForMember(dest => dest.Messages, opts =>
+                opts.MapFrom(_ => _.TicketMessages));
 
         CreateMap<TicketUpdateRequestDto, Ticket>()
             .ForMember(dest => dest.TicketMessages, opts =>

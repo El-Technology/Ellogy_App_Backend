@@ -8,14 +8,14 @@ public class MessageProfile : Profile
 {
     public MessageProfile()
     {
-        CreateMap<MessagesCreateRequestDto, Message>()
-            .ForMember(dest => dest.Id, opts =>
-                opts.MapFrom(new GuidValueResolver()))
-            .ForMember(dest => dest.Ticket, opts =>
-                opts.Ignore());
+        CreateMap<Message, MessageResponseDto>()
+            .ForMember(dest => dest.Action, opts =>
+            opts.MapFrom(_ => new ActionDto { State = _.ActionState, Type = _.ActionType }));
 
-        CreateMap<Message, MessageResponseDto>();
-        
-        CreateMap<MessageDto, Message>();
+        CreateMap<MessageDto, Message>()
+            .ForMember(dest => dest.ActionState, opts =>
+                opts.MapFrom(_ => _.Action != null ? _.Action.State : null))
+            .ForMember(dest => dest.ActionType, opts =>
+                opts.MapFrom(_ => _.Action != null ? _.Action.Type : null));
     }
 }
