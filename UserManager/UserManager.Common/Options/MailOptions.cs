@@ -1,4 +1,4 @@
-﻿namespace UserManager.Common;
+﻿namespace UserManager.Common.Options;
 
 public static class MailOptions
 {

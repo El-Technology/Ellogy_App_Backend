@@ -10,7 +10,6 @@
     <Folder Include="Dtos\LoginDtos\" />
     <Folder Include="Dtos\MailDtos\" />
     <Folder Include="Dtos\PasswordDtos\" />
-    <Folder Include="Exceptions\" />
   </ItemGroup>
 
   <ItemGroup>

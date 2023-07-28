@@ -10,11 +10,13 @@ namespace UserManager.BLL.Services;
 
 public class LoginService : ILoginService
 {
+    private readonly IRefreshTokenService _refreshTokenService;
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
 
-    public LoginService(IUserRepository userRepository, IMapper mapper)
+    public LoginService(IUserRepository userRepository, IMapper mapper, IRefreshTokenService refreshTokenService)
     {
+        _refreshTokenService = refreshTokenService;
         _userRepository = userRepository;
         _mapper = mapper;
     }
@@ -28,6 +30,7 @@ public class LoginService : ILoginService
 
         var loginedUser = _mapper.Map<LoginResponseDto>(user);
         loginedUser.Jwt = JwtHelper.GenerateJwt(user);
+        loginedUser.RefreshToken = await _refreshTokenService.GetRefreshTokenAsync(user.Id);
 
         return loginedUser;
     }

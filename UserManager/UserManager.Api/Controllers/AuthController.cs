@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UserManager.BLL.Dtos.LoginDtos;
+using UserManager.BLL.Dtos.RefreshTokenDtos;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Interfaces;
 
@@ -11,14 +12,23 @@ public class AuthController : Controller
 {
     private const string CookieName = "Token";
     private const int CookieExpireInMinutes = 60;
+    private readonly CookieOptions CookieOptions = new()
+    {
+        Expires = DateTime.Now.AddMinutes(CookieExpireInMinutes),
+        HttpOnly = true,
+        Secure = true,
+        Path = "/"
+    };
 
+    private readonly IRefreshTokenService _refreshTokenService;
     private readonly IRegisterService _registerService;
     private readonly ILoginService _loginService;
 
-    public AuthController(IRegisterService registerService, ILoginService loginService)
+    public AuthController(IRegisterService registerService, ILoginService loginService, IRefreshTokenService refreshTokenService)
     {
         _registerService = registerService;
         _loginService = loginService;
+        _refreshTokenService = refreshTokenService;
     }
 
     /// <summary>
@@ -57,16 +67,29 @@ public class AuthController : Controller
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginUser)
     {
         var user = await _loginService.LoginUser(loginUser);
-
-        var cookieOptions = new CookieOptions
-        {
-            Expires = DateTime.Now.AddMinutes(CookieExpireInMinutes),
-            HttpOnly = true,
-            Secure = true,
-            Path = "/"
-        };
-
-        Response.Cookies.Append(CookieName, user.Jwt, cookieOptions);
+        Response.Cookies.Append(CookieName, user.Jwt, CookieOptions);
         return Ok(user);
+    }
+
+    /// <summary>
+    /// Refresh jwt token if expires time has ended.
+    /// </summary>
+    /// <param name="refreshRequestDto">Contains jwt and refresh tokens.</param>
+    /// <returns>Returns <see cref="string"/> with new JWT token for future authorization</returns>
+    /// <remarks>
+    /// The method checks the validity of the jwt and refresh tokens and, if they are valid, updates the JWT and returns it.
+    /// Each token has an expiration date, but also has 5 extra minutes after expiration before it can no longer be used.
+    /// </remarks>
+    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [HttpPost]
+    [Route("refreshJwtToken")]
+    public async Task<IActionResult> RefreshJwtToken([FromBody] RefreshTokenRequestDto refreshRequestDto)
+    {
+        var token = await _refreshTokenService.RegenerateJwtAsync(refreshRequestDto);
+        Response.Cookies.Append(CookieName, token, CookieOptions);
+        return Ok(token);
     }
 }
