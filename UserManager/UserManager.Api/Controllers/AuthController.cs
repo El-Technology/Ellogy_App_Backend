@@ -10,11 +10,25 @@ namespace UserManager.Api.Controllers;
 [Route("api/[controller]/")]
 public class AuthController : Controller
 {
-    private readonly IAuthService _authService;
-    
-    public AuthController(IAuthService authService)
+    private const string CookieName = "Token";
+    private const int CookieExpireInMinutes = 60;
+    private readonly CookieOptions CookieOptions = new()
     {
-        _authService = authService;
+        Expires = DateTime.Now.AddMinutes(CookieExpireInMinutes),
+        HttpOnly = true,
+        Secure = true,
+        Path = "/"
+    };
+
+    private readonly IRefreshTokenService _refreshTokenService;
+    private readonly IRegisterService _registerService;
+    private readonly ILoginService _loginService;
+
+    public AuthController(IRegisterService registerService, ILoginService loginService, IRefreshTokenService refreshTokenService)
+    {
+        _registerService = registerService;
+        _loginService = loginService;
+        _refreshTokenService = refreshTokenService;
     }
 
     /// <summary>
@@ -30,7 +44,7 @@ public class AuthController : Controller
     [Route("register")]
     public async Task<IActionResult> Register([FromBody] UserRegisterRequestDto userRegister)
     {
-        await _authService.RegisterUserAsync(userRegister);
+        await _registerService.RegisterUserAsync(userRegister);
         return Ok();
     }
 
@@ -52,24 +66,30 @@ public class AuthController : Controller
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginUser)
     {
-        var user = await _authService.LoginUser(loginUser);
-
-        var cookieOptions = new CookieOptions
-        {
-            Expires = DateTime.Now.AddMinutes(Common.Options.CookieOptions.CookieExpireInMinutes),
-            HttpOnly = true,
-            Secure = true,
-            Path = "/"
-        };
-
-        Response.Cookies.Append(Common.Options.CookieOptions.CookieName, user.Jwt, cookieOptions);
+        var user = await _loginService.LoginUser(loginUser);
+        Response.Cookies.Append(CookieName, user.Jwt, CookieOptions);
         return Ok(user);
     }
-    
+
+    /// <summary>
+    /// Refresh jwt token if expires time has ended.
+    /// </summary>
+    /// <param name="refreshRequestDto">Contains jwt and refresh tokens.</param>
+    /// <returns>Returns <see cref="string"/> with new JWT token for future authorization</returns>
+    /// <remarks>
+    /// The method checks the validity of the jwt and refresh tokens and, if they are valid, updates the JWT and returns it.
+    /// Each token has an expiration date, but also has 5 extra minutes after expiration before it can no longer be used.
+    /// </remarks>
+    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     [HttpPost]
-    [Route("refreshToken")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto refreshTokenRequest)
+    [Route("refreshJwtToken")]
+    public async Task<IActionResult> RefreshJwtToken([FromBody] RefreshTokenRequestDto refreshRequestDto)
     {
-        return Ok();
+        var token = await _refreshTokenService.RegenerateJwtAsync(refreshRequestDto);
+        Response.Cookies.Append(CookieName, token, CookieOptions);
+        return Ok(token);
     }
 }

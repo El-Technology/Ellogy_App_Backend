@@ -4,7 +4,7 @@ using NotificationService.Helpers;
 using NotificationService.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UserManager.Common;
+using UserManager.Common.Options;
 using UserManager.Common.Models.NotificationModels;
 
 namespace UserManager.BLL.Services;

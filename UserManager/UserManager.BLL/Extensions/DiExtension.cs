@@ -1,5 +1,4 @@
-﻿using Azure.Communication.Email;
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
 using UserManager.BLL.Interfaces;
 using UserManager.BLL.Services;
@@ -12,6 +11,7 @@ public static class DiExtension
     public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
     {
         return services
+            .AddScoped<IRefreshTokenService, RefreshTokenService>()
             .AddScoped<INotificationQueueService, NotificationQueueService>()
             .AddScoped<IRegisterService, RegisterService>()
             .AddScoped<ILoginService, LoginService>()

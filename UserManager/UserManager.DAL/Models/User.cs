@@ -15,5 +15,6 @@ namespace UserManager.DAL.Models
         public string Department { get; set; }
         public string Salt { get; set; }
         public RoleEnum Role { get; set; }
+        public RefreshToken RefreshToken { get; set; }
     }
 }

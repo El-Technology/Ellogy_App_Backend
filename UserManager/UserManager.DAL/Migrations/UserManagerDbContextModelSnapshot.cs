@@ -46,6 +46,33 @@ namespace UserManager.DAL.Migrations
                     b.ToTable("ForgotPassword", (string)null);
                 });
 
+            modelBuilder.Entity("UserManager.DAL.Models.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ExpireDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsValid")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("RefreshTokens", (string)null);
+                });
+
             modelBuilder.Entity("UserManager.DAL.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -100,6 +127,23 @@ namespace UserManager.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("UserManager.DAL.Models.RefreshToken", b =>
+                {
+                    b.HasOne("UserManager.DAL.Models.User", "User")
+                        .WithOne("RefreshToken")
+                        .HasForeignKey("UserManager.DAL.Models.RefreshToken", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("UserManager.DAL.Models.User", b =>
+                {
+                    b.Navigation("RefreshToken")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

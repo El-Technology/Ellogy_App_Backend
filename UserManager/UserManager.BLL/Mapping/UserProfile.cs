@@ -20,7 +20,9 @@ namespace UserManager.BLL.Mapping
                 .ForMember(dest => dest.Role, opts =>
                     opts.MapFrom(_ => RoleEnum.User));
 
-            CreateMap<User, LoginResponseDto>();
+            CreateMap<User, LoginResponseDto>()
+                .ForMember(dest => dest.RefreshToken, opt =>
+                    opt.Ignore());
         }
     }
 }
