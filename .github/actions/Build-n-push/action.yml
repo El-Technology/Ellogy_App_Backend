@@ -45,7 +45,6 @@ runs:
         FILEPATH: ${{ inputs.DockerfilePath }}
       run: |
         cd ${PROJECT_PATH}
-        ls
         docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
         docker push ${REPOSITORY_NAME}
 
