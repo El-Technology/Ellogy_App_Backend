@@ -13,6 +13,7 @@ public static class EnvironmentVariables
         }
 
     }
+
     public static string ConnectionString
     {
         get
