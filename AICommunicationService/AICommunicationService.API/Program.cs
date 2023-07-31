@@ -1,5 +1,10 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
+using AICommunicationService.BLL.Extensions;
+using AICommunicationService.Common;
+using AICommunicationService.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,8 +16,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-	app.UseSwagger();
-	app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
@@ -46,7 +51,7 @@ static void AddServices(WebApplicationBuilder builder)
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
     {
-        options.SwaggerDoc("v1", new() { Title = "Ellogy. Tickets Manager service API", Version = "v1" });
+        options.SwaggerDoc("v1", new() { Title = "Ellogy. AI communication service API", Version = "v1" });
 
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
@@ -74,8 +79,27 @@ static void AddServices(WebApplicationBuilder builder)
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
-        options.IncludeXmlComments(xmlPath);
+        //options.IncludeXmlComments(xmlPath);
     });
 
     builder.Services.AddHealthChecks();
+    builder.Services.AddBusinessLayer();
+}
+
+static void AddMiddleware(WebApplication app)
+{
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseHealthChecks("/health");
+
+    app.UseRouting();
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.UseMiddleware<ExceptionHandlerMiddleware>();
 }

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AICommunicationService.API", "AICommunicationService.API\AICommunicationService.API.csproj", "{EA372426-2C85-48BA-8178-AF0DFB1EFCA6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AICommunicationService.Api", "AICommunicationService.Api\AICommunicationService.Api.csproj", "{EA372426-2C85-48BA-8178-AF0DFB1EFCA6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AICommunicationService.BLL", "AICommunicationService.BLL\AICommunicationService.BLL.csproj", "{DDB6C5E0-180C-48EC-A39B-3A71A09D2D39}"
 EndProject
