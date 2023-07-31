@@ -45,7 +45,7 @@ jobs:
               Workflow:
                 - '.github/**'
                       
-build_ai_communication_service:
+  build_ai_communication_service:
     env:
       MICROSERVICE_NAME: 'ai_communication_service'
       PROJECT_PATH: './AICommunicationService/'
@@ -75,7 +75,7 @@ build_ai_communication_service:
           DockerfilePath: ${{ env.DOCKERFILEPATH }}
           Token: ${{ secrets.GITHUB_TOKEN }}
 
-build_user_manager:
+  build_user_manager:
     env:
       MICROSERVICE_NAME: 'user_manager'
       PROJECT_PATH: './UserManager/'
