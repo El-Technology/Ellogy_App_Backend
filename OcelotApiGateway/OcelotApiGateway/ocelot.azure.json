@@ -1,7 +1,6 @@
 {
   "Routes": [
     {
-      //user manager
       "UpstreamPathTemplate": "/gateway/health",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/health",
@@ -49,6 +48,20 @@
         }
       ]
     },
+    
+    {
+      "UpstreamPathTemplate": "/gateway/chat/sendMessage",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/communication/sendMessage",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 53053
+        }
+      ]
+    },
+    
     {
       "UpstreamPathTemplate": "/gateway/auth/resetPassword",
       "UpstreamHttpMethod": [ "Post" ],
