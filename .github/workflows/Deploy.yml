@@ -6,6 +6,7 @@ on:
     paths:
       - TicketsManager/**
       - UserManager/**
+      - AICommunicationService/**
       - .github/workflows/Deploy.yml
       - .github/actions/** 
       - '!UserManager/NotificationService/**'
@@ -21,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     
     outputs:
+      AICommunicationService: ${{ steps.changes.outputs.AICommunicationService }}
       UserManager: ${{ steps.changes.outputs.UserManager }}
       TicketsManager: ${{ steps.changes.outputs.TicketsManager }}
       Workflow: ${{ steps.changes.outputs.Workflow }}
@@ -34,6 +36,8 @@ jobs:
         id: changes
         with:
            filters: |
+              AICommunicationService:
+                - 'AICommunicationService/**'
               UserManager:
                 - 'UserManager/**'
               TicketsManager:
@@ -41,6 +45,36 @@ jobs:
               Workflow:
                 - '.github/**'
                       
+build_ai_communication_service:
+    env:
+      MICROSERVICE_NAME: 'ai_communication_service'
+      PROJECT_PATH: './AICommunicationService/'
+      CONTEXT: '.'
+      DOCKERFILEPATH: './AICommunicationService.Api/Dockerfile'
+    
+    outputs:
+      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
+      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
+      
+    needs: changes
+    if: ${{ needs.changes.outputs.UserManager == 'true' || needs.changes.outputs.Workflow == 'true' }}
+    
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      
+      - name: Build and push image of AICommunicationService
+        id: build-n-push
+        uses: ./.github/actions/Build-n-push
+        with: 
+          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+          Environment: ${{ env.ENVNAME }}
+          ProjectPath: ${{ env.PROJECT_PATH }}
+          Context: ${{ env.CONTEXT }}
+          DockerfilePath: ${{ env.DOCKERFILEPATH }}
+          Token: ${{ secrets.GITHUB_TOKEN }}
+
   build_user_manager:
     env:
       MICROSERVICE_NAME: 'user_manager'
@@ -103,7 +137,7 @@ jobs:
 
   deploy_microservices:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-    needs: [build_user_manager, build_ticket_manager]
+    needs: [build_user_manager, build_ticket_manager, build_ai_communication_service]
     
     runs-on: ubuntu-latest
     steps:
@@ -121,7 +155,10 @@ jobs:
         END
 
     - name: Deploy to VM
-      env:     
+      env:
+        SERVICE_NAME1: ${{ needs.build_ai_communication_service.outputs.MicroserviceName }}
+        SERVICE_IMAGE1: ${{ needs.build_ai_communication_service.outputs.MicroserviceImage }}
+
         SERVICE_NAME2: ${{ needs.build_user_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE2: ${{ needs.build_user_manager.outputs.MicroserviceImage }}
         
@@ -130,8 +167,7 @@ jobs:
         
         AZURE_SERVICE_BUS_CONNECTION_STRING: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING }}
         
-        OCELOT_CONF: azure
-        
+        OPEN_AI_KEY: ${{secrets.OPEN_AI_KEY}}
         CONNECTION_STRING: ${{secrets.CONNECTIONSTRING}}
         JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY }}
       run: |
@@ -145,14 +181,18 @@ jobs:
         cd Ellogy
         docker-compose down
 
+        export SERVICE_NAME1=$SERVICE_NAME1
+        export SERVICE_IMAGE1=$SERVICE_IMAGE1
         export SERVICE_NAME2=$SERVICE_NAME2
         export SERVICE_IMAGE2=$SERVICE_IMAGE2
         export SERVICE_NAME3=$SERVICE_NAME3
         export SERVICE_IMAGE3=$SERVICE_IMAGE3
 
+        yq e -i ".services.$SERVICE_NAME1.image=env(SERVICE_IMAGE1)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
 
+        export OPEN_AI_KEY="$OPEN_AI_KEY"
         export CONNECTION_STRING="$CONNECTION_STRING"
         export JWT_SECRET_KEY="$JWT_SECRET_KEY"
         export AZURE_SERVICE_BUS_CONNECTION_STRING="$AZURE_SERVICE_BUS_CONNECTION_STRING"
