@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace AICommunicationService.Middlewares;
+namespace AICommunicationService.Api.Middlewares;
 
 public class ExceptionHandlerMiddleware
 {

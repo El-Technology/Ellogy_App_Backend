@@ -1,7 +1,7 @@
 ﻿using AICommunicationService.BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AICommunicationService.Controllers
+namespace AICommunicationService.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

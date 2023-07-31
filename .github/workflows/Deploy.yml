@@ -50,7 +50,7 @@ jobs:
       MICROSERVICE_NAME: 'ai_communication_service'
       PROJECT_PATH: './AICommunicationService/'
       CONTEXT: '.'
-      DOCKERFILEPATH: './AICommunicationService.API/Dockerfile'
+      DOCKERFILEPATH: './AICommunicationService.Api/Dockerfile'
     
     outputs:
       MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}

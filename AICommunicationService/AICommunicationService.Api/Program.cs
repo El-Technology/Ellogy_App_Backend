@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using AICommunicationService.BLL.Extensions;
 using AICommunicationService.Common;
-using AICommunicationService.Middlewares;
+using AICommunicationService.Api.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;

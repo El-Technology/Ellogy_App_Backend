@@ -7,12 +7,12 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["AICommunicationService.API/AICommunicationService.Api.csproj", "AICommunicationService.API/"]
+COPY ["AICommunicationService.Api/AICommunicationService.Api.csproj", "AICommunicationService.Api/"]
 COPY ["AICommunicationService.BLL/AICommunicationService.BLL.csproj", "AICommunicationService.BLL/"]
 COPY ["AICommunicationService.Common/AICommunicationService.Common.csproj", "AICommunicationService.Common/"]
-RUN dotnet restore "AICommunicationService.API/AICommunicationService.Api.csproj"
+RUN dotnet restore "AICommunicationService.Api/AICommunicationService.Api.csproj"
 COPY . .
-WORKDIR "/src/AICommunicationService.API"
+WORKDIR "/src/AICommunicationService.Api"
 RUN dotnet build "AICommunicationService.Api.csproj" -c Release -o /app/build
 
 FROM build AS publish
