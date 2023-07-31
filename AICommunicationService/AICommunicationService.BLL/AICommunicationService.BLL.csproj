@@ -7,8 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Interfaces\" />
-      <Folder Include="Services\" />
+      <PackageReference Include="OpenAI" Version="1.7.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AICommunicationService.Common\AICommunicationService.Common.csproj" />
     </ItemGroup>
 
 </Project>
