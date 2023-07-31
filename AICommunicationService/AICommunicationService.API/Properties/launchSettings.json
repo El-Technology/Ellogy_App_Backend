@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "AICommunicationService.API": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OPEN_AI_KEY": "",
+        "JWT_SECRET_KEY": ""
+      },
+      "applicationUrl": "https://localhost:53052;http://localhost:53053"
+    }
+  }
+}
