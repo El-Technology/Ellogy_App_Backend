@@ -1,11 +1,11 @@
-using System.Reflection;
-using System.Text.Json.Serialization;
+using AICommunicationService.Api.Middlewares;
 using AICommunicationService.BLL.Extensions;
 using AICommunicationService.Common;
-using AICommunicationService.Api.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
