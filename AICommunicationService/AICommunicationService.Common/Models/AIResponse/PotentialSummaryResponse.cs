@@ -1,4 +1,4 @@
-﻿namespace AICommunicationService.Common.Models
+﻿namespace AICommunicationService.Common.Models.AIResponse
 {
     public class PotentialSummaryResponse
     {

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace AICommunicationService.Common.Models
+namespace AICommunicationService.Common.Models.AIResponse
 {
     public class DiagramResponse
     {
