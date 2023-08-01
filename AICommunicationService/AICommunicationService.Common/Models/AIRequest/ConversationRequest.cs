@@ -2,7 +2,7 @@
 {
     public class ConversationRequest
     {
-        public string ChatHistory { get; set; }
-        public string HumanValue { get; set; }
+        public string Summary { get; set; }
+        public string HumanAnswer { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using AICommunicationService.BLL.Helpers;
+﻿using AICommunicationService.BLL.Constants;
+using AICommunicationService.BLL.Helpers;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.Common.Models.AIResponse;
@@ -13,6 +14,8 @@ namespace AICommunicationService.BLL.Services
     /// </summary>
     public class CommunicationService : ICommunicationService
     {
+        private const bool Stable = true;
+        private const bool Random = false;
         private readonly OpenAIAPI _openAIAPI;
         public CommunicationService(OpenAIAPI openAIAPI)
         {
@@ -44,24 +47,16 @@ namespace AICommunicationService.BLL.Services
         private async Task<T> GetResultAsync<T>(ChatRequest chatRequest)
         {
             var stringResult = await GetStringResultAsync(chatRequest);
-
             var gptResponse = JsonConvert.DeserializeObject<T>(stringResult)
                 ?? throw new Exception("Deserializing Error");
 
             return gptResponse;
         }
 
-        /// <inheritdoc cref="ICommunicationService.SendMessageAsync(string)"/>
-        public async Task<string> SendMessageAsync(string message)
-        {
-            var result = await _openAIAPI.Completions.GetCompletion(message);
-            return result;
-        }
-
         /// <inheritdoc cref="ICommunicationService.GetDescriptionAsync(string)"/>
         public async Task<DescriptionResponse> GetDescriptionAsync(string userStories)
         {
-            var chatRequest = ChatRequestHelper.GetDescriptionRequest(userStories);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(userStories, Stable, AITemplates.DescriptionTemplate);
             var response = await GetResultAsync<DescriptionResponse>(chatRequest);
             return response;
         }
@@ -69,7 +64,7 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetDiagramsAsync(string)"/>
         public async Task<DiagramResponse> GetDiagramsAsync(string userStories)
         {
-            var chatRequest = ChatRequestHelper.GetDiagramsRequest(userStories);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(userStories, Random, AITemplates.DiagramTemplate);
             var response = await GetResultAsync<DiagramResponse>(chatRequest);
             return response;
         }
@@ -77,15 +72,16 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetIsRequestClearAsync(string)"/>
         public async Task<bool> GetIsRequestClearAsync(string history)
         {
-            var chatRequest = ChatRequestHelper.GetIsRequestClear(history);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(history, Stable, AITemplates.IsRequestClearTemplate);
             var response = await GetStringResultAsync(chatRequest);
-            return bool.Parse(response);
+            _ = bool.TryParse(response, out bool result);
+            return result;
         }
 
         /// <inheritdoc cref="ICommunicationService.GetPotentialSummaryAsync(string)"/>
         public async Task<List<PotentialSummaryResponse>> GetPotentialSummaryAsync(string description)
         {
-            var chatRequest = ChatRequestHelper.GetPotentialSummary(description);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(description, Stable, AITemplates.PotentialSummaryTemplate);
             var response = await GetResultAsync<List<PotentialSummaryResponse>>(chatRequest);
             return response;
         }
@@ -93,7 +89,7 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetSummaryAsync(string)"/>
         public async Task<List<SummaryResponse>> GetSummaryAsync(string history)
         {
-            var chatRequest = ChatRequestHelper.GetSummary(history);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(history, Stable, AITemplates.SummaryTemplate);
             var response = await GetResultAsync<List<SummaryResponse>>(chatRequest);
             return response;
         }
@@ -101,7 +97,15 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetConversationAsync(ConversationRequest)"/>
         public async Task<string> GetConversationAsync(ConversationRequest conversationRequest)
         {
-            var chatRequest = ChatRequestHelper.GetConversation(conversationRequest);
+            var chatRequest = ChatRequestHelper.GetConversationRequest(conversationRequest);
+            var response = await GetStringResultAsync(chatRequest);
+            return response;
+        }
+
+        /// <inheritdoc cref="ICommunicationService.GetConversationSummaryAsync(ConversationSummaryRequest)"/>
+        public async Task<string> GetConversationSummaryAsync(ConversationSummaryRequest conversationSummaryRequest)
+        {
+            var chatRequest = ChatRequestHelper.GetConversationSummaryRequest(conversationSummaryRequest);
             var response = await GetStringResultAsync(chatRequest);
             return response;
         }

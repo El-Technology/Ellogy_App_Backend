@@ -10,54 +10,43 @@ namespace AICommunicationService.BLL.Helpers
     /// </summary>
     public static class ChatRequestHelper
     {
-        private static readonly ChatRequest ChatRequestStable = new() { Temperature = 0, Model = Model.GPT4 };
-        private static readonly ChatRequest ChatRequestRandom = new() { Temperature = 0.9, Model = Model.GPT4 };
+        private static readonly ChatRequest ChatRequestStable = new() { Temperature = 0, Model = Model.ChatGPTTurbo };
+        private static readonly ChatRequest ChatRequestRandom = new() { Temperature = 0.9, Model = Model.ChatGPTTurbo };
 
-        public static ChatRequest GetDescriptionRequest(string userStories)
+        public static ChatRequest GetChatRequestWithOneInputValue(string request, bool isStable, string template)
         {
-            ChatRequestStable.Messages = new ChatMessage[]
+            if (isStable)
             {
-                new ChatMessage(ChatMessageRole.User, string.Format(AITemplates.DescriptionTemplate, userStories)),
-            };
-            return ChatRequestStable;
+                ChatRequestStable.Messages = new ChatMessage[]
+                {
+                new ChatMessage(ChatMessageRole.User, string.Format(template, request)),
+                };
+                return ChatRequestStable;
+            }
+            ChatRequestRandom.Messages = new ChatMessage[]
+                {
+                new ChatMessage(ChatMessageRole.User, string.Format(template, request)),
+                };
+            return ChatRequestRandom;
         }
-        public static ChatRequest GetDiagramsRequest(string userStories)
+        public static ChatRequest GetConversationRequest(ConversationRequest conversationRequest)
         {
             ChatRequestRandom.Messages = new ChatMessage[]
             {
-                new ChatMessage(ChatMessageRole.User, string.Format(AITemplates.DiagramTemplate, userStories)),
+                new ChatMessage(ChatMessageRole.User, string.Format(AITemplates.ConversationTemplate,
+                                                                    conversationRequest.Summary,
+                                                                    conversationRequest.HumanAnswer)),
             };
             return ChatRequestRandom;
         }
-        public static ChatRequest GetIsRequestClear(string history)
-        {
-            ChatRequestStable.Messages = new ChatMessage[]
-            {
-                new ChatMessage(ChatMessageRole.User, string.Format(AITemplates.IsRequestClearTemplate, history)),
-            };
-            return ChatRequestStable;
-        }
-        public static ChatRequest GetPotentialSummary(string description)
-        {
-            ChatRequestStable.Messages = new ChatMessage[]
-            {
-                new ChatMessage(ChatMessageRole.User, string.Format(AITemplates.PotentialSummaryTemplate, description)),
-            };
-            return ChatRequestStable;
-        }
-        public static ChatRequest GetSummary(string history)
-        {
-            ChatRequestStable.Messages = new ChatMessage[]
-            {
-                new ChatMessage(ChatMessageRole.User, string.Format(AITemplates.SummaryTemplate, history)),
-            };
-            return ChatRequestStable;
-        }
-        public static ChatRequest GetConversation(ConversationRequest conversationRequest)
+        public static ChatRequest GetConversationSummaryRequest(ConversationSummaryRequest conversationSummaryRequest)
         {
             ChatRequestRandom.Messages = new ChatMessage[]
             {
-                new ChatMessage(ChatMessageRole.User, string.Format(AITemplates.ConversationTemplate, conversationRequest.ChatHistory, conversationRequest.HumanValue)),
+                new ChatMessage(ChatMessageRole.User, string.Format(AITemplates.ConversationSummaryTemplate,
+                                                                    conversationSummaryRequest.CurrentSummary,
+                                                                    conversationSummaryRequest.Human,
+                                                                    conversationSummaryRequest.AI)),
             };
             return ChatRequestRandom;
         }

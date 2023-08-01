@@ -13,16 +13,7 @@ AddServices(builder);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+AddMiddleware(app);
 
 app.MapControllers();
 
@@ -79,7 +70,7 @@ static void AddServices(WebApplicationBuilder builder)
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
         var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
-        //options.IncludeXmlComments(xmlPath);
+        options.IncludeXmlComments(xmlPath);
     });
 
     builder.Services.AddHealthChecks();

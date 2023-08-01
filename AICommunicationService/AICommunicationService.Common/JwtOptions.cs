@@ -1,5 +1,6 @@
-﻿using System.Text;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
 using TicketsManager.Common;
 
 namespace AICommunicationService.Common;

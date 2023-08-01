@@ -1,5 +1,7 @@
 ﻿using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Models.AIRequest;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AICommunicationService.Api.Controllers
@@ -7,6 +9,7 @@ namespace AICommunicationService.Api.Controllers
     /// <summary>
     /// This controller provides endpoints for communication with Chat GPT using various templates and methods.
     /// </summary>
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class CommunicationController : ControllerBase
@@ -15,19 +18,6 @@ namespace AICommunicationService.Api.Controllers
         public CommunicationController(ICommunicationService communicationService)
         {
             _communicationService = communicationService;
-        }
-
-        /// <summary>
-        /// HTTP POST endpoint that sends a message to Chat GPT and receives a response in the form of a string.
-        /// </summary>
-        /// <param name="message">The message to be sent to Chat GPT.</param>
-        /// <returns>An IActionResult representing the HTTP response containing the response received from Chat GPT as a string.</returns>
-        [HttpPost]
-        [Route("sendMessage")]
-        public async Task<IActionResult> SendMessage([FromBody] string message)
-        {
-            var response = await _communicationService.SendMessageAsync(message);
-            return Ok(response);
         }
 
         /// <summary>
@@ -105,6 +95,19 @@ namespace AICommunicationService.Api.Controllers
         public async Task<IActionResult> GetConversation([FromBody] ConversationRequest conversationRequest)
         {
             var potentialSummary = await _communicationService.GetConversationAsync(conversationRequest);
+            return Ok(potentialSummary);
+        }
+
+        /// <summary>
+        /// HTTP POST endpoint that sends a conversation summary request to Chat GPT, containing a series of messages between a user and the model. It retrieves the model's summary response based on the conversation.
+        /// </summary>
+        /// <param name="conversationSummaryRequest">A model containing the conversation summary request, which includes a series of messages between the user and the model.</param>
+        /// <returns>An IActionResult representing the HTTP response containing the model's summary response based on the conversation.</returns>
+        [HttpPost]
+        [Route("getConversationSummary")]
+        public async Task<IActionResult> GetConversationSummary([FromBody] ConversationSummaryRequest conversationSummaryRequest)
+        {
+            var potentialSummary = await _communicationService.GetConversationSummaryAsync(conversationSummaryRequest);
             return Ok(potentialSummary);
         }
     }

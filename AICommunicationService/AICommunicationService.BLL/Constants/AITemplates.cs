@@ -26,5 +26,21 @@
             "{0}" +
             "Human: {1}" +
             "AI:";
+        public const string ConversationSummaryTemplate = "Progressively summarize the lines of conversation provided, adding onto the previous summary returning a new summary." +
+            "EXAMPLE" +
+            "Current summary:" +
+            "The human asks what the AI thinks of artificial intelligence. The AI thinks artificial intelligence is a force for good." +
+            "New lines of conversation:" +
+            "Human: Why do you think artificial intelligence is a force for good?" +
+            "AI: Because artificial intelligence will help humans reach their full potential." +
+            "New summary:" +
+            "The human asks what the AI thinks of artificial intelligence. The AI thinks artificial intelligence is a force for good because it will help humans reach their full potential." +
+            "END OF EXAMPLE" +
+            "Current summary:" +
+            "{0}" +
+            "New lines of conversation:" +
+            "Human: {1}" +
+            "AI: {2}" +
+            "New summary:";
     }
 }
