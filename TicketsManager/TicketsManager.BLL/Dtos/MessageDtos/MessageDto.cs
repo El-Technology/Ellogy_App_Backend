@@ -23,4 +23,9 @@ public class MessageDto
     /// Represents the type and the state of message.
     /// </summary>
     public ActionDto? Action { get; set; }
+
+    /// <summary>
+    /// Shows at which stage the message was sent
+    /// </summary>
+    public MessageStageEnum Stage { get; set; }
 }

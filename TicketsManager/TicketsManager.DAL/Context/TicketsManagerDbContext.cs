@@ -6,6 +6,9 @@ namespace TicketsManager.DAL.Context;
 
 public class TicketsManagerDbContext : DbContext
 {
+    public DbSet<TicketTableValue> TicketTableValues { get; set; } = null!;
+    public DbSet<TicketTable> TicketTables { get; set; } = null!;
+    public DbSet<TicketDiagram> TicketDiagrams { get; set; } = null!;
     public DbSet<Ticket> Tickets { get; set; } = null!;
     public DbSet<Message> Messages { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;

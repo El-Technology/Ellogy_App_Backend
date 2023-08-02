@@ -1,5 +1,4 @@
-﻿#pragma warning disable CS8618
-namespace TicketsManager.DAL.Models
+﻿namespace TicketsManager.DAL.Models
 {
     public class User
     {

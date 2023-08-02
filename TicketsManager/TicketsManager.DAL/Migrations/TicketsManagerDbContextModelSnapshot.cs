@@ -46,6 +46,9 @@ namespace TicketsManager.DAL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<int?>("Stage")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uuid");
 
@@ -71,6 +74,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("CurrentStep")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
@@ -95,6 +101,34 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("Tickets", (string)null);
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketDiagram", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PictureLink")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketDiagrams", (string)null);
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
                 {
                     b.Property<Guid>("Id")
@@ -116,6 +150,46 @@ namespace TicketsManager.DAL.Migrations
                     b.HasIndex("TicketId");
 
                     b.ToTable("TicketSummaries", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketTable", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TableKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketTables", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketTableValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TicketTableId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketTableId");
+
+                    b.ToTable("TicketTableValues", (string)null);
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.User", b =>
@@ -151,6 +225,17 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketDiagram", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                        .WithMany("TicketDiagrams")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
                 {
                     b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
@@ -162,11 +247,42 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Ticket");
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketTable", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                        .WithMany("TicketTables")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketTableValue", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.TicketTable", "TicketTable")
+                        .WithMany("TableValues")
+                        .HasForeignKey("TicketTableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TicketTable");
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
                 {
+                    b.Navigation("TicketDiagrams");
+
                     b.Navigation("TicketMessages");
 
                     b.Navigation("TicketSummaries");
+
+                    b.Navigation("TicketTables");
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketTable", b =>
+                {
+                    b.Navigation("TableValues");
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.User", b =>

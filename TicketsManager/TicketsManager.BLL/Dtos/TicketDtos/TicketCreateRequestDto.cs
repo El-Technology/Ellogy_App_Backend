@@ -1,6 +1,8 @@
 ﻿using TicketsManager.BLL.Dtos.MessageDtos;
 using TicketsManager.BLL.Dtos.TicketSummaryDtos;
+using TicketsManager.BLL.Dtos.TicketVisualizationDtos;
 using TicketsManager.DAL.Enums;
+using TicketsManager.DAL.Models;
 
 namespace TicketsManager.BLL.Dtos.TicketDtos
 {
@@ -40,8 +42,23 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         public TicketStatusEnum Status { get; set; }
 
         /// <summary>
+        /// Shows at which step the user is at
+        /// </summary>
+        public TicketCurrentStepEnum CurrentStep { get; set; }
+
+        /// <summary>
         /// The messages list of ticket.
         /// </summary>
         public List<MessageDto> Messages { get; set; }
+
+        /// <summary>
+        /// Contains list of diagrams for visual display
+        /// </summary>
+        public List<TicketDiagramDto> TicketDiagrams { get; set; }
+
+        /// <summary>
+        /// Contains list of tables for visual display
+        /// </summary>
+        public List<TicketTableDto> TicketTables { get; set; }
     }
 }

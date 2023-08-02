@@ -17,6 +17,8 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
         builder.Property(c => c.Description);
         builder.Property(c => c.Status)
             .IsRequired();
+        builder.Property(c => c.CurrentStep)
+            .IsRequired();
         builder.Property(c => c.CreatedDate)
             .IsRequired();
         builder.Property(c => c.UpdatedDate);

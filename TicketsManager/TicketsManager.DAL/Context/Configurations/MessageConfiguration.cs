@@ -20,6 +20,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
             .IsRequired();
         builder.Property(c => c.ActionType);
         builder.Property(c => c.ActionState);
+        builder.Property(c => c.Stage);
 
         builder.HasOne(c => c.Ticket)
             .WithMany(c => c.TicketMessages)
