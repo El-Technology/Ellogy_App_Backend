@@ -3,6 +3,7 @@ using AICommunicationService.BLL.Helpers;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.Common.Models.AIResponse;
+using AICommunicationService.DAL.Interfaces;
 using Newtonsoft.Json;
 using OpenAI_API;
 using OpenAI_API.Chat;
@@ -14,11 +15,13 @@ namespace AICommunicationService.BLL.Services
     /// </summary>
     public class CommunicationService : ICommunicationService
     {
+        private readonly IAIPromptRepository _aIPromptRepository;
         private const bool Stable = true;
         private const bool Random = false;
         private readonly OpenAIAPI _openAIAPI;
-        public CommunicationService(OpenAIAPI openAIAPI)
+        public CommunicationService(OpenAIAPI openAIAPI, IAIPromptRepository aIPromptRepository)
         {
+            _aIPromptRepository = aIPromptRepository;
             _openAIAPI = openAIAPI;
         }
 
@@ -53,10 +56,18 @@ namespace AICommunicationService.BLL.Services
             return gptResponse;
         }
 
+        private async Task<string> GetTemplate(string promptName, string aiTemplateInput)
+        {
+            var getPrompt = await _aIPromptRepository.GetPromptByTemplateNameAsync(promptName)
+                ?? throw new Exception("Prompt was not found");
+            return getPrompt.Value + aiTemplateInput;
+        }
+
         /// <inheritdoc cref="ICommunicationService.GetDescriptionAsync(string)"/>
         public async Task<DescriptionResponse> GetDescriptionAsync(string userStories)
         {
-            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(userStories, Stable, AITemplates.DescriptionTemplate);
+            var template = await GetTemplate(nameof(AITemplates.DescriptionTemplate), AITemplates.DescriptionTemplate);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(userStories, Stable, template);
             var response = await GetResultAsync<DescriptionResponse>(chatRequest);
             return response;
         }
@@ -64,7 +75,8 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetDiagramsAsync(string)"/>
         public async Task<DiagramResponse> GetDiagramsAsync(string userStories)
         {
-            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(userStories, Random, AITemplates.DiagramTemplate);
+            var template = await GetTemplate(nameof(AITemplates.DiagramTemplate), AITemplates.DiagramTemplate);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(userStories, Random, template);
             var response = await GetResultAsync<DiagramResponse>(chatRequest);
             return response;
         }
@@ -72,7 +84,8 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetIsRequestClearAsync(string)"/>
         public async Task<bool> GetIsRequestClearAsync(string history)
         {
-            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(history, Stable, AITemplates.IsRequestClearTemplate);
+            var template = await GetTemplate(nameof(AITemplates.IsRequestClearTemplate), AITemplates.IsRequestClearTemplate);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(history, Stable, template);
             var response = await GetStringResultAsync(chatRequest);
             _ = bool.TryParse(response, out bool result);
             return result;
@@ -81,7 +94,8 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetPotentialSummaryAsync(string)"/>
         public async Task<List<PotentialSummaryResponse>> GetPotentialSummaryAsync(string description)
         {
-            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(description, Stable, AITemplates.PotentialSummaryTemplate);
+            var template = await GetTemplate(nameof(AITemplates.PotentialSummaryTemplate), AITemplates.PotentialSummaryTemplate);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(description, Stable, template);
             var response = await GetResultAsync<List<PotentialSummaryResponse>>(chatRequest);
             return response;
         }
@@ -89,7 +103,8 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetSummaryAsync(string)"/>
         public async Task<List<SummaryResponse>> GetSummaryAsync(string history)
         {
-            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(history, Stable, AITemplates.SummaryTemplate);
+            var template = await GetTemplate(nameof(AITemplates.SummaryTemplate), AITemplates.SummaryTemplate);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(history, Stable, template);
             var response = await GetResultAsync<List<SummaryResponse>>(chatRequest);
             return response;
         }
@@ -97,7 +112,8 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetConversationAsync(ConversationRequest)"/>
         public async Task<string> GetConversationAsync(ConversationRequest conversationRequest)
         {
-            var chatRequest = ChatRequestHelper.GetConversationRequest(conversationRequest);
+            var template = await GetTemplate(nameof(AITemplates.ConversationTemplate), AITemplates.ConversationTemplate);
+            var chatRequest = ChatRequestHelper.GetConversationRequest(conversationRequest, template);
             var response = await GetStringResultAsync(chatRequest);
             return response;
         }
@@ -105,7 +121,8 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetConversationSummaryAsync(ConversationSummaryRequest)"/>
         public async Task<string> GetConversationSummaryAsync(ConversationSummaryRequest conversationSummaryRequest)
         {
-            var chatRequest = ChatRequestHelper.GetConversationSummaryRequest(conversationSummaryRequest);
+            var template = await GetTemplate(nameof(AITemplates.ConversationSummaryTemplate), AITemplates.ConversationSummaryTemplate);
+            var chatRequest = ChatRequestHelper.GetConversationSummaryRequest(conversationSummaryRequest, template);
             var response = await GetStringResultAsync(chatRequest);
             return response;
         }

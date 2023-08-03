@@ -11,6 +11,7 @@ namespace AICommunicationService.BLL.Extensions
         public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
         {
             return services
+                .AddScoped<IPromptService, PromptService>()
                 .AddScoped<ICommunicationService, CommunicationService>()
                 .AddScoped<OpenAIAPI>(_ => new(EnvironmentVariables.OpenAiKey));
         }

@@ -1,11 +1,15 @@
 using AICommunicationService.Api.Middlewares;
 using AICommunicationService.BLL.Extensions;
 using AICommunicationService.Common;
+using AICommunicationService.DAL.Context;
+using AICommunicationService.DAL.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using TicketsManager.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +20,7 @@ var app = builder.Build();
 AddMiddleware(app);
 
 app.MapControllers();
-
+MigrateDatabase(app);
 app.Run();
 
 static void AddServices(WebApplicationBuilder builder)
@@ -72,8 +76,9 @@ static void AddServices(WebApplicationBuilder builder)
 
         options.IncludeXmlComments(xmlPath);
     });
-
     builder.Services.AddHealthChecks();
+
+    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
     builder.Services.AddBusinessLayer();
 }
 
@@ -93,4 +98,15 @@ static void AddMiddleware(WebApplication app)
     app.UseAuthorization();
 
     app.UseMiddleware<ExceptionHandlerMiddleware>();
+}
+static void MigrateDatabase(IHost app)
+{
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<AICommunicationContext>();
+    if (context.Database.GetPendingMigrations().Any())
+    {
+        context.Database.Migrate();
+    }
 }

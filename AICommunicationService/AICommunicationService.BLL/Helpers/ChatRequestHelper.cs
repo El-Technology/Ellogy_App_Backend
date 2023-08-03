@@ -1,5 +1,4 @@
-﻿using AICommunicationService.BLL.Constants;
-using AICommunicationService.Common.Models.AIRequest;
+﻿using AICommunicationService.Common.Models.AIRequest;
 using OpenAI_API.Chat;
 using OpenAI_API.Models;
 
@@ -29,21 +28,21 @@ namespace AICommunicationService.BLL.Helpers
                 };
             return ChatRequestRandom;
         }
-        public static ChatRequest GetConversationRequest(ConversationRequest conversationRequest)
+        public static ChatRequest GetConversationRequest(ConversationRequest conversationRequest, string template)
         {
             ChatRequestRandom.Messages = new ChatMessage[]
             {
-                new ChatMessage(ChatMessageRole.User, string.Format(AITemplates.ConversationTemplate,
+                new ChatMessage(ChatMessageRole.User, string.Format(template,
                                                                     conversationRequest.Summary,
                                                                     conversationRequest.HumanAnswer)),
             };
             return ChatRequestRandom;
         }
-        public static ChatRequest GetConversationSummaryRequest(ConversationSummaryRequest conversationSummaryRequest)
+        public static ChatRequest GetConversationSummaryRequest(ConversationSummaryRequest conversationSummaryRequest, string template)
         {
             ChatRequestRandom.Messages = new ChatMessage[]
             {
-                new ChatMessage(ChatMessageRole.User, string.Format(AITemplates.ConversationSummaryTemplate,
+                new ChatMessage(ChatMessageRole.User, string.Format(template,
                                                                     conversationSummaryRequest.CurrentSummary,
                                                                     conversationSummaryRequest.Human,
                                                                     conversationSummaryRequest.AI)),
