@@ -16,6 +16,9 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="IPromptService.AddPromptAsync(CreatePromptDto)"/>
         public async Task<AIPrompt> AddPromptAsync(CreatePromptDto aIPrompt)
         {
+            if (await _aIPromptRepository.GetPromptByTemplateNameAsync(aIPrompt.TamplateName) is not null)
+                throw new Exception("Prompt with this name already exists");
+
             await _aIPromptRepository.AddPromptAsync(aIPrompt);
             return aIPrompt;
         }
