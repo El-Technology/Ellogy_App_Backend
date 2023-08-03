@@ -59,6 +59,39 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("Messages", (string)null);
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Email")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Push")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("Sms")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
@@ -214,6 +247,17 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Ticket");
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.Notification", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                        .WithMany("Notifications")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
                 {
                     b.HasOne("TicketsManager.DAL.Models.User", "User")
@@ -271,6 +315,8 @@ namespace TicketsManager.DAL.Migrations
 
             modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
                 {
+                    b.Navigation("Notifications");
+
                     b.Navigation("TicketDiagrams");
 
                     b.Navigation("TicketMessages");

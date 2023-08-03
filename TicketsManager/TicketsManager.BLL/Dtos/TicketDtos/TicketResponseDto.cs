@@ -1,4 +1,5 @@
 ﻿using TicketsManager.BLL.Dtos.MessageDtos;
+using TicketsManager.BLL.Dtos.NotificationDtos;
 using TicketsManager.BLL.Dtos.TicketSummaryDtos;
 using TicketsManager.DAL.Enums;
 
@@ -63,5 +64,10 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         /// The collection of messages associated with the ticket.
         /// </summary>
         public List<MessageResponseDto> Messages { get; set; }
+
+        /// <summary>
+        /// The notifications of the ticket with ids
+        /// </summary>
+        public List<NotificationFullDto> Notifications { get; set; }
     }
 }

@@ -46,6 +46,7 @@ public class TicketsRepository : ITicketsRepository
             .Include(e => e.User)
             .Include(e => e.TicketMessages)
             .Include(e => e.TicketSummaries)
+            .Include(e => e.Notifications)
             .AsTracking()
             .FirstOrDefaultAsync(e => e.Id == id);
     }

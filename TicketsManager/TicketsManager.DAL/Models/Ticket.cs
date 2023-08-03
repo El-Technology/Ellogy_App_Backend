@@ -18,6 +18,7 @@ public class Ticket
     public ICollection<TicketSummary> TicketSummaries { get; set; } = new List<TicketSummary>();
     public ICollection<TicketDiagram> TicketDiagrams { get; set; } = new List<TicketDiagram>();
     public ICollection<TicketTable> TicketTables { get; set; } = new List<TicketTable>();
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
     public Guid UserId { get; set; }
     public User User { get; set; }
