@@ -16,6 +16,7 @@ public static class DiExtension
         return services
             .AddDbContext<TicketsManagerDbContext>(c => c.UseNpgsql(connectionString))
             .AddScoped<ITicketsRepository, TicketsRepository>()
+            .AddScoped<IUsecaseRepository, UsecaseRepository>()
             .AddScoped<IUserRepository, UserRepository>();
     }
 }

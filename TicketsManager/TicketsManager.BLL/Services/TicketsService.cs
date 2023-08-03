@@ -21,45 +21,6 @@ public class TicketsService : ITicketsService
         _ticketsRepository = ticketsRepository;
         _userRepository = userRepository;
     }
-
-    public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest)
-    {
-        try
-        {
-            var tickets = await _ticketsRepository.GetTicketsAsync(userId, paginateRequest);
-
-            return _mapper.Map<PaginationResponseDto<TicketResponseDto>>(tickets);
-        }
-        catch (EntityNotFoundException ex)
-        {
-            throw new UserNotFoundException(userId, ex);
-        }
-    }
-
-    public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(Guid userId, SearchTicketsRequestDto searchRequest)
-    {
-        try
-        {
-            var findTickets = await _ticketsRepository.FindTicketsAsync(userId, searchRequest);
-            return _mapper.Map<PaginationResponseDto<TicketResponseDto>>(findTickets);
-        }
-        catch (EntityNotFoundException ex)
-        {
-            throw new UserNotFoundException(userId, ex);
-        }
-    }
-
-    public async Task<TicketResponseDto> CreateTicketAsync(TicketCreateRequestDto createTicketRequest, Guid userId)
-    {
-        var user = await _userRepository.GetUserAsync(userId) ?? throw new UserNotFoundException(userId);
-        var mappedTicket = MapCreateTicket(createTicketRequest, user);
-
-        await _ticketsRepository.CreateTicketAsync(mappedTicket);
-
-        var returnTicket = _mapper.Map<TicketResponseDto>(mappedTicket);
-        return returnTicket;
-    }
-
     private Ticket MapCreateTicket(TicketCreateRequestDto createTicketRequest, User user)
     {
         var mappedTicket = _mapper.Map<Ticket>(createTicketRequest);
@@ -77,6 +38,48 @@ public class TicketsService : ITicketsService
         return mappedTicket;
     }
 
+    /// <inheritdoc cref="ITicketsService.GetTicketsAsync(Guid, PaginationRequestDto)"/>
+    public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest)
+    {
+        try
+        {
+            var tickets = await _ticketsRepository.GetTicketsAsync(userId, paginateRequest);
+
+            return _mapper.Map<PaginationResponseDto<TicketResponseDto>>(tickets);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            throw new UserNotFoundException(userId, ex);
+        }
+    }
+
+    /// <inheritdoc cref="ITicketsService.SearchTicketsByNameAsync(Guid, SearchTicketsRequestDto)"/>
+    public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(Guid userId, SearchTicketsRequestDto searchRequest)
+    {
+        try
+        {
+            var findTickets = await _ticketsRepository.FindTicketsAsync(userId, searchRequest);
+            return _mapper.Map<PaginationResponseDto<TicketResponseDto>>(findTickets);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            throw new UserNotFoundException(userId, ex);
+        }
+    }
+
+    /// <inheritdoc cref="ITicketsService.CreateTicketAsync(TicketCreateRequestDto, Guid)"/>
+    public async Task<TicketResponseDto> CreateTicketAsync(TicketCreateRequestDto createTicketRequest, Guid userId)
+    {
+        var user = await _userRepository.GetUserAsync(userId) ?? throw new UserNotFoundException(userId);
+        var mappedTicket = MapCreateTicket(createTicketRequest, user);
+
+        await _ticketsRepository.CreateTicketAsync(mappedTicket);
+
+        var returnTicket = _mapper.Map<TicketResponseDto>(mappedTicket);
+        return returnTicket;
+    }
+
+    /// <inheritdoc cref="ITicketsService.DeleteTicketAsync(Guid)"/>
     public async Task DeleteTicketAsync(Guid id)
     {
         var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
@@ -85,6 +88,7 @@ public class TicketsService : ITicketsService
         await _ticketsRepository.DeleteTicketAsync(ticket);
     }
 
+    /// <inheritdoc cref="ITicketsService.UpdateTicketAsync(Guid, TicketUpdateRequestDto)"/>
     public async Task<TicketResponseDto> UpdateTicketAsync(Guid id, TicketUpdateRequestDto ticketUpdate)
     {
         var ticket = await _ticketsRepository.GetTicketByIdAsync(id)

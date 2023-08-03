@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using TicketsManager.BLL.Dtos.TicketVisualizationDtos;
 using TicketsManager.BLL.Dtos.TicketVisualizationDtos.FullDtos;
+using TicketsManager.BLL.Dtos.TicketVisualizationDtos.UpdateDtos;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Models;
 
 namespace TicketsManager.BLL.Mapping
@@ -57,7 +59,19 @@ namespace TicketsManager.BLL.Mapping
                     opts.Ignore())
                 .ReverseMap();
 
+            CreateMap<TicketTableUpdateDto, TicketTable>()
+                .ForMember(dest => dest.TicketId, opts =>
+                    opts.Ignore())
+                .ForMember(dest => dest.Ticket, opts =>
+                    opts.Ignore());
 
+            CreateMap<TicketDiagramUpdateDto, TicketDiagram>()
+                .ForMember(dest => dest.TicketId, opts =>
+                    opts.Ignore())
+                .ForMember(dest => dest.Ticket, opts =>
+                    opts.Ignore());
+
+            CreateMap<PaginationResponseDto<TicketDiagram>, PaginationResponseDto<TicketDiagramFullDto>>();
         }
     }
 }

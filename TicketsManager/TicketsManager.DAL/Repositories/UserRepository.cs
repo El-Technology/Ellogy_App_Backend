@@ -23,11 +23,9 @@ public class UserRepository : IUserRepository
                        .ThenInclude(t => t.TicketMessages)
                        .Include(u => u.UserTickets)
                        .ThenInclude(t => t.TicketSummaries)
-                       .Include(u=>u.UserTickets)
+                       .Include(u => u.UserTickets)
                        .ThenInclude(d => d.TicketDiagrams)
-                       .Include(u=>u.UserTickets)
-                       .ThenInclude(t => t.TicketTables)
-                       .ThenInclude(v => v.TableValues)
+                       .Include(u => u.UserTickets)
                        .FirstOrDefaultAsync(e => e.Id == id)
                    ?? throw new EntityNotFoundException(typeof(User));
 

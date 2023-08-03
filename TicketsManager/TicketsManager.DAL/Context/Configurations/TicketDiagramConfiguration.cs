@@ -19,8 +19,8 @@ namespace TicketsManager.DAL.Context.Configurations
 
             builder.HasOne(t => t.Ticket)
                 .WithMany(t => t.TicketDiagrams)
-                .HasForeignKey(t => t.TicketId)
-                .IsRequired();
+                .HasForeignKey(t => t.TicketId);
+
         }
     }
 }

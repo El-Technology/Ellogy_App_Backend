@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Net.WebSockets;
 using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Extensions;
@@ -47,9 +46,6 @@ public class TicketsRepository : ITicketsRepository
             .Include(e => e.User)
             .Include(e => e.TicketMessages)
             .Include(e => e.TicketSummaries)
-            .Include(e => e.TicketDiagrams)
-            .Include(e => e.TicketTables)
-            .ThenInclude(e => e.TableValues)
             .AsTracking()
             .FirstOrDefaultAsync(e => e.Id == id);
     }
