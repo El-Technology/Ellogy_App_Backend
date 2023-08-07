@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TicketsManager.BLL.Dtos.TicketVisualizationDtos.UpdateDtos;
-using TicketsManager.BLL.Dtos.TicketVisualizationDtos.UsecasesDtos;
+using TicketsManager.BLL.Dtos.TicketUsecaseDtos.FullDtos;
+using TicketsManager.BLL.Dtos.TicketUsecaseDtos.UsecasesDtos;
+
 using TicketsManager.BLL.Interfaces;
 
 namespace TicketsManager.Api.Controllers
@@ -31,75 +32,42 @@ namespace TicketsManager.Api.Controllers
         /// <returns>Returns the created use cases along with their details in the response.</returns>
         [HttpPost]
         [Route("create")]
-        public async Task<IActionResult> CreateUsecases([FromBody] CreateUsecasesDto createUsecasesDto)
+        public async Task<IActionResult> CreateUsecases([FromBody] List<CreateUsecasesDto> createUsecasesDto)
         {
             var tickets = await _usecasesService.CreateUsecasesAsync(createUsecasesDto);
             return Ok(tickets);
         }
 
         /// <summary>
-        /// Endpoint to retrieve diagrams for use cases.
+        /// Endpoint to retrieve use cases.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows users to get diagrams for use cases by providing a <paramref name="getDiagramsDto"/> containing query parameters to filter the results.
+        /// This endpoint allows users to get use cases by providing a <paramref name="getUsecases"/> containing query parameters to filter the results.
         /// </remarks>
-        /// <param name="getDiagramsDto">Query parameters for filtering diagrams.</param>
-        /// <returns>Returns the requested diagrams for use cases in the response.</returns>
+        /// <param name="getUsecases">Query parameters for filtering diagrams.</param>
+        /// <returns>Returns the requested use cases in the response.</returns>
         [HttpPost]
-        [Route("getDiagrams")]
-        public async Task<IActionResult> GetDiagrams([FromBody] GetDiagramsDto getDiagramsDto)
+        [Route("getUsecases")]
+        public async Task<IActionResult> GetUsecases([FromBody] GetUsecasesDto getUsecases)
         {
-            var tickets = await _usecasesService.GetDiagramsAsync(getDiagramsDto);
+            var tickets = await _usecasesService.GetUsecasesAsync(getUsecases);
             return Ok(tickets);
         }
 
         /// <summary>
-        /// Endpoint to retrieve a table for a specific ticket.
+        /// Controller endpoint to update a use case.
         /// </summary>
         /// <remarks>
-        /// This endpoint allows users to get a table associated with the provided <paramref name="ticketId"/>.
+        /// This endpoint allows users to update a specific use case by providing the use case ID and the updated data in the request body.
         /// </remarks>
-        /// <param name="ticketId">The unique identifier of the ticket for which the table is requested.</param>
-        /// <returns>Returns the requested table data in the response.</returns>
-        [HttpGet]
-        [Route("getTable")]
-        public async Task<IActionResult> GetTable(Guid ticketId)
-        {
-            var tickets = await _usecasesService.GetTableAsync(ticketId);
-            return Ok(tickets);
-        }
-
-        /// <summary>
-        /// Endpoint to update a table for a specific ticket.
-        /// </summary>
-        /// <remarks>
-        /// This endpoint allows users to update the table associated with the provided <paramref name="tableId"/> using the data in <paramref name="ticketTable"/>.
-        /// </remarks>
-        /// <param name="tableId">The unique identifier of the table to be updated.</param>
-        /// <param name="ticketTable">The updated table data.</param>
-        /// <returns>Returns the response indicating the success of the update operation.</returns>
+        /// <param name="usecaseId">The ID of the use case to update.</param>
+        /// <param name="usecase">The updated data for the use case.</param>
+        /// <returns>Returns the updated use case in the response.</returns>
         [HttpPut]
-        [Route("updateTable")]
-        public async Task<IActionResult> UpdateTable(Guid tableId, [FromBody] TicketTableUpdateDto ticketTable)
+        [Route("updateUsecase")]
+        public async Task<IActionResult> UpdateTable(Guid usecaseId, [FromBody] UsecaseDataFullDto usecase)
         {
-            var response = await _usecasesService.UpdateTicketTable(tableId, ticketTable);
-            return Ok(response);
-        }
-
-        /// <summary>
-        /// Endpoint to update a diagram for a specific ticket.
-        /// </summary>
-        /// <remarks>
-        /// This endpoint allows users to update the diagram associated with the provided <paramref name="diagramId"/> using the data in <paramref name="ticketDiagram"/>.
-        /// </remarks>
-        /// <param name="diagramId">The unique identifier of the diagram to be updated.</param>
-        /// <param name="ticketDiagram">The updated diagram data.</param>
-        /// <returns>Returns the response indicating the success of the update operation.</returns>
-        [HttpPut]
-        [Route("updateDiagram")]
-        public async Task<IActionResult> UpdateDiagram(Guid diagramId, [FromBody] TicketDiagramUpdateDto ticketDiagram)
-        {
-            var response = await _usecasesService.UpdateTicketDiagram(diagramId, ticketDiagram);
+            var response = await _usecasesService.UpdateUsecaseAsync(usecaseId, usecase);
             return Ok(response);
         }
     }

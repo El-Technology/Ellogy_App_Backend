@@ -8,7 +8,6 @@ namespace TicketsManager.DAL.Repositories
 {
     public class UsecaseRepository : IUsecaseRepository
     {
-        private const int OneTableToOneTicket = 1;
         private const int PaginationStartsFromOne = 1;
         private readonly TicketsManagerDbContext _context;
         public UsecaseRepository(TicketsManagerDbContext context)
@@ -16,87 +15,51 @@ namespace TicketsManager.DAL.Repositories
             _context = context;
         }
 
-        /// <inheritdoc cref="IUsecaseRepository.CreateUsecasesAsync(TicketTable, List{TicketDiagram})"/>
-        public async Task CreateUsecasesAsync(TicketTable table, List<TicketDiagram> diagrams)
+        ///<inheritdoc cref="IUsecaseRepository.CreateUsecasesAsync(List{Usecase})"/>
+        public async Task CreateUsecasesAsync(List<Usecase> usecases)
         {
-            using var transaction = _context.Database.BeginTransaction();
-            try
-            {
-                await _context.AddAsync(table);
-                await _context.AddRangeAsync(diagrams);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-            }
+            await _context.AddRangeAsync(usecases);
+            await _context.SaveChangesAsync();
         }
 
-        /// <inheritdoc cref="IUsecaseRepository.GetTableAsync(Guid)"/>
-        public async Task<TicketTable?> GetTableAsync(Guid ticketId)
-        {
-            var tables = await _context.TicketTables.Where(t => t.TicketId == ticketId).ToListAsync();
-            if (tables.Count > OneTableToOneTicket)
-            {
-                _context.TicketTables.RemoveRange(tables.SkipLast(OneTableToOneTicket));
-                await _context.SaveChangesAsync();
-            }
-            return await _context.TicketTables.Include(a => a.TableValues).FirstOrDefaultAsync(a => a.TicketId == ticketId);
-        }
-
-        /// <inheritdoc cref="IUsecaseRepository.GetDiagramsAsync(PaginationRequestDto, Guid)"/>
-        public async Task<PaginationResponseDto<TicketDiagram>> GetDiagramsAsync(PaginationRequestDto paginationRequest, Guid ticketId)
+        ///<inheritdoc cref="IUsecaseRepository.GetUsecasesAsync(PaginationRequestDto, Guid)"/>
+        public async Task<PaginationResponseDto<Usecase>> GetUsecasesAsync(PaginationRequestDto paginationRequest, Guid ticketId)
         {
             var numberOfItemsToSkip = (paginationRequest.CurrentPageNumber - PaginationStartsFromOne) * paginationRequest.RecordsPerPage;
-            var totalRecords = _context.TicketDiagrams.Where(a => a.TicketId == ticketId).Count();
+            var totalRecords = _context.Usecases.Where(a => a.TicketId == ticketId).Count();
 
-            var ticketDiagrams = await _context.TicketDiagrams
+            var usecases = await _context.Usecases
                 .Where(a => a.TicketId == ticketId)
                 .Skip(numberOfItemsToSkip)
                 .Take(paginationRequest.RecordsPerPage)
+                .Include(a => a.Tables)
+                .Include(a => a.Diagrams)
                 .ToListAsync();
 
-            var response = new PaginationResponseDto<TicketDiagram>()
+            var response = new PaginationResponseDto<Usecase>()
             {
-                Data = ticketDiagrams,
+                Data = usecases,
                 CurrentPageNumber = paginationRequest.CurrentPageNumber,
                 RecordsPerPage = paginationRequest.RecordsPerPage,
                 TotalRecordsFound = totalRecords,
-                RecordsReturned = ticketDiagrams.Count
+                RecordsReturned = usecases.Count
             };
             return response;
         }
 
-        /// <inheritdoc cref="IUsecaseRepository.UpdateTableAsync(TicketTable)"/>
-        public async Task UpdateTableAsync(TicketTable ticketTable)
+        ///<inheritdoc cref="IUsecaseRepository.UpdateUsecaseAsync(Usecase)"/>
+        public async Task UpdateUsecaseAsync(Usecase usecase)
         {
-            _context.Update(ticketTable);
+            _context.Update(usecase);
             await _context.SaveChangesAsync();
         }
 
-        /// <inheritdoc cref="IUsecaseRepository.UpdateDiagramAsync(TicketDiagram)"/>
-        public async Task UpdateDiagramAsync(TicketDiagram ticketDiagram)
+        ///<inheritdoc cref="IUsecaseRepository.GetUsecaseByIdAsync(Guid)"/>
+        public Task<Usecase?> GetUsecaseByIdAsync(Guid usecaseId)
         {
-            _context.Update(ticketDiagram);
-            await _context.SaveChangesAsync();
-        }
-
-        /// <inheritdoc cref="IUsecaseRepository.GetTableByIdAsync(Guid)"/>
-        public Task<TicketTable?> GetTableByIdAsync(Guid tableId)
-        {
-            return _context.TicketTables
-                           .Include(a => a.TableValues)
+            return _context.Usecases
                            .AsTracking()
-                           .FirstOrDefaultAsync(a => a.Id == tableId);
-        }
-
-        /// <inheritdoc cref="IUsecaseRepository.GetDiagramByIdAsync(Guid)"/>
-        public Task<TicketDiagram?> GetDiagramByIdAsync(Guid diagramId)
-        {
-            return _context.TicketDiagrams
-                           .AsTracking()
-                           .FirstOrDefaultAsync(a => a.Id == diagramId);
+                           .FirstOrDefaultAsync(a => a.Id == usecaseId);
         }
     }
 }

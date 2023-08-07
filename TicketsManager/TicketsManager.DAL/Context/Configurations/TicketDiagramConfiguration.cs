@@ -17,10 +17,9 @@ namespace TicketsManager.DAL.Context.Configurations
             builder.Property(t => t.PictureLink)
                 .IsRequired();
 
-            builder.HasOne(t => t.Ticket)
-                .WithMany(t => t.TicketDiagrams)
-                .HasForeignKey(t => t.TicketId);
-
+            builder.HasOne(a => a.Usecase)
+                .WithMany(a => a.Diagrams)
+                .HasForeignKey(a => a.UsecaseId);
         }
     }
 }

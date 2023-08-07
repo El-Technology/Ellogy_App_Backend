@@ -3,10 +3,9 @@
     public class TicketTable
     {
         public Guid Id { get; set; }
-        public string TableKey { get; set; }
-        public ICollection<TicketTableValue> TableValues { get; set; } = new List<TicketTableValue>();
+        public string Table { get; set; }
 
-        public Ticket Ticket { get; set; }
-        public Guid TicketId { get; set; }
+        public Usecase Usecase { get; set; }
+        public Guid UsecaseId { get; set; }
     }
 }

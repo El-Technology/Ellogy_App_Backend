@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
-using TicketsManager.BLL.Dtos.TicketVisualizationDtos.FullDtos;
-using TicketsManager.BLL.Dtos.TicketVisualizationDtos.UpdateDtos;
-using TicketsManager.BLL.Dtos.TicketVisualizationDtos.UsecasesDtos;
+using TicketsManager.BLL.Dtos.TicketUsecaseDtos.FullDtos;
+using TicketsManager.BLL.Dtos.TicketUsecaseDtos.UsecasesDtos;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Interfaces;
@@ -19,60 +18,31 @@ namespace TicketsManager.BLL.Services
             _mapper = mapper;
         }
 
-        /// <inheritdoc cref="IUsecasesService.CreateUsecasesAsync(CreateUsecasesDto)"/>
-        public async Task<CreateUsecasesResponseDto> CreateUsecasesAsync(CreateUsecasesDto createUsecasesDto)
+        ///<inheritdoc cref="IUsecasesService.CreateUsecasesAsync(List{CreateUsecasesDto})"/>
+        public async Task<CreateUsecasesResponseDto> CreateUsecasesAsync(List<CreateUsecasesDto> createUsecasesDto)
         {
-            var table = _mapper.Map<TicketTable>(createUsecasesDto.TicketTable);
-            table.TicketId = createUsecasesDto.TicketId;
-
-            var diagrams = _mapper.Map<List<TicketDiagram>>(createUsecasesDto.TicketDiagrams);
-            foreach (var diagram in diagrams)
-                diagram.TicketId = createUsecasesDto.TicketId;
-
-            await _usecaseRepository.CreateUsecasesAsync(table, diagrams);
-
-            return new CreateUsecasesResponseDto
-            {
-                TicketTable = _mapper.Map<TicketTableFullDto>(table),
-                TicketDiagrams = _mapper.Map<List<TicketDiagramFullDto>>(diagrams)
-            };
+            var usecases = _mapper.Map<List<Usecase>>(createUsecasesDto);
+            await _usecaseRepository.CreateUsecasesAsync(usecases);
+            return new CreateUsecasesResponseDto { Usecases = _mapper.Map<List<UsecaseFullDto>>(usecases) };
         }
 
-        /// <inheritdoc cref="IUsecasesService.GetTableAsync(Guid)"/>
-        public async Task<TicketTableFullDto> GetTableAsync(Guid ticketId)
+        ///<inheritdoc cref="IUsecasesService.GetUsecasesAsync(GetUsecasesDto)"/>
+        public async Task<PaginationResponseDto<UsecaseFullDto>> GetUsecasesAsync(GetUsecasesDto getUsecases)
         {
-            var table = await _usecaseRepository.GetTableAsync(ticketId);
-            return _mapper.Map<TicketTableFullDto>(table);
+            var response = await _usecaseRepository.GetUsecasesAsync(getUsecases.PaginationRequest, getUsecases.TicketId);
+            return _mapper.Map<PaginationResponseDto<UsecaseFullDto>>(response);
         }
 
-        /// <inheritdoc cref="IUsecasesService.GetDiagramsAsync(GetDiagramsDto)"/>
-        public async Task<PaginationResponseDto<TicketDiagramFullDto>> GetDiagramsAsync(GetDiagramsDto getDiagramsDto)
+        ///<inheritdoc cref="IUsecasesService.UpdateUsecaseAsync(Guid, UsecaseDataFullDto)"/>
+        public async Task<UsecaseFullDto> UpdateUsecaseAsync(Guid usecaseId, UsecaseDataFullDto updateUsecaseDto)
         {
-            var response = await _usecaseRepository.GetDiagramsAsync(getDiagramsDto.PaginationRequest, getDiagramsDto.TicketId);
-            var mappedResponse = _mapper.Map<PaginationResponseDto<TicketDiagramFullDto>>(response);
-            return mappedResponse;
-        }
+            var usecase = await _usecaseRepository.GetUsecaseByIdAsync(usecaseId)
+                ?? throw new Exception($"Usecase with id - {usecaseId} was not found");
 
-        /// <inheritdoc cref="IUsecasesService.UpdateTicketTable(Guid, TicketTableUpdateDto)"/>
-        public async Task<TicketTableFullDto> UpdateTicketTable(Guid ticketTableId, TicketTableUpdateDto ticketTable)
-        {
-            var table = await _usecaseRepository.GetTableByIdAsync(ticketTableId)
-                ?? throw new Exception($"TicketTable was not found {ticketTableId}");
+            var mappedUsecase = _mapper.Map(updateUsecaseDto, usecase);
 
-            var mappedTable = _mapper.Map(ticketTable, table);
-            await _usecaseRepository.UpdateTableAsync(mappedTable);
-            return _mapper.Map<TicketTableFullDto>(mappedTable);
-        }
-
-        /// <inheritdoc cref="IUsecasesService.UpdateTicketDiagram(Guid, TicketDiagramUpdateDto)"/>
-        public async Task<TicketDiagramFullDto> UpdateTicketDiagram(Guid ticketDiagramId, TicketDiagramUpdateDto ticketDiagram)
-        {
-            var table = await _usecaseRepository.GetDiagramByIdAsync(ticketDiagramId)
-                 ?? throw new Exception($"TicketDiagram was not found {ticketDiagramId}");
-
-            var mappedTable = _mapper.Map(ticketDiagram, table);
-            await _usecaseRepository.UpdateDiagramAsync(mappedTable);
-            return _mapper.Map<TicketDiagramFullDto>(mappedTable);
+            await _usecaseRepository.UpdateUsecaseAsync(mappedUsecase);
+            return _mapper.Map<UsecaseFullDto>(usecase);
         }
     }
 }

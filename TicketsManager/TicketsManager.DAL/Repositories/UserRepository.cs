@@ -24,7 +24,7 @@ public class UserRepository : IUserRepository
                        .Include(u => u.UserTickets)
                        .ThenInclude(t => t.TicketSummaries)
                        .Include(u => u.UserTickets)
-                       .ThenInclude(d => d.TicketDiagrams)
+                       .ThenInclude(d => d.Usecases)
                        .Include(u => u.UserTickets)
                        .ThenInclude(u => u.Notifications)
                        .FirstOrDefaultAsync(e => e.Id == id)

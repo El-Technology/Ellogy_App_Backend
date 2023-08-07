@@ -10,17 +10,11 @@ namespace TicketsManager.DAL.Context.Configurations
         {
             builder.ToTable("TicketTables");
             builder.HasKey(t => t.Id);
-            builder.Property(t => t.TableKey)
-                .IsRequired();
+            builder.Property(t => t.Table);
 
-            builder.HasMany(t => t.TableValues)
-                .WithOne(t => t.TicketTable)
-                .HasForeignKey(t => t.TicketTableId)
-                .IsRequired();
-
-            builder.HasOne(t => t.Ticket)
-                .WithMany(t => t.TicketTables)
-                .HasForeignKey(t => t.TicketId);
+            builder.HasOne(a => a.Usecase)
+                .WithMany(a => a.Tables)
+                .HasForeignKey(t => t.UsecaseId);
         }
     }
 

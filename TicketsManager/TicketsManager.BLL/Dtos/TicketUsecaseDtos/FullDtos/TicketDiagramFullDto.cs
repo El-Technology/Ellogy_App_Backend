@@ -1,4 +1,4 @@
-﻿namespace TicketsManager.BLL.Dtos.TicketVisualizationDtos.FullDtos
+﻿namespace TicketsManager.BLL.Dtos.TicketUsecaseDtos.FullDtos
 {
     public class TicketDiagramFullDto : TicketDiagramDto
     {

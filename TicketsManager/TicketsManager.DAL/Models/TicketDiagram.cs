@@ -7,7 +7,7 @@
         public string Description { get; set; }
         public string PictureLink { get; set; }
 
-        public Ticket Ticket { get; set; }
-        public Guid TicketId { get; set; }
+        public Usecase Usecase { get; set; }
+        public Guid UsecaseId { get; set; }
     }
 }
