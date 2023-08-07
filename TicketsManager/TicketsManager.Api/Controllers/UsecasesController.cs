@@ -47,7 +47,7 @@ namespace TicketsManager.Api.Controllers
         /// <param name="getUsecases">Query parameters for filtering diagrams.</param>
         /// <returns>Returns the requested use cases in the response.</returns>
         [HttpPost]
-        [Route("getUsecases")]
+        [Route("get")]
         public async Task<IActionResult> GetUsecases([FromBody] GetUsecasesDto getUsecases)
         {
             var tickets = await _usecasesService.GetUsecasesAsync(getUsecases);
@@ -64,7 +64,7 @@ namespace TicketsManager.Api.Controllers
         /// <param name="usecase">The updated data for the use case.</param>
         /// <returns>Returns the updated use case in the response.</returns>
         [HttpPut]
-        [Route("updateUsecase")]
+        [Route("update")]
         public async Task<IActionResult> UpdateTable(Guid usecaseId, [FromBody] UsecaseDataFullDto usecase)
         {
             var response = await _usecasesService.UpdateUsecaseAsync(usecaseId, usecase);
