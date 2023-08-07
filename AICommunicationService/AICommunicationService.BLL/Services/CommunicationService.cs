@@ -1,12 +1,15 @@
 ﻿using AICommunicationService.BLL.Constants;
+using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Helpers;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.Common.Models.AIResponse;
 using AICommunicationService.DAL.Interfaces;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OpenAI_API;
 using OpenAI_API.Chat;
+using System.Diagnostics;
 
 namespace AICommunicationService.BLL.Services
 {
@@ -50,9 +53,19 @@ namespace AICommunicationService.BLL.Services
         private async Task<T> GetResultAsync<T>(ChatRequest chatRequest)
         {
             var stringResult = await GetStringResultAsync(chatRequest);
-            var gptResponse = JsonConvert.DeserializeObject<T>(stringResult)
-                ?? throw new Exception("Deserializing Error");
-
+            var jsonSetting = new JsonSerializerSettings
+            {
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+            T? gptResponse;
+            try
+            {
+                gptResponse = JsonConvert.DeserializeObject<T>(stringResult, jsonSetting);
+            }
+            catch (Exception)
+            {
+                throw new DeserializeError(stringResult);
+            }
             return gptResponse;
         }
 

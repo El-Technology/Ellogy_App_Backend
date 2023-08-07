@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using AICommunicationService.BLL.Exceptions;
+using System.Net;
 
 namespace AICommunicationService.Api.Middlewares;
 
@@ -19,6 +20,10 @@ public class ExceptionHandlerMiddleware
         try
         {
             await _next(context);
+        }
+        catch (DeserializeError ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.OK, ex.Message);
         }
         catch (Exception ex)
         {
