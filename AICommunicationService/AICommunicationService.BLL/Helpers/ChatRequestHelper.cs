@@ -34,7 +34,7 @@ namespace AICommunicationService.BLL.Helpers
             {
                 new ChatMessage(ChatMessageRole.User, string.Format(template,
                                                                     conversationRequest.Summary,
-                                                                    conversationRequest.HumanAnswer)),
+                                                                    conversationRequest.HumanAnswer))
             };
             return ChatRequestRandom;
         }
@@ -45,9 +45,64 @@ namespace AICommunicationService.BLL.Helpers
                 new ChatMessage(ChatMessageRole.User, string.Format(template,
                                                                     conversationSummaryRequest.CurrentSummary,
                                                                     conversationSummaryRequest.Human,
-                                                                    conversationSummaryRequest.AI)),
+                                                                    conversationSummaryRequest.AI))
             };
             return ChatRequestRandom;
+        }
+
+        public static ChatRequest GetDiagramRequest(DiagramRequest diagramRequest, string template)
+        {
+            ChatRequestStable.Messages = new ChatMessage[]
+            {
+                new ChatMessage(ChatMessageRole.User, string.Format(template,
+                                                                    diagramRequest.UserStories,
+                                                                    diagramRequest.Usecase))
+            };
+            return ChatRequestStable;
+        }
+
+        public static ChatRequest GetUsecaseConversationRequest(UsecaseConversationRequest usecaseConversationRequest, string template)
+        {
+            ChatRequestRandom.Messages = new ChatMessage[]
+            {
+                new ChatMessage(ChatMessageRole.User, string.Format(template,
+                                                                    usecaseConversationRequest.ChatHistory,
+                                                                    usecaseConversationRequest.UserValue))
+            };
+            return ChatRequestRandom;
+        }
+
+        public static ChatRequest GetNotificationConversationRequest(NotificationConversationRequest notificationConversationRequest, string template)
+        {
+            ChatRequestRandom.Messages = new ChatMessage[]
+            {
+                new ChatMessage(ChatMessageRole.User, string.Format(template,
+                                                                    notificationConversationRequest.ChatHistory,
+                                                                    notificationConversationRequest.UserValue))
+            };
+            return ChatRequestRandom;
+        }
+
+        public static ChatRequest GetDiagramCorrectionRequest(DiagramCorrectionRequest diagramCorrection, string template)
+        {
+            ChatRequestStable.Messages = new ChatMessage[]
+            {
+                new ChatMessage(ChatMessageRole.User, string.Format(template,
+                                                                   diagramCorrection.Diagram,
+                                                                   diagramCorrection.Requirements))
+            };
+            return ChatRequestStable;
+        }
+
+        public static ChatRequest GetDescriptionTableRequest(DescriptionTableRequest descriptionTableRequest, string template)
+        {
+            ChatRequestStable.Messages = new ChatMessage[]
+            {
+                new ChatMessage(ChatMessageRole.User, string.Format(template,
+                                                                   descriptionTableRequest.Description,
+                                                                   descriptionTableRequest.Usecase))
+            };
+            return ChatRequestStable;
         }
     }
 }

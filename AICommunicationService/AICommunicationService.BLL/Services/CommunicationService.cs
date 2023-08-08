@@ -6,10 +6,8 @@ using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.Common.Models.AIResponse;
 using AICommunicationService.DAL.Interfaces;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OpenAI_API;
 using OpenAI_API.Chat;
-using System.Diagnostics;
 
 namespace AICommunicationService.BLL.Services
 {
@@ -69,27 +67,27 @@ namespace AICommunicationService.BLL.Services
             return gptResponse;
         }
 
-        private async Task<string> GetTemplate(string promptName, string aiTemplateInput)
+        private async Task<string> GetTemplate(string promptName)
         {
             var getPrompt = await _aIPromptRepository.GetPromptByTemplateNameAsync(promptName)
                 ?? throw new Exception("Prompt was not found");
-            return getPrompt.Value + aiTemplateInput;
+            return getPrompt.Value;
         }
 
         /// <inheritdoc cref="ICommunicationService.GetDescriptionAsync(string)"/>
         public async Task<DescriptionResponse> GetDescriptionAsync(string userStories)
         {
-            var template = await GetTemplate(nameof(AITemplates.DescriptionTemplate), AITemplates.DescriptionTemplate);
+            var template = await GetTemplate(PromptConstants.DescriptionTemplate);
             var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(userStories, Stable, template);
             var response = await GetResultAsync<DescriptionResponse>(chatRequest);
             return response;
         }
 
-        /// <inheritdoc cref="ICommunicationService.GetDiagramsAsync(string)"/>
-        public async Task<DiagramResponse> GetDiagramsAsync(string userStories)
+        /// <inheritdoc cref="ICommunicationService.GetDiagramsAsync(DiagramRequest)"/>
+        public async Task<DiagramResponse> GetDiagramsAsync(DiagramRequest diagramRequest)
         {
-            var template = await GetTemplate(nameof(AITemplates.DiagramTemplate), AITemplates.DiagramTemplate);
-            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(userStories, Random, template);
+            var template = await GetTemplate(PromptConstants.DiagramTemplate);
+            var chatRequest = ChatRequestHelper.GetDiagramRequest(diagramRequest, template);
             var response = await GetResultAsync<DiagramResponse>(chatRequest);
             return response;
         }
@@ -97,7 +95,7 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetIsRequestClearAsync(string)"/>
         public async Task<bool> GetIsRequestClearAsync(string history)
         {
-            var template = await GetTemplate(nameof(AITemplates.IsRequestClearTemplate), AITemplates.IsRequestClearTemplate);
+            var template = await GetTemplate(PromptConstants.IsRequestClearTemplate);
             var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(history, Stable, template);
             var response = await GetStringResultAsync(chatRequest);
             _ = bool.TryParse(response, out bool result);
@@ -107,7 +105,7 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetPotentialSummaryAsync(string)"/>
         public async Task<List<PotentialSummaryResponse>> GetPotentialSummaryAsync(string description)
         {
-            var template = await GetTemplate(nameof(AITemplates.PotentialSummaryTemplate), AITemplates.PotentialSummaryTemplate);
+            var template = await GetTemplate(PromptConstants.PotentialSummaryTemplate);
             var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(description, Stable, template);
             var response = await GetResultAsync<List<PotentialSummaryResponse>>(chatRequest);
             return response;
@@ -116,7 +114,7 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetSummaryAsync(string)"/>
         public async Task<List<SummaryResponse>> GetSummaryAsync(string history)
         {
-            var template = await GetTemplate(nameof(AITemplates.SummaryTemplate), AITemplates.SummaryTemplate);
+            var template = await GetTemplate(PromptConstants.SummaryTemplate);
             var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(history, Stable, template);
             var response = await GetResultAsync<List<SummaryResponse>>(chatRequest);
             return response;
@@ -125,7 +123,7 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetConversationAsync(ConversationRequest)"/>
         public async Task<string> GetConversationAsync(ConversationRequest conversationRequest)
         {
-            var template = await GetTemplate(nameof(AITemplates.ConversationTemplate), AITemplates.ConversationTemplate);
+            var template = await GetTemplate(PromptConstants.ConversationTemplate);
             var chatRequest = ChatRequestHelper.GetConversationRequest(conversationRequest, template);
             var response = await GetStringResultAsync(chatRequest);
             return response;
@@ -134,8 +132,71 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.GetConversationSummaryAsync(ConversationSummaryRequest)"/>
         public async Task<string> GetConversationSummaryAsync(ConversationSummaryRequest conversationSummaryRequest)
         {
-            var template = await GetTemplate(nameof(AITemplates.ConversationSummaryTemplate), AITemplates.ConversationSummaryTemplate);
+            var template = await GetTemplate(PromptConstants.ConversationSummaryTemplate);
             var chatRequest = ChatRequestHelper.GetConversationSummaryRequest(conversationSummaryRequest, template);
+            var response = await GetStringResultAsync(chatRequest);
+            return response;
+        }
+
+        /// <inheritdoc cref="ICommunicationService.GetDescriptionTableAsync(DescriptionTableRequest)"/>
+        public async Task<string> GetDescriptionTableAsync(DescriptionTableRequest descriptionTableRequest)
+        {
+            var template = await GetTemplate(PromptConstants.DescriptionTableTemplate);
+            var chatRequest = ChatRequestHelper.GetDescriptionTableRequest(descriptionTableRequest, template);
+            var response = await GetStringResultAsync(chatRequest);
+            return response;
+        }
+
+        /// <inheritdoc cref="ICommunicationService.GetDiagramCorrectionAsync(DiagramCorrectionRequest)"/>
+        public async Task<string> GetDiagramCorrectionAsync(DiagramCorrectionRequest diagramCorrectionRequest)
+        {
+            var template = await GetTemplate(PromptConstants.DiagramCorrectionTemplate);
+            var chatRequest = ChatRequestHelper.GetDiagramCorrectionRequest(diagramCorrectionRequest, template);
+            var response = await GetStringResultAsync(chatRequest);
+            return response;
+        }
+
+        /// <inheritdoc cref="ICommunicationService.GetNotificationAsync(string)"/>
+        public async Task<string> GetNotificationAsync(string suggestions)
+        {
+            var template = await GetTemplate(PromptConstants.NotificationsTemplate);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(suggestions, Stable, template);
+            var response = await GetStringResultAsync(chatRequest);
+            return response;
+        }
+
+        /// <inheritdoc cref="ICommunicationService.GetNotificationConversationAsync(NotificationConversationRequest)"/>
+        public async Task<string> GetNotificationConversationAsync(NotificationConversationRequest notificationConversationRequest)
+        {
+            var template = await GetTemplate(PromptConstants.NotificationsConversationTemplate);
+            var chatRequest = ChatRequestHelper.GetNotificationConversationRequest(notificationConversationRequest, template);
+            var response = await GetStringResultAsync(chatRequest);
+            return response;
+        }
+
+        /// <inheritdoc cref="ICommunicationService.GetPotentialNotificationAsync(string)"/>
+        public async Task<string> GetPotentialNotificationAsync(string description)
+        {
+            var template = await GetTemplate(PromptConstants.PotentialNotificationsTemplate);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(description, Stable, template);
+            var response = await GetStringResultAsync(chatRequest);
+            return response;
+        }
+
+        /// <inheritdoc cref="ICommunicationService.GetUsecaseConversationAsync(UsecaseConversationRequest)"/>
+        public async Task<string> GetUsecaseConversationAsync(UsecaseConversationRequest usecaseConversationRequest)
+        {
+            var template = await GetTemplate(PromptConstants.UsecaseConversationTemplate);
+            var chatRequest = ChatRequestHelper.GetUsecaseConversationRequest(usecaseConversationRequest, template);
+            var response = await GetStringResultAsync(chatRequest);
+            return response;
+        }
+
+        /// <inheritdoc cref="ICommunicationService.GetUsecaseAsync(string)"/>
+        public async Task<string> GetUsecaseAsync(string description)
+        {
+            var template = await GetTemplate(PromptConstants.UsecasesTemplate);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(description, Stable, template);
             var response = await GetStringResultAsync(chatRequest);
             return response;
         }

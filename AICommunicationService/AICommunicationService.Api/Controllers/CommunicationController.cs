@@ -9,7 +9,7 @@ namespace AICommunicationService.Api.Controllers
     /// <summary>
     /// This controller provides endpoints for communication with Chat GPT using various templates and methods.
     /// </summary>
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class CommunicationController : ControllerBase
@@ -29,8 +29,8 @@ namespace AICommunicationService.Api.Controllers
         [Route("getDescription")]
         public async Task<IActionResult> GetDescription([FromBody] string userStories)
         {
-            var description = await _communicationService.GetDescriptionAsync(userStories);
-            return Ok(description);
+            var response = await _communicationService.GetDescriptionAsync(userStories);
+            return Ok(response);
         }
 
         /// <summary>
@@ -40,10 +40,10 @@ namespace AICommunicationService.Api.Controllers
         /// <returns>An IActionResult representing the HTTP response with the diagram response obtained from Chat GPT.</returns>
         [HttpPost]
         [Route("getDiagram")]
-        public async Task<IActionResult> GetDiagram([FromBody] string userStories)
+        public async Task<IActionResult> GetDiagram([FromBody] DiagramRequest diagramRequest)
         {
-            var diagram = await _communicationService.GetDiagramsAsync(userStories);
-            return Ok(diagram);
+            var response = await _communicationService.GetDiagramsAsync(diagramRequest);
+            return Ok(response);
         }
 
         /// <summary>
@@ -55,8 +55,8 @@ namespace AICommunicationService.Api.Controllers
         [Route("getIsRequestClear")]
         public async Task<IActionResult> GetIsRequestClear([FromBody] string history)
         {
-            var isRequest = await _communicationService.GetIsRequestClearAsync(history);
-            return Ok(isRequest);
+            var response = await _communicationService.GetIsRequestClearAsync(history);
+            return Ok(response);
         }
 
         /// <summary>
@@ -68,8 +68,8 @@ namespace AICommunicationService.Api.Controllers
         [Route("getPotentialSummary")]
         public async Task<IActionResult> GetPotentialSummary([FromBody] string description)
         {
-            var potentialSummary = await _communicationService.GetPotentialSummaryAsync(description);
-            return Ok(potentialSummary);
+            var response = await _communicationService.GetPotentialSummaryAsync(description);
+            return Ok(response);
         }
 
         /// <summary>
@@ -81,8 +81,8 @@ namespace AICommunicationService.Api.Controllers
         [Route("getSummary")]
         public async Task<IActionResult> GetSummary([FromBody] string history)
         {
-            var potentialSummary = await _communicationService.GetSummaryAsync(history);
-            return Ok(potentialSummary);
+            var response = await _communicationService.GetSummaryAsync(history);
+            return Ok(response);
         }
 
         /// <summary>
@@ -94,8 +94,8 @@ namespace AICommunicationService.Api.Controllers
         [Route("getConversation")]
         public async Task<IActionResult> GetConversation([FromBody] ConversationRequest conversationRequest)
         {
-            var potentialSummary = await _communicationService.GetConversationAsync(conversationRequest);
-            return Ok(potentialSummary);
+            var response = await _communicationService.GetConversationAsync(conversationRequest);
+            return Ok(response);
         }
 
         /// <summary>
@@ -107,8 +107,99 @@ namespace AICommunicationService.Api.Controllers
         [Route("getConversationSummary")]
         public async Task<IActionResult> GetConversationSummary([FromBody] ConversationSummaryRequest conversationSummaryRequest)
         {
-            var potentialSummary = await _communicationService.GetConversationSummaryAsync(conversationSummaryRequest);
-            return Ok(potentialSummary);
+            var response = await _communicationService.GetConversationSummaryAsync(conversationSummaryRequest);
+            return Ok(response);
+        }
+
+        ///<summary>
+        /// HTTP POST endpoint that retrieves a use case based on the provided description.
+        ///</summary>
+        ///<param name="description">The description used to search for a specific use case.</param>
+        ///<returns>An IActionResult representing the HTTP response containing the retrieved use case.</returns>
+        [HttpPost]
+        [Route("getUsecase")]
+        public async Task<IActionResult> GetUsecase([FromBody] string description)
+        {
+            var response = await _communicationService.GetUsecaseAsync(description);
+            return Ok(response);
+        }
+
+        ///<summary>
+        /// HTTP POST endpoint that retrieves a use case conversation based on the provided use case conversation request.
+        ///</summary>
+        ///<param name="usecaseConversationRequest">A model containing the use case conversation request.</param>
+        ///<returns>An IActionResult representing the HTTP response containing the retrieved use case conversation.</returns>
+        [HttpPost]
+        [Route("getUsecaseConversation")]
+        public async Task<IActionResult> GetUsecaseConversation([FromBody] UsecaseConversationRequest usecaseConversationRequest)
+        {
+            var response = await _communicationService.GetUsecaseConversationAsync(usecaseConversationRequest);
+            return Ok(response);
+        }
+
+        ///<summary>
+        /// HTTP POST endpoint that retrieves potential notifications based on the provided description.
+        ///</summary>
+        ///<param name="description">The description used to identify potential notifications.</param>
+        ///<returns>An IActionResult representing the HTTP response containing the retrieved potential notifications.</returns>
+        [HttpPost]
+        [Route("getPotentialNotification")]
+        public async Task<IActionResult> GetPotentialNotification([FromBody] string description)
+        {
+            var response = await _communicationService.GetPotentialNotificationAsync(description);
+            return Ok(response);
+        }
+
+        ///<summary>
+        /// HTTP POST endpoint that retrieves a notifications conversation based on the provided notification conversation request.
+        ///</summary>
+        ///<param name="notificationConversation">A model containing the notification conversation request.</param>
+        ///<returns>An IActionResult representing the HTTP response containing the retrieved notification conversation.</returns>
+        [HttpPost]
+        [Route("getNotificationsConversation")]
+        public async Task<IActionResult> GetNotificationsConversation([FromBody] NotificationConversationRequest notificationConversation)
+        {
+            var response = await _communicationService.GetNotificationConversationAsync(notificationConversation);
+            return Ok(response);
+        }
+
+        ///<summary>
+        /// HTTP POST endpoint that retrieves a notification based on the provided suggestions.
+        ///</summary>
+        ///<param name="suggestions">The suggestions used to identify and retrieve a notification.</param>
+        ///<returns>An IActionResult representing the HTTP response containing the retrieved notification.</returns>
+        [HttpPost]
+        [Route("getNotification")]
+        public async Task<IActionResult> GetNotification([FromBody] string suggestions)
+        {
+            var response = await _communicationService.GetNotificationAsync(suggestions);
+            return Ok(response);
+        }
+
+        ///<summary>
+        /// HTTP POST endpoint that retrieves a diagram correction based on the provided diagram correction request.
+        ///</summary>
+        ///<param name="diagramCorrection">A model containing the diagram correction request.</param>
+        ///<returns>An IActionResult representing the HTTP response containing the retrieved diagram correction.</returns>
+        [HttpPost]
+        [Route("getDiagramCorrection")]
+        public async Task<IActionResult> GetDiagramCorrection([FromBody] DiagramCorrectionRequest diagramCorrection)
+        {
+            var response = await _communicationService.GetDiagramCorrectionAsync(diagramCorrection);
+            return Ok(response);
+        }
+
+        ///<summary>
+        /// HTTP POST endpoint that retrieves a description table based on the provided description table request.
+        ///</summary>
+        ///<param name="descriptionTable">A model containing the description table request.</param>
+        ///<returns>An IActionResult representing the HTTP response containing the retrieved description table.</returns>
+        [HttpPost]
+        [Route("getDescriptionTable")]
+        public async Task<IActionResult> GetDescriptionTable([FromBody] DescriptionTableRequest descriptionTable)
+        {
+            var response = await _communicationService.GetDescriptionTableAsync(descriptionTable);
+            return Ok(response);
         }
     }
 }
