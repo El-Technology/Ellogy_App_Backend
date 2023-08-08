@@ -9,7 +9,7 @@ namespace AICommunicationService.Api.Controllers
     /// <summary>
     /// This controller provides endpoints for communication with Chat GPT using various templates and methods.
     /// </summary>
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class CommunicationController : ControllerBase
