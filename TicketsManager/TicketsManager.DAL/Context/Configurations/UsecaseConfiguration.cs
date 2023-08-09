@@ -10,6 +10,7 @@ namespace TicketsManager.DAL.Context.Configurations
         {
             builder.ToTable("Usecases");
             builder.HasKey(t => t.Id);
+            builder.Property(t => t.Title);
 
             builder.HasOne(a => a.Ticket)
                 .WithMany(a => a.Usecases)
