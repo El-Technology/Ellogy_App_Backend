@@ -44,5 +44,11 @@ namespace TicketsManager.BLL.Services
             await _usecaseRepository.UpdateUsecaseAsync(mappedUsecase);
             return _mapper.Map<UsecaseFullDto>(usecase);
         }
+
+        ///<inheritdoc cref="IUsecasesService.DeleteUsecasesByTicketIdAsync(Guid)"/>
+        public async Task DeleteUsecasesByTicketIdAsync(Guid ticketId)
+        {
+            await _usecaseRepository.DeleteUsecasesAsync(ticketId);
+        }
     }
 }

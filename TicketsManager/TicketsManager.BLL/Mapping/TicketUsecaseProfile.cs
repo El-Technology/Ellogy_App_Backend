@@ -61,6 +61,8 @@ namespace TicketsManager.BLL.Mapping
             CreateMap<CreateUsecasesDto, Usecase>()
                 .ForMember(dest => dest.Id, opts =>
                     opts.MapFrom(new GuidValueResolver()))
+                .ForMember(dest => dest.Title, opts =>
+                    opts.MapFrom(_ => _.Usecase.Title))
                 .ForMember(dest => dest.Tables, opts =>
                     opts.MapFrom(_ => _.Usecase.Tables))
                 .ForMember(dest => dest.Diagrams, opts =>

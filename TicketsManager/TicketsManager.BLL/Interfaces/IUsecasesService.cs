@@ -17,6 +17,13 @@ namespace TicketsManager.BLL.Interfaces
         Task<CreateUsecasesResponseDto> CreateUsecasesAsync(List<CreateUsecasesDto> createUsecasesDto);
 
         /// <summary>
+        /// Deletes all usecases by ticket id
+        /// </summary>
+        /// <param name="ticketId">ID of the ticket, under which all use cases are located.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task DeleteUsecasesByTicketIdAsync(Guid ticketId);
+
+        /// <summary>
         /// Retrieves a paginated list of use cases asynchronously based on the provided parameters.
         /// </summary>
         /// <param name="getUsecases">The parameters for retrieving use cases.</param>

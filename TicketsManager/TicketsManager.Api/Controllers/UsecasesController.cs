@@ -70,5 +70,21 @@ namespace TicketsManager.Api.Controllers
             var response = await _usecasesService.UpdateUsecaseAsync(usecaseId, usecase);
             return Ok(response);
         }
+
+        /// <summary>
+        /// Controller endpoint to delete a usecases.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint allows users to deletes all usecases by providing the ticket ID.
+        /// </remarks>
+        /// <param name="ticketId">The ID of the ticket.</param>
+        /// <returns>Returns the updated use case in the response.</returns>
+        [HttpDelete]
+        [Route("delete")]
+        public async Task<IActionResult> DeleteUsecases(Guid ticketId)
+        {
+            await _usecasesService.DeleteUsecasesByTicketIdAsync(ticketId);
+            return Ok("Successfully deleted");
+        }
     }
 }

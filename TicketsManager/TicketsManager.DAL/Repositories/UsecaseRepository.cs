@@ -61,5 +61,13 @@ namespace TicketsManager.DAL.Repositories
                            .AsTracking()
                            .FirstOrDefaultAsync(a => a.Id == usecaseId);
         }
+        
+        /// <inheritdoc cref="IUsecaseRepository.DeleteUsecasesAsync(Guid)"/>
+        public async Task DeleteUsecasesAsync(Guid ticketId)
+        {
+            var usecasesForDelete = await _context.Usecases.Where(a => a.TicketId == ticketId).ToListAsync();
+            _context.Usecases.RemoveRange(usecasesForDelete);
+            await _context.SaveChangesAsync();
+        }
     }
 }

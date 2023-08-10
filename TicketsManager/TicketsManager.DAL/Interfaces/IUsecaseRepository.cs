@@ -16,6 +16,13 @@ namespace TicketsManager.DAL.Interfaces
         Task CreateUsecasesAsync(List<Usecase> usecases);
 
         /// <summary>
+        /// Deletes all usecases by ticket id
+        /// </summary>
+        /// <param name="ticketId">ID of the ticket, under which all use cases are located.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task DeleteUsecasesAsync(Guid ticketId);
+
+        /// <summary>
         /// Retrieves a use case by its ID asynchronously.
         /// </summary>
         /// <param name="usecaseId">The ID of the use case to retrieve.</param>
