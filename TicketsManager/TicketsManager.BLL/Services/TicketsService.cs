@@ -6,6 +6,13 @@ using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models;
+using HtmlToOpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml;
+using PdfSharpCore.Pdf;
+using TheArtOfDev.HtmlRenderer.PdfSharp;
+using System.Text;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace TicketsManager.BLL.Services;
 
@@ -98,5 +105,53 @@ public class TicketsService : ITicketsService
         await _ticketsRepository.UpdateTicketAsync(mappedTicket);
 
         return _mapper.Map<TicketResponseDto>(mappedTicket);
+    }
+
+    private string ConvertBase64ToString(string base64)
+    {
+        var htmlBytes = Convert.FromBase64String(base64);
+        var decodedHtml = Encoding.UTF8.GetString(htmlBytes);
+        return decodedHtml;
+    }
+
+    ///<inheritdoc cref="ITicketsService.DownloadAsPdfAsync(string[])"/>
+    public async Task<byte[]> DownloadAsPdfAsync(string[] base64Data)
+    {
+        var document = new PdfDocument();
+        foreach (var page in base64Data)
+        {
+            var htmlContent = ConvertBase64ToString(page);
+            PdfGenerator.AddPdfPages(document, htmlContent, PdfSharpCore.PageSize.A4);
+        }
+        using var memoryStream = new MemoryStream();
+        document.Save(memoryStream);
+        var response = memoryStream.ToArray();
+        return response;
+    }
+
+    ///<inheritdoc cref="ITicketsService.DownloadAsDocAsync(string[])"/>
+    public async Task<byte[]> DownloadAsDocAsync(string[] base64Data)
+    {
+        using var memoryStream = new MemoryStream();
+        using (var package = WordprocessingDocument.Create(memoryStream,
+                             WordprocessingDocumentType.Document))
+        {
+            MainDocumentPart mainPart = package.MainDocumentPart;
+            if (mainPart == null)
+            {
+                mainPart = package.AddMainDocumentPart();
+                new Document(new Body()).Save(mainPart);
+            }
+            var converter = new HtmlConverter(mainPart);
+
+            foreach (var page in base64Data)
+            {
+                var htmlContent = ConvertBase64ToString(page);
+                converter.ParseHtml(htmlContent);
+            }
+
+            mainPart.Document.Save();
+        }
+        return memoryStream.ToArray();
     }
 }
