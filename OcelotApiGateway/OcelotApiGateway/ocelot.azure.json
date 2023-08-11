@@ -133,6 +133,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/gateway/Usecases/delete",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/api/Usecases/delete",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 5041
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/gateway/Communication/getDescription",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Communication/getDescription",
