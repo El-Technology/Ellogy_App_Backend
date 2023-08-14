@@ -2,6 +2,6 @@
 
 public class RefreshTokenRequestDto
 {
-	public string Jwt { get; set; }
-	public string RefreshToken { get; set; }
+    public string Jwt { get; set; }
+    public string RefreshToken { get; set; }
 }
