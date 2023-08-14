@@ -9,7 +9,7 @@ on:
 
 env:
   ENVNAME: ${{ vars.ENVNAME }} 
-  AZURE_WEBAPP_NAME: "EllogyApiGateway"
+  AZURE_WEBAPP_NAME: "EllogyGateway"
 
 jobs:
   build_api_gateway:
