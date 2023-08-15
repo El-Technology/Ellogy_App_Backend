@@ -18,6 +18,18 @@ namespace NotificationService.Services
             var blobClient = blobContainer.GetBlobClient(path);
             var downloadedContent = await blobClient.DownloadContentAsync();
             var template = downloadedContent.Value.Content.ToString();
+
+            return template;
+        }
+
+        public async Task<byte[]> GetImageFromBlobAsync(string blobUrl, string imagesContainer)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient(imagesContainer);
+            var blobClient = containerClient.GetBlobClient(blobUrl);
+            var downloadedContent = await blobClient.DownloadContentAsync();
+            var template = downloadedContent.Value.Content.ToArray();
+            await blobClient.DeleteIfExistsAsync();
+
             return template;
         }
     }
