@@ -1,24 +1,27 @@
 ﻿using Azure;
 using Azure.Communication.Email;
+using Microsoft.IdentityModel.Tokens;
 using NotificationService.Helpers;
 using NotificationService.Interfaces;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
-using UserManager.Common.Options;
+using UserManager.Common.Constants;
 using UserManager.Common.Models.NotificationModels;
+using UserManager.Common.Options;
 
 namespace UserManager.BLL.Services;
 
 public class MailService : IMailService
 {
-    private const string ContainerName = "templates";
-
+    private int CounterOfImages;
     private readonly EmailClient _emailClient;
     private readonly IBlobService _blobService;
-
     private readonly Dictionary<NotificationTypeEnum, string> notificationTypePath = new()
     {
-        { NotificationTypeEnum.ResetPassword, "ResetPasswordTemplate.html"}
+        { NotificationTypeEnum.ResetPassword, "ResetPasswordTemplate.html"},
+        { NotificationTypeEnum.Report, "ReportTemplate.html"}
     };
 
     public MailService(EmailClient emailClient, IBlobService blobService)
@@ -37,7 +40,7 @@ public class MailService : IMailService
     private async Task<EmailMessage> GetEmailMessage(NotificationModel notificationModel)
     {
         var templatePath = notificationTypePath.GetValueOrDefault(notificationModel.Type);
-        var template = await _blobService.GetTemplateAsync(ContainerName, templatePath);
+        var template = await _blobService.GetTemplateAsync(BlobContainerConstants.TemplatesContainer, templatePath);
 
         template = TemplateReplaceHelper.Replace(template, notificationModel.MetaData);
 
@@ -46,6 +49,22 @@ public class MailService : IMailService
             Html = template
         };
 
-        return new(MailOptions.FromMail, notificationModel.Consumer, emailContent);
+        var emailMessage = new EmailMessage(MailOptions.FromMail, notificationModel.Consumer, emailContent);
+
+        if (notificationModel.BlobUrls is not null)
+        {
+            CounterOfImages = 0;
+            foreach (var url in notificationModel.BlobUrls)
+            {
+                emailMessage.Attachments.Add(new EmailAttachment(
+                    $"scr{CounterOfImages}.jpg",
+                    MediaTypeNames.Image.Jpeg,
+                    new System.BinaryData(await _blobService.GetImageFromBlobAsync(url, BlobContainerConstants.ImagesContainer))));
+
+                CounterOfImages++;
+            }
+        }
+
+        return emailMessage;
     }
 }

@@ -4,6 +4,7 @@ namespace NotificationService.Interfaces
 {
     public interface IBlobService
     {
-        public Task<string> GetTemplateAsync(string containerName, string path);
+        Task<byte[]> GetImageFromBlobAsync(string blobUrl, string imagesContainer);
+        Task<string> GetTemplateAsync(string containerName, string path);
     }
 }

@@ -22,6 +22,7 @@ namespace UserManager.BLL.Services
             {
                 ContentType = NotificationQueueOptions.MessageContentType
             };
+
             await busSender.SendMessageAsync(message);
         }
     }
