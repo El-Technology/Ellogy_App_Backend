@@ -166,7 +166,7 @@ jobs:
         SERVICE_IMAGE3: ${{ needs.build_ticket_manager.outputs.MicroserviceImage }}
         
         AZURE_SERVICE_BUS_CONNECTION_STRING: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING }}
-        
+        BLOB_STORAGE_CONNECTION_STRING: ${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}
         OPEN_AI_KEY: ${{secrets.OPEN_AI_KEY}}
         CONNECTION_STRING: ${{secrets.CONNECTIONSTRING}}
         JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY }}
@@ -196,6 +196,7 @@ jobs:
         export CONNECTION_STRING="$CONNECTION_STRING"
         export JWT_SECRET_KEY="$JWT_SECRET_KEY"
         export AZURE_SERVICE_BUS_CONNECTION_STRING="$AZURE_SERVICE_BUS_CONNECTION_STRING"
+        export BLOB_STORAGE_CONNECTION_STRING="$BLOB_STORAGE_CONNECTION_STRING"
         
         docker-compose up -d
         EOF
