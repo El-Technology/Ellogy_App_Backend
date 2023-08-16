@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UserManager.BLL.Interfaces;
 using UserManager.Common.Models;
 
@@ -7,6 +9,7 @@ namespace UserManager.Api.Controllers
     /// <summary>
     /// Controller for handling report-related operations.
     /// </summary>
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class ReportController : Controller
