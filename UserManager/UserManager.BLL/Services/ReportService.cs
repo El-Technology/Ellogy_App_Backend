@@ -32,34 +32,34 @@ namespace UserManager.BLL.Services
         /// <inheritdoc cref="IReportService.SendReportAsync(ReportModel)" />
         public async Task SendReportAsync(ReportModel reportModel)
         {
-            if (!await _userRepository.CheckEmailIsExistAsync(reportModel.Email))
-                throw new UserNotFoundException(reportModel.Email);
+            if (!await _userRepository.CheckEmailIsExistAsync(reportModel.UserEmail))
+                throw new UserNotFoundException(reportModel.UserEmail);
 
-            var user = (await _userRepository.GetUserByEmailAsync(reportModel.Email))!;
+            var user = (await _userRepository.GetUserByEmailAsync(reportModel.UserEmail))!;
 
             var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerConstants.ImagesContainer);
 
-            var fileCounter = 0;
-            foreach (var file in reportModel.Files)
+
+            for (int i = 0; i < reportModel.Files.Count; i++)
             {
+                string? file = reportModel.Files[i];
                 var bytes = Convert.FromBase64String(file);
-                var fileName = $"scr{fileCounter}.jpg";
+                var fileName = $"scr{i}.jpg";
                 var blobClient = containerClient.GetBlobClient(fileName);
                 using (var memoryStream = new MemoryStream(bytes))
                 {
-                    blobClient.Upload(memoryStream, true);
+                    blobClient.Upload(memoryStream, overwrite: true);
                 }
 
                 _notificationModel.BlobUrls.Add(fileName);
-                fileCounter++;
             }
 
-            _notificationModel.Consumer = user.Email;
+            _notificationModel.Consumer = reportModel.ReceiverEmail;
             _notificationModel.MetaData = new()
             {
                 { UserNamePattern, $"{user.FirstName} {user.LastName}" },
                 { UserEmailPattern, user.Email },
-                { UserTextPattern, reportModel.Text }
+                { UserTextPattern, reportModel.UserText }
             };
 
             await _notificationQueueService.SendNotificationAsync(_notificationModel);

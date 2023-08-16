@@ -13,7 +13,6 @@ namespace UserManager.BLL.Services;
 
 public class MailService : IMailService
 {
-    private int CounterOfImages;
     private readonly EmailClient _emailClient;
     private readonly IBlobService _blobService;
     private readonly Dictionary<NotificationTypeEnum, string> notificationTypePath = new()
@@ -51,15 +50,13 @@ public class MailService : IMailService
 
         if (notificationModel.BlobUrls is not null)
         {
-            CounterOfImages = 0;
-            foreach (var fileName in notificationModel.BlobUrls)
+            for (int i = 0; i < notificationModel.BlobUrls.Count; i++)
             {
+                string fileName = notificationModel.BlobUrls[i];
                 emailMessage.Attachments.Add(new EmailAttachment(
-                    $"scr{CounterOfImages}.jpg",
+                    $"scr{i}.jpg",
                     MediaTypeNames.Image.Jpeg,
                     await _blobService.GetImageFromBlobAsync(fileName, BlobContainerConstants.ImagesContainer)));
-
-                CounterOfImages++;
             }
         }
 

@@ -2,8 +2,9 @@
 {
     public class ReportModel
     {
-        public string Email { get; set; }
-        public string Text { get; set; }
+        public string ReceiverEmail { get; set; }
+        public string UserEmail { get; set; }
+        public string UserText { get; set; }
         public List<string> Files { get; set; }
     }
 }

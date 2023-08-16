@@ -2,6 +2,6 @@
 
 public static class CookieOptions
 {
-	public const string CookieName = "Token";
-	public const int CookieExpireInMinutes = 60;
+    public const string CookieName = "Token";
+    public const int CookieExpireInMinutes = 60;
 }

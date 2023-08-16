@@ -1,7 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using NotificationService.Interfaces;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using UserManager.Common.Constants;
 
