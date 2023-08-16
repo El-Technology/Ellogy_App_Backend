@@ -29,6 +29,7 @@ namespace UserManager.BLL.Services
             _notificationQueueService = notificationQueueService;
         }
 
+        /// <inheritdoc cref="IReportService.SendReportAsync(ReportModel)" />
         public async Task SendReportAsync(ReportModel reportModel)
         {
             if (!await _userRepository.CheckEmailIsExistAsync(reportModel.Email))

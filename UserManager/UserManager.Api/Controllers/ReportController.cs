@@ -4,6 +4,9 @@ using UserManager.Common.Models;
 
 namespace UserManager.Api.Controllers
 {
+    /// <summary>
+    /// Controller for handling report-related operations.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ReportController : Controller
@@ -15,6 +18,14 @@ namespace UserManager.Api.Controllers
             _reportService = reportService;
         }
 
+        /// <summary>
+        /// Endpoint for sending a report asynchronously.
+        /// </summary>
+        /// <remarks>
+        /// This endpoint allows users to send a report by providing a <paramref name="reportModel"/>.
+        /// </remarks>
+        /// <param name="reportModel">The model containing the report information.</param>
+        /// <returns>Returns an OK response if the report is sent successfully.</returns>
         [HttpPost]
         [Route("sendReport")]
         public async Task<IActionResult> SendReport(ReportModel reportModel)
