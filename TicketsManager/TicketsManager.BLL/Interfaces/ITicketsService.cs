@@ -48,13 +48,6 @@ public interface ITicketsService
     Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(Guid userId, SearchTicketsRequestDto searchRequest);
 
     /// <summary>
-    /// Downloads the provided data as a PDF document asynchronously.
-    /// </summary>
-    /// <param name="base64Data">An array of base64-encoded data to be included in the PDF.</param>
-    /// <returns>Returns the downloaded PDF document as a byte array.</returns>
-    Task<byte[]> DownloadAsPdfAsync(string[] base64Data);
-
-    /// <summary>
     /// Downloads the provided data as a DOC document asynchronously.
     /// </summary>
     /// <param name="base64Data">An array of base64-encoded data to be included in the DOC.</param>

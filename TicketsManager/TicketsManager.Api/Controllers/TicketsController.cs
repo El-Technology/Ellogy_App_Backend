@@ -105,19 +105,6 @@ namespace TicketsManager.Api.Controllers
         }
 
         /// <summary>
-        /// Generates a PDF document using the provided base64-encoded data asynchronously.
-        /// </summary>
-        /// <param name="base64Data">An array of base64-encoded data to be included in the PDF.</param>
-        /// <returns>Returns the generated PDF file as a downloadable response.</returns>
-        [HttpPost]
-        [Route("generatePdf")]
-        public async Task<IActionResult> GeneratePdf([FromBody] string[] base64Data)
-        {
-            var file = await _ticketsService.DownloadAsPdfAsync(base64Data);
-            return File(file, "application/pdf", "Test.pdf");
-        }
-
-        /// <summary>
         /// Generates a DOC document using the provided base64-encoded data asynchronously.
         /// </summary>
         /// <param name="base64Data">An array of base64-encoded data to be included in the DOC.</param>
@@ -127,7 +114,7 @@ namespace TicketsManager.Api.Controllers
         public async Task<IActionResult> GenerateDoc([FromBody] string[] base64Data)
         {
             var file = await _ticketsService.DownloadAsDocAsync(base64Data);
-            return File(file, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Test.docx");
+            return File(file, "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "Report.docx");
         }
     }
 }

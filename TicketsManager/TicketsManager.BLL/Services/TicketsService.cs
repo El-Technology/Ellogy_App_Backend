@@ -114,21 +114,6 @@ public class TicketsService : ITicketsService
         return decodedHtml;
     }
 
-    ///<inheritdoc cref="ITicketsService.DownloadAsPdfAsync(string[])"/>
-    public async Task<byte[]> DownloadAsPdfAsync(string[] base64Data)
-    {
-        var document = new PdfDocument();
-        foreach (var page in base64Data)
-        {
-            var htmlContent = ConvertBase64ToString(page);
-            PdfGenerator.AddPdfPages(document, htmlContent, PdfSharpCore.PageSize.A4);
-        }
-        using var memoryStream = new MemoryStream();
-        document.Save(memoryStream);
-        var response = memoryStream.ToArray();
-        return response;
-    }
-
     ///<inheritdoc cref="ITicketsService.DownloadAsDocAsync(string[])"/>
     public async Task<byte[]> DownloadAsDocAsync(string[] base64Data)
     {
