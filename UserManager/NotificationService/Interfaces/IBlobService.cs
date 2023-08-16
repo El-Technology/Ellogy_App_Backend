@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace NotificationService.Interfaces
 {
     public interface IBlobService
     {
-        Task<byte[]> GetImageFromBlobAsync(string blobUrl, string imagesContainer);
-        Task<string> GetTemplateAsync(string containerName, string path);
+        Task<BinaryData> GetImageFromBlobAsync(string fileName, string imageContainer);
+        Task<string> GetTemplateAsync(string containerName, string templatePath);
     }
 }

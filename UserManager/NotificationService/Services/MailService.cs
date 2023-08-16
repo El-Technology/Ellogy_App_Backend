@@ -1,10 +1,8 @@
 ﻿using Azure;
 using Azure.Communication.Email;
-using Microsoft.IdentityModel.Tokens;
 using NotificationService.Helpers;
 using NotificationService.Interfaces;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using UserManager.Common.Constants;
@@ -54,12 +52,12 @@ public class MailService : IMailService
         if (notificationModel.BlobUrls is not null)
         {
             CounterOfImages = 0;
-            foreach (var url in notificationModel.BlobUrls)
+            foreach (var fileName in notificationModel.BlobUrls)
             {
                 emailMessage.Attachments.Add(new EmailAttachment(
                     $"scr{CounterOfImages}.jpg",
                     MediaTypeNames.Image.Jpeg,
-                    new System.BinaryData(await _blobService.GetImageFromBlobAsync(url, BlobContainerConstants.ImagesContainer))));
+                    await _blobService.GetImageFromBlobAsync(fileName, BlobContainerConstants.ImagesContainer)));
 
                 CounterOfImages++;
             }

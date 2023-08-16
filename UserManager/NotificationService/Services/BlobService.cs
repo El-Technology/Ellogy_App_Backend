@@ -1,6 +1,9 @@
 ﻿using Azure.Storage.Blobs;
 using NotificationService.Interfaces;
+using System;
+using System.IO;
 using System.Threading.Tasks;
+using UserManager.Common.Constants;
 
 namespace NotificationService.Services
 {
@@ -12,25 +15,28 @@ namespace NotificationService.Services
             _blobServiceClient = blobServiceClient;
         }
 
-        public async Task<string> GetTemplateAsync(string containerName, string path)
+        private async Task<BinaryData> DownloadFromBlobAsync(string containerName, string pathToFile)
         {
             var blobContainer = _blobServiceClient.GetBlobContainerClient(containerName);
-            var blobClient = blobContainer.GetBlobClient(path);
+            var blobClient = blobContainer.GetBlobClient(pathToFile);
             var downloadedContent = await blobClient.DownloadContentAsync();
-            var template = downloadedContent.Value.Content.ToString();
+            var contentForReturn = downloadedContent.Value.Content;
 
+            if (containerName.Equals(BlobContainerConstants.ImagesContainer))
+                await blobClient.DeleteIfExistsAsync();
+
+            return contentForReturn;
+        }
+
+        public async Task<string> GetTemplateAsync(string containerName, string path)
+        {
+            var template = (await DownloadFromBlobAsync(containerName, path)).ToString();
             return template;
         }
 
-        public async Task<byte[]> GetImageFromBlobAsync(string blobUrl, string imagesContainer)
+        public async Task<BinaryData> GetImageFromBlobAsync(string fileName, string imageContainer)
         {
-            var containerClient = _blobServiceClient.GetBlobContainerClient(imagesContainer);
-            var blobClient = containerClient.GetBlobClient(blobUrl);
-            var downloadedContent = await blobClient.DownloadContentAsync();
-            var template = downloadedContent.Value.Content.ToArray();
-            await blobClient.DeleteIfExistsAsync();
-
-            return template;
+            return await DownloadFromBlobAsync(imageContainer, fileName);
         }
     }
 }
