@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserManager.BLL.Dtos;
 using UserManager.BLL.Interfaces;
-using UserManager.Common.Models;
 
 namespace UserManager.Api.Controllers
 {

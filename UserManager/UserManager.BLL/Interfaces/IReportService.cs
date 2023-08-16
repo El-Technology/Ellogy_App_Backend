@@ -1,4 +1,4 @@
-﻿using UserManager.Common.Models;
+﻿using UserManager.BLL.Dtos;
 
 namespace UserManager.BLL.Interfaces
 {
