@@ -201,5 +201,31 @@ namespace AICommunicationService.Api.Controllers
             var response = await _communicationService.GetDescriptionTableAsync(descriptionTable);
             return Ok(response);
         }
+
+        /// <summary>
+        /// Endpoint for retrieving diagram validation information asynchronously based on the provided code.
+        /// </summary>
+        /// <param name="code">The code associated with the diagram.</param>
+        /// <returns>Returns the diagram validation information in the response.</returns>
+        [HttpPost]
+        [Route("getDiagramValidation")]
+        public async Task<IActionResult> GetDiagramValidation([FromBody] string code)
+        {
+            var response = await _communicationService.GetDiagramValidationAsync(code);
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Endpoint for retrieving banners asynchronously based on the provided description.
+        /// </summary>
+        /// <param name="description">The description associated with the banners.</param>
+        /// <returns>Returns the banners information in the response.</returns>
+        [HttpPost]
+        [Route("getBanners")]
+        public async Task<IActionResult> GetBanners([FromBody] string description)
+        {
+            var response = await _communicationService.GetBannersAsync(description);
+            return Ok(response);
+        }
     }
 }

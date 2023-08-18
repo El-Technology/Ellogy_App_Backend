@@ -16,5 +16,7 @@
         public const string NotificationsTemplate = "NotificationsTemplate";
         public const string DiagramCorrectionTemplate = "DiagramCorrectionTemplate";
         public const string DescriptionTableTemplate = "DescriptionTableTemplate";
+        public const string DiagramValidationTemplate = "DiagramValidationTemplate";
+        public const string BannersTemplate = "BannersTemplate";
     }
 }

@@ -200,5 +200,23 @@ namespace AICommunicationService.BLL.Services
             var response = await GetStringResultAsync(chatRequest);
             return response;
         }
+
+        /// <inheritdoc cref="ICommunicationService.GetDiagramValidationAsync(string)"/>
+        public async Task<string> GetDiagramValidationAsync(string code)
+        {
+            var template = await GetTemplate(PromptConstants.DiagramValidationTemplate);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(code, Stable, template);
+            var response = await GetStringResultAsync(chatRequest);
+            return response;
+        }
+
+        /// <inheritdoc cref="ICommunicationService.GetBannersAsync(string)"/>
+        public async Task<string> GetBannersAsync(string description)
+        {
+            var template = await GetTemplate(PromptConstants.BannersTemplate);
+            var chatRequest = ChatRequestHelper.GetChatRequestWithOneInputValue(description, Stable, template);
+            var response = await GetStringResultAsync(chatRequest);
+            return response;
+        }
     }
 }
