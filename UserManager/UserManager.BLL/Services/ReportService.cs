@@ -1,7 +1,9 @@
 ﻿using Azure.Storage.Blobs;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
 using UserManager.BLL.Dtos;
 using UserManager.BLL.Exceptions;
 using UserManager.BLL.Interfaces;
+using UserManager.BLL.Mapping;
 using UserManager.Common.Constants;
 using UserManager.Common.Models.NotificationModels;
 using UserManager.DAL.Interfaces;
@@ -40,11 +42,10 @@ namespace UserManager.BLL.Services
             var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerConstants.ImagesContainer);
 
 
-            for (int i = 0; i < reportModel.Base64JpgFiles.Count; i++)
+            foreach (var file in reportModel.Base64JpgFiles)
             {
-                string? file = reportModel.Base64JpgFiles[i];
                 var bytes = Convert.FromBase64String(file);
-                var fileName = $"scr{i}.jpg";
+                var fileName = $"scr{Guid.NewGuid()}.jpg";
                 var blobClient = containerClient.GetBlobClient(fileName);
                 using (var memoryStream = new MemoryStream(bytes))
                 {
