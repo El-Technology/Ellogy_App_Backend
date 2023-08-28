@@ -17,9 +17,9 @@ namespace AICommunicationService.DAL.Interfaces
         /// <summary>
         /// Delete an existing AI prompt from the repository.
         /// </summary>
-        /// <param name="aiPrompt">The AI prompt data to be deleted.</param>
+        /// <param name="promptName">The AI prompt data to be deleted.</param>
         /// <returns>Returns a task representing the asynchronous delete operation.</returns>
-        Task DeletePromptAsync(AIPrompt aiPrompt);
+        Task DeletePromptAsync(string promptName);
 
         /// <summary>
         /// Retrieve a list of all AI prompts available in the repository.
@@ -28,11 +28,11 @@ namespace AICommunicationService.DAL.Interfaces
         Task<List<AIPrompt>> GetAllPromptsAsync();
 
         /// <summary>
-        /// Retrieve an AI prompt from the repository based on the provided template name.
+        /// Retrieve a AI prompt using the name.
         /// </summary>
-        /// <param name="templateName">The template name of the AI prompt to be retrieved.</param>
-        /// <returns>Returns a task representing the asynchronous operation and the retrieved AI prompt, if found; otherwise, null.</returns>
-        Task<AIPrompt?> GetPromptByTemplateNameAsync(string templateName);
+        /// <param name="promptName">The AI prompt name.</param>
+        /// <returns>Returns a task representing the asynchronous operation and AI prompts</returns>
+        Task<AIPrompt> GetPromptByNameAsync(string promptName);
 
         /// <summary>
         /// Update an existing AI prompt in the repository.

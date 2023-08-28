@@ -1,6 +1,6 @@
 ﻿namespace AICommunicationService.BLL.Dtos
 {
-    public class UpdateDeletePrompt
+    public class UpdatePrompt
     {
         public string Value { get; set; }
     }

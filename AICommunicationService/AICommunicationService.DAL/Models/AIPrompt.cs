@@ -2,7 +2,7 @@
 {
     public class AIPrompt
     {
-        public string TamplateName { get; set; }
+        public string TemplateName { get; set; }
         public string Value { get; set; }
     }
 }

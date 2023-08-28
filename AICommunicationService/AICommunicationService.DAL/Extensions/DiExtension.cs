@@ -1,7 +1,5 @@
-﻿using AICommunicationService.DAL.Context;
-using AICommunicationService.DAL.Interfaces;
+﻿using AICommunicationService.DAL.Interfaces;
 using AICommunicationService.DAL.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AICommunicationService.DAL.Extensions
@@ -14,7 +12,7 @@ namespace AICommunicationService.DAL.Extensions
                 throw new ArgumentNullException(nameof(connectionString));
 
             return services
-                .AddDbContext<AICommunicationContext>(c => c.UseNpgsql(connectionString))
+                .AddScoped(provider => new DapperRepository(connectionString))
                 .AddScoped<IAIPromptRepository, AIPromptRepository>();
         }
     }

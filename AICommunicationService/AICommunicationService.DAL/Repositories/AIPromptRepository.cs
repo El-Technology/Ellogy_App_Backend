@@ -1,49 +1,63 @@
-﻿using AICommunicationService.DAL.Context;
-using AICommunicationService.DAL.Interfaces;
+﻿using AICommunicationService.DAL.Interfaces;
 using AICommunicationService.DAL.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace AICommunicationService.DAL.Repositories
 {
     public class AIPromptRepository : IAIPromptRepository
     {
-        private readonly AICommunicationContext _context;
-        public AIPromptRepository(AICommunicationContext context)
+        private readonly DapperRepository _dapperRepository;
+
+        public AIPromptRepository(DapperRepository dapperRepository)
         {
-            _context = context;
+            _dapperRepository = dapperRepository;
         }
 
         /// <inheritdoc cref="IAIPromptRepository.GetAllPromptsAsync"/>
         public async Task<List<AIPrompt>> GetAllPromptsAsync()
         {
-            return await _context.AIPrompts.ToListAsync();
+            var sql = @"SELECT *
+                        FROM ""AIPrompts""";
+
+            return (await _dapperRepository.QueryAsync<AIPrompt>(sql)).ToList();
         }
 
-        /// <inheritdoc cref="IAIPromptRepository.GetPromptByTemplateNameAsync(string)"/>
-        public async Task<AIPrompt?> GetPromptByTemplateNameAsync(string templateName)
+        /// <inheritdoc cref="IAIPromptRepository.GetPromptByNameAsync(string)"/>
+        public async Task<AIPrompt> GetPromptByNameAsync(string promptName)
         {
-            return await _context.AIPrompts.AsTracking().FirstOrDefaultAsync(a => a.TamplateName.Equals(templateName));
+            var sql = @$"SELECT *
+                        FROM ""AIPrompts""
+                        WHERE ""TemplateName"" = '{promptName}'";
+
+            return await _dapperRepository.QueryFirstOrDefaultAsync<AIPrompt>(sql);
         }
 
         /// <inheritdoc cref="IAIPromptRepository.UpdatePromptAsync(AIPrompt)"/>
         public async Task UpdatePromptAsync(AIPrompt aIPrompt)
         {
-            _context.AIPrompts.Update(aIPrompt);
-            await _context.SaveChangesAsync();
+            var sql = @$"UPDATE ""AIPrompts""
+                        SET ""Value"" = '{aIPrompt.Value}'
+                        WHERE ""TemplateName"" = '{aIPrompt.TemplateName}'";
+
+            await _dapperRepository.ExecuteAsync(sql);
         }
 
         /// <inheritdoc cref="IAIPromptRepository.AddPromptAsync(AIPrompt)"/>
         public async Task AddPromptAsync(AIPrompt aiPrompt)
         {
-            await _context.AIPrompts.AddAsync(aiPrompt);
-            await _context.SaveChangesAsync();
+            var sql = @$"INSERT INTO ""AIPrompts""
+                        VALUES ('{aiPrompt.TemplateName}', '{aiPrompt.Value}')";
+
+            await _dapperRepository.ExecuteAsync(sql);
         }
 
         /// <inheritdoc cref="IAIPromptRepository.DeletePromptAsync(AIPrompt)"/>
-        public async Task DeletePromptAsync(AIPrompt aiPrompt)
+        public async Task DeletePromptAsync(string promptName)
         {
-            _context.AIPrompts.Remove(aiPrompt);
-            await _context.SaveChangesAsync();
+            var sql = @$"DELETE
+                        FROM ""AIPrompts""
+                        WHERE ""TemplateName"" = '{promptName}'";
+
+            await _dapperRepository.ExecuteAsync(sql);
         }
     }
 }

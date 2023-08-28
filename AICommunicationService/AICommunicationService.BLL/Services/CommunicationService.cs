@@ -69,7 +69,7 @@ namespace AICommunicationService.BLL.Services
 
         private async Task<string> GetTemplate(string promptName)
         {
-            var getPrompt = await _aIPromptRepository.GetPromptByTemplateNameAsync(promptName)
+            var getPrompt = await _aIPromptRepository.GetPromptByNameAsync(promptName)
                 ?? throw new Exception("Prompt was not found");
             return getPrompt.Value;
         }
