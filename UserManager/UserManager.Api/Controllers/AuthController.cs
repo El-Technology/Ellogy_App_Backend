@@ -10,16 +10,6 @@ namespace UserManager.Api.Controllers;
 [Route("api/[controller]/")]
 public class AuthController : Controller
 {
-    private const string CookieName = "Token";
-    private const int CookieExpireInMinutes = 60;
-    private readonly CookieOptions CookieOptions = new()
-    {
-        Expires = DateTime.Now.AddMinutes(CookieExpireInMinutes),
-        HttpOnly = true,
-        Secure = true,
-        Path = "/"
-    };
-
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IRegisterService _registerService;
     private readonly ILoginService _loginService;
@@ -67,7 +57,6 @@ public class AuthController : Controller
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginUser)
     {
         var user = await _loginService.LoginUser(loginUser);
-        Response.Cookies.Append(CookieName, user.Jwt, CookieOptions);
         return Ok(user);
     }
 
@@ -89,7 +78,6 @@ public class AuthController : Controller
     public async Task<IActionResult> RefreshJwtToken([FromBody] RefreshTokenRequestDto refreshRequestDto)
     {
         var token = await _refreshTokenService.RegenerateJwtAsync(refreshRequestDto);
-        Response.Cookies.Append(CookieName, token, CookieOptions);
         return Ok(token);
     }
 }
