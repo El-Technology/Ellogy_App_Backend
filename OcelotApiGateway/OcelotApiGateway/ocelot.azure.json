@@ -301,6 +301,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/gateway/Communication/getNotificationsConversation",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Communication/getNotificationsConversation",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 53053
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/gateway/Communication/getNotification",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Communication/getNotification",
