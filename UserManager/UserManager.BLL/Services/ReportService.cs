@@ -1,9 +1,7 @@
 ﻿using Azure.Storage.Blobs;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 using UserManager.BLL.Dtos;
 using UserManager.BLL.Exceptions;
 using UserManager.BLL.Interfaces;
-using UserManager.BLL.Mapping;
 using UserManager.Common.Constants;
 using UserManager.Common.Models.NotificationModels;
 using UserManager.DAL.Interfaces;
@@ -24,6 +22,9 @@ namespace UserManager.BLL.Services
         private const string UserNamePattern = "{{{userName}}}";
         private const string UserEmailPattern = "{{{userEmail}}}";
         private const string UserTextPattern = "{{{userText}}}";
+        private const string CategoryPattern = "{{{category}}}";
+        private const string OptionPattern = "{{{option}}}";
+
         public ReportService(IUserRepository userRepository, INotificationQueueService notificationQueueService, BlobServiceClient blobServiceClient)
         {
             _blobServiceClient = blobServiceClient;
@@ -58,6 +59,8 @@ namespace UserManager.BLL.Services
             _notificationModel.Consumer = reportModel.ReceiverEmail;
             _notificationModel.MetaData = new()
             {
+                { CategoryPattern, reportModel.Category },
+                { OptionPattern, reportModel.Option },
                 { UserNamePattern, $"{user.FirstName} {user.LastName}" },
                 { UserEmailPattern, user.Email },
                 { UserTextPattern, reportModel.UserText }
