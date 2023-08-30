@@ -29,7 +29,7 @@ public class UserRepository : IUserRepository
         return (await _dapperRepository.QueryFirstOrDefaultAsync<User?>(sql, new { Email = email.ToLower() })) is not null;
     }
 
-    public async ValueTask<User?> GetUserByIdAsync(Guid id)
+    public async Task<User?> GetUserByIdAsync(Guid id)
     {
         var sql = $@"SELECT *
                    FROM ""Users""
