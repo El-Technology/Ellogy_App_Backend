@@ -1,10 +1,11 @@
-﻿using Dapper;
+﻿using AICommunicationService.DAL.Interfaces;
+using Dapper;
 using Npgsql;
 using System.Data;
 
 namespace AICommunicationService.DAL.Repositories
 {
-    public class DapperRepository
+    public class DapperRepository : IDapperRepository
     {
         private readonly string _connectionString;
         private readonly SemaphoreSlim _semaphore = new(1, 1);

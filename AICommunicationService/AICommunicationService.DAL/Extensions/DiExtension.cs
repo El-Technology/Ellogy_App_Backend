@@ -12,7 +12,7 @@ namespace AICommunicationService.DAL.Extensions
                 throw new ArgumentNullException(nameof(connectionString));
 
             return services
-                .AddScoped(provider => new DapperRepository(connectionString))
+                .AddScoped<IDapperRepository>(provider => new DapperRepository(connectionString))
                 .AddScoped<IAIPromptRepository, AIPromptRepository>();
         }
     }

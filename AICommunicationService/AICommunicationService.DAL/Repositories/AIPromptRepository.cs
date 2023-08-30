@@ -5,9 +5,9 @@ namespace AICommunicationService.DAL.Repositories
 {
     public class AIPromptRepository : IAIPromptRepository
     {
-        private readonly DapperRepository _dapperRepository;
+        private readonly IDapperRepository _dapperRepository;
 
-        public AIPromptRepository(DapperRepository dapperRepository)
+        public AIPromptRepository(IDapperRepository dapperRepository)
         {
             _dapperRepository = dapperRepository;
         }
