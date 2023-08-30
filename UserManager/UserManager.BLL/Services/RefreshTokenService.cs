@@ -27,7 +27,7 @@ namespace UserManager.BLL.Services
             if (refreshTokenFromDb is not null)
             {
                 refreshTokenFromDb.ExpireDate = DateTime.UtcNow + JwtOptions.RefreshTokenLifeTime;
-                await _refreshTokenRepository.UpdateTokenAsync(refreshTokenFromDb);
+                await _refreshTokenRepository.UpdateTokenExpireDateAsync(refreshTokenFromDb);
                 return refreshTokenFromDb.Value;
             }
 

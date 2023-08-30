@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
@@ -7,7 +6,6 @@ using UserManager.Api.Middlewares;
 using UserManager.BLL.Extensions;
 using UserManager.Common;
 using UserManager.Common.Options;
-using UserManager.DAL.Context;
 using UserManager.DAL.Extensions;
 
 namespace UserManager.Api
@@ -26,7 +24,6 @@ namespace UserManager.Api
             AddMiddleware(app);
 
             app.MapControllers();
-            MigrateDatabase(app);
 
             app.Run();
         }
@@ -109,18 +106,6 @@ namespace UserManager.Api
             app.UseAuthorization();
 
             app.UseMiddleware<ExceptionHandlerMiddleware>();
-        }
-
-        private static void MigrateDatabase(IHost app)
-        {
-            using var scope = app.Services.CreateScope();
-            var services = scope.ServiceProvider;
-
-            var context = services.GetRequiredService<UserManagerDbContext>();
-            if (context.Database.GetPendingMigrations().Any())
-            {
-                context.Database.Migrate();
-            }
         }
     }
 }

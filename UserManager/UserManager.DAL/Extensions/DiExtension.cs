@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using UserManager.DAL.Context;
+﻿using Microsoft.Extensions.DependencyInjection;
 using UserManager.DAL.Interfaces;
 using UserManager.DAL.Repositories;
 
@@ -14,7 +12,7 @@ public static class DiExtension
             throw new ArgumentNullException(nameof(connectionString));
 
         return services
-            .AddDbContext<UserManagerDbContext>(c => c.UseNpgsql(connectionString))
+            .AddScoped<IDapperRepository>(provider => new DapperRepository(connectionString))
             .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>()
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<IForgotPasswordRepository, ForgotPasswordRepository>();

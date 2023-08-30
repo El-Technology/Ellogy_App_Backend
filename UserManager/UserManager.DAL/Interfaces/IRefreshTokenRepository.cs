@@ -6,6 +6,6 @@ namespace UserManager.DAL.Interfaces
     {
         public Task AddRefreshTokenAsync(RefreshToken refreshToken);
         public Task<RefreshToken?> GetRefreshTokenAsync(Guid userId);
-        Task UpdateTokenAsync(RefreshToken refreshToken);
+        Task UpdateTokenExpireDateAsync(RefreshToken refreshToken);
     }
 }

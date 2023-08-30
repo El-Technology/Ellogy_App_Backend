@@ -1,48 +1,76 @@
-﻿using Microsoft.EntityFrameworkCore;
-using UserManager.DAL.Context;
-using UserManager.DAL.Interfaces;
+﻿using UserManager.DAL.Interfaces;
 using UserManager.DAL.Models;
 
 namespace UserManager.DAL.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private readonly UserManagerDbContext _context;
+    private readonly IDapperRepository _dapperRepository;
 
-    public UserRepository(UserManagerDbContext context)
+    public UserRepository(IDapperRepository dapperRepository)
     {
-        _context = context;
+        _dapperRepository = dapperRepository;
     }
 
     public async Task AddUserAsync(User user)
     {
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
+        var sql = @"INSERT INTO ""Users"" 
+                   VALUES (@Id, @FirstName, @LastName, @Email, @PhoneNumber, @Password, @Organization, @Department, @Salt, @Role)";
+
+        await _dapperRepository.ExecuteAsync(sql, user);
     }
 
-    public Task<bool> CheckEmailIsExistAsync(string email)
+    public async Task<bool> CheckEmailIsExistAsync(string email)
     {
-        return _context.Users.AnyAsync(e => e.Email == email.ToLower());
+        var sql = @"SELECT *
+                   FROM ""Users""
+                   WHERE ""Email"" = @Email";
+
+        return (await _dapperRepository.QueryFirstOrDefaultAsync<User?>(sql, new { Email = email.ToLower() })) is not null;
     }
 
-    public ValueTask<User?> GetUserByIdAsync(Guid id)
+    public async ValueTask<User?> GetUserByIdAsync(Guid id)
     {
-        return _context.Users.FindAsync(id);
+        var sql = $@"SELECT *
+                   FROM ""Users""
+                   WHERE ""Id"" = @Id";
+
+        return await _dapperRepository.QueryFirstOrDefaultAsync<User?>(sql, new { Id = id });
     }
     public async Task<User?> GetUserByForgetPasswordIdAsync(Guid id)
     {
-        var userId = (await _context.ForgotPasswords.FindAsync(id))?.UserId;
-        return await _context.Users.FindAsync(userId);
+        var sql = $@"SELECT u.*
+                    FROM ""Users"" u
+                    INNER JOIN ""ForgotPassword"" fp ON
+                    u.""Id"" = fp.""UserId""
+                    WHERE fp.""Id"" = @ForgotPasswordId";
+
+        return await _dapperRepository.QueryFirstOrDefaultAsync<User?>(sql, new { ForgotPasswordId = id });
     }
 
     public async Task UpdateUserAsync(User user)
     {
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync();
+        var sql = @"UPDATE ""Users"" 
+                    SET ""FirstName"" = @FirstName,
+                        ""LastName"" = @LastName,
+                        ""Email"" = @Email,
+                        ""PhoneNumber"" = @PhoneNumber,
+                        ""Password"" = @Password,
+                        ""Organization"" = @Organization,
+                        ""Department"" = @Department,
+                        ""Salt"" = @Salt,
+                        ""Role"" = @Role
+                    WHERE ""Id"" = @Id";
+
+        await _dapperRepository.ExecuteAsync(sql, user);
     }
 
-    public Task<User?> GetUserByEmailAsync(string email)
+    public async Task<User?> GetUserByEmailAsync(string email)
     {
-        return _context.Users.FirstOrDefaultAsync(e => e.Email == email.ToLower());
+        var sql = $@"SELECT *
+                    FROM ""Users""
+                    WHERE ""Email"" = @Email";
+
+        return await _dapperRepository.QueryFirstOrDefaultAsync<User?>(sql, new { Email = email.ToLower() });
     }
 }

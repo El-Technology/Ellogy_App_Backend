@@ -1,5 +1,4 @@
 ﻿using UserManager.Common.Helpers;
-using UserManager.DAL.Context;
 using UserManager.DAL.Interfaces;
 using UserManager.DAL.Models;
 
@@ -7,22 +6,28 @@ namespace UserManager.DAL.Repositories;
 
 public class ForgotPasswordRepository : IForgotPasswordRepository
 {
-    private readonly UserManagerDbContext _context;
+    private readonly IDapperRepository _dapperRepository;
 
-    public ForgotPasswordRepository(UserManagerDbContext context)
+    public ForgotPasswordRepository(IDapperRepository dapperRepository)
     {
-        _context = context;
+        _dapperRepository = dapperRepository;
     }
 
     public async Task AddForgotTokenAsync(ForgotPassword forgotPasswordEntry)
     {
-        await _context.ForgotPasswords.AddAsync(forgotPasswordEntry);
-        await _context.SaveChangesAsync();
+        var sql = @$"INSERT INTO ""ForgotPassword""
+                    VALUES (@Id, @Token, @UserId, @ExpireDate, @IsValid)";
+
+        await _dapperRepository.ExecuteAsync(sql, forgotPasswordEntry);
     }
 
     public async Task<bool> ValidateResetRequestAsync(Guid id, string token)
     {
-        var forgotPasswordEntry = await _context.ForgotPasswords.FindAsync(id);
+        var sql = $@"SELECT *
+                    FROM ""ForgotPassword""
+                    WHERE ""Id"" = @Id";
+
+        var forgotPasswordEntry = await _dapperRepository.QueryFirstOrDefaultAsync<ForgotPassword?>(sql, new { Id = id });
 
         return forgotPasswordEntry is not null &&
                CryptoHelper.GetHash(forgotPasswordEntry.Token) == token &&
@@ -32,11 +37,10 @@ public class ForgotPasswordRepository : IForgotPasswordRepository
 
     public async Task InvalidateTokenAsync(Guid id)
     {
-        var entry = await _context.ForgotPasswords.FindAsync(id);
-        if (entry is null)
-            return;
+        var sql = @$"UPDATE ""ForgotPassword""
+                    SET ""IsValid"" = '0'
+                    WHERE ""Id"" = @Id";
 
-        entry.IsValid = false;
-        await _context.SaveChangesAsync();
+        await _dapperRepository.ExecuteAsync(sql, new { Id = id });
     }
 }
