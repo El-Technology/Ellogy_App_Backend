@@ -26,28 +26,28 @@ namespace AICommunicationService.DAL.Repositories
         {
             var sql = @$"SELECT *
                         FROM ""AIPrompts""
-                        WHERE ""TemplateName"" = '{promptName}'";
+                        WHERE ""TemplateName"" = @TemplateName";
 
-            return await _dapperRepository.QueryFirstOrDefaultAsync<AIPrompt>(sql);
+            return await _dapperRepository.QueryFirstOrDefaultAsync<AIPrompt>(sql, new { TemplateName = promptName });
         }
 
         /// <inheritdoc cref="IAIPromptRepository.UpdatePromptAsync(AIPrompt)"/>
         public async Task UpdatePromptAsync(AIPrompt aIPrompt)
         {
             var sql = @$"UPDATE ""AIPrompts""
-                        SET ""Value"" = '{aIPrompt.Value}'
-                        WHERE ""TemplateName"" = '{aIPrompt.TemplateName}'";
+                        SET ""Value"" = @Value
+                        WHERE ""TemplateName"" = @TemplateName";
 
-            await _dapperRepository.ExecuteAsync(sql);
+            await _dapperRepository.ExecuteAsync(sql, aIPrompt);
         }
 
         /// <inheritdoc cref="IAIPromptRepository.AddPromptAsync(AIPrompt)"/>
         public async Task AddPromptAsync(AIPrompt aiPrompt)
         {
             var sql = @$"INSERT INTO ""AIPrompts""
-                        VALUES ('{aiPrompt.TemplateName}', '{aiPrompt.Value}')";
+                        VALUES (@TemplateName, @Value)";
 
-            await _dapperRepository.ExecuteAsync(sql);
+            await _dapperRepository.ExecuteAsync(sql, aiPrompt);
         }
 
         /// <inheritdoc cref="IAIPromptRepository.DeletePromptAsync(AIPrompt)"/>
@@ -55,9 +55,9 @@ namespace AICommunicationService.DAL.Repositories
         {
             var sql = @$"DELETE
                         FROM ""AIPrompts""
-                        WHERE ""TemplateName"" = '{promptName}'";
+                        WHERE ""TemplateName"" = @TemplateName";
 
-            await _dapperRepository.ExecuteAsync(sql);
+            await _dapperRepository.ExecuteAsync(sql, new { TemplateName = promptName });
         }
     }
 }
