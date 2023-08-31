@@ -16,7 +16,6 @@ namespace TicketsManager.DAL.Context.Configurations
                 .IsRequired();
             builder.Property(t => t.PictureLink)
                 .IsRequired();
-            builder.Property(t => t.PictureLinkPng);
 
             builder.HasOne(a => a.Usecase)
                 .WithMany(a => a.Diagrams)
