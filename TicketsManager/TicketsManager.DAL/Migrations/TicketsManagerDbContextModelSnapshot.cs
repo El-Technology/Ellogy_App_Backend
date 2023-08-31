@@ -149,7 +149,6 @@ namespace TicketsManager.DAL.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("PictureLinkPng")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Title")
