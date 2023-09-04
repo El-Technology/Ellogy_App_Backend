@@ -3,6 +3,7 @@ using AICommunicationService.Common.Models.AIRequest;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpenAI_API.Models;
 
 namespace AICommunicationService.Api.Controllers
 {
@@ -226,6 +227,23 @@ namespace AICommunicationService.Api.Controllers
         {
             var response = await _communicationService.GetBannersAsync(description);
             return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("getStreamRequest")]
+        public async Task GetStreamRequest([FromBody] StreamRequest streamRequest)
+        {
+            var chatEndpoint = _communicationService.ReturnChatEndpoint();
+            var createConversation = chatEndpoint.CreateConversation();
+            createConversation.AppendSystemMessage(streamRequest.SystemMessage);
+            createConversation.AppendUserInput(streamRequest.UserInput);
+            createConversation.Model = Model.ChatGPTTurbo;
+            createConversation.RequestParameters.Temperature = streamRequest.Temperature;
+
+            await createConversation.StreamResponseFromChatbotAsync(async res =>
+            {
+                await Response.WriteAsync(res);
+            });
         }
     }
 }

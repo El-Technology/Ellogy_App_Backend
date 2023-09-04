@@ -74,6 +74,11 @@ namespace AICommunicationService.BLL.Services
             return getPrompt.Value;
         }
 
+        public IChatEndpoint ReturnChatEndpoint()
+        {
+            return _openAIAPI.Chat;
+        }
+
         /// <inheritdoc cref="ICommunicationService.GetDescriptionAsync(string)"/>
         public async Task<DescriptionResponse> GetDescriptionAsync(string userStories)
         {
