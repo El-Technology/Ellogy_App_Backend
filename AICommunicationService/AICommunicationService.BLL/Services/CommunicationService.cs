@@ -8,6 +8,7 @@ using AICommunicationService.DAL.Interfaces;
 using Newtonsoft.Json;
 using OpenAI_API;
 using OpenAI_API.Chat;
+using OpenAI_API.Models;
 
 namespace AICommunicationService.BLL.Services
 {
@@ -74,9 +75,14 @@ namespace AICommunicationService.BLL.Services
             return getPrompt.Value;
         }
 
-        public IChatEndpoint ReturnChatEndpoint()
+        public Conversation ReturnChatEndpoint(StreamRequest streamRequest)
         {
-            return _openAIAPI.Chat;
+            var createConversation = _openAIAPI.Chat.CreateConversation();
+            createConversation.AppendSystemMessage(streamRequest.SystemMessage);
+            createConversation.AppendUserInput(streamRequest.UserInput);
+            createConversation.Model = Model.ChatGPTTurbo;
+            createConversation.RequestParameters.Temperature = streamRequest.Temperature;
+            return createConversation;
         }
 
         /// <inheritdoc cref="ICommunicationService.GetDescriptionAsync(string)"/>

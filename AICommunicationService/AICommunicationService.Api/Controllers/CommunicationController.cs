@@ -233,14 +233,9 @@ namespace AICommunicationService.Api.Controllers
         [Route("getStreamRequest")]
         public async Task GetStreamRequest([FromBody] StreamRequest streamRequest)
         {
-            var chatEndpoint = _communicationService.ReturnChatEndpoint();
-            var createConversation = chatEndpoint.CreateConversation();
-            createConversation.AppendSystemMessage(streamRequest.SystemMessage);
-            createConversation.AppendUserInput(streamRequest.UserInput);
-            createConversation.Model = Model.ChatGPTTurbo;
-            createConversation.RequestParameters.Temperature = streamRequest.Temperature;
+            var conversation = _communicationService.ReturnChatEndpoint(streamRequest);
 
-            await createConversation.StreamResponseFromChatbotAsync(async res =>
+            await conversation.StreamResponseFromChatbotAsync(async res =>
             {
                 await Response.WriteAsync(res);
             });
