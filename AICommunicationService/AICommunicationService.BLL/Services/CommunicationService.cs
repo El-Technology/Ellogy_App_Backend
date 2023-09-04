@@ -75,13 +75,13 @@ namespace AICommunicationService.BLL.Services
             return getPrompt.Value;
         }
 
-        public Conversation ReturnChatEndpoint(StreamRequest streamRequest)
+        public Conversation ReturnChatEndpoint()
         {
             var createConversation = _openAIAPI.Chat.CreateConversation();
-            createConversation.AppendSystemMessage(streamRequest.SystemMessage);
-            createConversation.AppendUserInput(streamRequest.UserInput);
+            createConversation.AppendSystemMessage("As the AI project manager, you need to analyze the description of project and generate a list of possible requirements for the successful development and implementation of the project. Consider the technical aspects, user experience, scalability, security, and any other relevant factors to ensure the project's success. Format text of requirement this way: \"As a role, I want to requirement, so benefit\". Send response in one string where all stories will be separated by the ' | ' . Send 20 requirements. Give 4 requirements from each role. Project description");
+            createConversation.AppendUserInput("i want to create air alarm application user: i want to have a button thats provide oppotunity to real time inform about target in the air");
             createConversation.Model = Model.ChatGPTTurbo;
-            createConversation.RequestParameters.Temperature = streamRequest.Temperature;
+            createConversation.RequestParameters.Temperature = 0;
             return createConversation;
         }
 

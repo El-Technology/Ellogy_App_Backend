@@ -120,6 +120,6 @@ namespace AICommunicationService.BLL.Interfaces
         ///<param name="usecaseConversationRequest">A model containing the use case conversation request.</param>
         ///<returns>A string representing the retrieved use case conversation.</returns>
         Task<string> GetUsecaseConversationAsync(UsecaseConversationRequest usecaseConversationRequest);
-        Conversation ReturnChatEndpoint(StreamRequest streamRequest);
+        Conversation ReturnChatEndpoint();
     }
 }

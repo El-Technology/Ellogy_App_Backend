@@ -229,11 +229,11 @@ namespace AICommunicationService.Api.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("getStreamRequest")]
-        public async Task GetStreamRequest([FromBody] StreamRequest streamRequest)
+        public async Task GetStreamRequest()
         {
-            var conversation = _communicationService.ReturnChatEndpoint(streamRequest);
+            var conversation = _communicationService.ReturnChatEndpoint();
 
             await conversation.StreamResponseFromChatbotAsync(async res =>
             {
