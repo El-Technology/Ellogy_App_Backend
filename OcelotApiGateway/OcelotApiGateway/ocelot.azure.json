@@ -374,7 +374,7 @@
     },
     {
       "UpstreamPathTemplate": "/gateway/Communication/getStreamRequest",
-      "UpstreamHttpMethod": [ "Post" ],
+      "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/api/Communication/getStreamRequest",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
