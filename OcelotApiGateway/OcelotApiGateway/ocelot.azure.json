@@ -388,7 +388,7 @@
       "UpstreamPathTemplate": "/streamHub",
       "UpstreamHttpMethod": [ "GET", "POST" ],
       "DownstreamPathTemplate": "/streamHub",
-      "DownstreamScheme": "wss",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "20.21.124.185",
