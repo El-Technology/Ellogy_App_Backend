@@ -9,7 +9,7 @@ namespace AICommunicationService.BLL.Hubs
     {
         public override async Task OnConnectedAsync()
         {
-            await Clients.All.SendAsync("ReceiveMessage", $"{Context.ConnectionId} - your connectionId");
+            await Clients.All.SendAsync("ReceiveMessage", $"{Context.ConnectionId}");
         }
     }
 }
