@@ -407,9 +407,9 @@
     {
       "UpstreamPathTemplate": "/streamHub",
       "ReRouteIsCaseSensitive": false,
-      "UpstreamHttpMethod": [ "Get", "POST" ],
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ],
       "DownstreamPathTemplate": "/streamHub",
-      "DownstreamScheme": "http",
+      "DownstreamScheme": "ws",
       "DownstreamHostAndPorts": [
         {
           "Host": "20.21.124.185",
