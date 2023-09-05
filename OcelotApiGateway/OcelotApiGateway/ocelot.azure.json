@@ -385,8 +385,29 @@
       ]
     },
     {
+      "DownstreamPathTemplate": "/streamHub/negotiate",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 53053
+        }
+      ],
+      "UpstreamHttpMethod": [ "POST" ],
+      "UpstreamPathTemplate": "/streamHub/negotiate",
+      "ReRouteIsCaseSensitive": false,
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "DelegatingHandlers": [
+        "IdentityInQuery"
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/streamHub",
-      "UpstreamHttpMethod": [ "Get" ],
+      "ReRouteIsCaseSensitive": false,
+      "UpstreamHttpMethod": [ "Get", "POST" ],
       "DownstreamPathTemplate": "/streamHub",
       "DownstreamScheme": "ws",
       "DownstreamHostAndPorts": [
