@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace AICommunicationService.BLL.Hubs
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)] //for testing
     public class StreamAiHub : Hub
     {
         public override async Task OnConnectedAsync()
