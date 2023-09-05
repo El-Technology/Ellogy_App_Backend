@@ -26,8 +26,8 @@ app.Run();
 
 static void AddServices(WebApplicationBuilder builder)
 {
-    builder.Services.AddSignalR();
     builder.Services.AddCors();
+    builder.Services.AddSignalR();
     builder.Services.AddAuthorization();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
@@ -94,9 +94,10 @@ static void AddMiddleware(WebApplication app)
 
     app.UseCors(builder =>
     {
-        builder.AllowAnyOrigin();
         builder.AllowAnyMethod();
         builder.AllowAnyHeader();
+        builder.SetIsOriginAllowed(origin => true);
+        builder.AllowCredentials();
     });
     app.UseWebSockets();
 
