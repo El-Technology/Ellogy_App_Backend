@@ -385,6 +385,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/streamHub",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/streamHub",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 53053
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/gateway/Prompt/getAllPrompts",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/api/Prompt/getAllPrompts",
