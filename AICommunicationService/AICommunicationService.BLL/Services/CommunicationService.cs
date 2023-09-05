@@ -82,6 +82,9 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(StreamRequest)"/>
         public async Task<bool> StreamSignalRConversationAsync(StreamRequest streamRequest)
         {
+            if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
+                throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
+
             var createConversation = _openAIAPI.Chat.CreateConversation();
 
             createConversation.AppendSystemMessage(streamRequest.SystemMessage);
@@ -91,7 +94,7 @@ namespace AICommunicationService.BLL.Services
 
             await createConversation.StreamResponseFromChatbotAsync(async res =>
             {
-                await _hubContext.Clients.Client(streamRequest.ConnectionId).SendAsync("AiStreamResponse", res);
+                await _hubContext.Clients.Client(streamRequest.ConnectionId).SendAsync(streamRequest.SignalMethodName, res);
             });
 
             return true;

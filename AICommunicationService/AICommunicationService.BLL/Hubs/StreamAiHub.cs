@@ -7,9 +7,11 @@ namespace AICommunicationService.BLL.Hubs
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class StreamAiHub : Hub
     {
+        public static readonly List<string> listOfConnections = new();
         public override async Task OnConnectedAsync()
         {
-            await Clients.All.SendAsync("ReceiveMessage", $"{Context.ConnectionId}");
+            listOfConnections.Add(Context.ConnectionId);
+            await Clients.All.SendAsync("OnConnected", $"{Context.ConnectionId}");
         }
     }
 }
