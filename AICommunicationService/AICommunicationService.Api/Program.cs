@@ -27,6 +27,7 @@ app.Run();
 static void AddServices(WebApplicationBuilder builder)
 {
     builder.Services.AddSignalR();
+    builder.Services.AddCors();
     builder.Services.AddAuthorization();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
@@ -91,13 +92,20 @@ static void AddMiddleware(WebApplication app)
         app.UseSwaggerUI();
     }
 
+    app.UseCors(builder =>
+    {
+        builder.AllowAnyOrigin();
+        builder.AllowAnyMethod();
+        builder.AllowAnyHeader();
+    });
+    app.UseWebSockets();
+
     app.UseHttpsRedirection();
     app.UseHealthChecks("/health");
-    app.MapHub<StreamAiHub>("/streamHub");
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
-
+    app.MapHub<StreamAiHub>("/streamHub");
     app.UseMiddleware<ExceptionHandlerMiddleware>();
 }
 static void MigrateDatabase(IHost app)
