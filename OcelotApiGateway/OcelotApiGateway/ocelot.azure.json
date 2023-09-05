@@ -394,12 +394,10 @@
         }
       ],
       "UpstreamPathTemplate": "/streamHub",
-      "QoSOptions": {
-        "TimeoutValue": 320000
-      }
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     },
     {
-      "DownstreamPathTemplate": "/streamHub/{path}",
+      "DownstreamPathTemplate": "/streamHub/negotiate",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -407,10 +405,8 @@
           "Port": 53053
         }
       ],
-      "UpstreamPathTemplate": "/streamHub/{path}",
-      "QoSOptions": {
-        "TimeoutValue": 320000
-      }
+      "UpstreamPathTemplate": "/streamHub/negotiate",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     },
     {
       "UpstreamPathTemplate": "/gateway/Prompt/getAllPrompts",
