@@ -1,5 +1,6 @@
 using AICommunicationService.Api.Middlewares;
 using AICommunicationService.BLL.Extensions;
+using AICommunicationService.BLL.Hubs;
 using AICommunicationService.Common;
 using AICommunicationService.DAL.Context;
 using AICommunicationService.DAL.Extensions;
@@ -25,6 +26,7 @@ app.Run();
 
 static void AddServices(WebApplicationBuilder builder)
 {
+    builder.Services.AddSignalR();
     builder.Services.AddAuthorization();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
@@ -77,7 +79,6 @@ static void AddServices(WebApplicationBuilder builder)
         options.IncludeXmlComments(xmlPath);
     });
     builder.Services.AddHealthChecks();
-
     builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
     builder.Services.AddBusinessLayer();
 }
@@ -92,7 +93,7 @@ static void AddMiddleware(WebApplication app)
 
     app.UseHttpsRedirection();
     app.UseHealthChecks("/health");
-
+    app.MapHub<StreamAiHub>("/streamHub");
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();

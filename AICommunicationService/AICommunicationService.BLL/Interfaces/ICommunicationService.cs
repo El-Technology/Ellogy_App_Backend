@@ -1,6 +1,5 @@
 ﻿using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.Common.Models.AIResponse;
-using OpenAI_API.Chat;
 
 namespace AICommunicationService.BLL.Interfaces
 {
@@ -120,6 +119,12 @@ namespace AICommunicationService.BLL.Interfaces
         ///<param name="usecaseConversationRequest">A model containing the use case conversation request.</param>
         ///<returns>A string representing the retrieved use case conversation.</returns>
         Task<string> GetUsecaseConversationAsync(UsecaseConversationRequest usecaseConversationRequest);
-        Conversation ReturnChatEndpoint();
+
+        /// <summary>
+        /// Endpoint for retrieving AI response as streaming using SignalR.
+        /// </summary>
+        /// <param name="streamRequest">Request params</param>
+        /// <returns>Returns true if request is success</returns>
+        Task<bool> StreamSignalRConversationAsync(StreamRequest streamRequest);
     }
 }

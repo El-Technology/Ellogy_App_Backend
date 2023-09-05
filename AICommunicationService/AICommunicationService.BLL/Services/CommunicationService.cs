@@ -1,10 +1,12 @@
 ﻿using AICommunicationService.BLL.Constants;
 using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Helpers;
+using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.Common.Models.AIResponse;
 using AICommunicationService.DAL.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using OpenAI_API;
 using OpenAI_API.Chat;
@@ -17,12 +19,14 @@ namespace AICommunicationService.BLL.Services
     /// </summary>
     public class CommunicationService : ICommunicationService
     {
+        private readonly IHubContext<StreamAiHub> _hubContext;
         private readonly IAIPromptRepository _aIPromptRepository;
         private const bool Stable = true;
         private const bool Random = false;
         private readonly OpenAIAPI _openAIAPI;
-        public CommunicationService(OpenAIAPI openAIAPI, IAIPromptRepository aIPromptRepository)
+        public CommunicationService(OpenAIAPI openAIAPI, IAIPromptRepository aIPromptRepository, IHubContext<StreamAiHub> hubContext)
         {
+            _hubContext = hubContext;
             _aIPromptRepository = aIPromptRepository;
             _openAIAPI = openAIAPI;
         }
@@ -75,14 +79,22 @@ namespace AICommunicationService.BLL.Services
             return getPrompt.Value;
         }
 
-        public Conversation ReturnChatEndpoint()
+        /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(StreamRequest)"/>
+        public async Task<bool> StreamSignalRConversationAsync(StreamRequest streamRequest)
         {
             var createConversation = _openAIAPI.Chat.CreateConversation();
-            createConversation.AppendSystemMessage("As the AI project manager, you need to analyze the description of project and generate a list of possible requirements for the successful development and implementation of the project. Consider the technical aspects, user experience, scalability, security, and any other relevant factors to ensure the project's success. Format text of requirement this way: \"As a role, I want to requirement, so benefit\". Send response in one string where all stories will be separated by the ' | ' . Send 20 requirements. Give 4 requirements from each role. Project description");
-            createConversation.AppendUserInput("i want to create air alarm application user: i want to have a button thats provide oppotunity to real time inform about target in the air");
+
+            createConversation.AppendSystemMessage(streamRequest.SystemMessage);
+            createConversation.AppendUserInput(streamRequest.UserInput);
             createConversation.Model = Model.ChatGPTTurbo;
-            createConversation.RequestParameters.Temperature = 0;
-            return createConversation;
+            createConversation.RequestParameters.Temperature = streamRequest.Temperature;
+
+            await createConversation.StreamResponseFromChatbotAsync(async res =>
+            {
+                await _hubContext.Clients.Client(streamRequest.ConnectionId).SendAsync("AiStreamResponse", res);
+            });
+
+            return true;
         }
 
         /// <inheritdoc cref="ICommunicationService.GetDescriptionAsync(string)"/>
