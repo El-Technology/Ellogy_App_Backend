@@ -409,7 +409,7 @@
       "ReRouteIsCaseSensitive": false,
       "UpstreamHttpMethod": [ "Get", "POST" ],
       "DownstreamPathTemplate": "/streamHub",
-      "DownstreamScheme": "ws",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "20.21.124.185",
