@@ -395,7 +395,6 @@
       ],
       "UpstreamHttpMethod": [ "POST" ],
       "UpstreamPathTemplate": "/streamHub/negotiate",
-      "ReRouteIsCaseSensitive": false,
       "AuthenticationOptions": {
         "AuthenticationProviderKey": "Bearer",
         "AllowedScopes": []
@@ -406,7 +405,6 @@
     },
     {
       "UpstreamPathTemplate": "/streamHub",
-      "ReRouteIsCaseSensitive": false,
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ],
       "DownstreamPathTemplate": "/streamHub",
       "DownstreamScheme": "ws",
