@@ -386,6 +386,7 @@
     },
     {
       "UpstreamPathTemplate": "/gateway/streamHub",
+      "UpstreamHttpMethod": [ "Post, Get" ],
       "DownstreamPathTemplate": "/streamHub",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
