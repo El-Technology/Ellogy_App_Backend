@@ -15,16 +15,14 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
     {
-        builder.AllowAnyOrigin()
+        builder.SetIsOriginAllowed(origin => true)
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
-
 var app = builder.Build();
 
-app.UseCors();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -32,9 +30,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.MapControllers();
 
+app.UseCors();
+app.UseWebSockets();
 await app.UseOcelot();
 
 app.Run();
