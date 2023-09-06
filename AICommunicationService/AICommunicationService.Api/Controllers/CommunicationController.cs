@@ -235,10 +235,23 @@ namespace AICommunicationService.Api.Controllers
         /// <param name="streamRequest">Request params</param>
         /// <returns>Returns true if request is success</returns>
         [HttpPost]
-        [Route("getSignalRStreamRequest")]
-        public async Task<IActionResult> GetSignalRStreamRequest([FromBody] StreamRequest streamRequest)
+        [Route("getSignalRStreamResponse")]
+        public async Task<IActionResult> GetSignalRStreamResponse([FromBody] StreamRequest streamRequest)
         {
             var response = await _communicationService.StreamSignalRConversationAsync(streamRequest);
+            return Ok(response);
+        }
+
+        /// <summary>
+        /// Endpoint for retrieving AI response as string.
+        /// </summary>
+        /// <param name="streamRequest">Request params</param>
+        /// <returns>Returns true if request is success</returns>
+        [HttpPost]
+        [Route("getChatResponse")]
+        public async Task<IActionResult> GetChatResponse([FromBody] CreateConversationRequest conversationRequest)
+        {
+            var response = await _communicationService.ChatRequestAsync(conversationRequest);
             return Ok(response);
         }
     }

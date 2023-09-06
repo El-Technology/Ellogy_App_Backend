@@ -79,19 +79,31 @@ namespace AICommunicationService.BLL.Services
             return getPrompt.Value;
         }
 
+        private Conversation CreateChatConversation(CreateConversationRequest createConversationRequest)
+        {
+            var createConversation = _openAIAPI.Chat.CreateConversation();
+
+            createConversation.AppendSystemMessage(createConversationRequest.SystemMessage);
+            createConversation.AppendUserInput(createConversationRequest.UserInput);
+            createConversation.Model = Model.ChatGPTTurbo;
+            createConversation.RequestParameters.Temperature = createConversationRequest.Temperature;
+
+            return createConversation;
+        }
+
+        /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(CreateConversationRequest)"/>
+        public async Task<string> ChatRequestAsync(CreateConversationRequest createConversationRequest)
+        {
+            return await CreateChatConversation(createConversationRequest).GetResponseFromChatbotAsync();
+        }
+
         /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(StreamRequest)"/>
         public async Task<bool> StreamSignalRConversationAsync(StreamRequest streamRequest)
         {
             if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
                 throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
 
-            var createConversation = _openAIAPI.Chat.CreateConversation();
-
-            createConversation.AppendSystemMessage(streamRequest.SystemMessage);
-            createConversation.AppendUserInput(streamRequest.UserInput);
-            createConversation.Model = Model.ChatGPTTurbo;
-            createConversation.RequestParameters.Temperature = streamRequest.Temperature;
-
+            var createConversation = CreateChatConversation(streamRequest);
             await createConversation.StreamResponseFromChatbotAsync(async res =>
             {
                 await _hubContext.Clients.Client(streamRequest.ConnectionId).SendAsync(streamRequest.SignalMethodName, res);

@@ -9,6 +9,13 @@ namespace AICommunicationService.BLL.Interfaces
     public interface ICommunicationService
     {
         /// <summary>
+        /// Endpoint for retrieving AI response.
+        /// </summary>
+        /// <param name="createConversationRequest">Request params</param>
+        /// <returns>Returns string data</returns>
+        Task<string> ChatRequestAsync(CreateConversationRequest createConversationRequest);
+
+        /// <summary>
         /// Retrieves banners asynchronously based on the provided description.
         /// </summary>
         /// <param name="description">The description associated with the banners.</param>
