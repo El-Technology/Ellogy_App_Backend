@@ -245,7 +245,7 @@ namespace AICommunicationService.Api.Controllers
         /// <summary>
         /// Endpoint for retrieving AI response as string.
         /// </summary>
-        /// <param name="streamRequest">Request params</param>
+        /// <param name="conversationRequest">Request params</param>
         /// <returns>Returns true if request is success</returns>
         [HttpPost]
         [Route("getChatResponse")]

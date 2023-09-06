@@ -373,9 +373,21 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/gateway/Communication/getSignalRStreamRequest",
+      "UpstreamPathTemplate": "/gateway/Communication/getSignalRStreamResponse",
       "UpstreamHttpMethod": [ "Post" ],
-      "DownstreamPathTemplate": "/api/Communication/getSignalRStreamRequest",
+      "DownstreamPathTemplate": "/api/Communication/getSignalRStreamResponse",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/Communication/getChatResponse",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Communication/getChatResponse",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
