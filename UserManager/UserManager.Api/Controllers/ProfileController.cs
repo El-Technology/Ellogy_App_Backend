@@ -19,7 +19,7 @@ namespace UserManager.Api.Controllers
         }
 
         [HttpDelete]
-        [Route("DeleteUser")]
+        [Route("deleteUser")]
         public async Task<IActionResult> GetUserProfile(Guid userId)
         {
             var response = await _userProfileService.DeleteUserProfileAsync(userId);
@@ -43,7 +43,7 @@ namespace UserManager.Api.Controllers
         }
 
         [HttpPost]
-        [Route("UploadAvatar")]
+        [Route("uploadAvatar")]
         public async Task<IActionResult> UploadAvatar(UploadAvatar uploadAvatar)
         {
             var response = await _userProfileService.UploadUserAvatarAsync(uploadAvatar);
