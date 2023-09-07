@@ -12,6 +12,7 @@ public static class DiExtension
     public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
     {
         return services
+            .AddScoped<IUserProfileService, UserProfileService>()
             .AddScoped<BlobServiceClient>(_ => new(EnvironmentVariables.BlobStorageConnectionString))
             .AddScoped<IReportService, ReportService>()
             .AddScoped<IRefreshTokenService, RefreshTokenService>()

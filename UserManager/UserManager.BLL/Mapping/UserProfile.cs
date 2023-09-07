@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using UserManager.BLL.Dtos.LoginDtos;
+using UserManager.BLL.Dtos.ProfileDto;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.Common.Helpers;
 using UserManager.DAL.Enums;
@@ -18,12 +19,17 @@ namespace UserManager.BLL.Mapping
                     opts.MapFrom(_ => CryptoHelper.GenerateSalt()))
                 .ForMember(dest => dest.Password, opts =>
                     opts.Ignore())
+                .ForMember(dest => dest.AvatarLink, opts =>
+                    opts.Ignore())
                 .ForMember(dest => dest.Role, opts =>
                     opts.MapFrom(_ => RoleEnum.User));
 
             CreateMap<User, LoginResponseDto>()
                 .ForMember(dest => dest.RefreshToken, opt =>
                     opt.Ignore());
+
+            CreateMap<User, UserProfileDto>()
+                .ReverseMap();
         }
     }
 }

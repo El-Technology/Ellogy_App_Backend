@@ -79,6 +79,9 @@ namespace UserManager.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AvatarLink")
+                        .HasColumnType("text");
+
                     b.Property<string>("Department")
                         .IsRequired()
                         .HasMaxLength(100)

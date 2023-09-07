@@ -11,4 +11,5 @@ public interface IUserRepository
 
     public Task<bool> CheckEmailIsExistAsync(string email);
     public Task<User?> GetUserByEmailAsync(string email);
+    Task DeleteUserAsync(User user);
 }

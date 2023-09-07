@@ -30,6 +30,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(100);
         builder.Property(c => c.Department)
             .HasMaxLength(100);
+        builder.Property(c => c.AvatarLink);
         builder.Property(c => c.Salt)
             .IsRequired()
             .HasMaxLength(100);

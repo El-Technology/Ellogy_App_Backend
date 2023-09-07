@@ -20,6 +20,12 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task DeleteUserAsync(User user)
+    {
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
+    }
+
     public Task<bool> CheckEmailIsExistAsync(string email)
     {
         return _context.Users.AnyAsync(e => e.Email == email.ToLower());
