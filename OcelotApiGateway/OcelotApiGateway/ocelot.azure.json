@@ -121,9 +121,9 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/gateway/Profile/UploadAvatar",
+      "UpstreamPathTemplate": "/gateway/Profile/uploadAvatar",
       "UpstreamHttpMethod": [ "Post" ],
-      "DownstreamPathTemplate": "/api/Profile/UploadAvatar",
+      "DownstreamPathTemplate": "/api/Profile/uploadAvatar",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
