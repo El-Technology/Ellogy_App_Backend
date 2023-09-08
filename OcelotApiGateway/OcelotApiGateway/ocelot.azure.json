@@ -515,6 +515,30 @@
           "Port": 53053
         }
       ]
+    },
+    {
+      "UpstreamPathTemplate": "/uml/png/{everything}",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/png/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 8080
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/uml/svg/{everything}",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/svg/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 8080
+        }
+      ]
     }
   ]
 }
