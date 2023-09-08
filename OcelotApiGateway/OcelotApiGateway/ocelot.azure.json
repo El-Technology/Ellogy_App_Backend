@@ -518,7 +518,7 @@
     },
     {
       "UpstreamPathTemplate": "/uml/png/{everything}",
-      "UpstreamHttpMethod": [ "Delete" ],
+      "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/png/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -530,7 +530,7 @@
     },
     {
       "UpstreamPathTemplate": "/uml/svg/{everything}",
-      "UpstreamHttpMethod": [ "Delete" ],
+      "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/svg/{everything}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
