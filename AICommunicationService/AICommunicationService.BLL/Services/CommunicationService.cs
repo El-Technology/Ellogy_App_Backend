@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using OpenAI_API;
 using OpenAI_API.Chat;
 using OpenAI_API.Models;
+using System.Text;
 
 namespace AICommunicationService.BLL.Services
 {
@@ -98,18 +99,20 @@ namespace AICommunicationService.BLL.Services
         }
 
         /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(StreamRequest)"/>
-        public async Task<bool> StreamSignalRConversationAsync(StreamRequest streamRequest)
+        public async Task<string> StreamSignalRConversationAsync(StreamRequest streamRequest)
         {
             if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
                 throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
 
             var createConversation = CreateChatConversation(streamRequest);
+            var stringBuilder = new StringBuilder();
             await createConversation.StreamResponseFromChatbotAsync(async res =>
             {
                 await _hubContext.Clients.Client(streamRequest.ConnectionId).SendAsync(streamRequest.SignalMethodName, res);
+                stringBuilder.Append(res);
             });
 
-            return true;
+            return stringBuilder.ToString();
         }
 
         /// <inheritdoc cref="ICommunicationService.GetDescriptionAsync(string)"/>

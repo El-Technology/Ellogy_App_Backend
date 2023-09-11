@@ -131,7 +131,7 @@ namespace AICommunicationService.BLL.Interfaces
         /// Endpoint for retrieving AI response as streaming using SignalR.
         /// </summary>
         /// <param name="streamRequest">Request params</param>
-        /// <returns>Returns true if request is success</returns>
-        Task<bool> StreamSignalRConversationAsync(StreamRequest streamRequest);
+        /// <returns>Returns response is success</returns>
+        Task<string> StreamSignalRConversationAsync(StreamRequest streamRequest);
     }
 }
