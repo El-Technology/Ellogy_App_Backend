@@ -8,9 +8,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var ocelotConf = Environment.GetEnvironmentVariable("Ocelot_conf") ?? "local";
+var configurationBuilder = new ConfigurationBuilder();
 
-builder.Configuration.AddJsonFile($"ocelot.{ocelotConf}.json", optional: false, reloadOnChange: true);
-builder.Services.AddOcelot(builder.Configuration);
+if (ocelotConf.Equals("azure"))
+{
+    configurationBuilder.AddJsonFile($"ocelot.azure.json", optional: false, reloadOnChange: true);
+    configurationBuilder.AddJsonFile($"ocelot.azureAdmin.json", optional: false, reloadOnChange: true);
+}
+else
+    configurationBuilder.AddJsonFile($"ocelot.local.json", optional: false, reloadOnChange: true);
+
+builder.Services.AddOcelot(configurationBuilder.Build());
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
