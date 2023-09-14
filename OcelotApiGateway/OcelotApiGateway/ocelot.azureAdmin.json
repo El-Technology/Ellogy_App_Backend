@@ -23,6 +23,18 @@
           "Port": 5157
         }
       ]
+    },
+    {
+      "UpstreamPathTemplate": "/adminPanel/auth/checkStatus",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/auth/checkStatus",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 5157
+        }
+      ]
     }
   ]
 }
