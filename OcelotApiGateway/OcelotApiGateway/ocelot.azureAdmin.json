@@ -1,7 +1,7 @@
 {
   "Routes": [
     {
-      "UpstreamPathTemplate": "/adminPanel/login",
+      "UpstreamPathTemplate": "/adminPanel/auth/login",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/auth/login",
       "DownstreamScheme": "http",
