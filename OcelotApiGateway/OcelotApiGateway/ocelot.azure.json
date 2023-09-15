@@ -575,6 +575,18 @@
           "Port": 5157
         }
       ]
+    },
+    {
+      "UpstreamPathTemplate": "/adminPanel/userManage/getUsers",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/userManage/getUsers",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 5157
+        }
+      ]
     }
   ]
 }
