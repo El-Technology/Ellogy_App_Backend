@@ -31,6 +31,7 @@ namespace AICommunicationService.BLL.Services
 
             prompt.Value = aIPrompt.Value;
             prompt.Input = aIPrompt.Input;
+            prompt.Description = aIPrompt.Description;
             await _aIPromptRepository.UpdatePromptAsync(prompt);
             return prompt;
         }
