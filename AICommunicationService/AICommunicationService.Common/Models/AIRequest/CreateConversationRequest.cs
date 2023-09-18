@@ -4,6 +4,6 @@
     {
         public string TemplateName { get; set; }
         public string UserInput { get; set; }
-        public int Temperature { get; set; }
+        public float Temperature { get; set; }
     }
 }
