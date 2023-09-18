@@ -22,7 +22,7 @@ namespace AICommunicationService.DAL.Repositories
         /// <inheritdoc cref="IAIPromptRepository.GetPromptByTemplateNameAsync(string)"/>
         public async Task<AIPrompt?> GetPromptByTemplateNameAsync(string templateName)
         {
-            return await _context.AIPrompts.AsTracking().FirstOrDefaultAsync(a => a.TamplateName.Equals(templateName));
+            return await _context.AIPrompts.AsTracking().FirstOrDefaultAsync(a => a.TemplateName.Equals(templateName));
         }
 
         /// <inheritdoc cref="IAIPromptRepository.UpdatePromptAsync(AIPrompt)"/>

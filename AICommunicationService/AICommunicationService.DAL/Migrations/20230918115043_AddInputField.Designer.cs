@@ -2,6 +2,7 @@
 using AICommunicationService.DAL.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AICommunicationService.DAL.Migrations
 {
     [DbContext(typeof(AICommunicationContext))]
-    partial class AICommunicationContextModelSnapshot : ModelSnapshot
+    [Migration("20230918115043_AddInputField")]
+    partial class AddInputField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,7 +26,7 @@ namespace AICommunicationService.DAL.Migrations
 
             modelBuilder.Entity("AICommunicationService.DAL.Models.AIPrompt", b =>
                 {
-                    b.Property<string>("TemplateName")
+                    b.Property<string>("TamplateName")
                         .HasColumnType("text");
 
                     b.Property<string>("Input")
@@ -33,7 +36,7 @@ namespace AICommunicationService.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("TemplateName");
+                    b.HasKey("TamplateName");
 
                     b.ToTable("AIPrompts", (string)null);
                 });

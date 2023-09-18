@@ -18,10 +18,9 @@ namespace AICommunicationService.BLL.Interfaces
         /// <summary>
         /// Delete a prompt with the specified name using the provided data.
         /// </summary>
-        /// <param name="aIPrompt">The data required to delete the prompt.</param>
         /// <param name="promptName">The name of the prompt to be deleted.</param>
         /// <returns>Returns a task representing the asynchronous delete operation.</returns>
-        Task<AIPrompt> DeletePromptAsync(UpdateDeletePrompt aIPrompt, string promptName);
+        Task DeletePromptAsync(string promptName);
 
         /// <summary>
         /// Retrieve a list of all prompts available in the system.
@@ -35,6 +34,6 @@ namespace AICommunicationService.BLL.Interfaces
         /// <param name="aIPrompt">The updated data for the prompt.</param>
         /// <param name="promptName">The name of the prompt to be updated.</param>
         /// <returns>Returns a task representing the asynchronous update operation.</returns>
-        Task<AIPrompt> UpdatePromptAsync(UpdateDeletePrompt aIPrompt, string promptName);
+        Task<AIPrompt> UpdatePromptAsync(UpdatePrompt aIPrompt, string promptName);
     }
 }

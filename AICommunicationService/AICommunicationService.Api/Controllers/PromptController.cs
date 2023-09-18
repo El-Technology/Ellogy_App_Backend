@@ -53,7 +53,7 @@ namespace AICommunicationService.Controllers
         /// <returns>Returns a response indicating the success of the update operation.</returns>
         [HttpPut]
         [Route("updatePrompt")]
-        public async Task<IActionResult> UpdatePrompt(string promptName, [FromBody] UpdateDeletePrompt aiPrompt)
+        public async Task<IActionResult> UpdatePrompt(string promptName, [FromBody] UpdatePrompt aiPrompt)
         {
             var response = await _promptService.UpdatePromptAsync(aiPrompt, promptName);
             return Ok(response);
@@ -67,10 +67,10 @@ namespace AICommunicationService.Controllers
         /// <returns>Returns a response indicating the success of the delete operation.</returns>
         [HttpDelete]
         [Route("deletePrompt")]
-        public async Task<IActionResult> DeletePrompt(string promptName, [FromBody] UpdateDeletePrompt aiPrompt)
+        public async Task<IActionResult> DeletePrompt(string promptName)
         {
-            var response = await _promptService.DeletePromptAsync(aiPrompt, promptName);
-            return Ok(response);
+            await _promptService.DeletePromptAsync(promptName);
+            return Ok();
         }
     }
 }
