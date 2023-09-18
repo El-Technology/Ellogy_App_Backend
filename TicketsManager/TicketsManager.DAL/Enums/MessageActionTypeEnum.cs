@@ -3,6 +3,7 @@
     public enum MessageActionTypeEnum
     {
         Generate = 0,
-        Regenerate = 1
+        Regenerate = 1,
+        Used = 2
     }
 }
