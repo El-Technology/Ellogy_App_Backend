@@ -277,54 +277,6 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     },
     {
-      "UpstreamPathTemplate": "/gateway/Prompt/getAllPrompts",
-      "UpstreamHttpMethod": [ "Get" ],
-      "DownstreamPathTemplate": "/api/Prompt/getAllPrompts",
-      "DownstreamScheme": "ws",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "20.21.124.185",
-          "Port": 53053
-        }
-      ]
-    },
-    {
-      "UpstreamPathTemplate": "/gateway/Prompt/createPrompt",
-      "UpstreamHttpMethod": [ "Post" ],
-      "DownstreamPathTemplate": "/api/Prompt/createPrompt",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "20.21.124.185",
-          "Port": 53053
-        }
-      ]
-    },
-    {
-      "UpstreamPathTemplate": "/gateway/Prompt/updatePrompt",
-      "UpstreamHttpMethod": [ "Put" ],
-      "DownstreamPathTemplate": "/api/Prompt/updatePrompt",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "20.21.124.185",
-          "Port": 53053
-        }
-      ]
-    },
-    {
-      "UpstreamPathTemplate": "/gateway/Prompt/deletePrompt",
-      "UpstreamHttpMethod": [ "Delete" ],
-      "DownstreamPathTemplate": "/api/Prompt/deletePrompt",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "20.21.124.185",
-          "Port": 53053
-        }
-      ]
-    },
-    {
       "UpstreamPathTemplate": "/uml/png/{everything}",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/png/{everything}",
