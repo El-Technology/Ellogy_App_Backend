@@ -45,5 +45,18 @@ namespace AICommunicationService.Api.Controllers
             var response = await _communicationService.ChatRequestAsync(conversationRequest);
             return Ok(response);
         }
+
+        /// <summary>
+        /// Endpoint for retrieving AI response as string.
+        /// </summary>
+        /// <param name="conversationRequest">Request params</param>
+        /// <returns>Returns string if request is success</returns>
+        [HttpPost]
+        [Route("getChatCompletion")]
+        public async Task<IActionResult> GetChatCompletion([FromBody] CreateConversationRequest conversationRequest)
+        {
+            var response = await _communicationService.CreateChatCompletionAsync(conversationRequest);
+            return Ok(response);
+        }
     }
 }

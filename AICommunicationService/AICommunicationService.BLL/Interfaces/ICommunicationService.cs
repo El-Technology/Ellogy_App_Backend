@@ -13,6 +13,7 @@ namespace AICommunicationService.BLL.Interfaces
         /// <param name="createConversationRequest">Request params</param>
         /// <returns>Returns string data</returns>
         Task<string> ChatRequestAsync(CreateConversationRequest createConversationRequest);
+        Task<string> CreateChatCompletionAsync(CreateConversationRequest createConversationRequest);
 
         /// <summary>
         /// Endpoint for retrieving AI response as streaming using SignalR.

@@ -63,7 +63,6 @@ namespace AICommunicationService.Controllers
         /// Deletes a prompt with the provided data.
         /// </summary>
         /// <param name="promptName">The name of the prompt to be deleted.</param>
-        /// <param name="aiPrompt">The data required to delete the prompt.</param>
         /// <returns>Returns a response indicating the success of the delete operation.</returns>
         [HttpDelete]
         [Route("deletePrompt")]

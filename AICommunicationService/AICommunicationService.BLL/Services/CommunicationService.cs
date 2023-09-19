@@ -25,17 +25,35 @@ namespace AICommunicationService.BLL.Services
             _openAIAPI = openAIAPI;
         }
 
-        private async Task<string> GetTemplate(string promptName)
+        private async Task<string> GetTemplateAsync(string promptName)
         {
             var getPrompt = await _aIPromptRepository.GetPromptByTemplateNameAsync(promptName)
                 ?? throw new Exception("Prompt was not found");
             return getPrompt.Value;
         }
 
-        private async Task<Conversation> CreateChatConversation(CreateConversationRequest createConversationRequest)
+        public async Task<string> CreateChatCompletionAsync(CreateConversationRequest createConversationRequest)
+        {
+            var template = await GetTemplateAsync(createConversationRequest.TemplateName);
+            var chatCompletion = await _openAIAPI.Chat.CreateChatCompletionAsync(new ChatRequest
+            {
+                Model = Model.ChatGPTTurbo,
+                Temperature = createConversationRequest.Temperature,
+                Messages = new List<ChatMessage>
+                {
+                    new ChatMessage { Content = template + createConversationRequest.UserInput, Role = ChatMessageRole.User }
+                }
+            });
+            var stringResult = chatCompletion.Choices.FirstOrDefault()?.Message.Content
+                ?? throw new Exception("Taking result error, try again");
+
+            return stringResult;
+        }
+
+        private async Task<Conversation> CreateChatConversationAsync(CreateConversationRequest createConversationRequest)
         {
             var createConversation = _openAIAPI.Chat.CreateConversation();
-            var template = await GetTemplate(createConversationRequest.TemplateName);
+            var template = await GetTemplateAsync(createConversationRequest.TemplateName);
             createConversation.AppendSystemMessage(template);
             createConversation.AppendUserInput(createConversationRequest.UserInput);
             createConversation.Model = Model.ChatGPTTurbo;
@@ -47,7 +65,7 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(CreateConversationRequest)"/>
         public async Task<string> ChatRequestAsync(CreateConversationRequest createConversationRequest)
         {
-            return await (await CreateChatConversation(createConversationRequest)).GetResponseFromChatbotAsync();
+            return await (await CreateChatConversationAsync(createConversationRequest)).GetResponseFromChatbotAsync();
         }
 
         /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(StreamRequest)"/>
@@ -56,7 +74,7 @@ namespace AICommunicationService.BLL.Services
             if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
                 throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
 
-            var createConversation = CreateChatConversation(streamRequest);
+            var createConversation = CreateChatConversationAsync(streamRequest);
             var stringBuilder = new StringBuilder();
             await (await createConversation).StreamResponseFromChatbotAsync(async res =>
             {
