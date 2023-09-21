@@ -39,9 +39,9 @@ namespace AICommunicationService.BLL.Services
             {
                 Model = Model.ChatGPTTurbo,
                 Temperature = createConversationRequest.Temperature,
-                Messages = new List<ChatMessage>
+                Messages = new ChatMessage[]
                 {
-                    new ChatMessage { Content = template + createConversationRequest.UserInput, Role = ChatMessageRole.User }
+                    new ChatMessage(ChatMessageRole.User, template + createConversationRequest.UserInput)
                 }
             });
             var stringResult = chatCompletion.Choices.FirstOrDefault()?.Message.Content
