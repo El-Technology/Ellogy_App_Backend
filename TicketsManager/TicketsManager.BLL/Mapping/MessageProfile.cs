@@ -10,7 +10,8 @@ public class MessageProfile : Profile
     {
         CreateMap<Message, MessageResponseDto>()
             .ForMember(dest => dest.Action, opts =>
-            opts.MapFrom(_ => new ActionDto { State = _.ActionState, Type = _.ActionType }));
+                opts.MapFrom(_ => new ActionDto { State = _.ActionState, Type = _.ActionType }))
+            .ReverseMap();
 
         CreateMap<MessageDto, Message>()
             .ForMember(dest => dest.ActionState, opts =>
