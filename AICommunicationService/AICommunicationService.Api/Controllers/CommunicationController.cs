@@ -58,5 +58,18 @@ namespace AICommunicationService.Api.Controllers
             var response = await _communicationService.CreateChatCompletionAsync(conversationRequest);
             return Ok(response);
         }
+
+        /// <summary>
+        /// Endpoint for retrieving AI response as string Communication with GPT-4.
+        /// </summary>
+        /// <param name="conversationRequest">Request params</param>
+        /// <returns>Returns true if request is success</returns>
+        [HttpPost]
+        [Route("GetChatResponseGptFour")]
+        public async Task<IActionResult> GetChatResponseGptFour([FromBody] CreateConversationRequest conversationRequest)
+        {
+            var response = await _communicationService.ChatRequestGptFourAsync(conversationRequest);
+            return Ok(response);
+        }
     }
 }
