@@ -65,7 +65,7 @@ namespace AICommunicationService.Api.Controllers
         /// <param name="conversationRequest">Request params</param>
         /// <returns>Returns true if request is success</returns>
         [HttpPost]
-        [Route("GetChatResponseGptFour")]
+        [Route("getChatResponseGptFour")]
         public async Task<IActionResult> GetChatResponseGptFour([FromBody] CreateConversationRequest conversationRequest)
         {
             var response = await _communicationService.ChatRequestGptFourAsync(conversationRequest);
