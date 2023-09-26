@@ -59,7 +59,6 @@ public class TicketsRepository : ITicketsRepository
 
     public async Task UpdateTicketAsync(Ticket ticket)
     {
-        await CheckTicketUpdateIds(ticket);
         _context.Tickets.Update(ticket);
         await _context.SaveChangesAsync();
     }
@@ -69,7 +68,7 @@ public class TicketsRepository : ITicketsRepository
         return _context.Tickets.AnyAsync(e => e.Id == id);
     }
 
-    private async Task CheckTicketUpdateIds(Ticket ticket)
+    public async Task CheckTicketUpdateIds(Ticket ticket)
     {
         var messageIds = ticket.TicketMessages.Where(e => e.Id != Guid.Empty).Select(e => e.Id).ToList();
         foreach (var messageId in messageIds)

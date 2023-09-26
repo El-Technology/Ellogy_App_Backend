@@ -102,6 +102,7 @@ public class TicketsService : ITicketsService
                      ?? throw new TicketNotFoundException(id);
 
         var mappedTicket = _mapper.Map(ticketUpdate, ticket);
+        await _ticketsRepository.CheckTicketUpdateIds(mappedTicket);
         await _ticketsRepository.UpdateTicketAsync(mappedTicket);
 
         return _mapper.Map<TicketResponseDto>(mappedTicket);
