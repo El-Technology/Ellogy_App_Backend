@@ -1,4 +1,5 @@
 ﻿using AICommunicationService.BLL.Constants;
+using AICommunicationService.BLL.Extensions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Enums;
@@ -44,6 +45,7 @@ namespace AICommunicationService.BLL.Services
 
             var azureOpenAI = OpenAIAPI.ForAzure(YourResourceName: AzureAiConstants.ResourceName, deploymentId: deploymentName, apiKey: EnvironmentVariables.OpenAiKey);
             azureOpenAI.ApiVersion = AzureAiConstants.ApiVersion;
+            azureOpenAI.HttpClientFactory = new CustomHttpClientFactory();
 
             var createConversation = azureOpenAI.Chat.CreateConversation();
             var template = await GetTemplateAsync(createConversationRequest.TemplateName);
