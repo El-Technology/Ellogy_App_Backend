@@ -1,12 +1,14 @@
-﻿using AICommunicationService.BLL.Hubs;
+﻿using AICommunicationService.BLL.Constants;
+using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.DAL.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using OpenAI_API;
 using OpenAI_API.Chat;
-using OpenAI_API.Models;
 using System.Text;
+using TicketsManager.Common;
 
 namespace AICommunicationService.BLL.Services
 {
@@ -17,12 +19,11 @@ namespace AICommunicationService.BLL.Services
     {
         private readonly IHubContext<StreamAiHub> _hubContext;
         private readonly IAIPromptRepository _aIPromptRepository;
-        private readonly OpenAIAPI _openAIAPI;
-        public CommunicationService(OpenAIAPI openAIAPI, IAIPromptRepository aIPromptRepository, IHubContext<StreamAiHub> hubContext)
+
+        public CommunicationService(IAIPromptRepository aIPromptRepository, IHubContext<StreamAiHub> hubContext)
         {
             _hubContext = hubContext;
             _aIPromptRepository = aIPromptRepository;
-            _openAIAPI = openAIAPI;
         }
 
         private async Task<string> GetTemplateAsync(string promptName)
@@ -32,40 +33,31 @@ namespace AICommunicationService.BLL.Services
             return getPrompt.Value;
         }
 
-        private async Task<Conversation> CreateChatConversationAsync(CreateConversationRequest createConversationRequest, Model gptModel)
+        private async Task<Conversation> CreateChatConversationAsync(CreateConversationRequest createConversationRequest)
         {
-            var createConversation = _openAIAPI.Chat.CreateConversation();
+            string? deploymentName = createConversationRequest.AiModelEnum switch
+            {
+                AiModelEnum.Turbo => AzureAiConstants.TurboModel,
+                AiModelEnum.Four => AzureAiConstants.FourModel,
+                _ => throw new Exception("Wrong enum"),
+            };
+
+            var azureOpenAI = OpenAIAPI.ForAzure(YourResourceName: AzureAiConstants.ResourceName, deploymentId: deploymentName, apiKey: EnvironmentVariables.OpenAiKey);
+            azureOpenAI.ApiVersion = AzureAiConstants.ApiVersion;
+
+            var createConversation = azureOpenAI.Chat.CreateConversation();
             var template = await GetTemplateAsync(createConversationRequest.TemplateName);
             createConversation.AppendSystemMessage(template);
             createConversation.AppendUserInput(createConversationRequest.UserInput);
-            createConversation.Model = gptModel;
             createConversation.RequestParameters.Temperature = createConversationRequest.Temperature;
 
             return createConversation;
         }
 
-        public async Task<string> CreateChatCompletionAsync(CreateConversationRequest createConversationRequest)
-        {
-            var template = await GetTemplateAsync(createConversationRequest.TemplateName);
-            var chatCompletion = await _openAIAPI.Chat.CreateChatCompletionAsync(new ChatRequest
-            {
-                Model = Model.ChatGPTTurbo,
-                Temperature = createConversationRequest.Temperature,
-                Messages = new ChatMessage[]
-                {
-                    new ChatMessage(ChatMessageRole.User, template + createConversationRequest.UserInput)
-                }
-            });
-            var stringResult = chatCompletion.Choices.FirstOrDefault()?.Message.Content
-                ?? throw new Exception("Taking result error, try again");
-
-            return stringResult;
-        }
-
         /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(CreateConversationRequest)"/>
         public async Task<string> ChatRequestAsync(CreateConversationRequest createConversationRequest)
         {
-            return await (await CreateChatConversationAsync(createConversationRequest, Model.ChatGPTTurbo)).GetResponseFromChatbotAsync();
+            return await (await CreateChatConversationAsync(createConversationRequest)).GetResponseFromChatbotAsync();
         }
 
         /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(StreamRequest)"/>
@@ -74,7 +66,7 @@ namespace AICommunicationService.BLL.Services
             if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
                 throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
 
-            var createConversation = CreateChatConversationAsync(streamRequest, Model.ChatGPTTurbo);
+            var createConversation = CreateChatConversationAsync(streamRequest);
             var stringBuilder = new StringBuilder();
             await (await createConversation).StreamResponseFromChatbotAsync(async res =>
             {
@@ -83,11 +75,6 @@ namespace AICommunicationService.BLL.Services
             });
 
             return stringBuilder.ToString();
-        }
-
-        public async Task<string> ChatRequestGptFourAsync(CreateConversationRequest createConversationRequest)
-        {
-            return await (await CreateChatConversationAsync(createConversationRequest, Model.GPT4)).GetResponseFromChatbotAsync();
         }
     }
 }

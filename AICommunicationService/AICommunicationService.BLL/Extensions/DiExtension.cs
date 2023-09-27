@@ -1,8 +1,6 @@
 ﻿using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.BLL.Services;
 using Microsoft.Extensions.DependencyInjection;
-using OpenAI_API;
-using TicketsManager.Common;
 
 namespace AICommunicationService.BLL.Extensions
 {
@@ -12,8 +10,7 @@ namespace AICommunicationService.BLL.Extensions
         {
             return services
                 .AddScoped<IPromptService, PromptService>()
-                .AddScoped<ICommunicationService, CommunicationService>()
-                .AddScoped<OpenAIAPI>(_ => new(EnvironmentVariables.OpenAiKey));
+                .AddScoped<ICommunicationService, CommunicationService>();
         }
     }
 }
