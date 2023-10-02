@@ -3,13 +3,14 @@ using AICommunicationService.Common.Models.AIRequest;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace AICommunicationService.Api.Controllers
 {
     /// <summary>
     /// This controller provides endpoints for communication with Chat GPT using various templates and methods.
     /// </summary>
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class CommunicationController : ControllerBase
@@ -27,9 +28,9 @@ namespace AICommunicationService.Api.Controllers
         /// <returns>Returns true if request is success</returns>
         [HttpPost]
         [Route("getSignalRStreamResponse")]
-        public async Task<IActionResult> GetSignalRStreamResponse([FromBody] StreamRequest streamRequest)
+        public async Task<IActionResult> GetSignalRStreamResponse([FromBody] CreateConversationRequest createConversationRequest)
         {
-            var response = await _communicationService.StreamSignalRConversationAsync(streamRequest);
+            var response = await _communicationService.StreamSignalRConversationAsync(createConversationRequest);
             return Ok(response);
         }
 
@@ -43,6 +44,14 @@ namespace AICommunicationService.Api.Controllers
         public async Task<IActionResult> GetChatResponse([FromBody] CreateConversationRequest conversationRequest)
         {
             var response = await _communicationService.ChatRequestAsync(conversationRequest);
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("chatWithFunctions")]
+        public async Task<IActionResult> GetChatWithFunctions([FromBody] CreateConversationRequest requestWithFunction)
+        {
+            var response = await _communicationService.ChatRequestWithFunctionAsync(requestWithFunction);
             return Ok(response);
         }
     }

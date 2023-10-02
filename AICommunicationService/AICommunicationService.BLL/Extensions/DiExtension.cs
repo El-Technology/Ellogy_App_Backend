@@ -9,6 +9,7 @@ namespace AICommunicationService.BLL.Extensions
         public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
         {
             return services
+                .AddScoped<AzureOpenAiRequestService>()
                 .AddScoped<IPromptService, PromptService>()
                 .AddScoped<ICommunicationService, CommunicationService>();
         }

@@ -14,6 +14,7 @@ namespace AICommunicationService.DAL.Context.Configurations
                 .IsRequired();
             builder.Property(a => a.Input);
             builder.Property(a => a.Description);
+            builder.Property(a => a.Functions);
         }
     }
 }
