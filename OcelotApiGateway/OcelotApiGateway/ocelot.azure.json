@@ -253,6 +253,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/gateway/Communication/chatWithFunctions",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Communication/chatWithFunctions",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 53053
+        }
+      ]
+    },
+    {
       "DownstreamPathTemplate": "/streamHub",
       "DownstreamScheme": "ws",
       "DownstreamHostAndPorts": [
