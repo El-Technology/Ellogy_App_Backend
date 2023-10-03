@@ -53,7 +53,7 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(CreateConversationRequest)"/>
         public async Task<string?> ChatRequestAsync(CreateConversationRequest createConversationRequest)
         {
-            var request = new ConversationRequestWithFunctions
+            var request = new MessageRequest
             {
                 Temperature = createConversationRequest.Temperature,
                 Template = await GetTemplateAsync(createConversationRequest.TemplateName),
@@ -70,7 +70,7 @@ namespace AICommunicationService.BLL.Services
             if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
                 throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
 
-            var request = new ConversationRequestWithFunctions
+            var request = new MessageRequest
             {
                 Temperature = streamRequest.Temperature,
                 Template = await GetTemplateAsync(streamRequest.TemplateName),
@@ -91,7 +91,7 @@ namespace AICommunicationService.BLL.Services
         /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(CreateConversationRequest)"/>
         public async Task<string?> ChatRequestWithFunctionAsync(CreateConversationRequest createConversationRequest)
         {
-            var request = new ConversationRequestWithFunctions
+            var request = new MessageRequest
             {
                 Functions = await GetFunctionsAsync(createConversationRequest.TemplateName) ?? throw new Exception("Functions is null, change method or update the prompt"),
                 Temperature = createConversationRequest.Temperature,
@@ -106,7 +106,7 @@ namespace AICommunicationService.BLL.Services
         /// Test
         public async Task ReturnStreamingAsync(CreateConversationRequest createConversationRequest, Func<string, Task> outPut)
         {
-            var request = new ConversationRequestWithFunctions
+            var request = new MessageRequest
             {
                 Temperature = createConversationRequest.Temperature,
                 Template = await GetTemplateAsync(createConversationRequest.TemplateName),

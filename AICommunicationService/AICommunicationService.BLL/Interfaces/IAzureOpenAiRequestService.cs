@@ -4,8 +4,8 @@ namespace AICommunicationService.BLL.Interfaces
 {
     public interface IAzureOpenAiRequestService
     {
-        Task PostAiRequestAsStreamAsync(ConversationRequestWithFunctions request, Func<string, Task> onDataReceived);
-        Task<string?> PostAiRequestAsync(ConversationRequestWithFunctions request);
-        Task<string?> PostAiRequestWithFunctionAsync(ConversationRequestWithFunctions request);
+        Task PostAiRequestAsStreamAsync(MessageRequest request, Func<string, Task> onDataReceived);
+        Task<string?> PostAiRequestAsync(MessageRequest request);
+        Task<string?> PostAiRequestWithFunctionAsync(MessageRequest request);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace AICommunicationService.Common.Models.AIRequest
 {
-    public class ConversationRequestWithFunctions
+    public class MessageRequest
     {
         public float Temperature { get; set; }
         public string UserInput { get; set; }

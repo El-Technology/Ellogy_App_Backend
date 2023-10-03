@@ -33,7 +33,7 @@ namespace AICommunicationService.BLL.Services
             };
         }
 
-        private StringContent PostAiRequestGetContent(ConversationRequestWithFunctions request, AiRequestType requestType)
+        private StringContent PostAiRequestGetContent(MessageRequest request, AiRequestType requestType)
         {
             var messages = GetMessages(request.Template, request.UserInput);
             object requestData;
@@ -74,7 +74,7 @@ namespace AICommunicationService.BLL.Services
             return new StringContent(jsonRequest, Encoding.UTF8, "application/json");
         }
 
-        public async Task<string?> PostAiRequestWithFunctionAsync(ConversationRequestWithFunctions request)
+        public async Task<string?> PostAiRequestWithFunctionAsync(MessageRequest request)
         {
             var content = PostAiRequestGetContent(request, AiRequestType.Functions);
 
@@ -83,7 +83,7 @@ namespace AICommunicationService.BLL.Services
             return resultAsObject?.Choices.FirstOrDefault()?.Message.FunctionCall?.Arguments;
         }
 
-        public async Task<string?> PostAiRequestAsync(ConversationRequestWithFunctions request)
+        public async Task<string?> PostAiRequestAsync(MessageRequest request)
         {
             var content = PostAiRequestGetContent(request, AiRequestType.Default);
 
@@ -92,7 +92,7 @@ namespace AICommunicationService.BLL.Services
             return resultAsObject?.Choices.FirstOrDefault()?.Message.Content;
         }
 
-        public async Task PostAiRequestAsStreamAsync(ConversationRequestWithFunctions request, Func<string, Task> onDataReceived)
+        public async Task PostAiRequestAsStreamAsync(MessageRequest request, Func<string, Task> onDataReceived)
         {
             var content = PostAiRequestGetContent(request, AiRequestType.Streaming);
 
