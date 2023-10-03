@@ -58,5 +58,15 @@ namespace AICommunicationService.Api.Controllers
             var response = await _communicationService.ChatRequestWithFunctionAsync(requestWithFunction);
             return Ok(response);
         }
+
+        [HttpPost]
+        [Route("stream")]
+        public async Task GetStream([FromBody] CreateConversationRequest createConversationRequest)
+        {
+            await _communicationService.ReturnStreamingAsync(createConversationRequest, async res =>
+            {
+                await Response.WriteAsync(res);
+            });
+        }
     }
 }

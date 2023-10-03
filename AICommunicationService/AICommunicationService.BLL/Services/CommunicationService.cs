@@ -102,5 +102,19 @@ namespace AICommunicationService.BLL.Services
 
             return await _customAiService.PostAiRequestWithFunctionAsync(request);
         }
+
+        /// Test
+        public async Task ReturnStreamingAsync(CreateConversationRequest createConversationRequest, Func<string, Task> outPut)
+        {
+            var request = new ConversationRequestWithFunctions
+            {
+                Temperature = createConversationRequest.Temperature,
+                Template = await GetTemplateAsync(createConversationRequest.TemplateName),
+                Url = GetAiModelLink(createConversationRequest.AiModelEnum),
+                UserInput = createConversationRequest.UserInput
+            };
+
+            await _customAiService.PostAiRequestAsStreamAsync(request, outPut);
+        }
     }
 }

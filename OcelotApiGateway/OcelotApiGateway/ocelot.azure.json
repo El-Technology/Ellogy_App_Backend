@@ -265,6 +265,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/gateway/Communication/stream",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Communication/stream",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 53053
+        }
+      ]
+    },
+    {
       "DownstreamPathTemplate": "/streamHub",
       "DownstreamScheme": "ws",
       "DownstreamHostAndPorts": [

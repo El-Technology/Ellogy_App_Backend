@@ -27,5 +27,8 @@ namespace AICommunicationService.BLL.Interfaces
         /// <param name="streamRequest">Request params</param>
         /// <returns>Returns response is success</returns>
         Task<string> StreamSignalRConversationAsync(StreamRequest streamRequest);
+
+        /// Test endpoint
+        Task ReturnStreamingAsync(CreateConversationRequest createConversationRequest, Func<string, Task> outPut);
     }
 }
