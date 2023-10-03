@@ -1,6 +1,4 @@
-﻿using AICommunicationService.Common.Models;
-using AICommunicationService.Common.Models.AIRequest;
-using Newtonsoft.Json.Linq;
+﻿using AICommunicationService.Common.Models.AIRequest;
 
 namespace AICommunicationService.BLL.Interfaces
 {
@@ -15,6 +13,12 @@ namespace AICommunicationService.BLL.Interfaces
         /// <param name="createConversationRequest">Request params</param>
         /// <returns>Returns string data</returns>
         Task<string> ChatRequestAsync(CreateConversationRequest createConversationRequest);
+
+        /// <summary>
+        /// Endpoint for retrieving AI response by Json Example.
+        /// </summary>
+        /// <param name="createConversationRequest">Request params</param>
+        /// <returns>Returns string data in Json</returns>
         Task<string> ChatRequestWithFunctionAsync(CreateConversationRequest createConversationRequest);
 
         /// <summary>
@@ -22,6 +26,6 @@ namespace AICommunicationService.BLL.Interfaces
         /// </summary>
         /// <param name="streamRequest">Request params</param>
         /// <returns>Returns response is success</returns>
-        Task<string> StreamSignalRConversationAsync(CreateConversationRequest createConversationRequest);
+        Task<string> StreamSignalRConversationAsync(StreamRequest streamRequest);
     }
 }

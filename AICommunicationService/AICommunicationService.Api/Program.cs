@@ -79,6 +79,12 @@ static void AddServices(WebApplicationBuilder builder)
 
         options.IncludeXmlComments(xmlPath);
     });
+
+    builder.Services.AddHttpClient("AzureAiRequest", client =>
+    {
+        client.DefaultRequestHeaders.Add("api-key", EnvironmentVariables.OpenAiKey);
+    });
+
     builder.Services.AddHealthChecks();
     builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
     builder.Services.AddBusinessLayer();

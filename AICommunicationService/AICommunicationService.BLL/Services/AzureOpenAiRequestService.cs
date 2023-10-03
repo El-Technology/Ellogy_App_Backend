@@ -1,21 +1,19 @@
-﻿using AICommunicationService.Common.Models;
+﻿using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.Common.Enums;
+using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
 using Newtonsoft.Json;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
-using TicketsManager.Common;
 
 namespace AICommunicationService.BLL.Services
 {
-    public class AzureOpenAiRequestService
+    public class AzureOpenAiRequestService : IAzureOpenAiRequestService
     {
-        private readonly string? _apiKey = EnvironmentVariables.OpenAiKey;
-        private readonly HttpClient _httpClient = new();
+        private readonly HttpClient _httpClient;
 
-        public AzureOpenAiRequestService()
+        public AzureOpenAiRequestService(IHttpClientFactory httpClientFactory)
         {
-            _httpClient.DefaultRequestHeaders.Add("api-key", _apiKey);
+            _httpClient = httpClientFactory.CreateClient("AzureAiRequest");
         }
 
         private List<object> GetMessages(string systemMessage, string userInput)
@@ -35,71 +33,72 @@ namespace AICommunicationService.BLL.Services
             };
         }
 
+        private StringContent PostAiRequestGetContent(ConversationRequestWithFunctions request, AiRequestType requestType)
+        {
+            var messages = GetMessages(request.Template, request.UserInput);
+            object requestData;
+            switch (requestType)
+            {
+                case AiRequestType.Default:
+                    requestData = new
+                    {
+                        messages,
+                        temperature = request.Temperature
+                    };
+                    break;
+                case AiRequestType.Functions:
+                    var functions = JsonConvert.DeserializeObject<List<FunctionDefinition>>(request.Functions);
+                    requestData = new
+                    {
+                        messages,
+                        functions,
+                        function_call = new
+                        {
+                            name = functions?.FirstOrDefault()?.Name
+                        },
+                        temperature = request.Temperature
+                    };
+                    break;
+                case AiRequestType.Streaming:
+                    requestData = new
+                    {
+                        messages,
+                        temperature = request.Temperature,
+                        stream = true
+                    };
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            var jsonRequest = JsonConvert.SerializeObject(requestData);
+            return new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+        }
+
         public async Task<string?> PostAiRequestWithFunctionAsync(ConversationRequestWithFunctions request)
         {
-            var functions = JsonConvert.DeserializeObject<List<FunctionDefinition>>(request.Functions);
-            var messages = GetMessages(request.Template, request.UserInput);
-
-            var requestData = new
-            {
-                messages,
-                functions,
-                function_call = new
-                {
-                    name = functions?.FirstOrDefault()?.Name
-                },
-                temperature = request.Temperature
-            };
-
-            var jsonRequest = JsonConvert.SerializeObject(requestData);
-            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+            var content = PostAiRequestGetContent(request, AiRequestType.Functions);
 
             var result = await _httpClient.PostAsync(request.Url, content);
             var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
             return resultAsObject?.Choices.FirstOrDefault()?.Message.FunctionCall?.Arguments;
         }
 
-        private async Task<StringContent> PostAiRequestContentOperationsAsync(ConversationRequestWithFunctions request)
-        {
-            var messages = GetMessages(request.Template, request.UserInput);
-
-            var requestData = new
-            {
-                messages,
-                temperature = request.Temperature
-            };
-
-            var jsonRequest = JsonConvert.SerializeObject(requestData);
-            return new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-        }
-
         public async Task<string?> PostAiRequestAsync(ConversationRequestWithFunctions request)
         {
-            var content = await PostAiRequestContentOperationsAsync(request);
+            var content = PostAiRequestGetContent(request, AiRequestType.Default);
 
             var result = await _httpClient.PostAsync(request.Url, content);
             var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
             return resultAsObject?.Choices.FirstOrDefault()?.Message.Content;
         }
 
-        public async Task<string?> PostAiRequestAsStreamAsync(ConversationRequestWithFunctions request)
+        public async Task PostAiRequestAsStreamAsync(ConversationRequestWithFunctions request, Func<string, Task> onDataReceived)
         {
-            var messages = GetMessages(request.Template, request.UserInput);
-
-            var requestData = new
-            {
-                messages,
-                temperature = request.Temperature,
-                stream = true
-            };
-
-            var jsonRequest = JsonConvert.SerializeObject(requestData);
-            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+            var content = PostAiRequestGetContent(request, AiRequestType.Streaming);
 
             var message = new HttpRequestMessage { RequestUri = new Uri(request.Url), Method = HttpMethod.Post, Content = content };
             var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
-            var stringBuilder = new StringBuilder();
-            using (var stream = await response.Content.ReadAsStreamAsync())
+            using var stream = await response.Content.ReadAsStreamAsync();
             using (var streamReader = new StreamReader(stream))
             {
                 while (!streamReader.EndOfStream)
@@ -116,12 +115,10 @@ namespace AICommunicationService.BLL.Services
                     catch (Exception) { continue; };
 
                     var stringAiResponse = aiResponse?.Choices?.FirstOrDefault()?.Delta?.Content;
-
-                    Console.Write(stringAiResponse);
-                    stringBuilder.Append(stringAiResponse);
+                    if (!string.IsNullOrEmpty(stringAiResponse))
+                        await onDataReceived(stringAiResponse);
                 }
             }
-            return stringBuilder.ToString();
         }
     }
 }

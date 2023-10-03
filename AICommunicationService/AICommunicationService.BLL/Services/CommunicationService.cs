@@ -1,5 +1,4 @@
 ﻿using AICommunicationService.BLL.Constants;
-using AICommunicationService.BLL.Extensions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Enums;
@@ -7,7 +6,6 @@ using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.DAL.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using System.Text;
-using TicketsManager.Common;
 
 namespace AICommunicationService.BLL.Services
 {
@@ -18,13 +16,13 @@ namespace AICommunicationService.BLL.Services
     {
         private readonly IHubContext<StreamAiHub> _hubContext;
         private readonly IAIPromptRepository _aIPromptRepository;
-        private readonly AzureOpenAiRequestService _customAiService;
+        private readonly IAzureOpenAiRequestService _customAiService;
 
-        public CommunicationService(IAIPromptRepository aIPromptRepository, IHubContext<StreamAiHub> hubContext)
+        public CommunicationService(IAIPromptRepository aIPromptRepository, IHubContext<StreamAiHub> hubContext, IAzureOpenAiRequestService azureOpenAiRequestService)
         {
             _hubContext = hubContext;
             _aIPromptRepository = aIPromptRepository;
-            _customAiService = new AzureOpenAiRequestService();
+            _customAiService = azureOpenAiRequestService;
         }
 
         private async Task<string> GetTemplateAsync(string promptName)
@@ -62,36 +60,35 @@ namespace AICommunicationService.BLL.Services
                 Url = GetAiModelLink(createConversationRequest.AiModelEnum),
                 UserInput = createConversationRequest.UserInput
             };
+
             return await _customAiService.PostAiRequestAsync(request);
         }
 
         /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(StreamRequest)"/>
-        public async Task<string> StreamSignalRConversationAsync(CreateConversationRequest createConversationRequest)
+        public async Task<string> StreamSignalRConversationAsync(StreamRequest streamRequest)
         {
-            //if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
-            //    throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
+            if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
+                throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
 
-            //var createConversation = CreateChatConversationAsync(streamRequest);
-            //var stringBuilder = new StringBuilder();
-            //await (await createConversation).StreamResponseFromChatbotAsync(async res =>
-            //{
-            //    await _hubContext.Clients.Client(streamRequest.ConnectionId).SendAsync(streamRequest.SignalMethodName, res);
-            //    stringBuilder.Append(res);
-            //});
-
-            //return stringBuilder.ToString();
             var request = new ConversationRequestWithFunctions
             {
-                Temperature = createConversationRequest.Temperature,
-                Template = await GetTemplateAsync(createConversationRequest.TemplateName),
-                Url = GetAiModelLink(createConversationRequest.AiModelEnum),
-                UserInput = createConversationRequest.UserInput
+                Temperature = streamRequest.Temperature,
+                Template = await GetTemplateAsync(streamRequest.TemplateName),
+                Url = GetAiModelLink(streamRequest.AiModelEnum),
+                UserInput = streamRequest.UserInput
             };
 
-            var s = await _customAiService.PostAiRequestAsStreamAsync(request);
-            return s;
+            var stringBuilder = new StringBuilder();
+            await _customAiService.PostAiRequestAsStreamAsync(request, async response =>
+            {
+                await _hubContext.Clients.Client(streamRequest.ConnectionId).SendAsync(streamRequest.SignalMethodName, response);
+                stringBuilder.Append(response);
+            });
+
+            return stringBuilder.ToString();
         }
 
+        /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(CreateConversationRequest)"/>
         public async Task<string?> ChatRequestWithFunctionAsync(CreateConversationRequest createConversationRequest)
         {
             var request = new ConversationRequestWithFunctions
