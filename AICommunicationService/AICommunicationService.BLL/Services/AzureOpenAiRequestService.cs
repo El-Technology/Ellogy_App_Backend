@@ -80,7 +80,7 @@ namespace AICommunicationService.BLL.Services
 
             var result = await _httpClient.PostAsync(request.Url, content);
             var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
-            return resultAsObject?.Choices.FirstOrDefault()?.Message.FunctionCall?.Arguments;
+            return resultAsObject?.Choices?.FirstOrDefault()?.Message?.FunctionCall?.Arguments;
         }
 
         public async Task<string?> PostAiRequestAsync(MessageRequest request)
@@ -89,7 +89,7 @@ namespace AICommunicationService.BLL.Services
 
             var result = await _httpClient.PostAsync(request.Url, content);
             var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
-            return resultAsObject?.Choices.FirstOrDefault()?.Message.Content;
+            return resultAsObject?.Choices?.FirstOrDefault()?.Message?.Content;
         }
 
         public async Task PostAiRequestAsStreamAsync(MessageRequest request, Func<string, Task> onDataReceived)

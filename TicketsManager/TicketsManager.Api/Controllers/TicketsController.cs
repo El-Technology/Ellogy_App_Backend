@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using TicketsManager.BLL.Dtos.TicketDtos;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common;
 using TicketsManager.Common.Dtos;
 
 namespace TicketsManager.Api.Controllers
@@ -23,6 +24,15 @@ namespace TicketsManager.Api.Controllers
             _ticketsService = ticketsService;
         }
 
+        private Guid GetUserIdFromToken()
+        {
+            var status = Guid.TryParse(User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out Guid userId);
+            if (!status)
+                throw new Exception("Taking user id error, try again later");
+
+            return userId;
+        }
+
         /// <summary>
         /// Retrieves all tickets associated with the specified user.
         /// </summary>
@@ -36,7 +46,7 @@ namespace TicketsManager.Api.Controllers
         [Route("tickets/{userId:guid}")]
         public async Task<IActionResult> GetTickets([Required] Guid userId, [FromBody] PaginationRequestDto paginateRequest)
         {
-            var tickets = await _ticketsService.GetTicketsAsync(userId, paginateRequest);
+            var tickets = await _ticketsService.GetTicketsAsync(userId, paginateRequest, GetUserIdFromToken());
             return Ok(tickets);
         }
 
@@ -53,7 +63,7 @@ namespace TicketsManager.Api.Controllers
         [Route("search/{userId:guid}")]
         public async Task<IActionResult> SearchTickets([Required] Guid userId, [FromBody] SearchTicketsRequestDto searchRequest)
         {
-            var tickets = await _ticketsService.SearchTicketsByNameAsync(userId, searchRequest);
+            var tickets = await _ticketsService.SearchTicketsByNameAsync(userId, searchRequest, GetUserIdFromToken());
             return Ok(tickets);
         }
 
@@ -70,7 +80,7 @@ namespace TicketsManager.Api.Controllers
         [Route("{userId:guid}")]
         public async Task<IActionResult> CreateTicket([Required] Guid userId, [FromBody] TicketCreateRequestDto createTicketRequest)
         {
-            var createdTicket = await _ticketsService.CreateTicketAsync(createTicketRequest, userId);
+            var createdTicket = await _ticketsService.CreateTicketAsync(createTicketRequest, userId, GetUserIdFromToken());
             return Ok(createdTicket);
         }
 
@@ -85,7 +95,7 @@ namespace TicketsManager.Api.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> DeleteTicket([Required] Guid id)
         {
-            await _ticketsService.DeleteTicketAsync(id);
+            await _ticketsService.DeleteTicketAsync(id, GetUserIdFromToken());
             return Ok();
         }
 
@@ -100,7 +110,7 @@ namespace TicketsManager.Api.Controllers
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateTicket(Guid id, [FromBody] TicketUpdateRequestDto ticketUpdateRequest)
         {
-            var ticket = await _ticketsService.UpdateTicketAsync(id, ticketUpdateRequest);
+            var ticket = await _ticketsService.UpdateTicketAsync(id, ticketUpdateRequest, GetUserIdFromToken());
             return Ok(ticket);
         }
 

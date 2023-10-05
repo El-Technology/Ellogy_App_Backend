@@ -1,4 +1,9 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using HtmlToOpenXml;
+using System.Text;
 using TicketsManager.BLL.Dtos.TicketDtos;
 using TicketsManager.BLL.Exceptions;
 using TicketsManager.BLL.Interfaces;
@@ -6,13 +11,6 @@ using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models;
-using HtmlToOpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml;
-using PdfSharpCore.Pdf;
-using TheArtOfDev.HtmlRenderer.PdfSharp;
-using System.Text;
-using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace TicketsManager.BLL.Services;
 
@@ -28,6 +26,20 @@ public class TicketsService : ITicketsService
         _ticketsRepository = ticketsRepository;
         _userRepository = userRepository;
     }
+
+    private void ValidateUserPermission(Guid inputUserId, Guid userIdFromToken)
+    {
+        if (inputUserId != userIdFromToken)
+            throw new Exception("You don't have permission to access another user data");
+    }
+
+    private string ConvertBase64ToString(string base64)
+    {
+        var htmlBytes = Convert.FromBase64String(base64);
+        var decodedHtml = Encoding.UTF8.GetString(htmlBytes);
+        return decodedHtml;
+    }
+
     private Ticket MapCreateTicket(TicketCreateRequestDto createTicketRequest, User user)
     {
         var mappedTicket = _mapper.Map<Ticket>(createTicketRequest);
@@ -46,8 +58,10 @@ public class TicketsService : ITicketsService
     }
 
     /// <inheritdoc cref="ITicketsService.GetTicketsAsync(Guid, PaginationRequestDto)"/>
-    public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest)
+    public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest, Guid userIdFromToken)
     {
+        ValidateUserPermission(userId, userIdFromToken);
+
         try
         {
             var tickets = await _ticketsRepository.GetTicketsAsync(userId, paginateRequest);
@@ -61,8 +75,10 @@ public class TicketsService : ITicketsService
     }
 
     /// <inheritdoc cref="ITicketsService.SearchTicketsByNameAsync(Guid, SearchTicketsRequestDto)"/>
-    public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(Guid userId, SearchTicketsRequestDto searchRequest)
+    public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(Guid userId, SearchTicketsRequestDto searchRequest, Guid userIdFromToken)
     {
+        ValidateUserPermission(userId, userIdFromToken);
+
         try
         {
             var findTickets = await _ticketsRepository.FindTicketsAsync(userId, searchRequest);
@@ -75,8 +91,10 @@ public class TicketsService : ITicketsService
     }
 
     /// <inheritdoc cref="ITicketsService.CreateTicketAsync(TicketCreateRequestDto, Guid)"/>
-    public async Task<TicketResponseDto> CreateTicketAsync(TicketCreateRequestDto createTicketRequest, Guid userId)
+    public async Task<TicketResponseDto> CreateTicketAsync(TicketCreateRequestDto createTicketRequest, Guid userId, Guid userIdFromToken)
     {
+        ValidateUserPermission(userId, userIdFromToken);
+
         var user = await _userRepository.GetUserAsync(userId) ?? throw new UserNotFoundException(userId);
         var mappedTicket = MapCreateTicket(createTicketRequest, user);
 
@@ -87,32 +105,29 @@ public class TicketsService : ITicketsService
     }
 
     /// <inheritdoc cref="ITicketsService.DeleteTicketAsync(Guid)"/>
-    public async Task DeleteTicketAsync(Guid id)
+    public async Task DeleteTicketAsync(Guid id, Guid userIdFromToken)
     {
         var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
                      ?? throw new TicketNotFoundException(id);
+
+        ValidateUserPermission(ticket.UserId, userIdFromToken);
 
         await _ticketsRepository.DeleteTicketAsync(ticket);
     }
 
     /// <inheritdoc cref="ITicketsService.UpdateTicketAsync(Guid, TicketUpdateRequestDto)"/>
-    public async Task<TicketResponseDto> UpdateTicketAsync(Guid id, TicketUpdateRequestDto ticketUpdate)
+    public async Task<TicketResponseDto> UpdateTicketAsync(Guid id, TicketUpdateRequestDto ticketUpdate, Guid userIdFromToken)
     {
         var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
                      ?? throw new TicketNotFoundException(id);
+
+        ValidateUserPermission(ticket.UserId, userIdFromToken);
 
         var mappedTicket = _mapper.Map(ticketUpdate, ticket);
         await _ticketsRepository.CheckTicketUpdateIds(mappedTicket);
         await _ticketsRepository.UpdateTicketAsync(mappedTicket);
 
         return _mapper.Map<TicketResponseDto>(mappedTicket);
-    }
-
-    private string ConvertBase64ToString(string base64)
-    {
-        var htmlBytes = Convert.FromBase64String(base64);
-        var decodedHtml = Encoding.UTF8.GetString(htmlBytes);
-        return decodedHtml;
     }
 
     ///<inheritdoc cref="ITicketsService.DownloadAsDocAsync(string[])"/>

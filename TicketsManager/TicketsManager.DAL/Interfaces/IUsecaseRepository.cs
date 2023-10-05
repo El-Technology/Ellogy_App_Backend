@@ -36,6 +36,7 @@ namespace TicketsManager.DAL.Interfaces
         /// <param name="ticketId">The ID of the ticket associated with the use cases.</param>
         /// <returns>A task representing the asynchronous operation. The paginated list of use cases.</returns>
         Task<PaginationResponseDto<Usecase>> GetUsecasesAsync(PaginationRequestDto paginationRequest, Guid ticketId);
+        Task<Guid> GetUserIdByTicketIdAsync(Guid ticketId);
 
         /// <summary>
         /// Updates a use case asynchronously.

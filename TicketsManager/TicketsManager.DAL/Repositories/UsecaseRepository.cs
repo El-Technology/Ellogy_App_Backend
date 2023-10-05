@@ -15,6 +15,11 @@ namespace TicketsManager.DAL.Repositories
             _context = context;
         }
 
+        public async Task<Guid> GetUserIdByTicketIdAsync(Guid ticketId)
+        {
+            return await _context.Tickets.Where(a => a.Id == ticketId).Select(a => a.UserId).FirstOrDefaultAsync();
+        }
+
         ///<inheritdoc cref="IUsecaseRepository.CreateUsecasesAsync(List{Usecase})"/>
         public async Task CreateUsecasesAsync(List<Usecase> usecases)
         {
@@ -61,7 +66,7 @@ namespace TicketsManager.DAL.Repositories
                            .AsTracking()
                            .FirstOrDefaultAsync(a => a.Id == usecaseId);
         }
-        
+
         /// <inheritdoc cref="IUsecaseRepository.DeleteUsecasesAsync(Guid)"/>
         public async Task DeleteUsecasesAsync(Guid ticketId)
         {

@@ -5,6 +5,7 @@ using TicketsManager.BLL.Dtos.TicketUsecaseDtos.FullDtos;
 using TicketsManager.BLL.Dtos.TicketUsecaseDtos.UsecasesDtos;
 
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common;
 
 namespace TicketsManager.Api.Controllers
 {
@@ -22,6 +23,15 @@ namespace TicketsManager.Api.Controllers
             _usecasesService = usecasesService;
         }
 
+        private Guid GetUserIdFromToken()
+        {
+            var status = Guid.TryParse(User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out Guid userId);
+            if (!status)
+                throw new Exception("Taking user id error, try again later");
+
+            return userId;
+        }
+
         /// <summary>
         /// Endpoint to create diagrams and tables in use cases.
         /// </summary>
@@ -34,7 +44,7 @@ namespace TicketsManager.Api.Controllers
         [Route("create")]
         public async Task<IActionResult> CreateUsecases([FromBody] List<CreateUsecasesDto> createUsecasesDto)
         {
-            var tickets = await _usecasesService.CreateUsecasesAsync(createUsecasesDto);
+            var tickets = await _usecasesService.CreateUsecasesAsync(createUsecasesDto, GetUserIdFromToken());
             return Ok(tickets);
         }
 
@@ -50,7 +60,7 @@ namespace TicketsManager.Api.Controllers
         [Route("get")]
         public async Task<IActionResult> GetUsecases([FromBody] GetUsecasesDto getUsecases)
         {
-            var tickets = await _usecasesService.GetUsecasesAsync(getUsecases);
+            var tickets = await _usecasesService.GetUsecasesAsync(getUsecases, GetUserIdFromToken());
             return Ok(tickets);
         }
 
@@ -67,7 +77,7 @@ namespace TicketsManager.Api.Controllers
         [Route("update")]
         public async Task<IActionResult> UpdateTable(Guid usecaseId, [FromBody] UsecaseDataFullDto usecase)
         {
-            var response = await _usecasesService.UpdateUsecaseAsync(usecaseId, usecase);
+            var response = await _usecasesService.UpdateUsecaseAsync(usecaseId, usecase, GetUserIdFromToken());
             return Ok(response);
         }
 
@@ -83,7 +93,7 @@ namespace TicketsManager.Api.Controllers
         [Route("delete")]
         public async Task<IActionResult> DeleteUsecases(Guid ticketId)
         {
-            await _usecasesService.DeleteUsecasesByTicketIdAsync(ticketId);
+            await _usecasesService.DeleteUsecasesByTicketIdAsync(ticketId, GetUserIdFromToken());
             return Ok("Successfully deleted");
         }
     }
