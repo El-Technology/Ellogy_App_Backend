@@ -23,6 +23,11 @@ namespace TicketsManager.Api.Controllers
             _usecasesService = usecasesService;
         }
 
+        /// <summary>
+        /// This method retrieves the user id from the JWT token
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
         private Guid GetUserIdFromToken()
         {
             var status = Guid.TryParse(User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out Guid userId);

@@ -24,6 +24,18 @@ namespace UserManager.BLL.Services
             _userRepository = userRepository;
         }
 
+        /// <summary>
+        /// This method compare input user id and another one from JWT token
+        /// </summary>
+        /// <param name="inputId"></param>
+        /// <param name="idFromToken"></param>
+        /// <exception cref="Exception"></exception>
+        private void ValidateUserAccess(Guid inputId, Guid idFromToken)
+        {
+            if (inputId != idFromToken)
+                throw new Exception("You don`t have access to another user data");
+        }
+
         private async Task<User> GetUserByIdAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
@@ -32,26 +44,29 @@ namespace UserManager.BLL.Services
             return user;
         }
 
-        /// <inheritdoc cref="IUserProfileService.UpdateUserProfileAsync(Guid, UserProfileDto)"/>
-        public async Task<UserProfileDto> UpdateUserProfileAsync(Guid userId, UserProfileDto userProfileDto)
+        /// <inheritdoc cref="IUserProfileService.UpdateUserProfileAsync(Guid, UserProfileDto, Guid)"/>
+        public async Task<UserProfileDto> UpdateUserProfileAsync(Guid userId, UserProfileDto userProfileDto, Guid idFromToken)
         {
+            ValidateUserAccess(userId, idFromToken);
             var user = await GetUserByIdAsync(userId);
             var updatedUser = _mapper.Map(userProfileDto, user);
             await _userRepository.UpdateUserAsync(updatedUser);
             return userProfileDto;
         }
 
-        /// <inheritdoc cref="IUserProfileService.DeleteUserProfileAsync(Guid)"/>
-        public async Task<bool> DeleteUserProfileAsync(Guid userId)
+        /// <inheritdoc cref="IUserProfileService.DeleteUserProfileAsync(Guid, Guid)"/>
+        public async Task<bool> DeleteUserProfileAsync(Guid userId, Guid idFromToken)
         {
+            ValidateUserAccess(userId, idFromToken);
             var user = await GetUserByIdAsync(userId);
             await _userRepository.DeleteUserAsync(user);
             return true;
         }
 
-        /// <inheritdoc cref="IUserProfileService.ChangeUserPasswordAsync(Guid, string)"/>
-        public async Task<bool> ChangeUserPasswordAsync(Guid userId, ChangePasswordDto changePasswordDto)
+        /// <inheritdoc cref="IUserProfileService.ChangeUserPasswordAsync(Guid, ChangePasswordDto, Guid)"/>
+        public async Task<bool> ChangeUserPasswordAsync(Guid userId, ChangePasswordDto changePasswordDto, Guid idFromToken)
         {
+            ValidateUserAccess(userId, idFromToken);
             var user = await GetUserByIdAsync(userId);
 
             if (!CryptoHelper.ConfirmPassword(changePasswordDto.oldPassword, user.Salt, user.Password))
@@ -68,9 +83,10 @@ namespace UserManager.BLL.Services
             return true;
         }
 
-        /// <inheritdoc cref="IUserProfileService.UploadUserAvatarAsync(UploadAvatar)"/>
-        public async Task<string> UploadUserAvatarAsync(UploadAvatar uploadAvatar)
+        /// <inheritdoc cref="IUserProfileService.UploadUserAvatarAsync(UploadAvatar, Guid)"/>
+        public async Task<string> UploadUserAvatarAsync(UploadAvatar uploadAvatar, Guid idFromToken)
         {
+            ValidateUserAccess(uploadAvatar.UserId, idFromToken);
             var user = await GetUserByIdAsync(uploadAvatar.UserId);
 
             var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerConstants.AvatarsContainer);

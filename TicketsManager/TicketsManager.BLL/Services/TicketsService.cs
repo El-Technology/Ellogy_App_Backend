@@ -57,7 +57,7 @@ public class TicketsService : ITicketsService
         return mappedTicket;
     }
 
-    /// <inheritdoc cref="ITicketsService.GetTicketsAsync(Guid, PaginationRequestDto)"/>
+    /// <inheritdoc cref="ITicketsService.GetTicketsAsync(Guid, PaginationRequestDto, Guid)"/>
     public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest, Guid userIdFromToken)
     {
         ValidateUserPermission(userId, userIdFromToken);
@@ -74,7 +74,7 @@ public class TicketsService : ITicketsService
         }
     }
 
-    /// <inheritdoc cref="ITicketsService.SearchTicketsByNameAsync(Guid, SearchTicketsRequestDto)"/>
+    /// <inheritdoc cref="ITicketsService.SearchTicketsByNameAsync(Guid, SearchTicketsRequestDto, Guid)"/>
     public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(Guid userId, SearchTicketsRequestDto searchRequest, Guid userIdFromToken)
     {
         ValidateUserPermission(userId, userIdFromToken);
@@ -90,7 +90,7 @@ public class TicketsService : ITicketsService
         }
     }
 
-    /// <inheritdoc cref="ITicketsService.CreateTicketAsync(TicketCreateRequestDto, Guid)"/>
+    /// <inheritdoc cref="ITicketsService.CreateTicketAsync(TicketCreateRequestDto, Guid, Guid)"/>
     public async Task<TicketResponseDto> CreateTicketAsync(TicketCreateRequestDto createTicketRequest, Guid userId, Guid userIdFromToken)
     {
         ValidateUserPermission(userId, userIdFromToken);
@@ -104,7 +104,7 @@ public class TicketsService : ITicketsService
         return returnTicket;
     }
 
-    /// <inheritdoc cref="ITicketsService.DeleteTicketAsync(Guid)"/>
+    /// <inheritdoc cref="ITicketsService.DeleteTicketAsync(Guid, Guid)"/>
     public async Task DeleteTicketAsync(Guid id, Guid userIdFromToken)
     {
         var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
@@ -115,7 +115,7 @@ public class TicketsService : ITicketsService
         await _ticketsRepository.DeleteTicketAsync(ticket);
     }
 
-    /// <inheritdoc cref="ITicketsService.UpdateTicketAsync(Guid, TicketUpdateRequestDto)"/>
+    /// <inheritdoc cref="ITicketsService.UpdateTicketAsync(Guid, TicketUpdateRequestDto, Guid)"/>
     public async Task<TicketResponseDto> UpdateTicketAsync(Guid id, TicketUpdateRequestDto ticketUpdate, Guid userIdFromToken)
     {
         var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
