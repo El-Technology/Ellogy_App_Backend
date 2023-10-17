@@ -20,16 +20,16 @@
         /// <summary>
         /// The phone number of the user.
         /// </summary>
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
 
         /// <summary>
         /// The organization name of the user.
         /// </summary>
-        public string Organization { get; set; }
+        public string? Organization { get; set; }
 
         /// <summary>
         /// The department name of the user.
         /// </summary>
-        public string Department { get; set; }
+        public string? Department { get; set; }
     }
 }

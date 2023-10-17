@@ -83,7 +83,6 @@ namespace UserManager.DAL.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Department")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -103,7 +102,6 @@ namespace UserManager.DAL.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<string>("Organization")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -113,7 +111,6 @@ namespace UserManager.DAL.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
