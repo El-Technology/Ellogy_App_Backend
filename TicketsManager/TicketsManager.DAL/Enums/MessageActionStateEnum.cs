@@ -4,6 +4,7 @@
     {
         Default = 0,
         Accept = 1,
-        Decline = 2
+        Decline = 2,
+        Required = 3
     }
 }
