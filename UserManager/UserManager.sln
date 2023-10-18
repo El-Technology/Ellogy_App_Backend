@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManager.Common", "UserM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManager.BLL", "UserManager.BLL\UserManager.BLL.csproj", "{573ECB0F-2CCE-42D6-BA5D-2A3348EA1D26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationService", "NotificationService\NotificationService.csproj", "{2DC10AC2-B31D-4B43-811F-9021144639D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService", "NotificationService\NotificationService.csproj", "{2DC10AC2-B31D-4B43-811F-9021144639D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManager.Tests", "UserManager.Tests\UserManager.Tests.csproj", "{7BA5DE7B-A7E7-4A9A-9743-3DD1AB16CB30}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{2DC10AC2-B31D-4B43-811F-9021144639D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2DC10AC2-B31D-4B43-811F-9021144639D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2DC10AC2-B31D-4B43-811F-9021144639D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BA5DE7B-A7E7-4A9A-9743-3DD1AB16CB30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BA5DE7B-A7E7-4A9A-9743-3DD1AB16CB30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BA5DE7B-A7E7-4A9A-9743-3DD1AB16CB30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BA5DE7B-A7E7-4A9A-9743-3DD1AB16CB30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
