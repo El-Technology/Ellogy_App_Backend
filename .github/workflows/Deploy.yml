@@ -96,7 +96,7 @@ jobs:
 
       - name: Run Tests
         run: |
-            dotnet test ${{ env.PROJECT_PATH }}UserManager.Tests/UserManager.Tests.csproj --logger "console;verbosity=normal"
+            dotnet test UserManager.Tests/UserManager.Tests.csproj --logger "console;verbosity=normal"
         working-directory: ${{ env.PROJECT_PATH }}
       
       - name: Build and push image of User Manager
