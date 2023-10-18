@@ -56,7 +56,7 @@ public class AuthController : Controller
     [Route("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto loginUser)
     {
-        var user = await _loginService.LoginUser(loginUser);
+        var user = await _loginService.LoginUserAsync(loginUser);
         return Ok(user);
     }
 

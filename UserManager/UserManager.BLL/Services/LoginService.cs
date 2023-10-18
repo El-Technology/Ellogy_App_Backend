@@ -21,7 +21,7 @@ public class LoginService : ILoginService
         _mapper = mapper;
     }
 
-    public async Task<LoginResponseDto> LoginUser(LoginRequestDto loginUser)
+    public async Task<LoginResponseDto> LoginUserAsync(LoginRequestDto loginUser)
     {
         var user = await _userRepository.GetUserByEmailAsync(loginUser.Email) ?? throw new UserNotFoundException(loginUser.Email);
 

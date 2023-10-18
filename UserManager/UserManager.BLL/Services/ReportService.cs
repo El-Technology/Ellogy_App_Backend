@@ -50,7 +50,7 @@ namespace UserManager.BLL.Services
                 var blobClient = containerClient.GetBlobClient(fileName);
                 using (var memoryStream = new MemoryStream(bytes))
                 {
-                    blobClient.Upload(memoryStream, overwrite: true);
+                    await blobClient.UploadAsync(memoryStream, overwrite: true);
                 }
 
                 _notificationModel.BlobUrls.Add(fileName);

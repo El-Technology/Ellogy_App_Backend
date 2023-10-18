@@ -4,5 +4,5 @@ namespace UserManager.BLL.Interfaces;
 
 public interface ILoginService
 {
-    public Task<LoginResponseDto> LoginUser(LoginRequestDto loginUser);
+    public Task<LoginResponseDto> LoginUserAsync(LoginRequestDto loginUser);
 }

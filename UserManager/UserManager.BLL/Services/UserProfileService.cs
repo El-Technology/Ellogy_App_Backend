@@ -94,7 +94,7 @@ namespace UserManager.BLL.Services
             var fileName = $"{uploadAvatar.UserId}{ImageExtensionHelper.GetImageExtention(uploadAvatar.ImageExtension)}";
             var blobClient = containerClient.GetBlobClient(fileName);
             using var memoryStream = new MemoryStream(bytes);
-            blobClient.Upload(memoryStream, overwrite: true);
+            await blobClient.UploadAsync(memoryStream, overwrite: true);
             var blobUri = blobClient.Uri.ToString();
 
             user.AvatarLink = blobUri;
