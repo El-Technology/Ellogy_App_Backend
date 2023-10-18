@@ -44,6 +44,12 @@ jobs:
                 - 'TicketsManager/**'
               Workflow:
                 - '.github/**'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run tests
+        run: dotnet test --logger "console;verbosity=normal"
                       
   build_ai_communication_service:
     env:
