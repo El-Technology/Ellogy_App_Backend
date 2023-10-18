@@ -97,6 +97,12 @@ jobs:
       - name: Run Tests
         run: |
             dotnet test UserManager.Tests/UserManager.Tests.csproj --logger "console;verbosity=normal"
+            if [ $? -ne 0 ]; then
+                echo "Tests failed, deployment canceled."
+                exit 1
+            else
+                echo "Tests passed, continuing with deployment."
+            fi
         working-directory: ${{ env.PROJECT_PATH }}
       
       - name: Build and push image of User Manager
