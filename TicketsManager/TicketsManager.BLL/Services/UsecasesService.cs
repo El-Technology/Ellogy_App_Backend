@@ -59,7 +59,7 @@ namespace TicketsManager.BLL.Services
             return _mapper.Map<UsecaseFullDto>(usecase);
         }
 
-        ///<inheritdoc cref="IUsecasesService.DeleteUsecasesByTicketIdAsync(Guid)"/>
+        ///<inheritdoc cref="IUsecasesService.DeleteUsecasesByTicketIdAsync(Guid, Guid)"/>
         public async Task DeleteUsecasesByTicketIdAsync(Guid ticketId, Guid userIdFromToken)
         {
             ValidateUserPermission(await _usecaseRepository.GetUserIdByTicketIdAsync(ticketId), userIdFromToken);
