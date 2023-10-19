@@ -28,7 +28,7 @@ public class UserRepository : IUserRepository
 
     public Task<bool> CheckEmailIsExistAsync(string email)
     {
-        return _context.Users.AnyAsync(e => string.Equals(email, e.Email));
+        return _context.Users.AnyAsync(e => string.Equals(email.ToLower(), e.Email.ToLower()));
     }
 
     public ValueTask<User?> GetUserByIdAsync(Guid id)
@@ -49,6 +49,6 @@ public class UserRepository : IUserRepository
 
     public Task<User?> GetUserByEmailAsync(string email)
     {
-        return _context.Users.FirstOrDefaultAsync(e => string.Equals(email, e.Email));
+        return _context.Users.FirstOrDefaultAsync(e => string.Equals(email.ToLower(), e.Email.ToLower()));
     }
 }

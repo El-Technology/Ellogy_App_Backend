@@ -27,7 +27,7 @@ namespace UserManager.DAL.Repositories
 
         public async Task<RefreshToken?> GetRefreshTokenAsync(Guid userId)
         {
-            return await _context.RefreshTokens.FirstOrDefaultAsync(a => a.UserId.Equals(userId));
+            return await _context.RefreshTokens.FirstOrDefaultAsync(a => a.UserId == userId);
         }
     }
 }
