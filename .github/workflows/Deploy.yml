@@ -63,6 +63,17 @@ jobs:
     steps:
       - name: Get Code
         uses: actions/checkout@v3
+
+      - name: Run Tests
+        run: |
+            dotnet test AiCommunicationService.Tests/AiCommunicationService.Tests.csproj --logger "console;verbosity=normal"
+            if [ $? -ne 0 ]; then
+                echo "Tests failed, deployment canceled."
+                exit 1
+            else
+                echo "Tests passed, continuing with deployment."
+            fi
+        working-directory: ${{ env.PROJECT_PATH }}
       
       - name: Build and push image of AICommunicationService
         id: build-n-push
