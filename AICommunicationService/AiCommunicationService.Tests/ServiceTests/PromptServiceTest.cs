@@ -90,7 +90,7 @@ namespace AiCommunicationService.Tests.ServiceTests
         [Test]
         public async Task GetAllPromptsAsync_ReturnsAllPrompts()
         {
-            await ClearDatabase();
+            //await ClearDatabase();
             var promptRepository = new AIPromptRepository(_context);
             var promptService = new PromptService(promptRepository);
 
@@ -113,7 +113,7 @@ namespace AiCommunicationService.Tests.ServiceTests
         [Test]
         public async Task DeletePromptAsync_DeletesPrompt()
         {
-            await ClearDatabase();
+            //await ClearDatabase();
             var promptRepository = new AIPromptRepository(_context);
             var promptService = new PromptService(promptRepository);
 
