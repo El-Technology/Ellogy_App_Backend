@@ -47,7 +47,7 @@ public class PasswordService : IPasswordService
             HttpUtility.UrlEncode(forgotPasswordEntry.Id.ToString()), HttpUtility.UrlEncode(hashToken));
 
 
-        _notificationModel.Consumer = forgotPasswordDto.Email;
+        _notificationModel.Consumer = user.Email;
         _notificationModel.MetaData = new() { { ResetPasswordPattern, resetPasswordUrl } };
 
         await _notificationQueueService.SendNotificationAsync(_notificationModel);
