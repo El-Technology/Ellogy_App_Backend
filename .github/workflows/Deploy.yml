@@ -22,7 +22,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set SSH_HOST based on branch
-        run: echo "SSH_HOST=${{ github.event_name == 'push' && contains(github.event.ref, 'refs/heads/pre-release') ? secrets.SSH_HOST_PRE_RELEASE : secrets.SSH_HOST }}" >> $GITHUB_ENV
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == "refs/heads/pre-release" ]]; then
+            echo "SSH_HOST=${{ secrets.SSH_HOST_PRE_RELEASE }}" >> $GITHUB_ENV
+          else
+            echo "SSH_HOST=${{ secrets.SSH_HOST }}" >> $GITHUB_ENV
+          fi
 
   changes:
     runs-on: ubuntu-latest
