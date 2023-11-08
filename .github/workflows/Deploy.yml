@@ -13,7 +13,7 @@ on:
       - '!UserManager/NotificationService/**'
       
 env:
-  SSH_HOST: ${{ github.ref == 'pre-release' && secrets.SSH_HOST_PRE_RELEASE || secrets.SSH_HOST }}
+  SSH_HOST: ${{ github.ref == 'pre-release' && secrets.SSH_HOST || secrets.SSH_HOST_PRE_RELEASE }}
   SSH_USER: ${{ vars.REMOTE_USER }}
   SSH_KEY: ${{ secrets.SSH_KEY }}
   ENVNAME: ${{ vars.ENVNAME }} 
