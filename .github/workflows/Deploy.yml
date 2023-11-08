@@ -13,15 +13,29 @@ on:
       - '!UserManager/NotificationService/**'
       
 env:
-  SSH_HOST: ${{ if github.event_name == 'push' && contains(github.event.ref, 'refs/heads/pre-release') }}${{ secrets.SSH_HOST_PRE_RELEASE }}{{ else }}${{ secrets.SSH_HOST }}{{ endif }}
+  SSH_HOST: ${{ secrets.SSH_HOST }}
   SSH_USER: ${{ vars.REMOTE_USER }}
   SSH_KEY: ${{ secrets.SSH_KEY }}
   ENVNAME: ${{ vars.ENVNAME }} 
 
 jobs:
+  set_ssh_host:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check branch name
+        id: check_branch
+        run: echo "::set-output name=IS_PRE_RELEASE::$(echo ${{ github.event_name }}_${{ github.ref }} | grep -c 'refs/heads/pre-release')"
+        
+      - name: Set SSH_HOST based on branch
+        run: |
+          if [[ "${{ steps.check_branch.outputs.IS_PRE_RELEASE }}" == "1" ]]; then
+            echo "SSH_HOST=${{ secrets.SSH_HOST_PRE_RELEASE }}" >> $GITHUB_ENV
+          else
+            echo "SSH_HOST=${{ secrets.SSH_HOST }}" >> $GITHUB_ENV
+          fi
+
   changes:
     runs-on: ubuntu-latest
-    
     outputs:
       AICommunicationService: ${{ steps.changes.outputs.AICommunicationService }}
       UserManager: ${{ steps.changes.outputs.UserManager }}
