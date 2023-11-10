@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PaymentManager.Common;
 using PaymentManager.DAL.Models;
 
-namespace PaymentManager.DAL.Context
+namespace PaymentManager.DAL.Context.PaymentContext
 {
     public class PaymentContext : DbContext
     {
@@ -16,7 +17,7 @@ namespace PaymentManager.DAL.Context
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTIONSTRING_PAYMENT"));
+                optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionStringPayment);
             }
         }
 

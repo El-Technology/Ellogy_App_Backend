@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PaymentManager.DAL.Models;
 
-namespace PaymentManager.DAL.Context.Configurations
+namespace PaymentManager.DAL.Context.PaymentContext.Configurations
 {
     public class ProductConfiguration : IEntityTypeConfiguration<Product>
     {

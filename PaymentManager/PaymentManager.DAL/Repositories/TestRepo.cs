@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PaymentManager.DAL.Context;
+using PaymentManager.Common.Constants;
+using PaymentManager.DAL.Context.PaymentContext;
+using PaymentManager.DAL.Context.UserContext;
 using PaymentManager.DAL.Models;
 
 namespace PaymentManager.DAL.Repositories
@@ -7,17 +9,32 @@ namespace PaymentManager.DAL.Repositories
     public class TestRepo
     {
         private readonly PaymentContext _context;
-        public TestRepo(PaymentContext context)
+        private readonly UserContext _userContext;
+
+        public TestRepo(PaymentContext context, UserContext userContext)
         {
+            _userContext = userContext;
             _context = context;
         }
 
-        public async Task<Wallet> CreateUserWalletAsync(string userEmail)
+        public async Task<User?> GetUserByIdAsync(Guid userId)
+        {
+            return await _userContext.Users.FindAsync(userId);
+        }
+
+        public async Task<List<User>> GetAllUsersAsync()
+        {
+            var users = await _userContext.Users.ToListAsync();
+            return users;
+        }
+
+        public async Task<Wallet> CreateUserWalletAsync(Guid userId)
         {
             var wallet = new Wallet
             {
-                UserEmail = userEmail,
-                Balance = 0
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Balance = Constants.NewWalletBalance
             };
 
             await _context.Walets.AddAsync(wallet);
@@ -26,18 +43,18 @@ namespace PaymentManager.DAL.Repositories
             return wallet;
         }
 
-        public async Task<Wallet?> GetUserWalletAsync(string userEmail)
+        public async Task<Wallet?> GetUserWalletAsync(Guid userId)
         {
-            return await _context.Walets.FirstOrDefaultAsync(a => a.UserEmail.Equals(userEmail));
+            return await _context.Walets.FirstOrDefaultAsync(a => a.UserId == userId);
         }
 
-        public async Task UpdateBalance(string email, Guid productId)
+        public async Task UpdateBalance(Guid userId, Guid productId)
         {
-            var addToBalance = int.Parse((await _context.Products.FirstOrDefaultAsync(a => a.Id == productId))?.Title);
+            var addToBalance = (await _context.Products.FirstOrDefaultAsync(a => a.Id == productId))?.Price;
 
             await _context.Walets
-                .Where(a => a.UserEmail.Equals(email))
-                .ExecuteUpdateAsync(x => x.SetProperty(x => x.Balance, x => x.Balance + addToBalance));
+                .Where(a => a.UserId == userId)
+                .ExecuteUpdateAsync(x => x.SetProperty(x => x.Balance, x => x.Balance + (addToBalance * Constants.OneDollarInPoints)));
         }
 
         public async Task<List<Product>> GetAllProductsAsync()

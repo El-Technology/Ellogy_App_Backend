@@ -1,4 +1,4 @@
-﻿using PaymentManager.BLL.Models;
+﻿using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Models;
 using PaymentManager.DAL.Repositories;
 using Stripe.Checkout;
@@ -13,23 +13,27 @@ namespace PaymentManager.BLL.Services
             _testRepo = testRepo;
         }
 
-        public async Task<SessionCreateOptions> CreatePaymentAsync(CreatePaymentDto paymentDto)
+        public async Task<SessionCreateOptions> CreatePaymentAsync(Guid productId, Guid userId)
         {
-            if ((await _testRepo.GetUserWalletAsync(paymentDto.UserEmail)) is null)
-                await _testRepo.CreateUserWalletAsync(paymentDto.UserEmail);
+            var user = await _testRepo.GetUserByIdAsync(userId)
+                ?? throw new ArgumentNullException($"User with id - {userId} was not found");
 
-            var product = await _testRepo.GetProductByIdAsync(paymentDto.ProductId);
+            if ((await _testRepo.GetUserWalletAsync(user.Id)) is null)
+                await _testRepo.CreateUserWalletAsync(user.Id);
+
+            var product = await _testRepo.GetProductByIdAsync(productId);
 
             var options = new SessionCreateOptions()
             {
                 SuccessUrl = $"https://localhost:7267/api/CheckOut/OrderConfirmation",
                 CancelUrl = $"https://localhost:7267/api/CheckOut/OrderConfirmation",
                 LineItems = new List<SessionLineItemOptions>(),
-                Mode = "payment",
-                CustomerEmail = paymentDto.UserEmail,
+                Mode = Constants.PaymentMode,
+                CustomerEmail = user.Email,
                 Metadata = new Dictionary<string, string>
                 {
-                    { "productId", paymentDto.ProductId.ToString() }
+                    { "productId", productId.ToString() },
+                    { "userId", user.Id.ToString() }
                 }
             };
 
@@ -37,12 +41,12 @@ namespace PaymentManager.BLL.Services
             {
                 PriceData = new SessionLineItemPriceDataOptions()
                 {
-                    Currency = "usd",
+                    Currency = Constants.ApplicationCurrency,
                     ProductData = new SessionLineItemPriceDataProductDataOptions()
                     {
                         Name = product.Title
                     },
-                    UnitAmount = product.Price * 100,
+                    UnitAmount = product.Price * Constants.PriceInCents,
                 },
                 Quantity = 1
             };
@@ -51,8 +55,11 @@ namespace PaymentManager.BLL.Services
             return options;
         }
 
-        public async Task<Wallet?> OrderConfirmationAsync(string sessionId)
+        public async Task<Wallet?> OrderConfirmationAsync(string sessionId, Guid userId)
         {
+            var user = await _testRepo.GetUserByIdAsync(userId)
+                ?? throw new ArgumentNullException($"User with id - {userId} was not found");
+
             var service = new SessionService();
             Session session = service.Get(sessionId);
 
@@ -60,19 +67,20 @@ namespace PaymentManager.BLL.Services
 
             if (session.Status == "complete" && !updatedBalance.UpdatedBallance)
             {
-                await _testRepo.UpdateBalance(session.CustomerEmail, Guid.Parse(session.Metadata["productId"]));
-                await _testRepo.UpdatePaymentAsync(new DAL.Models.Payment
+                await _testRepo.UpdateBalance(user.Id, Guid.Parse(session.Metadata["productId"]));
+                await _testRepo.UpdatePaymentAsync(new Payment
                 {
                     PaymentId = session.PaymentIntentId,
                     ProductId = Guid.Parse(session.Metadata["productId"]),
                     Status = session.Status,
                     UserEmail = session.CustomerEmail,
+                    UserId = user.Id,
                     SessionId = session.Id,
                     UpdatedBallance = true
                 });
             }
 
-            return await _testRepo.GetUserWalletAsync(session.CustomerEmail);
+            return await _testRepo.GetUserWalletAsync(user.Id);
         }
     }
 }

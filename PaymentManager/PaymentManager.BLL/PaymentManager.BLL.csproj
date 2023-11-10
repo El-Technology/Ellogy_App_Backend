@@ -17,4 +17,8 @@
     <ProjectReference Include="..\PaymentManager.DAL\PaymentManager.DAL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

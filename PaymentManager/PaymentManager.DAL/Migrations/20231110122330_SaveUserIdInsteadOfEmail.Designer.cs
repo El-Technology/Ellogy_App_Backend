@@ -12,8 +12,8 @@ using PaymentManager.DAL.Context.PaymentContext;
 namespace PaymentManager.DAL.Migrations
 {
     [DbContext(typeof(PaymentContext))]
-    [Migration("20231110093331_AddPaymentId")]
-    partial class AddPaymentId
+    [Migration("20231110122330_SaveUserIdInsteadOfEmail")]
+    partial class SaveUserIdInsteadOfEmail
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,7 +32,6 @@ namespace PaymentManager.DAL.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("PaymentId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid>("ProductId")
@@ -46,9 +45,15 @@ namespace PaymentManager.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("UpdatedBallance")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("UserEmail")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -73,6 +78,37 @@ namespace PaymentManager.DAL.Migrations
                     b.ToTable("Products", (string)null);
                 });
 
+            modelBuilder.Entity("PaymentManager.DAL.Models.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("Role")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users", (string)null);
+                });
+
             modelBuilder.Entity("PaymentManager.DAL.Models.Wallet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -82,9 +118,8 @@ namespace PaymentManager.DAL.Migrations
                     b.Property<int>("Balance")
                         .HasColumnType("integer");
 
-                    b.Property<string>("UserEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 

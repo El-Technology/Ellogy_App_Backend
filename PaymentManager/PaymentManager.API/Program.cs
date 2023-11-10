@@ -6,7 +6,7 @@ using PaymentManager.API.Middlewares;
 using PaymentManager.BLL.Extensions;
 using PaymentManager.Common;
 using PaymentManager.Common.Options;
-using PaymentManager.DAL.Context;
+using PaymentManager.DAL.Context.PaymentContext;
 using PaymentManager.DAL.Extensions;
 using Stripe;
 
@@ -78,7 +78,7 @@ static void AddServices(WebApplicationBuilder builder)
     });
 
     builder.Services.AddBusinessLayer();
-    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionStringPayment);
+    builder.Services.AddDataLayer();
 }
 
 static void MigrateDatabase(IHost app)

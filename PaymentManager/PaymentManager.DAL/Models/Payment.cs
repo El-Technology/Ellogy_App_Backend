@@ -9,5 +9,6 @@
         public Guid ProductId { get; set; }
         public string Status { get; set; }
         public bool UpdatedBallance { get; set; }
+        public Guid UserId { get; set; }
     }
 }

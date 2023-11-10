@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PaymentManager.DAL.Models;
 
-namespace PaymentManager.DAL.Context.Configurations
+namespace PaymentManager.DAL.Context.PaymentContext.Configurations
 {
     public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
     {
@@ -15,6 +15,7 @@ namespace PaymentManager.DAL.Context.Configurations
             builder.Property(x => x.ProductId);
             builder.Property(x => x.PaymentId);
             builder.Property(x => x.UpdatedBallance);
+            builder.Property(x => x.UserId);
         }
     }
 }

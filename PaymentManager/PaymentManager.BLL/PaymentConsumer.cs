@@ -51,7 +51,8 @@ namespace PaymentManager.BLL
                     Status = "created",
                     UserEmail = session.CustomerEmail,
                     SessionId = session.Id,
-                    UpdatedBallance = false
+                    UpdatedBallance = false,
+                    UserId = Guid.Parse(session.Metadata["userId"])
                 });
 
                 Console.WriteLine(session.Url + $"\n{session.Id}"); //signalR
