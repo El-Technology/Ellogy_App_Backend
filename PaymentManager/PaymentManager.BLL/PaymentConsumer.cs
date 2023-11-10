@@ -30,8 +30,8 @@ namespace PaymentManager.BLL
 
             var processorOptions = new ServiceBusProcessorOptions
             {
-                MaxConcurrentCalls = 1,
-                PrefetchCount = 1
+                MaxConcurrentCalls = 25,
+                PrefetchCount = 25
             };
 
             var queueMessageProcessor = _busClient.CreateProcessor(Constants.PaymentRequestQueueName, processorOptions);
