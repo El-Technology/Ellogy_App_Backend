@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PaymentManager.BLL;
-using PaymentManager.Models;
-using Stripe.Checkout;
+using PaymentManager.BLL.Models;
+using PaymentManager.BLL.Services;
+using PaymentManager.DAL.Repositories;
 
 namespace PaymentManager.Controllers
 {
@@ -9,97 +10,39 @@ namespace PaymentManager.Controllers
     [ApiController]
     public class CheckOutController : Controller
     {
-        private string SessionId;
         private readonly PaymentProducer _serviceBus;
+        private readonly PaymentService _paymentService;
+        private readonly TestRepo _testRepo;
 
-        public CheckOutController(PaymentProducer serviceBus)
+        public CheckOutController(PaymentProducer serviceBus, PaymentService paymentService, TestRepo testRepo)
         {
             _serviceBus = serviceBus;
+            _paymentService = paymentService;
+            _testRepo = testRepo;
         }
 
         [HttpGet]
-        [Route("index")]
-        public IActionResult Index()
+        [Route("GetAllProducts")]
+        public async Task<IActionResult> GetAllProducts()
         {
-            var listOfProducts = new List<ProductModel>()
-            {
-                new ProductModel
-                {
-                    Price = 100,
-                    Title = "100 points"
-                }
-            };
-            return Ok(listOfProducts);
+            var products = await _testRepo.GetAllProductsAsync();
+            return Ok(products);
         }
 
-        //[HttpGet]
-        //[Route("OrderConfirmation")]
-        //public IActionResult OrderConfirmation()
-        //{
-        //    var serivce = new SessionService();
-        //    Session session = serivce.Get(SessionId);
-        //    if (session.PaymentStatus == "Paid")
-        //    {
-        //        return Ok("Success");
-        //    }
-        //    return Ok("Login");
-        //}
-
-        //[HttpGet]
-        //[Route("checkOut")]
-        //public IActionResult CheckOut()
-        //{
-
-
-
-
-        //    SessionId = session.Id;
-        //    return Ok(session);
-        //}
+        [HttpGet]
+        [Route("OrderConfirmation")]
+        public async Task<IActionResult> OrderConfirmation(string id)
+        {
+            var response = await _paymentService.OrderConfirmationAsync(id);
+            return Ok(response);
+        }
 
         [HttpPost]
         [Route("CreatePayment")]
-        public async Task<IActionResult> CreatePayment()
+        public async Task<IActionResult> CreatePayment(CreatePaymentDto createPaymentDto)
         {
-            var listOfProducts = new List<ProductModel>()
-            {
-                new ProductModel
-                {
-                    Price = 1,
-                    Title = "1000 points"
-                }
-            };
-
-            var options = new SessionCreateOptions()
-            {
-                SuccessUrl = $"https://localhost:7267/api/CheckOut/OrderConfirmation",
-                CancelUrl = $"https://localhost:7267/api/CheckOut/OrderConfirmation",
-                LineItems = new List<SessionLineItemOptions>(),
-                Mode = "payment",
-                CustomerEmail = "sharkovskiy1@gmail.com"
-            };
-
-            foreach (var item in listOfProducts)
-            {
-                var sessionListItem = new SessionLineItemOptions()
-                {
-                    PriceData = new SessionLineItemPriceDataOptions()
-                    {
-                        Currency = "usd",
-                        ProductData = new SessionLineItemPriceDataProductDataOptions()
-                        {
-                            Name = item.Title,
-                        },
-                        UnitAmount = item.Price * 100,
-                    },
-                    Quantity = 1
-                };
-                options.LineItems.Add(sessionListItem);
-            }
-
-
-
-            await _serviceBus.CreatePaymentAsync(options);
+            var payment = await _paymentService.CreatePaymentAsync(createPaymentDto);
+            await _serviceBus.CreatePaymentAsync(payment, createPaymentDto.ProductId);
             return Ok();
         }
 

@@ -13,4 +13,8 @@
     <PackageReference Include="Stripe.net" Version="43.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PaymentManager.DAL\PaymentManager.DAL.csproj" />
+  </ItemGroup>
+
 </Project>

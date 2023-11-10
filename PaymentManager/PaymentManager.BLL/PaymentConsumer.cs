@@ -1,13 +1,23 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using PaymentManager.DAL.Models;
+using PaymentManager.DAL.Repositories;
 using Stripe.Checkout;
 
 namespace PaymentManager.BLL
 {
     public class PaymentConsumer : IHostedService
     {
-        private readonly ServiceBusClient _busClient = new(Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING"));
+        private readonly ServiceBusClient _busClient;
+        private readonly IServiceProvider _serviceProvider;
+
+        public PaymentConsumer(ServiceBusClient busClient, IServiceProvider serviceProvider)
+        {
+            _busClient = busClient;
+            _serviceProvider = serviceProvider;
+        }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -24,8 +34,28 @@ namespace PaymentManager.BLL
 
             processor.ProcessMessageAsync += async (messageArg) =>
             {
-                Session session = service.Create(JsonConvert.DeserializeObject<SessionCreateOptions>(messageArg.Message.Body.ToString()));
-                Console.WriteLine(session.Url);
+                var message = JsonConvert.DeserializeObject<SessionCreateOptions>(messageArg.Message.Body.ToString());
+                if (!IsValidEmail(message.CustomerEmail))
+                {
+                    await messageArg.DeadLetterMessageAsync(messageArg.Message);
+                    throw new Exception($"Wrong email = {message.CustomerEmail}");
+                }
+
+                Session session = service.Create(message);
+
+                await CreatePaymentAsync(new Payment
+                {
+                    Id = Guid.NewGuid(),
+                    PaymentId = session.PaymentIntentId,
+                    ProductId = Guid.Parse(session.Metadata["productId"]),
+                    Status = "created",
+                    UserEmail = session.CustomerEmail,
+                    SessionId = session.Id,
+                    UpdatedBallance = false
+                });
+
+                Console.WriteLine(session.Url + $"\n{session.Id}"); //signalR
+
                 await messageArg.CompleteMessageAsync(messageArg.Message);
             };
 
@@ -40,6 +70,40 @@ namespace PaymentManager.BLL
         public Task StopAsync(CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            var trimmedEmail = email.Trim();
+
+            if (trimmedEmail.EndsWith("."))
+            {
+                return false;
+            }
+            try
+            {
+                var address = new System.Net.Mail.MailAddress(email);
+                return address.Address == trimmedEmail;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private async Task CreatePaymentAsync(Payment payment)
+        {
+            using var scope = _serviceProvider.CreateAsyncScope();
+            var testRepo = scope.ServiceProvider.GetRequiredService<TestRepo>();
+
+            try
+            {
+                await testRepo.CreatePaymentAsync(payment);
+            }
+            finally
+            {
+                await scope.DisposeAsync();
+            }
         }
     }
 }

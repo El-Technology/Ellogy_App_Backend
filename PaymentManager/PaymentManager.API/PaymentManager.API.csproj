@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PaymentManager.BLL\PaymentManager.BLL.csproj" />
+    <ProjectReference Include="..\PaymentManager.DAL\PaymentManager.DAL.csproj" />
   </ItemGroup>
 
 </Project>

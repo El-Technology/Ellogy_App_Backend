@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentManager.API", "Payme
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentManager.BLL", "PaymentManager.BLL\PaymentManager.BLL.csproj", "{73E4BC55-314D-4022-B130-3706D2E559C4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentManager.DAL", "PaymentManager.DAL\PaymentManager.DAL.csproj", "{98CEEEB9-CE0C-49CB-8C8E-DEAD722B2050}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{73E4BC55-314D-4022-B130-3706D2E559C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73E4BC55-314D-4022-B130-3706D2E559C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73E4BC55-314D-4022-B130-3706D2E559C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98CEEEB9-CE0C-49CB-8C8E-DEAD722B2050}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98CEEEB9-CE0C-49CB-8C8E-DEAD722B2050}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98CEEEB9-CE0C-49CB-8C8E-DEAD722B2050}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98CEEEB9-CE0C-49CB-8C8E-DEAD722B2050}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
