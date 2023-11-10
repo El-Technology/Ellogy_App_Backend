@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PaymentManager.API.Middlewares;
 using PaymentManager.BLL.Extensions;
 using PaymentManager.DAL.Context;
 using PaymentManager.DAL.Extensions;
@@ -20,16 +21,7 @@ StripeConfiguration.ApiKey = Environment.GetEnvironmentVariable("SECRET_KEY");
 
 var app = builder.Build();
 MigrateDatabase(app);
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+AddMiddleware(app);
 
 app.MapControllers();
 
@@ -51,4 +43,18 @@ static void MigrateDatabase(IHost app)
     {
         context.Database.Migrate();
     }
+}
+
+static void AddMiddleware(WebApplication app)
+{
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseAuthorization();
+
+    app.UseMiddleware<ExceptionHandlerMiddleware>();
 }
