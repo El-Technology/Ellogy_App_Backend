@@ -6,6 +6,7 @@ using PaymentManager.DAL.Repositories;
 
 namespace PaymentManager.Controllers
 {
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class CheckOutController : Controller
