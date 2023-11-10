@@ -1,6 +1,8 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
+using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Services;
+using PaymentManager.Common;
 
 namespace PaymentManager.BLL.Extensions
 {
@@ -11,8 +13,8 @@ namespace PaymentManager.BLL.Extensions
             return services
                 .AddScoped<PaymentProducer>()
                 .AddHostedService<PaymentConsumer>()
-                .AddScoped<PaymentService>()
-                .AddSingleton<ServiceBusClient>(_=> new(Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING")));
+                .AddScoped<IPaymentService, PaymentService>()
+                .AddSingleton<ServiceBusClient>(_ => new(EnvironmentVariables.AzureServiceBusConnectionString));
         }
     }
 }

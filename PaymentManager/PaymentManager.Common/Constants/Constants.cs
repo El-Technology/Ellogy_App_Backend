@@ -6,6 +6,12 @@
         public static int NewWalletBalance = 0;
         public static int PriceInCents = 100;
         public static string ApplicationCurrency = "usd";
+
         public static string PaymentMode = "payment";
+        public static string PaymentRequestQueueName = "paymentrequestqueue";
+
+        public static string ApplicationJson = "application/json";
+
+        public static string OnConnectedMethod = "OnConnected";
     }
 }

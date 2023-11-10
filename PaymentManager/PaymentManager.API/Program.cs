@@ -4,18 +4,19 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PaymentManager.API.Middlewares;
 using PaymentManager.BLL.Extensions;
+using PaymentManager.BLL.Hubs;
 using PaymentManager.Common;
 using PaymentManager.Common.Options;
 using PaymentManager.DAL.Context.PaymentContext;
 using PaymentManager.DAL.Extensions;
 using Stripe;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 AddServices(builder);
 
 StripeConfiguration.ApiKey = EnvironmentVariables.SecretKey;
-
 
 var app = builder.Build();
 MigrateDatabase(app);
@@ -27,6 +28,8 @@ app.Run();
 
 static void AddServices(WebApplicationBuilder builder)
 {
+    builder.Services.AddCors();
+    builder.Services.AddSignalR();
     builder.Services.AddAuthorization();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
@@ -42,7 +45,9 @@ static void AddServices(WebApplicationBuilder builder)
             };
         });
 
-    builder.Services.AddControllers();
+    builder.Services.AddControllers().AddJsonOptions(x =>
+        x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
     builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddSwaggerGen(c =>
@@ -62,19 +67,19 @@ static void AddServices(WebApplicationBuilder builder)
         });
 
         c.AddSecurityRequirement(new()
-                {
+        {
+            {
+                new()
                     {
-                        new()
+                        Reference = new()
                         {
-                            Reference = new()
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new List<string>()
-                    }
-                });
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                new List<string>()
+            }
+        });
     });
 
     builder.Services.AddBusinessLayer();
@@ -101,8 +106,20 @@ static void AddMiddleware(WebApplication app)
         app.UseSwaggerUI();
     }
 
+    app.UseCors(builder =>
+    {
+        builder.AllowAnyMethod();
+        builder.AllowAnyHeader();
+        builder.SetIsOriginAllowed(origin => true);
+        builder.AllowCredentials();
+    });
+    app.UseWebSockets();
+
     app.UseHttpsRedirection();
+    app.UseRouting();
+    app.UseAuthentication();
     app.UseAuthorization();
 
+    app.MapHub<PaymentHub>("/paymentHub");
     app.UseMiddleware<ExceptionHandlerMiddleware>();
 }

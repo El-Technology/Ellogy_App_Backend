@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PaymentManager.Common;
 using PaymentManager.DAL.Context.PaymentContext;
 using PaymentManager.DAL.Context.UserContext;
+using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Repositories;
 
 namespace PaymentManager.DAL.Extensions
@@ -14,7 +15,8 @@ namespace PaymentManager.DAL.Extensions
             return services
                 .AddDbContext<PaymentContext>(c => c.UseNpgsql(EnvironmentVariables.ConnectionStringPayment))
                 .AddDbContext<UserContext>(c => c.UseNpgsql(EnvironmentVariables.ConnectionString))
-                .AddScoped<TestRepo>();
+                .AddScoped<IPaymentRepository, PaymentRepository>()
+                .AddScoped<IUserRepository, UserRepository>();
         }
     }
 }

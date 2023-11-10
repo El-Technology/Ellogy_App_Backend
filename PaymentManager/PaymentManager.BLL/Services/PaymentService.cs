@@ -1,39 +1,47 @@
-﻿using PaymentManager.Common.Constants;
+﻿using PaymentManager.BLL.Interfaces;
+using PaymentManager.BLL.Models;
+using PaymentManager.Common.Constants;
+using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
 using PaymentManager.DAL.Repositories;
 using Stripe.Checkout;
 
 namespace PaymentManager.BLL.Services
 {
-    public class PaymentService
+    public class PaymentService : IPaymentService
     {
-        private readonly TestRepo _testRepo;
-        public PaymentService(TestRepo testRepo)
+        private readonly IPaymentRepository _paymentRepository;
+        private readonly IUserRepository _userRepository;
+
+        private const int amountOfItems = 1;
+
+        public PaymentService(IPaymentRepository paymentRepository, IUserRepository userRepository)
         {
-            _testRepo = testRepo;
+            _userRepository = userRepository;
+            _paymentRepository = paymentRepository;
         }
 
-        public async Task<SessionCreateOptions> CreatePaymentAsync(Guid productId, Guid userId)
+        public async Task<SessionCreateOptions> CreatePaymentAsync(Guid userId, StreamRequest streamRequest)
         {
-            var user = await _testRepo.GetUserByIdAsync(userId)
+            var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException($"User with id - {userId} was not found");
 
-            if ((await _testRepo.GetUserWalletAsync(user.Id)) is null)
-                await _testRepo.CreateUserWalletAsync(user.Id);
+            var product = await _paymentRepository.GetProductByIdAsync(streamRequest.ProductId)
+                ?? throw new Exception("Wrong product id");
 
-            var product = await _testRepo.GetProductByIdAsync(productId);
-
-            var options = new SessionCreateOptions()
+            var sessionCreateOptions = new SessionCreateOptions()
             {
-                SuccessUrl = $"https://localhost:7267/api/CheckOut/OrderConfirmation",
-                CancelUrl = $"https://localhost:7267/api/CheckOut/OrderConfirmation",
+                SuccessUrl = $"https://localhost:7267/api/CheckOut/OrderConfirmation", //will be changed
+                CancelUrl = $"https://localhost:7267/api/CheckOut/OrderConfirmation", //will be changed
                 LineItems = new List<SessionLineItemOptions>(),
                 Mode = Constants.PaymentMode,
                 CustomerEmail = user.Email,
                 Metadata = new Dictionary<string, string>
                 {
-                    { "productId", productId.ToString() },
-                    { "userId", user.Id.ToString() }
+                    { MetadataConstants.ProductId, streamRequest.ProductId.ToString() },
+                    { MetadataConstants.UserId, user.Id.ToString() },
+                    { MetadataConstants.ConnectionId, streamRequest.ConnectionId },
+                    { MetadataConstants.SignalRMethodName, streamRequest.SignalMethodName }
                 }
             };
 
@@ -48,30 +56,31 @@ namespace PaymentManager.BLL.Services
                     },
                     UnitAmount = product.Price * Constants.PriceInCents,
                 },
-                Quantity = 1
+                Quantity = amountOfItems
             };
-            options.LineItems.Add(sessionListItem);
+            sessionCreateOptions.LineItems.Add(sessionListItem);
 
-            return options;
+            return sessionCreateOptions;
         }
 
         public async Task<Wallet?> OrderConfirmationAsync(string sessionId, Guid userId)
         {
-            var user = await _testRepo.GetUserByIdAsync(userId)
+            var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException($"User with id - {userId} was not found");
 
             var service = new SessionService();
             Session session = service.Get(sessionId);
 
-            var updatedBalance = await _testRepo.GetPaymentAsync(session.Id);
+            var payment = await _paymentRepository.GetPaymentAsync(session.Id)
+                ?? throw new Exception($"We can`t find payment with this session id => {session.Id}");
 
-            if (session.Status == "complete" && !updatedBalance.UpdatedBallance)
+            if (session.Status == "complete" && !payment.UpdatedBallance)
             {
-                await _testRepo.UpdateBalance(user.Id, Guid.Parse(session.Metadata["productId"]));
-                await _testRepo.UpdatePaymentAsync(new Payment
+                await _paymentRepository.UpdateBalance(user.Id, Guid.Parse(session.Metadata[MetadataConstants.ProductId]));
+                await _paymentRepository.UpdatePaymentAsync(new Payment
                 {
                     PaymentId = session.PaymentIntentId,
-                    ProductId = Guid.Parse(session.Metadata["productId"]),
+                    ProductId = Guid.Parse(session.Metadata[MetadataConstants.ProductId]),
                     Status = session.Status,
                     UserEmail = session.CustomerEmail,
                     UserId = user.Id,
@@ -80,7 +89,20 @@ namespace PaymentManager.BLL.Services
                 });
             }
 
-            return await _testRepo.GetUserWalletAsync(user.Id);
+            return await _paymentRepository.GetUserWalletAsync(user.Id);
+        }
+
+        public async Task<List<Product>> GetAllProductsAsync()
+        {
+            return await _paymentRepository.GetAllProductsAsync();
+        }
+
+        public async Task<int> GetUserBalanceAsync(Guid userId)
+        {
+            var userWallet = await _paymentRepository.GetUserWalletAsync(userId)
+                ?? throw new Exception($"We can`t find wallet by userId => {userId}");
+
+            return userWallet.Balance;
         }
     }
 }

@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PaymentManager.BLL;
-using PaymentManager.BLL.Services;
+using PaymentManager.BLL.Interfaces;
+using PaymentManager.BLL.Models;
 using PaymentManager.Common.Options;
-using PaymentManager.DAL.Repositories;
 
 namespace PaymentManager.Controllers
 {
@@ -14,14 +14,12 @@ namespace PaymentManager.Controllers
     public class CheckOutController : Controller
     {
         private readonly PaymentProducer _serviceBus;
-        private readonly PaymentService _paymentService;
-        private readonly TestRepo _testRepo;
+        private readonly IPaymentService _paymentService;
 
-        public CheckOutController(PaymentProducer serviceBus, PaymentService paymentService, TestRepo testRepo)
+        public CheckOutController(PaymentProducer serviceBus, IPaymentService paymentService)
         {
             _serviceBus = serviceBus;
             _paymentService = paymentService;
-            _testRepo = testRepo;
         }
 
         /// <summary>
@@ -39,23 +37,23 @@ namespace PaymentManager.Controllers
         }
 
         [HttpGet]
-        [Route("GetAllUsers")]
-        public async Task<IActionResult> GetAllUsers()
-        {
-            var users = await _testRepo.GetAllUsersAsync();
-            return Ok(users);
-        }
-
-        [HttpGet]
-        [Route("GetAllProducts")]
+        [Route("getAllProducts")]
         public async Task<IActionResult> GetAllProducts()
         {
-            var products = await _testRepo.GetAllProductsAsync();
+            var products = await _paymentService.GetAllProductsAsync();
             return Ok(products);
         }
 
         [HttpGet]
-        [Route("OrderConfirmation")]
+        [Route("getUserBalance")]
+        public async Task<IActionResult> GetUserBalance()
+        {
+            var products = await _paymentService.GetAllProductsAsync();
+            return Ok(products);
+        }
+
+        [HttpGet]
+        [Route("orderConfirmation")]
         public async Task<IActionResult> OrderConfirmation(string sessionId)
         {
             var response = await _paymentService.OrderConfirmationAsync(sessionId, GetUserIdFromToken());
@@ -63,11 +61,11 @@ namespace PaymentManager.Controllers
         }
 
         [HttpPost]
-        [Route("CreatePayment")]
-        public async Task<IActionResult> CreatePayment(Guid productId)
+        [Route("createPayment")]
+        public async Task<IActionResult> CreatePayment([FromBody] StreamRequest streamRequest)
         {
-            var payment = await _paymentService.CreatePaymentAsync(productId, GetUserIdFromToken());
-            await _serviceBus.CreatePaymentAsync(payment, productId);
+            var payment = await _paymentService.CreatePaymentAsync(GetUserIdFromToken(), streamRequest);
+            await _serviceBus.CreatePaymentAsync(payment);
             return Ok();
         }
 

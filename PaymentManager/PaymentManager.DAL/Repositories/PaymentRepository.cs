@@ -1,31 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Context.PaymentContext;
-using PaymentManager.DAL.Context.UserContext;
+using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
 
 namespace PaymentManager.DAL.Repositories
 {
-    public class TestRepo
+    public class PaymentRepository : IPaymentRepository
     {
         private readonly PaymentContext _context;
-        private readonly UserContext _userContext;
 
-        public TestRepo(PaymentContext context, UserContext userContext)
+        public PaymentRepository(PaymentContext context)
         {
-            _userContext = userContext;
             _context = context;
-        }
-
-        public async Task<User?> GetUserByIdAsync(Guid userId)
-        {
-            return await _userContext.Users.FindAsync(userId);
-        }
-
-        public async Task<List<User>> GetAllUsersAsync()
-        {
-            var users = await _userContext.Users.ToListAsync();
-            return users;
         }
 
         public async Task<Wallet> CreateUserWalletAsync(Guid userId)
