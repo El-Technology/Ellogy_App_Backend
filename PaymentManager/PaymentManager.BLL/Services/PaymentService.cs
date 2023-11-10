@@ -3,7 +3,6 @@ using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
-using PaymentManager.DAL.Repositories;
 using Stripe.Checkout;
 
 namespace PaymentManager.BLL.Services
