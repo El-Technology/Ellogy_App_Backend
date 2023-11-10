@@ -5,8 +5,8 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using PaymentManager.BLL.Hubs;
 using PaymentManager.Common.Constants;
+using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
-using PaymentManager.DAL.Repositories;
 using Stripe.Checkout;
 
 namespace PaymentManager.BLL
@@ -47,7 +47,7 @@ namespace PaymentManager.BLL
                         throw new Exception($"Wrong email = {message.CustomerEmail}");
                     }
 
-                    Session session = service.Create(message);
+                    var session = service.Create(message);
 
                     await CreatePaymentAsync(new Payment
                     {
@@ -58,7 +58,8 @@ namespace PaymentManager.BLL
                         UserEmail = session.CustomerEmail,
                         SessionId = session.Id,
                         UpdatedBallance = false,
-                        UserId = Guid.Parse(session.Metadata[MetadataConstants.UserId])
+                        UserId = Guid.Parse(session.Metadata[MetadataConstants.UserId]),
+                        //CreateRequestDate = session.Created
                     });
 
                     var connectionId = session.Metadata[MetadataConstants.ConnectionId];
@@ -71,10 +72,10 @@ namespace PaymentManager.BLL
 
                     await messageArg.CompleteMessageAsync(messageArg.Message);
                 }
-                catch
+                catch (Exception ex)
                 {
                     await messageArg.DeadLetterMessageAsync(messageArg.Message);
-                    throw new Exception($"Something was wrong, try again later");
+                    throw new Exception(ex.Message);
                 }
             };
 
@@ -113,7 +114,7 @@ namespace PaymentManager.BLL
         private async Task CreatePaymentAsync(Payment payment)
         {
             using var scope = _serviceProvider.CreateAsyncScope();
-            var testRepo = scope.ServiceProvider.GetRequiredService<PaymentRepository>();
+            var testRepo = scope.ServiceProvider.GetRequiredService<IPaymentRepository>();
 
             try
             {

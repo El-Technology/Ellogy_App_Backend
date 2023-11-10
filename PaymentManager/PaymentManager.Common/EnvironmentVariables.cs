@@ -18,14 +18,6 @@
                 return variable is null ? variable = "default_CONNECTION_STRING" : variable;
             }
         }
-        public static string PublishableKey
-        {
-            get
-            {
-                var variable = Environment.GetEnvironmentVariable("PUBLISHABLE_KEY");
-                return variable is null ? variable = "default_PUBLISHABLE_KEY" : variable;
-            }
-        }
         public static string SecretKey
         {
             get

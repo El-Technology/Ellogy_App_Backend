@@ -10,5 +10,7 @@
         public string Status { get; set; }
         public bool UpdatedBallance { get; set; }
         public Guid UserId { get; set; }
+        //public DateTime? CreateRequestDate { get; set; }
+        //public DateTime? CompleteRequestDate { get; set; }
     }
 }

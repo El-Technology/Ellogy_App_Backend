@@ -48,7 +48,7 @@ namespace PaymentManager.Controllers
         [Route("getUserBalance")]
         public async Task<IActionResult> GetUserBalance()
         {
-            var products = await _paymentService.GetAllProductsAsync();
+            var products = await _paymentService.GetUserBalanceAsync(GetUserIdFromToken());
             return Ok(products);
         }
 

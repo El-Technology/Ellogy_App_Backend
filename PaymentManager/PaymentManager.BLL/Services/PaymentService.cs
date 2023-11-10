@@ -84,7 +84,8 @@ namespace PaymentManager.BLL.Services
                     UserEmail = session.CustomerEmail,
                     UserId = user.Id,
                     SessionId = session.Id,
-                    UpdatedBallance = true
+                    UpdatedBallance = true,
+                    //CompleteRequestDate = DateTime.UnixEpoch
                 });
             }
 
