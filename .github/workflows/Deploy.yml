@@ -60,7 +60,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
 
     needs: changes
-      if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' }}  
+    if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' }}  
 
     runs-on: ubuntu-latest
     steps:
