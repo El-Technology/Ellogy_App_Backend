@@ -82,6 +82,9 @@ jobs:
           Token: ${{ secrets.GITHUB_TOKEN }}
 
   build_ai_communication_service:
+    permissions:
+      contents: read
+      packages: write
     env:
       MICROSERVICE_NAME: 'ai_communication_service'
       PROJECT_PATH: './AICommunicationService/'
@@ -123,6 +126,9 @@ jobs:
           Token: ${{ secrets.GITHUB_TOKEN }}
 
   build_user_manager:
+    permissions:
+      contents: read
+      packages: write
     env:
       MICROSERVICE_NAME: 'user_manager'
       PROJECT_PATH: './UserManager/'
@@ -164,6 +170,9 @@ jobs:
           Token: ${{ secrets.GITHUB_TOKEN }}
 
   build_ticket_manager:
+    permissions:
+      contents: read
+      packages: write
     env:
       MICROSERVICE_NAME: 'ticket_manager'
       PROJECT_PATH: './TicketsManager/'
