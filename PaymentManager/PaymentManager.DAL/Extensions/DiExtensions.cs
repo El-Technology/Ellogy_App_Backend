@@ -10,11 +10,11 @@ namespace PaymentManager.DAL.Extensions
 {
     public static class DiExtensions
     {
-        public static IServiceCollection AddDataLayer(this IServiceCollection services)
+        public static IServiceCollection AddDataLayer(this IServiceCollection services, string connectionString, string paymentConnectionString)
         {
             return services
-                .AddDbContext<PaymentContext>(c => c.UseNpgsql(EnvironmentVariables.ConnectionStringPayment))
-                .AddDbContext<UserContext>(c => c.UseNpgsql(EnvironmentVariables.ConnectionString))
+                .AddDbContext<PaymentContext>(c => c.UseNpgsql(paymentConnectionString))
+                .AddDbContext<UserContext>(c => c.UseNpgsql(connectionString))
                 .AddScoped<IPaymentRepository, PaymentRepository>()
                 .AddScoped<IUserRepository, UserRepository>();
         }

@@ -83,7 +83,7 @@ static void AddServices(WebApplicationBuilder builder)
     });
 
     builder.Services.AddBusinessLayer();
-    builder.Services.AddDataLayer();
+    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
 }
 
 static void MigrateDatabase(IHost app)
