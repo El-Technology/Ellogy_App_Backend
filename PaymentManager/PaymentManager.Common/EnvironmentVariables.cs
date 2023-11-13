@@ -30,7 +30,7 @@
         {
             get
             {
-                var variable = Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING");
+                var variable = Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT");
                 return variable is null ? variable = "default_AZURE_SERVICE_BUS_CONNECTION_STRING" : variable;
             }
         }

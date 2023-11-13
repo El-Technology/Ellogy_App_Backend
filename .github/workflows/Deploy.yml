@@ -7,6 +7,7 @@ on:
       - TicketsManager/**
       - UserManager/**
       - AICommunicationService/**
+      - PaymentManager/**
       - .github/workflows/Deploy.yml
       - .github/actions/** 
       - '!UserManager/NotificationService/**'
@@ -24,6 +25,7 @@ jobs:
       AICommunicationService: ${{ steps.changes.outputs.AICommunicationService }}
       UserManager: ${{ steps.changes.outputs.UserManager }}
       TicketsManager: ${{ steps.changes.outputs.TicketsManager }}
+      PaymentManager: ${{ steps.changes.outputs.PaymentManager }}
       Workflow: ${{ steps.changes.outputs.Workflow }}
       
     steps:
@@ -41,9 +43,41 @@ jobs:
                 - 'UserManager/**'
               TicketsManager:
                 - 'TicketsManager/**'
+              PaymentManager:
+                - 'PaymentManager/**'
               Workflow:
                 - '.github/**'
-                      
+  
+  build_payment_manager:
+    env:
+      MICROSERVICE_NAME: 'payment_manager'
+      PROJECT_PATH: './PaymentManager/'
+      CONTEXT: '.'
+      DOCKERFILEPATH: './PaymentManager.Api/Dockerfile'
+
+    outputs:
+      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
+      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
+
+    needs: changes
+      if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' }}  
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      
+      - name: Build and push image of PaymentManager
+        id: build-n-push
+        uses: ./.github/actions/Build-n-push
+        with: 
+          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+          Environment: ${{ env.ENVNAME }}
+          ProjectPath: ${{ env.PROJECT_PATH }}
+          Context: ${{ env.CONTEXT }}
+          DockerfilePath: ${{ env.DOCKERFILEPATH }}
+          Token: ${{ secrets.GITHUB_TOKEN }}
+
   build_ai_communication_service:
     env:
       MICROSERVICE_NAME: 'ai_communication_service'
@@ -197,6 +231,8 @@ jobs:
         SERVICE_NAME3: ${{ needs.build_ticket_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE3: ${{ needs.build_ticket_manager.outputs.MicroserviceImage }}
         
+        CONNECTIONSTRING_PAYMENT: ${{ secrets.CONNECTIONSTRING_PAYMENT }}
+        AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT }}
         ADMIN_JWT_SECRET_KEY: ${{ secrets.ADMIN_JWT_SECRET_KEY }}
         AZURE_SERVICE_BUS_CONNECTION_STRING: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING }}
         BLOB_STORAGE_CONNECTION_STRING: ${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}
@@ -220,11 +256,16 @@ jobs:
         export SERVICE_IMAGE2=$SERVICE_IMAGE2
         export SERVICE_NAME3=$SERVICE_NAME3
         export SERVICE_IMAGE3=$SERVICE_IMAGE3
+        export SERVICE_NAME4=$SERVICE_NAME4
+        export SERVICE_IMAGE4=$SERVICE_IMAGE4
 
         yq e -i ".services.$SERVICE_NAME1.image=env(SERVICE_IMAGE1)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
+        yq e -i ".services.$SERVICE_NAME4.image=env(SERVICE_IMAGE4)" docker-compose.yaml
 
+        export AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT="AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT"
+        export CONNECTIONSTRING_PAYMENT="CONNECTIONSTRING_PAYMENT"
         export ADMIN_JWT_SECRET_KEY="$ADMIN_JWT_SECRET_KEY"
         export OPEN_AI_KEY="$OPEN_AI_KEY"
         export CONNECTION_STRING="$CONNECTION_STRING"
