@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using PaymentManager.Common;
 using PaymentManager.DAL.Context.PaymentContext;
 using PaymentManager.DAL.Context.UserContext;
 using PaymentManager.DAL.Interfaces;
