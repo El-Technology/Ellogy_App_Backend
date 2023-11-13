@@ -24,7 +24,7 @@ namespace PaymentManager.DAL.Repositories
                 Balance = Constants.NewWalletBalance
             };
 
-            await _context.Walets.AddAsync(wallet);
+            await _context.Wallets.AddAsync(wallet);
             await _context.SaveChangesAsync();
 
             return wallet;
@@ -32,14 +32,14 @@ namespace PaymentManager.DAL.Repositories
 
         public async Task<Wallet?> GetUserWalletAsync(Guid userId)
         {
-            return await _context.Walets.FirstOrDefaultAsync(a => a.UserId == userId);
+            return await _context.Wallets.FirstOrDefaultAsync(a => a.UserId == userId);
         }
 
         public async Task UpdateBalance(Guid userId, Guid productId)
         {
             var addToBalance = (await _context.Products.FirstOrDefaultAsync(a => a.Id == productId))?.Price;
 
-            await _context.Walets
+            await _context.Wallets
                 .Where(a => a.UserId == userId)
                 .ExecuteUpdateAsync(x => x.SetProperty(x => x.Balance, x => x.Balance + (addToBalance * Constants.OneDollarInPoints)));
         }

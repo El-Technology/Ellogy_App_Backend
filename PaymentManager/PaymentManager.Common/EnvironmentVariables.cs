@@ -14,7 +14,7 @@
         {
             get
             {
-                var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+                var variable = Environment.GetEnvironmentVariable("CONNECTIONSTRING");
                 return variable is null ? variable = "default_CONNECTION_STRING" : variable;
             }
         }
