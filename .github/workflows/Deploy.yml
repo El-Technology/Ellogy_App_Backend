@@ -53,7 +53,7 @@ jobs:
       MICROSERVICE_NAME: 'payment_manager'
       PROJECT_PATH: './PaymentManager/'
       CONTEXT: '.'
-      DOCKERFILEPATH: './PaymentManager.Api/Dockerfile'
+      DOCKERFILEPATH: './PaymentManager.API/Dockerfile'
 
     outputs:
       MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
