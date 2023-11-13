@@ -49,6 +49,9 @@ jobs:
                 - '.github/**'
   
   build_payment_manager:
+    permissions:
+      contents: read
+      packages: write
     env:
       MICROSERVICE_NAME: 'payment_manager'
       PROJECT_PATH: './PaymentManager/'

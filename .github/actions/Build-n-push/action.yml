@@ -22,9 +22,6 @@ outputs:
 
 runs:
   using: "composite"
-  permissions:
-      contents: read
-      packages: write
   steps:
     - name: Login to GitHub Packages
       shell: bash
