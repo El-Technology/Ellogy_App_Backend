@@ -215,7 +215,7 @@ jobs:
 
   deploy_microservices:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-    needs: [build_user_manager, build_ticket_manager, build_ai_communication_service]
+    needs: [build_user_manager, build_ticket_manager, build_ai_communication_service, build_payment_manager]
     
     runs-on: ubuntu-latest
     steps:
