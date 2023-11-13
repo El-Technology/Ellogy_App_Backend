@@ -36,9 +36,6 @@ runs:
         string: ${{ env.REPO_NAME }}
 
     - name: Build, tag, and push docker image to GitHub Packages
-      permissions:
-        contents: read
-        packages: write
       id: build-image
       shell: bash
       env:
