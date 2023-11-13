@@ -13,7 +13,6 @@ using Stripe;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-Console.WriteLine($"{EnvironmentVariables.ConnectionStringPayment}\n{EnvironmentVariables.ConnectionString}");
 AddServices(builder);
 
 StripeConfiguration.ApiKey = EnvironmentVariables.SecretKey;
