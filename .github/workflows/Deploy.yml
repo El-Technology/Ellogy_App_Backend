@@ -242,6 +242,9 @@ jobs:
         
         SERVICE_NAME3: ${{ needs.build_ticket_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE3: ${{ needs.build_ticket_manager.outputs.MicroserviceImage }}
+
+        SERVICE_NAME4: ${{ needs.build_payment_manager.outputs.MicroserviceName }}
+        SERVICE_IMAGE4: ${{ needs.build_payment_manager.outputs.MicroserviceImage }}
         
         CONNECTIONSTRING_PAYMENT: ${{ secrets.CONNECTIONSTRING_PAYMENT }}
         AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT }}
