@@ -26,6 +26,8 @@ namespace PaymentManager.API.Controllers
                 var stripeEvent = EventUtility.ConstructEvent(json,
                     Request.Headers["Stripe-Signature"], EnvironmentVariables.WebhookKey);
 
+                Console.WriteLine(stripeEvent.Type);
+
                 switch (stripeEvent.Type)
                 {
                     case Events.CheckoutSessionCompleted:
@@ -33,6 +35,7 @@ namespace PaymentManager.API.Controllers
                         await _paymentService.OrderConfirmationAsync(session.Id);
                         break;
                     default:
+                        Console.WriteLine("error   "+stripeEvent.Type + $"\n{Events.CheckoutSessionCompleted}");
                         throw new Exception("Unknown error");
                 }
                 return Ok();
