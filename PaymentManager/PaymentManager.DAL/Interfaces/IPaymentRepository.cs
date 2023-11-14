@@ -6,11 +6,10 @@ namespace PaymentManager.DAL.Interfaces
     {
         Task CreatePaymentAsync(Payment payment);
         Task<Wallet> CreateUserWalletAsync(Guid userId);
-        Task<List<Product>> GetAllProductsAsync();
         Task<Payment?> GetPaymentAsync(string sessionId);
-        Task<Product?> GetProductByIdAsync(Guid productId);
+        Task<Payment?> GetPaymentByIdAsync(string paymentId);
         Task<Wallet?> GetUserWalletAsync(Guid userId);
-        Task UpdateBalance(Guid userId, Guid productId);
+        Task UpdateBalanceAsync(Guid userId, int amountOfPoints);
         Task UpdatePaymentAsync(Payment payment);
     }
 }

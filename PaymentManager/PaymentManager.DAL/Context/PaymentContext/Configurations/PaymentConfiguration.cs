@@ -12,12 +12,10 @@ namespace PaymentManager.DAL.Context.PaymentContext.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Status);
             builder.Property(x => x.UserEmail);
-            builder.Property(x => x.ProductId);
+            builder.Property(x => x.AmountOfPoints);
             builder.Property(x => x.PaymentId);
             builder.Property(x => x.UpdatedBallance);
             builder.Property(x => x.UserId);
-            //builder.Property(x => x.CreateRequestDate);
-            //builder.Property(x => x.CompleteRequestDate);
         }
     }
 }

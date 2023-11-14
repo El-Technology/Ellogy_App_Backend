@@ -2,6 +2,14 @@
 {
     public static class EnvironmentVariables
     {
+        public static string WebhookKey
+        {
+            get
+            {
+                var variable = Environment.GetEnvironmentVariable("WEBHOOK_KEY");
+                return variable is null ? variable = "WEBHOOK_KEY" : variable;
+            }
+        }
         public static string ConnectionStringPayment
         {
             get

@@ -35,23 +35,16 @@ namespace PaymentManager.DAL.Repositories
             return await _context.Wallets.FirstOrDefaultAsync(a => a.UserId == userId);
         }
 
-        public async Task UpdateBalance(Guid userId, Guid productId)
+        public async Task UpdateBalanceAsync(Guid userId, int amountOfPoints)
         {
-            var addToBalance = (await _context.Products.FirstOrDefaultAsync(a => a.Id == productId))?.Price;
-
             await _context.Wallets
                 .Where(a => a.UserId == userId)
-                .ExecuteUpdateAsync(x => x.SetProperty(x => x.Balance, x => x.Balance + (addToBalance * Constants.OneDollarInPoints)));
+                .ExecuteUpdateAsync(x => x.SetProperty(x => x.Balance, x => x.Balance + amountOfPoints));
         }
 
-        public async Task<List<Product>> GetAllProductsAsync()
+        public async Task<Payment?> GetPaymentByIdAsync(string paymentId)
         {
-            return await _context.Products.ToListAsync();
-        }
-
-        public async Task<Product?> GetProductByIdAsync(Guid productId)
-        {
-            return await _context.Products.FindAsync(productId);
+            return await _context.Payments.FirstOrDefaultAsync(a => a.PaymentId.Equals(paymentId));
         }
 
         public async Task UpdatePaymentAsync(Payment payment)

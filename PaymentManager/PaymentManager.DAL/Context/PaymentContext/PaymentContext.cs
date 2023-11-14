@@ -6,7 +6,6 @@ namespace PaymentManager.DAL.Context.PaymentContext
 {
     public class PaymentContext : DbContext
     {
-        public DbSet<Product> Products { get; set; } = null!;
         public DbSet<Payment> Payments { get; set; } = null!;
         public DbSet<Wallet> Wallets { get; set; } = null!;
 

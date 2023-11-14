@@ -37,14 +37,6 @@ namespace PaymentManager.Controllers
         }
 
         [HttpGet]
-        [Route("getAllProducts")]
-        public async Task<IActionResult> GetAllProducts()
-        {
-            var products = await _paymentService.GetAllProductsAsync();
-            return Ok(products);
-        }
-
-        [HttpGet]
         [Route("getUserBalance")]
         public async Task<IActionResult> GetUserBalance()
         {
@@ -52,22 +44,13 @@ namespace PaymentManager.Controllers
             return Ok(products);
         }
 
-        [HttpGet]
-        [Route("orderConfirmation")]
-        public async Task<IActionResult> OrderConfirmation(string sessionId)
-        {
-            var response = await _paymentService.OrderConfirmationAsync(sessionId, GetUserIdFromToken());
-            return Ok(response);
-        }
-
         [HttpPost]
         [Route("createPayment")]
-        public async Task<IActionResult> CreatePayment([FromBody] StreamRequest streamRequest)
+        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest streamRequest)
         {
             var payment = await _paymentService.CreatePaymentAsync(GetUserIdFromToken(), streamRequest);
             await _serviceBus.CreatePaymentAsync(payment);
             return Ok();
         }
-
     }
 }

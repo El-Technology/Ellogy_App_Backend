@@ -20,24 +20,21 @@ namespace PaymentManager.BLL.Services
             _paymentRepository = paymentRepository;
         }
 
-        public async Task<SessionCreateOptions> CreatePaymentAsync(Guid userId, StreamRequest streamRequest)
+        public async Task<SessionCreateOptions> CreatePaymentAsync(Guid userId, CreatePaymentRequest streamRequest)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException($"User with id - {userId} was not found");
 
-            var product = await _paymentRepository.GetProductByIdAsync(streamRequest.ProductId)
-                ?? throw new Exception("Wrong product id");
-
             var sessionCreateOptions = new SessionCreateOptions()
             {
-                SuccessUrl = $"https://localhost:7267/api/CheckOut/OrderConfirmation", //will be changed
-                CancelUrl = $"https://localhost:7267/api/CheckOut/OrderConfirmation", //will be changed
+                SuccessUrl = streamRequest.SuccessUrl,
+                CancelUrl = streamRequest.CancelUrl,
                 LineItems = new List<SessionLineItemOptions>(),
                 Mode = Constants.PaymentMode,
                 CustomerEmail = user.Email,
                 Metadata = new Dictionary<string, string>
                 {
-                    { MetadataConstants.ProductId, streamRequest.ProductId.ToString() },
+                    { MetadataConstants.AmountOfPoint, streamRequest.AmountOfPoints.ToString() },
                     { MetadataConstants.UserId, user.Id.ToString() },
                     { MetadataConstants.ConnectionId, streamRequest.ConnectionId },
                     { MetadataConstants.SignalRMethodName, streamRequest.SignalMethodName }
@@ -51,9 +48,9 @@ namespace PaymentManager.BLL.Services
                     Currency = Constants.ApplicationCurrency,
                     ProductData = new SessionLineItemPriceDataProductDataOptions()
                     {
-                        Name = product.Title
+                        Name = $"{streamRequest.AmountOfPoints} - points"
                     },
-                    UnitAmount = product.Price * Constants.PriceInCents,
+                    UnitAmountDecimal = (decimal)(streamRequest.AmountOfPoints * PointPriceConstant.OneTokenPrice * PointPriceConstant.PriceInCents),
                 },
                 Quantity = amountOfItems
             };
@@ -62,39 +59,28 @@ namespace PaymentManager.BLL.Services
             return sessionCreateOptions;
         }
 
-        public async Task<Wallet?> OrderConfirmationAsync(string sessionId, Guid userId)
+        public async Task OrderConfirmationAsync(string sessionId)
         {
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new ArgumentNullException($"User with id - {userId} was not found");
-
             var service = new SessionService();
             Session session = service.Get(sessionId);
 
             var payment = await _paymentRepository.GetPaymentAsync(session.Id)
                 ?? throw new Exception($"We can`t find payment with this session id => {session.Id}");
 
-            if (session.Status == "complete" && !payment.UpdatedBallance)
+            if (payment.Status != "complete" && !payment.UpdatedBallance)
             {
-                await _paymentRepository.UpdateBalance(user.Id, Guid.Parse(session.Metadata[MetadataConstants.ProductId]));
                 await _paymentRepository.UpdatePaymentAsync(new Payment
                 {
                     PaymentId = session.PaymentIntentId,
-                    ProductId = Guid.Parse(session.Metadata[MetadataConstants.ProductId]),
+                    AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
                     Status = session.Status,
                     UserEmail = session.CustomerEmail,
-                    UserId = user.Id,
+                    UserId = payment.UserId,
                     SessionId = session.Id,
                     UpdatedBallance = true,
-                    //CompleteRequestDate = DateTime.UnixEpoch
                 });
+                await _paymentRepository.UpdateBalanceAsync(payment.UserId, payment.AmountOfPoints);
             }
-
-            return await _paymentRepository.GetUserWalletAsync(user.Id);
-        }
-
-        public async Task<List<Product>> GetAllProductsAsync()
-        {
-            return await _paymentRepository.GetAllProductsAsync();
         }
 
         public async Task<int> GetUserBalanceAsync(Guid userId)

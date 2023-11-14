@@ -8,7 +8,7 @@
         public static string ApplicationCurrency = "usd";
 
         public static string PaymentMode = "payment";
-        public static string PaymentRequestQueueName = "paymentrequestqueue";
+        public static string PaymentRequestQueueName = "paymentqueue";
 
         public static string ApplicationJson = "application/json";
 

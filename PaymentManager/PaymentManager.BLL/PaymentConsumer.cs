@@ -30,7 +30,6 @@ namespace PaymentManager.BLL
 
             var processorOptions = new ServiceBusProcessorOptions
             {
-                MaxConcurrentCalls = 25,
                 PrefetchCount = 25
             };
 
@@ -41,11 +40,6 @@ namespace PaymentManager.BLL
                 try
                 {
                     var message = JsonConvert.DeserializeObject<SessionCreateOptions>(messageArg.Message.Body.ToString());
-                    if (!IsValidEmail(message.CustomerEmail))
-                    {
-                        await messageArg.DeadLetterMessageAsync(messageArg.Message);
-                        throw new Exception($"Wrong email = {message.CustomerEmail}");
-                    }
 
                     var session = service.Create(message);
 
@@ -53,13 +47,12 @@ namespace PaymentManager.BLL
                     {
                         Id = Guid.NewGuid(),
                         PaymentId = session.PaymentIntentId,
-                        ProductId = Guid.Parse(session.Metadata[MetadataConstants.ProductId]),
+                        AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
                         Status = "created",
                         UserEmail = session.CustomerEmail,
                         SessionId = session.Id,
                         UpdatedBallance = false,
                         UserId = Guid.Parse(session.Metadata[MetadataConstants.UserId]),
-                        //CreateRequestDate = session.Created
                     });
 
                     var connectionId = session.Metadata[MetadataConstants.ConnectionId];
@@ -79,9 +72,9 @@ namespace PaymentManager.BLL
                 }
             };
 
-            queueMessageProcessor.ProcessErrorAsync += async (messageArgs) =>
+            queueMessageProcessor.ProcessErrorAsync += (messageArgs) =>
             {
-                Console.WriteLine(messageArgs.Exception.Message);
+                throw new Exception(messageArgs.Exception.Message);
             };
 
             await queueMessageProcessor.StartProcessingAsync(cancellationToken);
@@ -90,25 +83,6 @@ namespace PaymentManager.BLL
         public Task StopAsync(CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
-        }
-
-        private bool IsValidEmail(string email)
-        {
-            var trimmedEmail = email.Trim();
-
-            if (trimmedEmail.EndsWith("."))
-            {
-                return false;
-            }
-            try
-            {
-                var address = new System.Net.Mail.MailAddress(email);
-                return address.Address == trimmedEmail;
-            }
-            catch
-            {
-                return false;
-            }
         }
 
         private async Task CreatePaymentAsync(Payment payment)
