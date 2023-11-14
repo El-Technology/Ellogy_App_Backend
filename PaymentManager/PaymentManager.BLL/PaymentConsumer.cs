@@ -33,7 +33,7 @@ namespace PaymentManager.BLL
                 PrefetchCount = 25
             };
 
-            var queueMessageProcessor = _busClient.CreateProcessor(Constants.PaymentRequestQueueName, processorOptions);
+            var queueMessageProcessor = _busClient.CreateProcessor(Constants.PaymentQueueName, processorOptions);
 
             queueMessageProcessor.ProcessMessageAsync += async (messageArg) =>
             {
@@ -80,9 +80,9 @@ namespace PaymentManager.BLL
             await queueMessageProcessor.StartProcessingAsync(cancellationToken);
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            return Task.CompletedTask;
+            await _busClient.DisposeAsync();
         }
 
         private async Task CreatePaymentAsync(Payment payment)

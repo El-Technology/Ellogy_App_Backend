@@ -17,8 +17,7 @@ namespace PaymentManager.BLL
 
         public async Task CreatePaymentAsync(SessionCreateOptions options)
         {
-            var busSender = _busClient.CreateSender(Constants.PaymentRequestQueueName);
-            
+            var busSender = _busClient.CreateSender(Constants.PaymentQueueName);
             var messageBody = JsonConvert.SerializeObject(options);
             var message = new ServiceBusMessage(Encoding.UTF8.GetBytes(messageBody))
             {
