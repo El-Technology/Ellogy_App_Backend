@@ -22,6 +22,7 @@ namespace PaymentManager.API.Controllers
         public async Task<IActionResult> Index()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            Console.WriteLine(json);
             try
             {
                 var stripeEvent = EventUtility.ConstructEvent(json,
