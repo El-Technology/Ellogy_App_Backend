@@ -26,7 +26,6 @@ namespace PaymentManager.BLL
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            Console.WriteLine("StartAsync");
             var service = new SessionService();
 
             var processorOptions = new ServiceBusProcessorOptions
@@ -38,7 +37,6 @@ namespace PaymentManager.BLL
 
             queueMessageProcessor.ProcessMessageAsync += async (messageArg) =>
             {
-                Console.WriteLine("Process");
                 try
                 {
                     var message = JsonConvert.DeserializeObject<SessionCreateOptions>(messageArg.Message.Body.ToString());
@@ -70,7 +68,7 @@ namespace PaymentManager.BLL
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex);
-                    //await messageArg.DeadLetterMessageAsync(messageArg.Message);
+                    await messageArg.DeadLetterMessageAsync(messageArg.Message);
                     throw new Exception(ex.Message);
                 }
             };
