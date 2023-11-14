@@ -25,6 +25,9 @@ namespace PaymentManager.API.Controllers
             Console.WriteLine(json);
             try
             {
+                Console.WriteLine(Request.Headers["Stripe-Signature"]);
+                Console.WriteLine(EnvironmentVariables.WebhookKey);
+
                 var stripeEvent = EventUtility.ConstructEvent(json,
                     Request.Headers["Stripe-Signature"], EnvironmentVariables.WebhookKey);
 
