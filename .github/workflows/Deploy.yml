@@ -246,6 +246,7 @@ jobs:
         SERVICE_NAME4: ${{ needs.build_payment_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE4: ${{ needs.build_payment_manager.outputs.MicroserviceImage }}
         
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
         WEBHOOK_KEY: ${{ secrets.WEBHOOK_KEY }}
         CONNECTIONSTRING_PAYMENT: ${{ secrets.CONNECTIONSTRING_PAYMENT }}
         AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT }}
@@ -280,6 +281,7 @@ jobs:
         yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME4.image=env(SERVICE_IMAGE4)" docker-compose.yaml
 
+        export SECRET_KEY="$SECRET_KEY"
         export WEBHOOK_KEY="$WEBHOOK_KEY"
         export AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT="$AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT"
         export CONNECTIONSTRING_PAYMENT="$CONNECTIONSTRING_PAYMENT"
