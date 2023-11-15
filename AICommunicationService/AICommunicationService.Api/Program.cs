@@ -2,7 +2,7 @@ using AICommunicationService.Api.Middlewares;
 using AICommunicationService.BLL.Extensions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.Common;
-using AICommunicationService.DAL.Context;
+using AICommunicationService.DAL.Context.AiCommunication;
 using AICommunicationService.DAL.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;

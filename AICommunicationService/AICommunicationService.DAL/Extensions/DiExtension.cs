@@ -1,4 +1,5 @@
-﻿using AICommunicationService.DAL.Context;
+﻿using AICommunicationService.DAL.Context.AiCommunication;
+using AICommunicationService.DAL.Context.Tickets;
 using AICommunicationService.DAL.Interfaces;
 using AICommunicationService.DAL.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,9 @@ namespace AICommunicationService.DAL.Extensions
 
             return services
                 .AddDbContext<AICommunicationContext>(c => c.UseNpgsql(connectionString))
-                .AddScoped<IAIPromptRepository, AIPromptRepository>();
+                .AddDbContext<TicketContext>(c => c.UseNpgsql(connectionString))
+                .AddScoped<IAIPromptRepository, AIPromptRepository>()
+                .AddScoped<ITicketRepository, TicketRepository>();
         }
     }
 }

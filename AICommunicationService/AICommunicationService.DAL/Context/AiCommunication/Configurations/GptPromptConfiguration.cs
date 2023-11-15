@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AICommunicationService.DAL.Context.Configurations
+namespace AICommunicationService.DAL.Context.AiCommunication.Configurations
 {
     public class GptPromptConfiguration : IEntityTypeConfiguration<AIPrompt>
     {

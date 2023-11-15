@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TicketsManager.Common;
 
-namespace AICommunicationService.DAL.Context
+namespace AICommunicationService.DAL.Context.AiCommunication
 {
     public class AICommunicationContext : DbContext
     {

@@ -1,6 +1,6 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Services;
-using AICommunicationService.DAL.Context;
+using AICommunicationService.DAL.Context.AiCommunication;
 using AICommunicationService.DAL.Models;
 using AICommunicationService.DAL.Repositories;
 using AutoFixture;

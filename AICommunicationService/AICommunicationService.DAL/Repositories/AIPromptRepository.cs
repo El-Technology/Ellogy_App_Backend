@@ -1,4 +1,4 @@
-﻿using AICommunicationService.DAL.Context;
+﻿using AICommunicationService.DAL.Context.AiCommunication;
 using AICommunicationService.DAL.Interfaces;
 using AICommunicationService.DAL.Models;
 using Microsoft.EntityFrameworkCore;

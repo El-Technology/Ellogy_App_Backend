@@ -18,12 +18,14 @@ namespace AICommunicationService.BLL.Services
         private readonly IHubContext<StreamAiHub> _hubContext;
         private readonly IAIPromptRepository _aIPromptRepository;
         private readonly IAzureOpenAiRequestService _customAiService;
+        private readonly ITicketRepository _ticketRepository;
 
-        public CommunicationService(IAIPromptRepository aIPromptRepository, IHubContext<StreamAiHub> hubContext, IAzureOpenAiRequestService azureOpenAiRequestService)
+        public CommunicationService(IAIPromptRepository aIPromptRepository, IHubContext<StreamAiHub> hubContext, IAzureOpenAiRequestService azureOpenAiRequestService, ITicketRepository ticketRepository)
         {
             _hubContext = hubContext;
             _aIPromptRepository = aIPromptRepository;
             _customAiService = azureOpenAiRequestService;
+            _ticketRepository = ticketRepository;
         }
 
         private async Task<string> GetTemplateAsync(string promptName)
@@ -63,6 +65,8 @@ namespace AICommunicationService.BLL.Services
             };
             var response = await _customAiService.PostAiRequestAsync(request);
 
+            await _ticketRepository.UpdateTokensUsageAsync(createConversationRequest.TicketId, response.Usage.TotalTokens);
+
             return response.Content;
         }
 
@@ -101,6 +105,8 @@ namespace AICommunicationService.BLL.Services
                 }
             };
 
+            await _ticketRepository.UpdateTokensUsageAsync(streamRequest.TicketId, response.Usage.TotalTokens);
+
             return response.Content;
         }
 
@@ -116,6 +122,8 @@ namespace AICommunicationService.BLL.Services
                 UserInput = createConversationRequest.UserInput
             };
             var response = await _customAiService.PostAiRequestWithFunctionAsync(request);
+
+            await _ticketRepository.UpdateTokensUsageAsync(createConversationRequest.TicketId, response.Usage.TotalTokens);
 
             return response.Content;
         }
