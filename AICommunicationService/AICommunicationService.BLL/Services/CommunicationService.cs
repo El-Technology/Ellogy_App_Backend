@@ -1,4 +1,5 @@
 ﻿using AICommunicationService.BLL.Constants;
+using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Enums;
@@ -60,8 +61,9 @@ namespace AICommunicationService.BLL.Services
                 Url = GetAiModelLink(createConversationRequest.AiModelEnum),
                 UserInput = createConversationRequest.UserInput
             };
+            var response = await _customAiService.PostAiRequestAsync(request);
 
-            return await _customAiService.PostAiRequestAsync(request);
+            return response.Content;
         }
 
         /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(StreamRequest)"/>
@@ -85,7 +87,21 @@ namespace AICommunicationService.BLL.Services
                 stringBuilder.Append(response);
             });
 
-            return stringBuilder.ToString();
+            var promptTokens = Tokenizer(streamRequest.AiModelEnum, $"{request.Template} {streamRequest.UserInput}");
+            var completionTokens = Tokenizer(streamRequest.AiModelEnum, stringBuilder.ToString());
+
+            var response = new CommunicationResponseModel
+            {
+                Content = stringBuilder.ToString(),
+                Usage = new Common.Models.Usage
+                {
+                    PromptTokens = promptTokens,
+                    CompletionTokens = completionTokens,
+                    TotalTokens = promptTokens + completionTokens
+                }
+            };
+
+            return response.Content;
         }
 
         /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(CreateConversationRequest)"/>
@@ -99,22 +115,25 @@ namespace AICommunicationService.BLL.Services
                 Url = GetAiModelLink(createConversationRequest.AiModelEnum),
                 UserInput = createConversationRequest.UserInput
             };
+            var response = await _customAiService.PostAiRequestWithFunctionAsync(request);
 
-            return await _customAiService.PostAiRequestWithFunctionAsync(request);
+            return response.Content;
         }
 
-        /// Test
-        public async Task ReturnStreamingAsync(CreateConversationRequest createConversationRequest, Func<string, Task> outPut)
+        private int Tokenizer(AiModelEnum aiModelEnum, string text)
         {
-            var request = new MessageRequest
-            {
-                Temperature = createConversationRequest.Temperature,
-                Template = await GetTemplateAsync(createConversationRequest.TemplateName),
-                Url = GetAiModelLink(createConversationRequest.AiModelEnum),
-                UserInput = createConversationRequest.UserInput
-            };
+            var model = string.Empty;
 
-            await _customAiService.PostAiRequestAsStreamAsync(request, outPut);
+            if (aiModelEnum == AiModelEnum.Turbo)
+                model = "gpt-3.5-turbo";
+
+            if (aiModelEnum == AiModelEnum.Four)
+                model = "gpt-4";
+
+            var encoding = Tiktoken.Encoding.ForModel(model);
+            var tokens = encoding.CountTokens(text);
+
+            return tokens;
         }
     }
 }

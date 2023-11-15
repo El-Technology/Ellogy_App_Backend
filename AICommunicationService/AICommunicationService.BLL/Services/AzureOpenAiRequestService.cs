@@ -1,4 +1,5 @@
-﻿using AICommunicationService.BLL.Interfaces;
+﻿using AICommunicationService.BLL.Dtos;
+using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
@@ -74,22 +75,36 @@ namespace AICommunicationService.BLL.Services
             return new StringContent(jsonRequest, Encoding.UTF8, "application/json");
         }
 
-        public async Task<string?> PostAiRequestWithFunctionAsync(MessageRequest request)
+        public async Task<CommunicationResponseModel> PostAiRequestWithFunctionAsync(MessageRequest request)
         {
             var content = PostAiRequestGetContent(request, AiRequestType.Functions);
 
             var result = await _httpClient.PostAsync(request.Url, content);
             var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
-            return resultAsObject?.Choices?.FirstOrDefault()?.Message?.FunctionCall?.Arguments;
+
+            var communicationModel = new CommunicationResponseModel
+            {
+                Content = resultAsObject?.Choices?.FirstOrDefault()?.Message?.FunctionCall?.Arguments,
+                Usage = resultAsObject?.Usage
+            };
+
+            return communicationModel;
         }
 
-        public async Task<string?> PostAiRequestAsync(MessageRequest request)
+        public async Task<CommunicationResponseModel> PostAiRequestAsync(MessageRequest request)
         {
             var content = PostAiRequestGetContent(request, AiRequestType.Default);
 
             var result = await _httpClient.PostAsync(request.Url, content);
             var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
-            return resultAsObject?.Choices?.FirstOrDefault()?.Message?.Content;
+
+            var communicationModel = new CommunicationResponseModel
+            {
+                Content = resultAsObject?.Choices?.FirstOrDefault()?.Message?.Content,
+                Usage = resultAsObject?.Usage
+            };
+
+            return communicationModel;
         }
 
         public async Task PostAiRequestAsStreamAsync(MessageRequest request, Func<string, Task> onDataReceived)

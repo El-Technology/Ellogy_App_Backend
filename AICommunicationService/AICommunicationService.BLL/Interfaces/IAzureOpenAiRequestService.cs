@@ -1,11 +1,12 @@
-﻿using AICommunicationService.Common.Models.AIRequest;
+﻿using AICommunicationService.BLL.Dtos;
+using AICommunicationService.Common.Models.AIRequest;
 
 namespace AICommunicationService.BLL.Interfaces
 {
     public interface IAzureOpenAiRequestService
     {
         Task PostAiRequestAsStreamAsync(MessageRequest request, Func<string, Task> onDataReceived);
-        Task<string?> PostAiRequestAsync(MessageRequest request);
-        Task<string?> PostAiRequestWithFunctionAsync(MessageRequest request);
+        Task<CommunicationResponseModel> PostAiRequestAsync(MessageRequest request);
+        Task<CommunicationResponseModel> PostAiRequestWithFunctionAsync(MessageRequest request);
     }
 }
