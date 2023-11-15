@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Text;
 using Moq.Protected;
+using AICommunicationService.BLL.Dtos;
 
 namespace AiCommunicationService.Tests.ServiceTests
 {
@@ -32,6 +33,17 @@ namespace AiCommunicationService.Tests.ServiceTests
         public async Task PostAiRequestWithFunctionAsync_ReturnsGptResponse()
         {
             var expectedArguments = "some arguments";
+            var usage = new Usage
+            {
+                CompletionTokens = 2,
+                PromptTokens = 5,
+                TotalTokens = 7
+            };
+            var communicationResponseModel = new CommunicationResponseModel
+            {
+                Content = expectedArguments,
+                Usage = usage
+            };
             var messageRequest = new MessageRequest
             {
                 Temperature = 0.9f,
@@ -56,20 +68,38 @@ namespace AiCommunicationService.Tests.ServiceTests
                            }
                        }
                     }
-                }
+                },
+                Usage = usage
             };
 
             var aiService = ReturnAiRequestServiceAsync(aiResponseModel);
 
             var result = await aiService.PostAiRequestWithFunctionAsync(messageRequest);
 
-            Assert.That(result, Is.EqualTo(expectedArguments));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Content, Is.EqualTo(expectedArguments));
+                Assert.That(result.Usage.CompletionTokens, Is.EqualTo(usage.CompletionTokens));
+                Assert.That(result.Usage.PromptTokens, Is.EqualTo(usage.PromptTokens));
+                Assert.That(result.Usage.TotalTokens, Is.EqualTo(usage.TotalTokens));
+            });
         }
 
         [Test]
         public async Task PostAiRequestAsync_ReturnsGptResponse()
         {
             var expectedArguments = "some arguments";
+            var usage = new Usage
+            {
+                CompletionTokens = 2,
+                PromptTokens = 5,
+                TotalTokens = 7
+            };
+            var communicationResponseModel = new CommunicationResponseModel
+            {
+                Content = expectedArguments,
+                Usage = usage
+            };
             var messageRequest = new MessageRequest
             {
                 Temperature = 0.9f,
@@ -84,19 +114,26 @@ namespace AiCommunicationService.Tests.ServiceTests
                 {
                     new Choice
                     {
-                       Message = new Message
-                       {
-                           Content = expectedArguments
-                       }
+                        Message = new Message
+                        {
+                            Content = expectedArguments
+                        }
                     }
-                }
+                },
+                Usage = usage
             };
 
             var aiService = ReturnAiRequestServiceAsync(aiResponseModel);
 
             var result = await aiService.PostAiRequestAsync(messageRequest);
 
-            Assert.That(result, Is.EqualTo(expectedArguments));
+            Assert.Multiple(() =>
+            {
+                Assert.That(result.Content, Is.EqualTo(expectedArguments));
+                Assert.That(result.Usage.CompletionTokens, Is.EqualTo(usage.CompletionTokens));
+                Assert.That(result.Usage.PromptTokens, Is.EqualTo(usage.PromptTokens));
+                Assert.That(result.Usage.TotalTokens, Is.EqualTo(usage.TotalTokens));
+            });
         }
 
         [Test]

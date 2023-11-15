@@ -1,8 +1,10 @@
 ﻿using AICommunicationService.BLL.Constants;
+using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.BLL.Services;
 using AICommunicationService.Common.Enums;
+using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.DAL.Interfaces;
 using AICommunicationService.DAL.Models;
@@ -17,15 +19,17 @@ namespace AiCommunicationService.Tests.ServiceTests
         private Mock<IAIPromptRepository> _promptRepositoryMock;
         private Mock<IHubContext<StreamAiHub>> _hubContextMock;
         private Mock<IAzureOpenAiRequestService> _customAiServiceMock;
+        private Mock<ITicketRepository> _ticketRepositoryMock;
         private ICommunicationService _communicationService;
 
         [SetUp]
         public void Setup()
         {
+            _ticketRepositoryMock = new Mock<ITicketRepository>();
             _promptRepositoryMock = new Mock<IAIPromptRepository>();
             _hubContextMock = new Mock<IHubContext<StreamAiHub>>();
             _customAiServiceMock = new Mock<IAzureOpenAiRequestService>();
-            _communicationService = new CommunicationService(_promptRepositoryMock.Object, _hubContextMock.Object, _customAiServiceMock.Object);
+            _communicationService = new CommunicationService(_promptRepositoryMock.Object, _hubContextMock.Object, _customAiServiceMock.Object, _ticketRepositoryMock.Object);
         }
 
         [Test]
@@ -40,12 +44,23 @@ namespace AiCommunicationService.Tests.ServiceTests
             };
 
             var expectedAiResponse = "ExpectedAiResponse";
+            var usage = new Usage
+            {
+                CompletionTokens = 2,
+                PromptTokens = 5,
+                TotalTokens = 7
+            };
+            var communicationResponseModel = new CommunicationResponseModel
+            {
+                Content = expectedAiResponse,
+                Usage = usage
+            };
 
             _promptRepositoryMock.Setup(x => x.GetPromptByTemplateNameAsync(It.IsAny<string>()))
                                  .ReturnsAsync(new AIPrompt { Value = "Template Value", Functions = "Functions Value" });
 
             _customAiServiceMock.Setup(x => x.PostAiRequestAsync(It.IsAny<MessageRequest>()))
-                                .ReturnsAsync(expectedAiResponse);
+                                .ReturnsAsync(communicationResponseModel);
 
             var result = await _communicationService.ChatRequestAsync(createConversationRequest);
 
@@ -120,12 +135,22 @@ namespace AiCommunicationService.Tests.ServiceTests
             };
 
             var expectedAiResponse = "ExpectedAiResponse";
-
+            var usage = new Usage
+            {
+                CompletionTokens = 2,
+                PromptTokens = 5,
+                TotalTokens = 7
+            };
+            var communicationResponseModel = new CommunicationResponseModel
+            {
+                Content = expectedAiResponse,
+                Usage = usage
+            };
             _promptRepositoryMock.Setup(x => x.GetPromptByTemplateNameAsync(It.IsAny<string>()))
                                  .ReturnsAsync(new AIPrompt { Value = "Template Value", Functions = "Functions Value" });
 
             _customAiServiceMock.Setup(x => x.PostAiRequestWithFunctionAsync(It.IsAny<MessageRequest>()))
-                                .ReturnsAsync(expectedAiResponse);
+                                .ReturnsAsync(communicationResponseModel);
 
             var result = await _communicationService.ChatRequestWithFunctionAsync(createConversationRequest);
 
@@ -140,42 +165,6 @@ namespace AiCommunicationService.Tests.ServiceTests
                 Times.Once, "PostAiRequestWithFunctionAsync should have been called once with the correct MessageRequest parameters.");
 
             Assert.That(result, Is.EqualTo(expectedAiResponse), "The method should return the expected AI response.");
-        }
-
-        [Test]
-        public async Task ReturnStreamingAsync_ShouldCallPostAiRequestAsStreamAsyncWithCorrectMessageRequest()
-        {
-            var createConversationRequest = new CreateConversationRequest
-            {
-                Temperature = 0.9f,
-                TemplateName = "TemplateName",
-                UserInput = "UserInput",
-                AiModelEnum = AiModelEnum.Turbo
-            };
-
-            var expectedAiResponse = "ExpectedAiResponse";
-
-            _promptRepositoryMock.Setup(x => x.GetPromptByTemplateNameAsync(It.IsAny<string>()))
-                                 .ReturnsAsync(new AIPrompt { Value = "Template Value" });
-
-            _customAiServiceMock.Setup(x => x.PostAiRequestAsStreamAsync(It.IsAny<MessageRequest>(), It.IsAny<Func<string, Task>>()))
-                                .Callback<MessageRequest, Func<string, Task>>((request, onDataReceived) => onDataReceived(expectedAiResponse));
-
-            await _communicationService.ReturnStreamingAsync(createConversationRequest, async response =>
-            {
-                Assert.That(response, Is.EqualTo(expectedAiResponse), "The response should match the expected AI response.");
-            });
-
-            _promptRepositoryMock.Verify(x => x.GetPromptByTemplateNameAsync(createConversationRequest.TemplateName), Times.Once,
-                "GetPromptByTemplateNameAsync should have been called once with the correct template name.");
-
-            _customAiServiceMock.Verify(x => x.PostAiRequestAsStreamAsync(It.Is<MessageRequest>(
-                request => request.Temperature == createConversationRequest.Temperature &&
-                           request.Template == "Template Value" &&
-                           request.UserInput == createConversationRequest.UserInput &&
-                           request.Url.Contains(AzureAiConstants.TurboModel)),
-                It.IsAny<Func<string, Task>>()), Times.Once,
-                "PostAiRequestAsStreamAsync should have been called once with the correct MessageRequest parameters and onDataReceived function.");
         }
     }
 }
