@@ -13,6 +13,10 @@ env:
 
 jobs:
   build_api_gateway:
+    permissions:
+      contents: read
+      packages: write
+      
     env:  
       MICROSERVICE_NAME: 'api_gateway'
       PROJECT_PATH: './OcelotApiGateway/'
