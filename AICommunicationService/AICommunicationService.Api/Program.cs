@@ -26,7 +26,17 @@ app.Run();
 
 static void AddServices(WebApplicationBuilder builder)
 {
-    builder.Services.AddCors();
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(builder =>
+        {
+            builder.SetIsOriginAllowed(origin => true)
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+    });
+
     builder.Services.AddSignalR();
     builder.Services.AddAuthorization();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -98,13 +108,8 @@ static void AddMiddleware(WebApplication app)
         app.UseSwaggerUI();
     }
 
-    app.UseCors(builder =>
-    {
-        builder.AllowAnyMethod();
-        builder.AllowAnyHeader();
-        builder.SetIsOriginAllowed(origin => true);
-        builder.AllowCredentials();
-    });
+    app.UseCors();
+
     app.UseWebSockets();
 
     app.UseHttpsRedirection();
