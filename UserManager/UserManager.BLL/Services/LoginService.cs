@@ -25,6 +25,9 @@ public class LoginService : ILoginService
     {
         var user = await _userRepository.GetUserByEmailAsync(loginUser.Email) ?? throw new UserNotFoundException(loginUser.Email);
 
+        if (user.Role != DAL.Enums.RoleEnum.Admin)
+            throw new Exception("You are not allowed to login");
+
         if (!CryptoHelper.ConfirmPassword(loginUser.Password, user.Salt, user.Password))
             throw new FailedLoginException();
 
