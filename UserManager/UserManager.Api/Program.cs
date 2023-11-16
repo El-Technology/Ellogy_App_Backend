@@ -109,6 +109,8 @@ namespace UserManager.Api
 
         private static void AddMiddleware(WebApplication app)
         {
+            app.UseCors();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
