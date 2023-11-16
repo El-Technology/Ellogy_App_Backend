@@ -117,7 +117,7 @@ static void AddMiddleware(WebApplication app)
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
-    app.MapHub<StreamAiHub>("/streamHub");
+    app.MapHub<StreamAiHub>("/dev/streamHub");
     app.UseMiddleware<ExceptionHandlerMiddleware>();
 }
 static void MigrateDatabase(IHost app)
