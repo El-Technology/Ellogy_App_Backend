@@ -650,7 +650,7 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     },
     {
-      "DownstreamPathTemplate": "/dev/checkout/getUserBalance",
+      "DownstreamPathTemplate": "/dev/CheckOut/getUserBalance",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -658,11 +658,11 @@
           "Port": 5021
         }
       ],
-      "UpstreamPathTemplate": "/api/checkout/getUserBalance",
+      "UpstreamPathTemplate": "/api/CheckOut/getUserBalance",
       "UpstreamHttpMethod": [ "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/dev/checkout/createPayment",
+      "DownstreamPathTemplate": "/dev/CheckOut/createPayment",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -670,7 +670,7 @@
           "Port": 5021
         }
       ],
-      "UpstreamPathTemplate": "/api/checkout/createPayment",
+      "UpstreamPathTemplate": "/api/CheckOut/createPayment",
       "UpstreamHttpMethod": [ "POST" ]
     },
     {
