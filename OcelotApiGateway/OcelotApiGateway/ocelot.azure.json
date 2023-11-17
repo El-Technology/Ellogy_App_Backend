@@ -650,52 +650,52 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     },
     {
-      "DownstreamPathTemplate": "/dev/CheckOut/getUserBalance",
+      "UpstreamPathTemplate": "/dev/CheckOut/getUserBalance",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/CheckOut/getUserBalance",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "20.21.129.55",
           "Port": 5021
         }
-      ],
-      "UpstreamPathTemplate": "/api/CheckOut/getUserBalance",
-      "UpstreamHttpMethod": [ "GET" ]
+      ]
     },
     {
-      "DownstreamPathTemplate": "/dev/CheckOut/createPayment",
+      "UpstreamPathTemplate": "/dev/CheckOut/createPayment",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/CheckOut/createPayment",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "20.21.129.55",
           "Port": 5021
         }
-      ],
-      "UpstreamPathTemplate": "/api/CheckOut/createPayment",
-      "UpstreamHttpMethod": [ "POST" ]
+      ]
     },
     {
-      "DownstreamPathTemplate": "/dev/paymentHub",
+      "UpstreamPathTemplate": "/dev/paymentHub",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ],
+      "DownstreamPathTemplate": "/paymentHub",
       "DownstreamScheme": "ws",
       "DownstreamHostAndPorts": [
         {
           "Host": "20.21.129.55",
           "Port": 5021
         }
-      ],
-      "UpstreamPathTemplate": "/dev/paymentHub",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
+      ]
     },
     {
-      "DownstreamPathTemplate": "/dev/paymentHub/negotiate",
+      "UpstreamPathTemplate": "/dev/paymentHub/negotiate",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ],
+      "DownstreamPathTemplate": "/paymentHub/negotiate",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
           "Host": "20.21.129.55",
           "Port": 5021
         }
-      ],
-      "UpstreamPathTemplate": "/dev/paymentHub/negotiate",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
+      ]
     }
   ]
 }
