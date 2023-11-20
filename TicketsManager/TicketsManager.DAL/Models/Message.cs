@@ -1,5 +1,4 @@
-﻿#pragma warning disable CS8618
-using TicketsManager.DAL.Enums;
+﻿using TicketsManager.DAL.Enums;
 
 namespace TicketsManager.DAL.Models;
 

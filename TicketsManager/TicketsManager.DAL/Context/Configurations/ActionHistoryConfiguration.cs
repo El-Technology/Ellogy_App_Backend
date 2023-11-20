@@ -1,0 +1,26 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TicketsManager.DAL.Models;
+
+namespace TicketsManager.DAL.Context.Configurations
+{
+    public class ActionHistoryConfiguration : IEntityTypeConfiguration<ActionHistory>
+    {
+        public void Configure(EntityTypeBuilder<ActionHistory> builder)
+        {
+            builder.ToTable("ActionHistories");
+            builder.HasKey(c => c.Id);
+
+            builder.Property(c => c.TicketId)
+                .IsRequired();
+            builder.Property(c => c.ActionHistoryEnum)
+                .IsRequired();
+            builder.Property(c => c.TicketCurrentStepEnum)
+                .IsRequired();
+            builder.Property(c => c.OldValue);
+            builder.Property(c => c.NewValue);
+            builder.Property(c => c.ActionTime)
+                .IsRequired();
+        }
+    }
+}

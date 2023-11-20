@@ -22,6 +22,35 @@ namespace TicketsManager.DAL.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.ActionHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ActionHistoryEnum")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ActionTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("text");
+
+                    b.Property<string>("OldValue")
+                        .HasColumnType("text");
+
+                    b.Property<int>("TicketCurrentStepEnum")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ActionHistories", (string)null);
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Message", b =>
                 {
                     b.Property<Guid>("Id")

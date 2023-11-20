@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TicketsManager.Common\TicketsManager.Common.csproj" />
     <ProjectReference Include="..\TicketsManager.DAL\TicketsManager.DAL.csproj" />
   </ItemGroup>
 

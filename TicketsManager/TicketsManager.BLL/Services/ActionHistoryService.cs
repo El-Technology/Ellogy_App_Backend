@@ -1,0 +1,44 @@
+﻿using AutoMapper;
+using TicketsManager.BLL.Dtos.ActionHistoryDtos;
+using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common.Dtos;
+using TicketsManager.DAL.Interfaces;
+using TicketsManager.DAL.Models;
+
+namespace TicketsManager.BLL.Services
+{
+    public class ActionHistoryService : IActionHistoryService
+    {
+        private readonly IActionHistoryRepository _actionHistoryRepository;
+        private readonly IMapper _mapper;
+        private readonly ITicketsRepository _ticketsRepository;
+
+        public ActionHistoryService(IActionHistoryRepository actionHistoryRepository, IMapper mapper, ITicketsRepository ticketsRepository)
+        {
+            _ticketsRepository = ticketsRepository;
+            _mapper = mapper;
+            _actionHistoryRepository = actionHistoryRepository;
+        }
+
+        public async Task<PaginationResponseDto<ActionHistory>> GetActionHistoriesAsync(Guid ticketId, SearchHistoryRequestDto searchHistoryRequestDto)
+        {
+            await CheckIfTicketExist(ticketId);
+
+            var response = await _actionHistoryRepository.GetActionHistoriesAsync(ticketId, searchHistoryRequestDto.TicketCurrentStepEnum, searchHistoryRequestDto.Pagination);
+            return response;
+        }
+
+        public async Task CreateActionHistoryAsync(CreateActionHistoryDto createActionHistoryDto)
+        {
+            await CheckIfTicketExist(createActionHistoryDto.TicketId);
+
+            await _actionHistoryRepository.CreateActionHistoryAsync(_mapper.Map<ActionHistory>(createActionHistoryDto));
+        }
+
+        private async Task CheckIfTicketExist(Guid ticketId)
+        {
+            _ = await _ticketsRepository.GetTicketByIdAsync(ticketId)
+                ?? throw new Exception($"Ticket with id - {ticketId} was not found");
+        }
+    }
+}
