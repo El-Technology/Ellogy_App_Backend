@@ -170,7 +170,7 @@ namespace AICommunicationService.BLL.Services
                 ?? throw new Exception("User was not found");
 
             var minBalanceAllowedToUser = (int)((user.TotalPurchasedPoints * 0.25f) - user.TotalPointsUsage);
-            if (minBalanceAllowedToUser <= 0)
+            if (minBalanceAllowedToUser >= 0)
                 return;
 
             if (await _walletRepository.CheckIfUserAllowedToCreateRequest(userId, minBalanceAllowedToUser))
