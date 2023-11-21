@@ -10,8 +10,8 @@ namespace AICommunicationService.DAL.Context.AiCommunication.Configurations
         {
             builder.ToTable("Users");
             builder.HasKey(a => a.Id);
-            builder.Property(a => a.TotalTokensUsage);
-            builder.Property(a => a.TotalPurchasedTokens);
+            builder.Property(a => a.TotalPointsUsage);
+            builder.Property(a => a.TotalPurchasedPoints);
         }
     }
 }

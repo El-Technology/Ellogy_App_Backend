@@ -124,10 +124,10 @@ namespace UserManager.DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("TotalPurchasedTokens")
+                    b.Property<int>("TotalPointsUsage")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TotalTokensUsage")
+                    b.Property<int>("TotalPurchasedPoints")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");

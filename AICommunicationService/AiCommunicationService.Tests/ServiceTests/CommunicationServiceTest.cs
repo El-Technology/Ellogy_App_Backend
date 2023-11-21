@@ -31,8 +31,8 @@ namespace AiCommunicationService.Tests.ServiceTests
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                TotalPurchasedTokens = 1000,
-                TotalTokensUsage = 1000
+                TotalPurchasedPoints = 1000,
+                TotalPointsUsage = 1000
             };
             _userRepositoryMock.Setup(x => x.GetUserByIdAsync(It.IsAny<Guid>())).ReturnsAsync(user);
 

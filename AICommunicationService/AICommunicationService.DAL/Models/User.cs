@@ -3,7 +3,7 @@
     public class User
     {
         public Guid Id { get; set; }
-        public int TotalTokensUsage { get; set; }
-        public int TotalPurchasedTokens { get; set; }
+        public int TotalPointsUsage { get; set; }
+        public int TotalPurchasedPoints { get; set; }
     }
 }

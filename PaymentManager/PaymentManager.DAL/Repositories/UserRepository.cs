@@ -28,7 +28,7 @@ namespace PaymentManager.DAL.Repositories
         {
             await _userContext.Users
                 .Where(a => a.Id == userId)
-                .ExecuteUpdateAsync(a => a.SetProperty(a => a.TotalPurchasedTokens, a => a.TotalPurchasedTokens + purchasedTokens));
+                .ExecuteUpdateAsync(a => a.SetProperty(a => a.TotalPurchasedPoints, a => a.TotalPurchasedPoints + purchasedTokens));
         }
     }
 }

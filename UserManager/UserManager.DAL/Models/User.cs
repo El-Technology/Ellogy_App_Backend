@@ -16,8 +16,8 @@ namespace UserManager.DAL.Models
         public string? AvatarLink { get; set; }
         public string Salt { get; set; }
         public RoleEnum Role { get; set; }
-        public int TotalTokensUsage { get; set; }
-        public int TotalPurchasedTokens { get; set; }
+        public int TotalPointsUsage { get; set; }
+        public int TotalPurchasedPoints { get; set; }
         public RefreshToken RefreshToken { get; set; }
     }
 }

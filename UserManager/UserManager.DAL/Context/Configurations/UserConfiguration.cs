@@ -36,7 +36,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(c => c.Role)
             .IsRequired()
             .HasDefaultValue(RoleEnum.User);
-        builder.Property(c => c.TotalTokensUsage);
-        builder.Property(c => c.TotalPurchasedTokens);
+        builder.Property(c => c.TotalPointsUsage);
+        builder.Property(c => c.TotalPurchasedPoints);
     }
 }

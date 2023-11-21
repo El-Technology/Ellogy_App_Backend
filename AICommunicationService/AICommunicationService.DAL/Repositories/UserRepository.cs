@@ -13,19 +13,19 @@ namespace AICommunicationService.DAL.Repositories
             _context = context;
         }
 
-        public async Task UpdateUserTotalTokensUsageAsync(Guid userId, int usedTokens)
+        public async Task UpdateUserTotalPointsUsageAsync(Guid userId, int usedTokens)
         {
             await _context.Users
                 .Where(a => a.Id == userId)
-                .ExecuteUpdateAsync(x => x.SetProperty(x => x.TotalTokensUsage, x => x.TotalTokensUsage + usedTokens));
+                .ExecuteUpdateAsync(x => x.SetProperty(x => x.TotalPointsUsage, x => x.TotalPointsUsage + usedTokens));
         }
 
-        public async Task<int> GetUserTotalTokensUsageAsync(Guid userId)
+        public async Task<int> GetUserTotalPointsUsageAsync(Guid userId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(a => a.Id == userId)
                 ?? throw new Exception($"User with id - {userId} was not found");
 
-            return user.TotalTokensUsage;
+            return user.TotalPointsUsage;
         }
 
         public async Task<User?> GetUserByIdAsync(Guid userId)

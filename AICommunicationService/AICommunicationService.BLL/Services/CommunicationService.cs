@@ -73,7 +73,7 @@ namespace AICommunicationService.BLL.Services
             };
             var response = await _customAiService.PostAiRequestAsync(request);
 
-            await _userRepository.UpdateUserTotalTokensUsageAsync(userId, response.Usage.TotalTokens);
+            await _userRepository.UpdateUserTotalPointsUsageAsync(userId, response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
             await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
 
             return response.Content;
@@ -116,7 +116,7 @@ namespace AICommunicationService.BLL.Services
                 }
             };
 
-            await _userRepository.UpdateUserTotalTokensUsageAsync(userId, response.Usage.TotalTokens);
+            await _userRepository.UpdateUserTotalPointsUsageAsync(userId, response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
             await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
 
             return response.Content;
@@ -137,7 +137,7 @@ namespace AICommunicationService.BLL.Services
             };
             var response = await _customAiService.PostAiRequestWithFunctionAsync(request);
 
-            await _userRepository.UpdateUserTotalTokensUsageAsync(userId, response.Usage.TotalTokens);
+            await _userRepository.UpdateUserTotalPointsUsageAsync(userId, response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
             await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
 
             return response.Content;
@@ -169,7 +169,7 @@ namespace AICommunicationService.BLL.Services
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new Exception("User was not found");
 
-            var minBalanceAllowedToUser = (int)((user.TotalPurchasedTokens * 0.25f) - user.TotalTokensUsage) / PaymentConstants.TokensToPointsRelation;
+            var minBalanceAllowedToUser = (int)((user.TotalPurchasedPoints * 0.25f) - user.TotalPointsUsage);
 
             if (await _walletRepository.CheckIfUserAllowedToCreateRequest(userId, minBalanceAllowedToUser))
                 throw new Exception("You need to replenish your balance in order to perform further requests");

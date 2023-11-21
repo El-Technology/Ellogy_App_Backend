@@ -5,7 +5,7 @@ namespace AICommunicationService.DAL.Interfaces
     public interface IUserRepository
     {
         Task<User?> GetUserByIdAsync(Guid userId);
-        Task<int> GetUserTotalTokensUsageAsync(Guid userId);
-        Task UpdateUserTotalTokensUsageAsync(Guid userId, int usedTokens);
+        Task<int> GetUserTotalPointsUsageAsync(Guid userId);
+        Task UpdateUserTotalPointsUsageAsync(Guid userId, int usedTokens);
     }
 }
