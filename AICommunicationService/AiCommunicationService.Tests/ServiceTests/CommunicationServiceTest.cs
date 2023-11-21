@@ -19,22 +19,38 @@ namespace AiCommunicationService.Tests.ServiceTests
         private Mock<IAIPromptRepository> _promptRepositoryMock;
         private Mock<IHubContext<StreamAiHub>> _hubContextMock;
         private Mock<IAzureOpenAiRequestService> _customAiServiceMock;
-        private Mock<ITicketRepository> _ticketRepositoryMock;
+        private Mock<IUserRepository> _userRepositoryMock;
+        private Mock<IWalletRepository> _walletRepositoryMock;
         private ICommunicationService _communicationService;
 
         [SetUp]
         public void Setup()
         {
-            _ticketRepositoryMock = new Mock<ITicketRepository>();
+            _userRepositoryMock = new Mock<IUserRepository>();
+
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                TotalPurchasedTokens = 1000,
+                TotalTokensUsage = 1000
+            };
+            _userRepositoryMock.Setup(x => x.GetUserByIdAsync(It.IsAny<Guid>())).ReturnsAsync(user);
+
+            _walletRepositoryMock = new Mock<IWalletRepository>();
             _promptRepositoryMock = new Mock<IAIPromptRepository>();
             _hubContextMock = new Mock<IHubContext<StreamAiHub>>();
             _customAiServiceMock = new Mock<IAzureOpenAiRequestService>();
-            _communicationService = new CommunicationService(_promptRepositoryMock.Object, _hubContextMock.Object, _customAiServiceMock.Object, _ticketRepositoryMock.Object);
+            _communicationService = new CommunicationService(_promptRepositoryMock.Object,
+                                                             _hubContextMock.Object,
+                                                             _customAiServiceMock.Object,
+                                                             _userRepositoryMock.Object,
+                                                             _walletRepositoryMock.Object);
         }
 
         [Test]
         public async Task ChatRequestAsync_ShouldCallPostAiRequestAsyncWithCorrectMessageRequest()
         {
+            var userId = Guid.NewGuid();
             var createConversationRequest = new CreateConversationRequest
             {
                 Temperature = 0.9f,
@@ -62,7 +78,7 @@ namespace AiCommunicationService.Tests.ServiceTests
             _customAiServiceMock.Setup(x => x.PostAiRequestAsync(It.IsAny<MessageRequest>()))
                                 .ReturnsAsync(communicationResponseModel);
 
-            var result = await _communicationService.ChatRequestAsync(createConversationRequest);
+            var result = await _communicationService.ChatRequestAsync(userId, createConversationRequest);
 
             _promptRepositoryMock.Verify(x => x.GetPromptByTemplateNameAsync(createConversationRequest.TemplateName), Times.Once,
                 "GetPromptByTemplateNameAsync should have been called once with the correct template name.");
@@ -81,6 +97,7 @@ namespace AiCommunicationService.Tests.ServiceTests
         [Test]
         public async Task StreamSignalRConversationAsync_ShouldCallPostAiRequestAsStreamAsyncWithCorrectMessageRequest()
         {
+            var userId = Guid.NewGuid();
             var streamRequest = new StreamRequest
             {
                 Temperature = 0.9f,
@@ -107,7 +124,7 @@ namespace AiCommunicationService.Tests.ServiceTests
                                     await onDataReceived(expectedAiResponse);
                                 });
 
-            var result = await _communicationService.StreamSignalRConversationAsync(streamRequest);
+            var result = await _communicationService.StreamSignalRConversationAsync(userId, streamRequest);
 
             _promptRepositoryMock.Verify(x => x.GetPromptByTemplateNameAsync(streamRequest.TemplateName), Times.Once,
                 "GetPromptByTemplateNameAsync should have been called once with the correct template name.");
@@ -126,6 +143,7 @@ namespace AiCommunicationService.Tests.ServiceTests
         [Test]
         public async Task ChatRequestWithFunctionAsync_ShouldCallPostAiRequestWithFunctionAsyncWithCorrectMessageRequest()
         {
+            var userId = Guid.NewGuid();
             var createConversationRequest = new CreateConversationRequest
             {
                 Temperature = 0.9f,
@@ -152,7 +170,7 @@ namespace AiCommunicationService.Tests.ServiceTests
             _customAiServiceMock.Setup(x => x.PostAiRequestWithFunctionAsync(It.IsAny<MessageRequest>()))
                                 .ReturnsAsync(communicationResponseModel);
 
-            var result = await _communicationService.ChatRequestWithFunctionAsync(createConversationRequest);
+            var result = await _communicationService.ChatRequestWithFunctionAsync(userId, createConversationRequest);
 
             _promptRepositoryMock.Verify(x => x.GetPromptByTemplateNameAsync(createConversationRequest.TemplateName), Times.Exactly(2),
                 "GetPromptByTemplateNameAsync should have been called once with the correct template name.");
