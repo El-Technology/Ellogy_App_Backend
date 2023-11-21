@@ -80,6 +80,7 @@ namespace PaymentManager.BLL.Services
                     UpdatedBallance = true,
                 });
                 await _paymentRepository.UpdateBalanceAsync(payment.UserId, payment.AmountOfPoints);
+                await _userRepository.UpdateTotalPurchasedTokensAsync(payment.UserId, payment.AmountOfPoints);
             }
         }
 

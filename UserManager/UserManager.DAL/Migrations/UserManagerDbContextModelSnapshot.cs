@@ -124,6 +124,12 @@ namespace UserManager.DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("TotalPurchasedTokens")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TotalTokensUsage")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users", (string)null);

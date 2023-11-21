@@ -18,14 +18,20 @@ namespace AICommunicationService.BLL.Services
         private readonly IHubContext<StreamAiHub> _hubContext;
         private readonly IAIPromptRepository _aIPromptRepository;
         private readonly IAzureOpenAiRequestService _customAiService;
-        private readonly ITicketRepository _ticketRepository;
+        private readonly IWalletRepository _walletRepository;
+        private readonly IUserRepository _userRepository;
 
-        public CommunicationService(IAIPromptRepository aIPromptRepository, IHubContext<StreamAiHub> hubContext, IAzureOpenAiRequestService azureOpenAiRequestService, ITicketRepository ticketRepository)
+        public CommunicationService(IAIPromptRepository aIPromptRepository,
+                                    IHubContext<StreamAiHub> hubContext,
+                                    IAzureOpenAiRequestService azureOpenAiRequestService,
+                                    IUserRepository userRepository,
+                                    IWalletRepository walletRepository)
         {
+            _userRepository = userRepository;
+            _walletRepository = walletRepository;
             _hubContext = hubContext;
             _aIPromptRepository = aIPromptRepository;
             _customAiService = azureOpenAiRequestService;
-            _ticketRepository = ticketRepository;
         }
 
         private async Task<string> GetTemplateAsync(string promptName)
@@ -53,9 +59,11 @@ namespace AICommunicationService.BLL.Services
             return $"{AzureAiConstants.BaseUrl}{deploymentName}/chat/completions?{AzureAiConstants.ApiVersion}";
         }
 
-        /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(CreateConversationRequest)"/>
-        public async Task<string?> ChatRequestAsync(CreateConversationRequest createConversationRequest)
+        /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(Guid, CreateConversationRequest)"/>
+        public async Task<string?> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest)
         {
+            await CheckIfUserAllowedToCreateRequest(userId);
+
             var request = new MessageRequest
             {
                 Temperature = createConversationRequest.Temperature,
@@ -65,14 +73,17 @@ namespace AICommunicationService.BLL.Services
             };
             var response = await _customAiService.PostAiRequestAsync(request);
 
-            await _ticketRepository.UpdateTokensUsageAsync(createConversationRequest.TicketId, response.Usage.TotalTokens);
+            await _userRepository.UpdateUserTotalTokensUsageAsync(userId, response.Usage.TotalTokens);
+            await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
 
             return response.Content;
         }
 
-        /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(StreamRequest)"/>
-        public async Task<string> StreamSignalRConversationAsync(StreamRequest streamRequest)
+        /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(Guid, StreamRequest)"/>
+        public async Task<string> StreamSignalRConversationAsync(Guid userId, StreamRequest streamRequest)
         {
+            await CheckIfUserAllowedToCreateRequest(userId);
+
             if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
                 throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
 
@@ -105,14 +116,17 @@ namespace AICommunicationService.BLL.Services
                 }
             };
 
-            await _ticketRepository.UpdateTokensUsageAsync(streamRequest.TicketId, response.Usage.TotalTokens);
+            await _userRepository.UpdateUserTotalTokensUsageAsync(userId, response.Usage.TotalTokens);
+            await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
 
             return response.Content;
         }
 
-        /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(CreateConversationRequest)"/>
-        public async Task<string?> ChatRequestWithFunctionAsync(CreateConversationRequest createConversationRequest)
+        /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(Guid, CreateConversationRequest)"/>
+        public async Task<string?> ChatRequestWithFunctionAsync(Guid userId, CreateConversationRequest createConversationRequest)
         {
+            await CheckIfUserAllowedToCreateRequest(userId);
+
             var request = new MessageRequest
             {
                 Functions = await GetFunctionsAsync(createConversationRequest.TemplateName) ?? throw new Exception("Functions is null, change method or update the prompt"),
@@ -123,7 +137,8 @@ namespace AICommunicationService.BLL.Services
             };
             var response = await _customAiService.PostAiRequestWithFunctionAsync(request);
 
-            await _ticketRepository.UpdateTokensUsageAsync(createConversationRequest.TicketId, response.Usage.TotalTokens);
+            await _userRepository.UpdateUserTotalTokensUsageAsync(userId, response.Usage.TotalTokens);
+            await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
 
             return response.Content;
         }
@@ -142,6 +157,22 @@ namespace AICommunicationService.BLL.Services
             var tokens = encoding.CountTokens(text);
 
             return tokens;
+        }
+
+        private int TokensToPointsConverter(int amountOfTokens)
+        {
+            return amountOfTokens / PaymentConstants.TokensToPointsRelation;
+        }
+
+        private async Task CheckIfUserAllowedToCreateRequest(Guid userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId)
+                ?? throw new Exception("User was not found");
+
+            var minBalanceAllowedToUser = (int)((user.TotalPurchasedTokens * 0.25f) - user.TotalTokensUsage) / PaymentConstants.TokensToPointsRelation;
+
+            if (await _walletRepository.CheckIfUserAllowedToCreateRequest(userId, minBalanceAllowedToUser))
+                throw new Exception("You need to replenish your balance in order to perform further requests");
         }
     }
 }

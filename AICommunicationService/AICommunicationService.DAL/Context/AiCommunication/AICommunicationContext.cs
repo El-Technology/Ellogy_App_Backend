@@ -6,6 +6,7 @@ namespace AICommunicationService.DAL.Context.AiCommunication
 {
     public class AICommunicationContext : DbContext
     {
+        public DbSet<User> Users { get; set; } = null!;
         public DbSet<AIPrompt> AIPrompts { get; set; } = null!;
         public AICommunicationContext() { }
         public AICommunicationContext(DbContextOptions<AICommunicationContext> options) : base(options) { }

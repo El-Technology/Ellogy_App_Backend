@@ -13,7 +13,6 @@ public class Ticket
     public DateTime? UpdatedDate { get; set; }
     public TicketStatusEnum Status { get; set; }
     public TicketCurrentStepEnum CurrentStep { get; set; }
-    public int TokensTotalUsage { get; set; }
 
     public ICollection<Message> TicketMessages { get; set; } = new List<Message>();
     public ICollection<TicketSummary> TicketSummaries { get; set; } = new List<TicketSummary>();

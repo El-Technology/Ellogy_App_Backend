@@ -96,7 +96,7 @@ static void AddServices(WebApplicationBuilder builder)
     });
 
     builder.Services.AddHealthChecks();
-    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
+    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment   );
     builder.Services.AddBusinessLayer();
 }
 

@@ -3,19 +3,19 @@ using AICommunicationService.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using TicketsManager.Common;
 
-namespace AICommunicationService.DAL.Context.Tickets
+namespace AICommunicationService.DAL.Context.Wallets
 {
-    public class TicketContext : DbContext
+    public class WalletContext : DbContext
     {
-        public DbSet<Ticket> Tickets { get; set; } = null!;
-        public TicketContext() { }
-        public TicketContext(DbContextOptions<TicketContext> options) : base(options) { }
+        public DbSet<Wallet> Wallets { get; set; } = null!;
 
+        public WalletContext() { }
+        public WalletContext(DbContextOptions<WalletContext> options) : base(options) { }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionString);
+                optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionStringPayment);
             }
         }
 

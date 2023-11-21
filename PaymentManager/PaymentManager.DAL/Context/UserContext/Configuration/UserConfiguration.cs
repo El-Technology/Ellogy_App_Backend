@@ -23,6 +23,7 @@ namespace PaymentManager.DAL.Context.UserContext.Configuration
             builder.Property(c => c.Role)
                 .IsRequired()
                 .HasDefaultValue(RoleEnum.User);
+            builder.Property(x => x.TotalPurchasedTokens);
         }
     }
 }

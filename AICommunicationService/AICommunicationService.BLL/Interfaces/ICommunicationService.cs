@@ -12,20 +12,20 @@ namespace AICommunicationService.BLL.Interfaces
         /// </summary>
         /// <param name="createConversationRequest">Request params</param>
         /// <returns>Returns string data</returns>
-        Task<string> ChatRequestAsync(CreateConversationRequest createConversationRequest);
+        Task<string> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest);
 
         /// <summary>
         /// Endpoint for retrieving AI response by Json Example.
         /// </summary>
         /// <param name="createConversationRequest">Request params</param>
         /// <returns>Returns string data in Json</returns>
-        Task<string> ChatRequestWithFunctionAsync(CreateConversationRequest createConversationRequest);
+        Task<string> ChatRequestWithFunctionAsync(Guid userId, CreateConversationRequest createConversationRequest);
 
         /// <summary>
         /// Endpoint for retrieving AI response as streaming using SignalR.
         /// </summary>
         /// <param name="streamRequest">Request params</param>
         /// <returns>Returns response is success</returns>
-        Task<string> StreamSignalRConversationAsync(StreamRequest streamRequest);
+        Task<string> StreamSignalRConversationAsync(Guid userId, StreamRequest streamRequest);
     }
 }

@@ -12,5 +12,8 @@ namespace TicketsManager.Common
 
         public static readonly string ConnectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
                                                 ?? throw new EnvironmentVariableNotFoundException("CONNECTION_STRING");
+
+        public static readonly string ConnectionStringPayment = Environment.GetEnvironmentVariable("CONNECTIONSTRING_PAYMENT")
+                                        ?? throw new EnvironmentVariableNotFoundException("CONNECTIONSTRING_PAYMENT");
     }
 }

@@ -6,5 +6,6 @@ namespace PaymentManager.DAL.Interfaces
     {
         Task<List<User>> GetAllUsersAsync();
         Task<User?> GetUserByIdAsync(Guid userId);
+        Task UpdateTotalPurchasedTokensAsync(Guid userId, int purchasedTokens);
     }
 }

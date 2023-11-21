@@ -23,5 +23,12 @@ namespace PaymentManager.DAL.Repositories
             var users = await _userContext.Users.ToListAsync();
             return users;
         }
+
+        public async Task UpdateTotalPurchasedTokensAsync(Guid userId, int purchasedTokens)
+        {
+            await _userContext.Users
+                .Where(a => a.Id == userId)
+                .ExecuteUpdateAsync(a => a.SetProperty(a => a.TotalPurchasedTokens, a => a.TotalPurchasedTokens + purchasedTokens));
+        }
     }
 }

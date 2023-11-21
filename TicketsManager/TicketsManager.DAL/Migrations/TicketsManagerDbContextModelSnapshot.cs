@@ -150,9 +150,6 @@ namespace TicketsManager.DAL.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
-                    b.Property<int>("TokensTotalUsage")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("timestamp with time zone");
 

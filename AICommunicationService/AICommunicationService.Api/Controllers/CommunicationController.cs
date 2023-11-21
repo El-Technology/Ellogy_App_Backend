@@ -1,4 +1,5 @@
 ﻿using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.Common;
 using AICommunicationService.Common.Models.AIRequest;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -21,6 +22,20 @@ namespace AICommunicationService.Api.Controllers
         }
 
         /// <summary>
+        /// This method retrieves the user id from the JWT token
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private Guid GetUserIdFromToken()
+        {
+            var status = Guid.TryParse(User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out Guid userId);
+            if (!status)
+                throw new Exception("Taking user id error, try again later");
+
+            return userId;
+        }
+
+        /// <summary>
         /// Endpoint for retrieving AI response as streaming using SignalR.
         /// </summary>
         /// <param name="streamRequest">Request params</param>
@@ -29,7 +44,7 @@ namespace AICommunicationService.Api.Controllers
         [Route("getSignalRStreamResponse")]
         public async Task<IActionResult> GetSignalRStreamResponse([FromBody] StreamRequest streamRequest)
         {
-            var response = await _communicationService.StreamSignalRConversationAsync(streamRequest);
+            var response = await _communicationService.StreamSignalRConversationAsync(GetUserIdFromToken(), streamRequest);
             return Ok(response);
         }
 
@@ -42,7 +57,7 @@ namespace AICommunicationService.Api.Controllers
         [Route("getChatResponse")]
         public async Task<IActionResult> GetChatResponse([FromBody] CreateConversationRequest conversationRequest)
         {
-            var response = await _communicationService.ChatRequestAsync(conversationRequest);
+            var response = await _communicationService.ChatRequestAsync(GetUserIdFromToken() ,conversationRequest);
             return Ok(response);
         }
 
@@ -55,7 +70,7 @@ namespace AICommunicationService.Api.Controllers
         [Route("chatWithFunctions")]
         public async Task<IActionResult> GetChatWithFunctions([FromBody] CreateConversationRequest requestWithFunction)
         {
-            var response = await _communicationService.ChatRequestWithFunctionAsync(requestWithFunction);
+            var response = await _communicationService.ChatRequestWithFunctionAsync(GetUserIdFromToken(), requestWithFunction);
             return Ok(response);
         }
     }

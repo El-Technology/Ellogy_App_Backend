@@ -10,6 +10,5 @@ namespace AICommunicationService.Common.Models.AIRequest
         public string TemplateName { get; set; }
         public string UserInput { get; set; }
         public float Temperature { get; set; }
-        public Guid TicketId { get; set; }
     }
 }
