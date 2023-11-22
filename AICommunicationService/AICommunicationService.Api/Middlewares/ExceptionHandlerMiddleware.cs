@@ -25,6 +25,10 @@ public class ExceptionHandlerMiddleware
         {
             await HandleExceptionAsync(context, ex.Message, HttpStatusCode.OK, ex.Message);
         }
+        catch (BalanceException ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.PaymentRequired, ex.Message);
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, ex.Message,

@@ -1,5 +1,6 @@
 ﻿using AICommunicationService.BLL.Constants;
 using AICommunicationService.BLL.Dtos;
+using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Enums;
@@ -174,7 +175,7 @@ namespace AICommunicationService.BLL.Services
                 return;
 
             if (await _walletRepository.CheckIfUserAllowedToCreateRequest(userId, minBalanceAllowedToUser))
-                throw new Exception("You need to replenish your balance in order to perform further requests");
+                throw new BalanceException("You need to replenish your balance in order to perform further requests");
         }
     }
 }
