@@ -696,6 +696,18 @@
           "Port": 5021
         }
       ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/CheckOut/expireSession",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/CheckOut/expireSession",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5021
+        }
+      ]
     }
   ]
 }
