@@ -52,5 +52,13 @@ namespace PaymentManager.Controllers
             await _serviceBus.CreatePaymentAsync(payment);
             return Ok();
         }
+
+        [HttpGet]
+        [Route("expireSession")]
+        public async Task<IActionResult> ExpireSession(string sessionId)
+        {
+            await _paymentService.ExpireSessionAsync(sessionId);
+            return Ok();
+        }
     }
 }

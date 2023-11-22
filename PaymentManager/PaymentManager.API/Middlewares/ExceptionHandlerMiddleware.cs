@@ -5,13 +5,14 @@ namespace PaymentManager.API.Middlewares
     public class ExceptionHandlerMiddleware
     {
         private readonly RequestDelegate _next;
-
+        private readonly ILogger<ExceptionHandlerMiddleware> _logger;
         private const string StandartResponseMessage = "Internal server error";
         private const HttpStatusCode StandartHttpStatusCode = HttpStatusCode.InternalServerError;
 
-        public ExceptionHandlerMiddleware(RequestDelegate requestDelegate)
+        public ExceptionHandlerMiddleware(RequestDelegate requestDelegate, ILogger<ExceptionHandlerMiddleware> logger)
         {
             _next = requestDelegate;
+            _logger = logger;
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -22,6 +23,7 @@ namespace PaymentManager.API.Middlewares
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex.Message);
                 await HandleExceptionAsync(context, ex.Message,
                     responseMessage: string.IsNullOrEmpty(ex.Message)
                         ? StandartResponseMessage

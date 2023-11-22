@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PaymentManager.BLL.Hubs;
 using PaymentManager.Common.Constants;
@@ -13,12 +14,14 @@ namespace PaymentManager.BLL
 {
     public class PaymentConsumer : IHostedService
     {
+        private readonly ILogger<PaymentConsumer> _logger;
         private readonly ServiceBusClient _busClient;
         private readonly IServiceProvider _serviceProvider;
         private readonly IHubContext<PaymentHub> _hubContext;
 
-        public PaymentConsumer(ServiceBusClient busClient, IServiceProvider serviceProvider, IHubContext<PaymentHub> hubContext)
+        public PaymentConsumer(ServiceBusClient busClient, IServiceProvider serviceProvider, IHubContext<PaymentHub> hubContext, ILogger<PaymentConsumer> logger)
         {
+            _logger = logger;
             _hubContext = hubContext;
             _busClient = busClient;
             _serviceProvider = serviceProvider;
@@ -40,7 +43,7 @@ namespace PaymentManager.BLL
                 try
                 {
                     var message = JsonConvert.DeserializeObject<SessionCreateOptions>(messageArg.Message.Body.ToString());
-
+                    message.ExpiresAt = DateTime.Now.AddMinutes(30);
                     var session = service.Create(message);
 
                     await CreatePaymentAsync(new Payment
@@ -67,9 +70,8 @@ namespace PaymentManager.BLL
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    _logger.LogError(ex.Message);
                     await messageArg.DeadLetterMessageAsync(messageArg.Message);
-                    throw new Exception(ex.Message);
                 }
             };
 
@@ -84,7 +86,6 @@ namespace PaymentManager.BLL
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             await _busClient.DisposeAsync();
-            Console.WriteLine("StopAsync");
         }
 
         private async Task CreatePaymentAsync(Payment payment)

@@ -9,15 +9,29 @@ using PaymentManager.Common;
 using PaymentManager.Common.Options;
 using PaymentManager.DAL.Context.PaymentContext;
 using PaymentManager.DAL.Extensions;
+using Serilog;
 using Stripe;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("../Logs/log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddSerilog();
+builder.Host.UseSerilog(logger);
+
 AddServices(builder);
 
 StripeConfiguration.ApiKey = EnvironmentVariables.SecretKey;
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
+
 MigrateDatabase(app);
 AddMiddleware(app);
 

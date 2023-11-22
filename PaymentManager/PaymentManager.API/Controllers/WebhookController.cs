@@ -29,8 +29,12 @@ namespace PaymentManager.API.Controllers
                 switch (stripeEvent.Type)
                 {
                     case Events.CheckoutSessionCompleted:
-                        var session = (Session)stripeEvent.Data.Object;
-                        await _paymentService.OrderConfirmationAsync(session.Id);
+                        var completedSession = (Session)stripeEvent.Data.Object;
+                        await _paymentService.OrderConfirmationAsync(completedSession.Id);
+                        break;
+                    case Events.CheckoutSessionExpired:
+                        var expiredSession = (Session)stripeEvent.Data.Object;
+                        await _paymentService.ExpireSessionAsync(expiredSession.Id);
                         break;
                     default:
                         throw new Exception("Unknown error");
