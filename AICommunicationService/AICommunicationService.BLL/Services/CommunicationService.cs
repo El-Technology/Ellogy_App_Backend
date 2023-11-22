@@ -169,7 +169,7 @@ namespace AICommunicationService.BLL.Services
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new Exception("User was not found");
 
-            var minBalanceAllowedToUser = (int)((user.TotalPurchasedPoints * 0.25f) - user.TotalPointsUsage);
+            var minBalanceAllowedToUser = (int)-(user.TotalPurchasedPoints * 0.2f);
             if (minBalanceAllowedToUser >= 0)
                 return;
 
