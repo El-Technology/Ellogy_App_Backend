@@ -96,7 +96,10 @@ namespace PaymentManager.BLL.Services
                 return;
 
             var service = new SessionService();
-            Session session = await service.ExpireAsync(sessionId);
+            Session session = await service.GetAsync(sessionId);
+
+            if (session.Status != "expired")
+                await service.ExpireAsync(sessionId);
 
             await _paymentRepository.UpdatePaymentAsync(new Payment
             {
