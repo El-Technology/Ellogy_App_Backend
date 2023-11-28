@@ -30,5 +30,4 @@ namespace AICommunicationService.BLL.Interfaces
         /// <returns>Communication response model</returns>
         Task<CommunicationResponseModel> PostAiRequestWithFunctionAsync(MessageRequest request);
     }
-
 }

@@ -21,5 +21,4 @@
         /// <returns>Task representing the asynchronous operation</returns>
         Task TakeServiceFeeAsync(Guid userId, int feeAmount);
     }
-
 }
