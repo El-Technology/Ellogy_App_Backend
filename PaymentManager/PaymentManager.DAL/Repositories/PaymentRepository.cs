@@ -15,6 +15,7 @@ namespace PaymentManager.DAL.Repositories
             _context = context;
         }
 
+        /// <inheritdoc cref="IPaymentRepository.CreateUserWalletAsync(Guid)"/>
         public async Task<Wallet> CreateUserWalletAsync(Guid userId)
         {
             var wallet = new Wallet
@@ -30,11 +31,13 @@ namespace PaymentManager.DAL.Repositories
             return wallet;
         }
 
+        /// <inheritdoc cref="IPaymentRepository.GetUserWalletAsync(Guid)"/>
         public async Task<Wallet?> GetUserWalletAsync(Guid userId)
         {
             return await _context.Wallets.FirstOrDefaultAsync(a => a.UserId == userId);
         }
 
+        /// <inheritdoc cref="IPaymentRepository.UpdateBalanceAsync(Guid, int)"/>
         public async Task UpdateBalanceAsync(Guid userId, int amountOfPoints)
         {
             await _context.Wallets
@@ -42,11 +45,13 @@ namespace PaymentManager.DAL.Repositories
                 .ExecuteUpdateAsync(x => x.SetProperty(x => x.Balance, x => x.Balance + amountOfPoints));
         }
 
+        /// <inheritdoc cref="IPaymentRepository.GetPaymentByIdAsync(string)"/>
         public async Task<Payment?> GetPaymentByIdAsync(string paymentId)
         {
             return await _context.Payments.FirstOrDefaultAsync(a => a.PaymentId.Equals(paymentId));
         }
 
+        /// <inheritdoc cref="IPaymentRepository.UpdatePaymentAsync(Payment)"/>
         public async Task UpdatePaymentAsync(Payment payment)
         {
             await _context.Payments
@@ -57,12 +62,14 @@ namespace PaymentManager.DAL.Repositories
                 .SetProperty(p => p.UpdatedBallance, s => payment.UpdatedBallance));
         }
 
+        /// <inheritdoc cref="IPaymentRepository.CreatePaymentAsync(Payment)"/>
         public async Task CreatePaymentAsync(Payment payment)
         {
             await _context.Payments.AddAsync(payment);
             await _context.SaveChangesAsync();
         }
 
+        /// <inheritdoc cref="IPaymentRepository.GetPaymentAsync(string)"/>
         public async Task<Payment?> GetPaymentAsync(string sessionId)
         {
             return await _context.Payments.FirstOrDefaultAsync(a => a.SessionId.Equals(sessionId));

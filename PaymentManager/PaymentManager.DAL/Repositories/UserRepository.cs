@@ -13,17 +13,20 @@ namespace PaymentManager.DAL.Repositories
             _userContext = userContext;
         }
 
+        /// <inheritdoc cref="IUserRepository.GetUserByIdAsync(Guid)"/>
         public async Task<User?> GetUserByIdAsync(Guid userId)
         {
             return await _userContext.Users.FindAsync(userId);
         }
 
+        /// <inheritdoc cref="IUserRepository.GetAllUsersAsync"/>
         public async Task<List<User>> GetAllUsersAsync()
         {
             var users = await _userContext.Users.ToListAsync();
             return users;
         }
 
+        /// <inheritdoc cref="IUserRepository.UpdateTotalPurchasedTokensAsync(Guid, int)"/>
         public async Task UpdateTotalPurchasedTokensAsync(Guid userId, int purchasedTokens)
         {
             await _userContext.Users
