@@ -13,6 +13,7 @@ namespace AICommunicationService.DAL.Repositories
             _context = context;
         }
 
+        /// <inheritdoc cref="IUserRepository.UpdateUserTotalPointsUsageAsync(Guid, int)"/>
         public async Task UpdateUserTotalPointsUsageAsync(Guid userId, int usedTokens)
         {
             await _context.Users
@@ -20,6 +21,7 @@ namespace AICommunicationService.DAL.Repositories
                 .ExecuteUpdateAsync(x => x.SetProperty(x => x.TotalPointsUsage, x => x.TotalPointsUsage + usedTokens));
         }
 
+        /// <inheritdoc cref="IUserRepository.GetUserTotalPointsUsageAsync(Guid)"/>
         public async Task<int> GetUserTotalPointsUsageAsync(Guid userId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(a => a.Id == userId)
@@ -28,6 +30,7 @@ namespace AICommunicationService.DAL.Repositories
             return user.TotalPointsUsage;
         }
 
+        /// <inheritdoc cref="IUserRepository.GetUserByIdAsync(Guid)"/>
         public async Task<User?> GetUserByIdAsync(Guid userId)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Id == userId);

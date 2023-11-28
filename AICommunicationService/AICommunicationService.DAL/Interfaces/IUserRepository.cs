@@ -2,10 +2,31 @@
 
 namespace AICommunicationService.DAL.Interfaces
 {
+    /// <summary>
+    /// Interface defining methods for interacting with user data in a repository.
+    /// </summary>
     public interface IUserRepository
     {
+        /// <summary>
+        /// Retrieves a user by their unique identifier asynchronously.
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <returns>Task representing the asynchronous operation, returning a nullable User object</returns>
         Task<User?> GetUserByIdAsync(Guid userId);
+
+        /// <summary>
+        /// Retrieves the total points usage for a user based on their ID asynchronously.
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <returns>Task representing the asynchronous operation, returning the total points used</returns>
         Task<int> GetUserTotalPointsUsageAsync(Guid userId);
+
+        /// <summary>
+        /// Updates the total points usage for a user based on their ID asynchronously.
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="usedTokens">Number of tokens used</param>
+        /// <returns>Task representing the asynchronous operation</returns>
         Task UpdateUserTotalPointsUsageAsync(Guid userId, int usedTokens);
     }
 }

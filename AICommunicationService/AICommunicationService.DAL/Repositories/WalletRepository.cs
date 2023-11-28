@@ -12,6 +12,7 @@ namespace AICommunicationService.DAL.Repositories
             _context = context;
         }
 
+        /// <inheritdoc cref="IWalletRepository.TakeServiceFeeAsync(Guid, int)"/>
         public async Task TakeServiceFeeAsync(Guid userId, int feeAmount)
         {
             await _context.Wallets
@@ -20,6 +21,7 @@ namespace AICommunicationService.DAL.Repositories
                     .SetProperty(x => x.Balance, x => x.Balance - feeAmount));
         }
 
+        /// <inheritdoc cref="IWalletRepository.CheckIfUserAllowedToCreateRequest(Guid, int)"/>
         public async Task<bool> CheckIfUserAllowedToCreateRequest(Guid userId, int userMinimum)
         {
             return await _context.Wallets.AnyAsync(a => a.UserId == userId && a.Balance <= userMinimum);

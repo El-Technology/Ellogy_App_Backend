@@ -11,6 +11,7 @@ namespace AICommunicationService.BLL.Interfaces
         /// Endpoint for retrieving AI response.
         /// </summary>
         /// <param name="createConversationRequest">Request params</param>
+        /// <param name="userId">User id</param>
         /// <returns>Returns string data</returns>
         Task<string> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest);
 
@@ -18,6 +19,7 @@ namespace AICommunicationService.BLL.Interfaces
         /// Endpoint for retrieving AI response by Json Example.
         /// </summary>
         /// <param name="createConversationRequest">Request params</param>
+        /// <param name="userId">User id</param>
         /// <returns>Returns string data in Json</returns>
         Task<string> ChatRequestWithFunctionAsync(Guid userId, CreateConversationRequest createConversationRequest);
 
@@ -25,6 +27,7 @@ namespace AICommunicationService.BLL.Interfaces
         /// Endpoint for retrieving AI response as streaming using SignalR.
         /// </summary>
         /// <param name="streamRequest">Request params</param>
+        /// <param name="userId">User id</param>
         /// <returns>Returns response is success</returns>
         Task<string> StreamSignalRConversationAsync(Guid userId, StreamRequest streamRequest);
     }

@@ -75,6 +75,7 @@ namespace AICommunicationService.BLL.Services
             return new StringContent(jsonRequest, Encoding.UTF8, "application/json");
         }
 
+        /// <inheritdoc cref="IAzureOpenAiRequestService.PostAiRequestWithFunctionAsync(MessageRequest)"/>
         public async Task<CommunicationResponseModel> PostAiRequestWithFunctionAsync(MessageRequest request)
         {
             var content = PostAiRequestGetContent(request, AiRequestType.Functions);
@@ -91,6 +92,7 @@ namespace AICommunicationService.BLL.Services
             return communicationModel;
         }
 
+        /// <inheritdoc cref="IAzureOpenAiRequestService.PostAiRequestAsync(MessageRequest)"/>
         public async Task<CommunicationResponseModel> PostAiRequestAsync(MessageRequest request)
         {
             var content = PostAiRequestGetContent(request, AiRequestType.Default);
@@ -107,6 +109,7 @@ namespace AICommunicationService.BLL.Services
             return communicationModel;
         }
 
+        /// <inheritdoc cref="IAzureOpenAiRequestService.PostAiRequestAsStreamAsync(MessageRequest, Func{string, Task})"/>
         public async Task PostAiRequestAsStreamAsync(MessageRequest request, Func<string, Task> onDataReceived)
         {
             var content = PostAiRequestGetContent(request, AiRequestType.Streaming);
