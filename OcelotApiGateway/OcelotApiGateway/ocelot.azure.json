@@ -708,6 +708,30 @@
           "Port": 5021
         }
       ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/ActionHistory/createActionHistory",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/ActionHistory/createActionHistory",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/ActionHistory/getActionHistory",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/ActionHistory/getActionHistory",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5041
+        }
+      ]
     }
   ]
 }
