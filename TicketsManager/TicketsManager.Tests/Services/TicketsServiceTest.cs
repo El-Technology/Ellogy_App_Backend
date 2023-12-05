@@ -141,7 +141,12 @@ namespace TicketsManager.Tests.Services
                     new MessageResponseDto
                     {
                         Content = "Content",
-                        Sender = "Sender"
+                        Sender = "Sender",
+                        Action = new ActionDto
+                        {
+                            State = null,
+                            Type = null
+                        }
                     }
                 }
             };
