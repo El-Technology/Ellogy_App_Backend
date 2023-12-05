@@ -17,6 +17,7 @@ namespace TicketsManager.DAL.Context.Configurations
                 .IsRequired();
             builder.Property(c => c.TicketCurrentStepEnum)
                 .IsRequired();
+            builder.Property(c => c.UserEmail);
             builder.Property(c => c.OldValue);
             builder.Property(c => c.NewValue);
             builder.Property(c => c.ActionTime)

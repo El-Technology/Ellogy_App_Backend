@@ -8,6 +8,7 @@ namespace TicketsManager.DAL.Models
         public Guid TicketId { get; set; }
         public ActionHistoryEnum ActionHistoryEnum { get; set; }
         public TicketCurrentStepEnum TicketCurrentStepEnum { get; set; }
+        public string? UserEmail { get; set; }
         public string? OldValue { get; set; }
         public string? NewValue { get; set; }
         public DateTime ActionTime { get; set; }

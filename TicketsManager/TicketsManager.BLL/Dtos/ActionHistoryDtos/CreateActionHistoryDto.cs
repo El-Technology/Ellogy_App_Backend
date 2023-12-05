@@ -7,6 +7,7 @@ namespace TicketsManager.BLL.Dtos.ActionHistoryDtos
         public Guid TicketId { get; set; }
         public ActionHistoryEnum ActionHistoryEnum { get; set; }
         public TicketCurrentStepEnum TicketCurrentStepEnum { get; set; }
+        public string? UserEmail { get; set; }
         public string? OldValue { get; set; }
         public string? NewValue { get; set; }
     }

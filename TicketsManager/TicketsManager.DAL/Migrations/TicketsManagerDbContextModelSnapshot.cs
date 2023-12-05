@@ -46,6 +46,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("UserEmail")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.ToTable("ActionHistories", (string)null);
