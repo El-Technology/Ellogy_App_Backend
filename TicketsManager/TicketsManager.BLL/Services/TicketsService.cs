@@ -4,10 +4,12 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using HtmlToOpenXml;
 using System.Text;
+using TicketsManager.BLL.Dtos.MessageDtos;
 using TicketsManager.BLL.Dtos.TicketDtos;
 using TicketsManager.BLL.Exceptions;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.Common.Dtos;
+using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models;
@@ -57,6 +59,41 @@ public class TicketsService : ITicketsService
         return mappedTicket;
     }
 
+    private void CheckTicketEnums(TicketStatusEnum ticketStatusEnum, TicketCurrentStepEnum ticketCurrentStepEnum)
+    {
+        if (!Enum.IsDefined(typeof(TicketStatusEnum), ticketStatusEnum) && !Enum.IsDefined(typeof(TicketCurrentStepEnum), ticketCurrentStepEnum))
+            throw new Exception("Wrong enum");
+    }
+
+    private void CheckMessageCreateEnums(List<MessageDto> messages)
+    {
+        foreach (var message in messages)
+        {
+            CheckEnumValue(message.Action.State, typeof(MessageActionStateEnum), "Action State");
+            CheckEnumValue(message.Action.Type, typeof(MessageActionTypeEnum), "Action Type");
+            CheckEnumValue(message.Stage, typeof(MessageStageEnum), "Message Stage");
+        }
+    }
+
+    private void CheckMessageUpdateEnums(List<MessageResponseDto> messages)
+    {
+        foreach (var message in messages)
+        {
+            CheckEnumValue(message.Action.State, typeof(MessageActionStateEnum), "Action State");
+            CheckEnumValue(message.Action.Type, typeof(MessageActionTypeEnum), "Action Type");
+            CheckEnumValue(message.Stage, typeof(MessageStageEnum), "Message Stage");
+        }
+    }
+
+    private void CheckEnumValue<TEnum>(TEnum? enumValue, Type enumType, string propertyName)
+        where TEnum : struct, Enum
+    {
+        if (enumValue.HasValue && !Enum.IsDefined(enumType, enumValue.Value))
+        {
+            throw new Exception($"Invalid {propertyName} enum value");
+        }
+    }
+
     /// <inheritdoc cref="ITicketsService.GetTicketsAsync(Guid, PaginationRequestDto, Guid)"/>
     public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest, Guid userIdFromToken)
     {
@@ -93,6 +130,8 @@ public class TicketsService : ITicketsService
     /// <inheritdoc cref="ITicketsService.CreateTicketAsync(TicketCreateRequestDto, Guid, Guid)"/>
     public async Task<TicketResponseDto> CreateTicketAsync(TicketCreateRequestDto createTicketRequest, Guid userId, Guid userIdFromToken)
     {
+        CheckTicketEnums(createTicketRequest.Status, createTicketRequest.CurrentStep);
+        CheckMessageCreateEnums(createTicketRequest.Messages);
         ValidateUserPermission(userId, userIdFromToken);
 
         var user = await _userRepository.GetUserAsync(userId) ?? throw new UserNotFoundException(userId);
@@ -118,6 +157,8 @@ public class TicketsService : ITicketsService
     /// <inheritdoc cref="ITicketsService.UpdateTicketAsync(Guid, TicketUpdateRequestDto, Guid)"/>
     public async Task<TicketResponseDto> UpdateTicketAsync(Guid id, TicketUpdateRequestDto ticketUpdate, Guid userIdFromToken)
     {
+        CheckTicketEnums(ticketUpdate.Status, ticketUpdate.CurrentStep);
+        CheckMessageUpdateEnums(ticketUpdate.Messages);
         var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
                      ?? throw new TicketNotFoundException(id);
 

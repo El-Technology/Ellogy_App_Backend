@@ -49,13 +49,13 @@ namespace TicketsManager.BLL.Services
         private void CheckTicketCurrentStepEnum(TicketCurrentStepEnum ticketCurrentStepEnum)
         {
             if (!Enum.IsDefined(typeof(TicketCurrentStepEnum), ticketCurrentStepEnum))
-                throw new Exception("Wrong emun");
+                throw new Exception("Wrong ticket current step enum");
         }
 
         private void CheckActionHistoryEnum(ActionHistoryEnum actionHistoryEnum)
         {
             if (!Enum.IsDefined(typeof(ActionHistoryEnum), actionHistoryEnum))
-                throw new Exception("Wrong emun");
+                throw new Exception("Wrong action history enum");
         }
     }
 }

@@ -4,6 +4,7 @@
     {
         Generate = 0,
         Regenerate = 1,
-        Used = 2
+        Used = 2,
+        Error = 3
     }
 }

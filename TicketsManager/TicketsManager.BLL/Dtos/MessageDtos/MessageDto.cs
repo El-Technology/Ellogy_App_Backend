@@ -27,5 +27,5 @@ public class MessageDto
     /// <summary>
     /// Shows at which stage the message was sent
     /// </summary>
-    public MessageStageEnum Stage { get; set; }
+    public MessageStageEnum? Stage { get; set; }
 }
