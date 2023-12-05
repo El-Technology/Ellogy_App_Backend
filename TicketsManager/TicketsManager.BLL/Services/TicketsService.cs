@@ -69,6 +69,9 @@ public class TicketsService : ITicketsService
     {
         foreach (var message in messages)
         {
+            if (message.Action is null)
+                return;
+
             CheckEnumValue(message.Action.State, typeof(MessageActionStateEnum), "Action State");
             CheckEnumValue(message.Action.Type, typeof(MessageActionTypeEnum), "Action Type");
             CheckEnumValue(message.Stage, typeof(MessageStageEnum), "Message Stage");
@@ -79,6 +82,9 @@ public class TicketsService : ITicketsService
     {
         foreach (var message in messages)
         {
+            if (message.Action is null)
+                return;
+
             CheckEnumValue(message.Action.State, typeof(MessageActionStateEnum), "Action State");
             CheckEnumValue(message.Action.Type, typeof(MessageActionTypeEnum), "Action Type");
             CheckEnumValue(message.Stage, typeof(MessageStageEnum), "Message Stage");
