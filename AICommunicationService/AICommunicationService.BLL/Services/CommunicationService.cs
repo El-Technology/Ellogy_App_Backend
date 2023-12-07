@@ -55,6 +55,7 @@ namespace AICommunicationService.BLL.Services
             {
                 AiModelEnum.Turbo => AzureAiConstants.TurboModel,
                 AiModelEnum.Four => AzureAiConstants.FourModel,
+                AiModelEnum.FourTurbo => AzureAiConstants.FourTurboModel,
                 _ => throw new Exception("Wrong enum"),
             };
             return $"{AzureAiConstants.BaseUrl}{deploymentName}/chat/completions?{AzureAiConstants.ApiVersion}";
@@ -151,8 +152,9 @@ namespace AICommunicationService.BLL.Services
             if (aiModelEnum == AiModelEnum.Turbo)
                 model = "gpt-3.5-turbo";
 
-            if (aiModelEnum == AiModelEnum.Four)
+            if (aiModelEnum == AiModelEnum.Four || aiModelEnum == AiModelEnum.FourTurbo)
                 model = "gpt-4";
+
 
             var encoding = Tiktoken.Encoding.ForModel(model);
             var tokens = encoding.CountTokens(text);

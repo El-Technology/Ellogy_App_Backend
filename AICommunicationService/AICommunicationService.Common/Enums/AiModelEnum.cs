@@ -3,6 +3,7 @@
     public enum AiModelEnum
     {
         Turbo = 0,
-        Four = 1
+        Four = 1,
+        FourTurbo = 2
     }
 }
