@@ -61,6 +61,11 @@ namespace TicketsManager.BLL.Dtos.TicketDtos
         public TicketCurrentStepEnum CurrentStep { get; set; }
 
         /// <summary>
+        /// Contains link json array with banners for report page
+        /// </summary>
+        public string? BannersJson { get; set; }
+
+        /// <summary>
         /// The collection of messages associated with the ticket.
         /// </summary>
         public List<MessageResponseDto> Messages { get; set; }

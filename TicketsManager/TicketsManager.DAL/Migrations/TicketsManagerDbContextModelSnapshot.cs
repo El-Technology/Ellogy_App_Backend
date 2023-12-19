@@ -130,6 +130,9 @@ namespace TicketsManager.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("BannersJson")
+                        .HasColumnType("text");
+
                     b.Property<string>("Comment")
                         .HasColumnType("text");
 
