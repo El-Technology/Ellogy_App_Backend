@@ -7,7 +7,7 @@ using UserManager.Api.Middlewares;
 using UserManager.BLL.Extensions;
 using UserManager.Common;
 using UserManager.Common.Options;
-using UserManager.DAL.Context;
+using UserManager.DAL.Context.UserContext;
 using UserManager.DAL.Extensions;
 
 namespace UserManager.Api
@@ -102,7 +102,7 @@ namespace UserManager.Api
 
             builder.Services.AddHealthChecks();
 
-            builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
+            builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
             builder.Services.AddBusinessLayer();
             builder.Services.AddMapping();
         }

@@ -1,5 +1,5 @@
 ﻿using UserManager.Common.Helpers;
-using UserManager.DAL.Context;
+using UserManager.DAL.Context.UserContext;
 using UserManager.DAL.Interfaces;
 using UserManager.DAL.Models;
 

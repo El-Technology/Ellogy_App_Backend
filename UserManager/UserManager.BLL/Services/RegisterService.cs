@@ -12,11 +12,13 @@ public class RegisterService : IRegisterService
 {
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
+    private readonly IPaymentRepository _paymentRepository;
 
-    public RegisterService(IMapper mapper, IUserRepository userRepository)
+    public RegisterService(IMapper mapper, IUserRepository userRepository, IPaymentRepository paymentRepository)
     {
         _mapper = mapper;
         _userRepository = userRepository;
+        _paymentRepository = paymentRepository;
     }
 
     public async Task RegisterUserAsync(UserRegisterRequestDto userRegister)
@@ -28,5 +30,7 @@ public class RegisterService : IRegisterService
             throw new UserAlreadyExistException(user.Email);
 
         await _userRepository.AddUserAsync(user);
+
+        await _paymentRepository.CreateWalletForNewUserAsync(user.Id);
     }
 }

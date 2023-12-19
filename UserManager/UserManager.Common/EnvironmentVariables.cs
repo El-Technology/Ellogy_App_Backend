@@ -20,6 +20,16 @@ public static class EnvironmentVariables
             return variable is null ? variable = "default_CONNECTION_STRING" : variable;
         }
     }
+
+    public static string ConnectionStringPayment
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("CONNECTIONSTRING_PAYMENT");
+            return variable is null ? variable = "default_CONNECTIONSTRING_PAYMENT" : variable;
+        }
+    }
+
     public static string JwtSecretKey
     {
         get

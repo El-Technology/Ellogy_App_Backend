@@ -2,7 +2,7 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using UserManager.BLL.Mapping;
-using UserManager.DAL.Context;
+using UserManager.DAL.Context.UserContext;
 
 namespace UserManager.Tests.ServiceTests
 {
