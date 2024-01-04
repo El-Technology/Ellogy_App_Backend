@@ -18,7 +18,8 @@ public class MailService : IMailService
     private readonly Dictionary<NotificationTypeEnum, string> notificationTypePath = new()
     {
         { NotificationTypeEnum.ResetPassword, "ResetPasswordTemplate.html"},
-        { NotificationTypeEnum.Report, "ReportTemplate.html"}
+        { NotificationTypeEnum.Report, "ReportTemplate.html"},
+        { NotificationTypeEnum.VerifyEmail, "VerifyEmailTemplate.html"}
     };
 
     public MailService(EmailClient emailClient, IBlobService blobService)

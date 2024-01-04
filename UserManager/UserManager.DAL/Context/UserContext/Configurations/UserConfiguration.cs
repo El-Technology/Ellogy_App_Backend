@@ -38,5 +38,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValue(RoleEnum.User);
         builder.Property(c => c.TotalPointsUsage);
         builder.Property(c => c.TotalPurchasedPoints);
+        builder.Property(c => c.IsAccountActivated);
+        builder.Property(c => c.VerifyToken);
     }
 }
