@@ -87,6 +87,9 @@ jobs:
           Token: ${{ secrets.GITHUB_TOKEN }}
 
   build_user_manager:
+    permissions:
+      contents: read
+      packages: write
     env:
       MICROSERVICE_NAME: 'user_manager'
       PROJECT_PATH: './UserManager/'
