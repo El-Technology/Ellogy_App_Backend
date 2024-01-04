@@ -96,6 +96,9 @@ namespace UserManager.DAL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
+                    b.Property<bool>("IsAccountActivated")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -130,9 +133,29 @@ namespace UserManager.DAL.Migrations
                     b.Property<int>("TotalPurchasedPoints")
                         .HasColumnType("integer");
 
+                    b.Property<string>("VerifyToken")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("UserManager.DAL.Models.Wallet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Balance")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Wallets", (string)null);
                 });
 
             modelBuilder.Entity("UserManager.DAL.Models.RefreshToken", b =>

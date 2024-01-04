@@ -38,6 +38,22 @@ public class AuthController : Controller
         return Ok();
     }
 
+    [HttpPost]
+    [Route("activateUserAccount")]
+    public async Task<IActionResult> ActivateUserAccount([FromBody] ActivateUserAccountDto activateUserAccountDto)
+    {
+        await _registerService.ActivateUserAccountAsync(activateUserAccountDto);
+        return Ok();
+    }
+
+    [HttpPost]
+    [Route("sentVerificationEmail")]
+    public async Task<IActionResult> SendVerificationEmail([FromBody] SendVerificationEmailDto sendVerificationEmailDto)
+    {
+        await _registerService.SendVerificationEmailAsync(sendVerificationEmailDto);
+        return Ok();
+    }
+
     /// <summary>
     /// Logs in a user with the provided credentials.
     /// </summary>
