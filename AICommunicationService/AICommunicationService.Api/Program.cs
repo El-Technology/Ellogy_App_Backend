@@ -10,7 +10,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using TicketsManager.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -96,7 +95,7 @@ static void AddServices(WebApplicationBuilder builder)
     });
 
     builder.Services.AddHealthChecks();
-    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment   );
+    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
     builder.Services.AddBusinessLayer();
 }
 

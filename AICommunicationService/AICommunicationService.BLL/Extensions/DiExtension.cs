@@ -1,7 +1,7 @@
 ﻿using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.BLL.Services;
 using Microsoft.Extensions.DependencyInjection;
-using TicketsManager.Common;
+using AICommunicationService.Common;
 
 namespace AICommunicationService.BLL.Extensions
 {
@@ -12,7 +12,8 @@ namespace AICommunicationService.BLL.Extensions
             return services
                 .AddScoped<IAzureOpenAiRequestService, AzureOpenAiRequestService>()
                 .AddScoped<IPromptService, PromptService>()
-                .AddScoped<ICommunicationService, CommunicationService>();
+                .AddScoped<ICommunicationService, CommunicationService>()
+                .AddScoped<DocumentService>();
         }
     }
 }

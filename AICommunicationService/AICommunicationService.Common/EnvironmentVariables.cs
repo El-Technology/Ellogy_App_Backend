@@ -1,6 +1,6 @@
 ﻿using AICommunicationService.Common.Exceptions;
 
-namespace TicketsManager.Common
+namespace AICommunicationService.Common
 {
     public static class EnvironmentVariables
     {
@@ -15,5 +15,8 @@ namespace TicketsManager.Common
 
         public static readonly string ConnectionStringPayment = Environment.GetEnvironmentVariable("CONNECTIONSTRING_PAYMENT")
                                         ?? throw new EnvironmentVariableNotFoundException("CONNECTIONSTRING_PAYMENT");
+
+        public static readonly string BlobStorageConnectionString = Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING")
+                                ?? throw new EnvironmentVariableNotFoundException("BLOB_STORAGE_CONNECTION_STRING");
     }
 }

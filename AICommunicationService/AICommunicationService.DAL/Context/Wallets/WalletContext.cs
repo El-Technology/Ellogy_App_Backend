@@ -1,7 +1,7 @@
 ﻿using AICommunicationService.DAL.Context.AiCommunication;
 using AICommunicationService.DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using TicketsManager.Common;
+using AICommunicationService.Common;
 
 namespace AICommunicationService.DAL.Context.Wallets
 {
