@@ -3,6 +3,7 @@
     public enum NotificationTypeEnum
     {
         ResetPassword = 0,
-        Report = 1
+        Report = 1,
+        VerifyEmail = 2
     }
 }
