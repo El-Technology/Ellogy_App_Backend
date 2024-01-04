@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.Azure.Amqp.Framing;
 using System.Web;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Exceptions;
@@ -54,6 +53,9 @@ public class RegisterService : IRegisterService
         var user = await _userRepository.GetUserByEmailAsync(sendVerificationEmailDto.UserEmail)
             ?? throw new UserNotFoundException();
 
+        if (user.VerifyToken is null)
+            throw new Exception("Verify token was not found");
+
         var hashToken = CryptoHelper.GetHash(user.VerifyToken);
 
         var verifyEmailUrl = string.Format(VerifyEmailTemplate, sendVerificationEmailDto.RedirectLink,
@@ -71,6 +73,9 @@ public class RegisterService : IRegisterService
 
         var user = await _userRepository.GetUserByEmailAsync(activateUser.UserEmail)
             ?? throw new UserNotFoundException();
+
+        if (user.VerifyToken is null)
+            throw new Exception("Verify token was not found");
 
         if (!(CryptoHelper.GetHash(user.VerifyToken) == activateUser.Token))
             throw new Exception("Wrong activate token");
