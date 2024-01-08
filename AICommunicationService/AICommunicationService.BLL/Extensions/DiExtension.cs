@@ -2,6 +2,7 @@
 using AICommunicationService.BLL.Services;
 using Microsoft.Extensions.DependencyInjection;
 using AICommunicationService.Common;
+using Azure.Storage.Blobs;
 
 namespace AICommunicationService.BLL.Extensions
 {
@@ -13,7 +14,8 @@ namespace AICommunicationService.BLL.Extensions
                 .AddScoped<IAzureOpenAiRequestService, AzureOpenAiRequestService>()
                 .AddScoped<IPromptService, PromptService>()
                 .AddScoped<ICommunicationService, CommunicationService>()
-                .AddScoped<DocumentService>();
+                .AddScoped<DocumentService>()
+                .AddScoped<BlobServiceClient>(_ => new(EnvironmentVariables.BlobStorageConnectionString)); ;
         }
     }
 }
