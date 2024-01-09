@@ -434,6 +434,30 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/dev/auth/sentVerificationEmail",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/auth/sentVerificationEmail",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/auth/activateUserAccount",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/auth/activateUserAccount",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5281
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/Report/sendReport",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Report/sendReport",
