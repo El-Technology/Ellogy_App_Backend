@@ -18,6 +18,7 @@
     <ItemGroup>
       <ProjectReference Include="..\AICommunicationService.BLL\AICommunicationService.BLL.csproj" />
       <ProjectReference Include="..\AICommunicationService.Common\AICommunicationService.Common.csproj" />
+      <ProjectReference Include="..\AICommunicationService.RAG\AICommunicationService.RAG.csproj" />
     </ItemGroup>
 
 </Project>

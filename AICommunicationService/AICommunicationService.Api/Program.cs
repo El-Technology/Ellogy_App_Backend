@@ -4,6 +4,8 @@ using AICommunicationService.BLL.Hubs;
 using AICommunicationService.Common;
 using AICommunicationService.DAL.Context.AiCommunication;
 using AICommunicationService.DAL.Extensions;
+using AICommunicationService.RAG.Context.Vector;
+using AICommunicationService.RAG.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -20,7 +22,10 @@ var app = builder.Build();
 AddMiddleware(app);
 
 app.MapControllers();
+
 MigrateDatabase(app);
+MigrateRAG(app);
+
 app.Run();
 
 static void AddServices(WebApplicationBuilder builder)
@@ -96,6 +101,7 @@ static void AddServices(WebApplicationBuilder builder)
 
     builder.Services.AddHealthChecks();
     builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
+    builder.Services.AddRAGLayer(EnvironmentVariables.ConnectionStringVector);
     builder.Services.AddBusinessLayer();
 }
 
@@ -125,6 +131,18 @@ static void MigrateDatabase(IHost app)
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<AICommunicationContext>();
+    if (context.Database.GetPendingMigrations().Any())
+    {
+        context.Database.Migrate();
+    }
+}
+
+static void MigrateRAG(IHost app)
+{
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+
+    var context = services.GetRequiredService<VectorContext>();
     if (context.Database.GetPendingMigrations().Any())
     {
         context.Database.Migrate();
