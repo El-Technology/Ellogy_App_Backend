@@ -1,4 +1,5 @@
-﻿using AICommunicationService.BLL.Services;
+﻿using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.BLL.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AICommunicationService.Controllers
@@ -8,9 +9,11 @@ namespace AICommunicationService.Controllers
     public class RAGController : Controller
     {
         private readonly DocumentService _documentService;
-        public RAGController(DocumentService documentService)
+        private readonly ICommunicationService _communicationService;
+        public RAGController(DocumentService documentService, ICommunicationService communicationService)
         {
             _documentService = documentService;
+            _communicationService = communicationService;
         }
 
         [HttpGet]
@@ -40,6 +43,15 @@ namespace AICommunicationService.Controllers
         {
             await _documentService.ReadPdf(fileName);
             return Ok();
+        }
+
+        [HttpPost]
+        [Route("embedFile")]
+        public async Task<IActionResult> EmbedFile([FromBody] string fileName)
+        {
+            var documentText = await _documentService.ReadPdf(fileName);
+
+            return Ok(await _communicationService.GetEmbeddingAsync(text));
         }
     }
 }

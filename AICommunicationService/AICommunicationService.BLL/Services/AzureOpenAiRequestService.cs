@@ -1,10 +1,12 @@
-﻿using AICommunicationService.BLL.Dtos;
+﻿using AICommunicationService.BLL.Constants;
+using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
 using Newtonsoft.Json;
 using System.Text;
+using UglyToad.PdfPig.Graphics.Operations.MarkedContent;
 
 namespace AICommunicationService.BLL.Services
 {
@@ -137,6 +139,20 @@ namespace AICommunicationService.BLL.Services
                         await onDataReceived(stringAiResponse);
                 }
             }
+        }
+
+        public async Task<List<double>> GetEmbeddingAsync(string text)
+        {
+            var content = new StringContent(
+                JsonConvert.SerializeObject(new { input = text }),
+                Encoding.UTF8,
+                "application/json");
+
+            var response = await _httpClient.PostAsync(AzureAiConstants.EmbeddingUrl, content);
+
+            var resultAsObject = JsonConvert.DeserializeObject<EmbeddingResponseModel>(await response.Content.ReadAsStringAsync());
+
+            return resultAsObject.data.FirstOrDefault().embedding;
         }
     }
 }

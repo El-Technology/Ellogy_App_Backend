@@ -69,6 +69,7 @@ namespace AICommunicationService.BLL.Services
 
             foreach (var page in document.GetPages())
             {
+                yield return page.Text;
                 Console.WriteLine(page.Text);
             }
         }

@@ -101,7 +101,7 @@ static void AddServices(WebApplicationBuilder builder)
 
     builder.Services.AddHealthChecks();
     builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
-    builder.Services.AddRAGLayer(EnvironmentVariables.ConnectionStringVector);
+    builder.Services.AddRAGDataLayer(EnvironmentVariables.ConnectionStringVector);
     builder.Services.AddBusinessLayer();
 }
 
