@@ -8,8 +8,6 @@ using Azure.Storage.Sas;
 using System.Data.Common;
 using System.Text;
 using UglyToad.PdfPig;
-using UglyToad.PdfPig.Writer;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AICommunicationService.BLL.Services
 {
@@ -82,7 +80,7 @@ namespace AICommunicationService.BLL.Services
             using var document = PdfDocument.Open(await response.Content.ReadAsByteArrayAsync());
 
             var stringBuilder = new StringBuilder();
-
+          
             foreach (var page in document.GetPages())
             {
                 stringBuilder.AppendLine(page.Text);
@@ -123,29 +121,24 @@ namespace AICommunicationService.BLL.Services
             await _embeddingRepository.AddRangeEmbeddingsAsync(embeddings);
         }
 
-        public async Task<List<double>> GetEmbeddingAsync(string text)
+        public async Task<string> GetTheClosesContextAsync(string searchRequest, string fileName)
         {
-            var splitText = SplitText(text);
-            foreach (var split in splitText)
-            {
-                var embedding = await _customAiService.GetEmbeddingAsync(text);
-
-            }
-
-            return new List<double>();
+            var embedding = await _customAiService.GetEmbeddingAsync(searchRequest);
+            var searchResult = await _embeddingRepository.GetTheClosestEmbeddingAsync(fileName, embedding);
+            return searchResult!.Text;
         }
 
         private List<string> SplitText(string text)
         {
             var encoding = Tiktoken.Encoding.ForModel("gpt-3.5-turbo");
             var tokens = encoding.CountTokens(text);
-            var numSplits = Math.Ceiling((float)tokens / 8000);
+            var numSplits = Math.Ceiling((float)tokens / 24000);
 
             var splits = new List<string>();
             for (int i = 0; i < numSplits; i++)
             {
-                var start = i * 8000;
-                var end = Math.Min(tokens, (i + 1) * 8000);
+                var start = i * 24000;
+                var end = Math.Min(tokens, (i + 1) * 24000);
                 splits.Add(text[start..end]);
             }
 

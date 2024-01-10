@@ -48,11 +48,14 @@ namespace AICommunicationService.Controllers
         public async Task<IActionResult> EmbedFile([FromBody] string fileName)
         {
             await _documentService.InsertDocumentContextInVectorDbAsync(fileName, Guid.NewGuid());
-
-            //var documentText = await _documentService.ReadPdf(fileName);
-
-            //return Ok(await _communicationService.GetEmbeddingAsync(fileName));
             return Ok();
+        }
+
+        [HttpPost]
+        [Route("getTheClosestContext")]
+        public async Task<IActionResult> GetTheClosestContext([FromBody] string fileName, [FromQuery] string searchRequest)
+        {
+            return Ok(await _documentService.GetTheClosesContextAsync(searchRequest, fileName));
         }
     }
 }
