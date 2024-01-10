@@ -47,6 +47,10 @@ public class ExceptionHandlerMiddleware
         {
             await HandleExceptionAsync(context, ex.Message, HttpStatusCode.Unauthorized, ex.Message);
         }
+        catch (EmailVerificationException ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.Forbidden, ex.Message);
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, ex.Message,
