@@ -26,7 +26,7 @@ public class LoginService : ILoginService
         var user = await _userRepository.GetUserByEmailAsync(loginUser.Email) ?? throw new UserNotFoundException(loginUser.Email);
 
         if (!user.IsAccountActivated)
-            throw new Exception("You need to activate your account");
+            throw new EmailVerificationException();
 
         if (user.Role != DAL.Enums.RoleEnum.Admin)
             throw new Exception("You are not allowed to login");
