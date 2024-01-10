@@ -1,18 +1,32 @@
-﻿using AICommunicationService.Common;
+﻿using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.Common;
+using AICommunicationService.RAG.Models;
+using AICommunicationService.RAG.Repositories;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
 using System.Data.Common;
+using System.Text;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Writer;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AICommunicationService.BLL.Services
 {
     public class DocumentService
     {
         private readonly BlobServiceClient _blobServiceClient;
-        public DocumentService(BlobServiceClient blobServiceClient)
+        private readonly IAzureOpenAiRequestService _customAiService;
+        private readonly EmbeddingRepository _embeddingRepository;
+        private readonly DocumentRepository _documentRepository;
+        public DocumentService(BlobServiceClient blobServiceClient,
+                               IAzureOpenAiRequestService customAiService,
+                               EmbeddingRepository embeddingRepository,
+                               DocumentRepository documentRepository)
         {
+            _documentRepository = documentRepository;
+            _embeddingRepository = embeddingRepository;
+            _customAiService = customAiService;
             _blobServiceClient = blobServiceClient;
         }
 
@@ -60,18 +74,82 @@ namespace AICommunicationService.BLL.Services
             return ReturnUrlWithPermission(fileName, 5, BlobSasPermissions.Delete);
         }
 
-        public async Task ReadPdf(string fileName)
+        public async Task<string> ReadPdf(string fileName)
         {
             var httpClient = new HttpClient();
             var response = await httpClient.GetAsync(GetFileUrl(fileName));
 
             using var document = PdfDocument.Open(await response.Content.ReadAsByteArrayAsync());
 
+            var stringBuilder = new StringBuilder();
+
             foreach (var page in document.GetPages())
             {
-                yield return page.Text;
-                Console.WriteLine(page.Text);
+                stringBuilder.AppendLine(page.Text);
             }
+
+            return stringBuilder.ToString();
+        }
+
+        public async Task InsertDocumentContextInVectorDbAsync(string fileName, Guid userId)
+        {
+            var documentContext = await ReadPdf(fileName);
+
+            var document = new Document
+            {
+                Id = Guid.NewGuid(),
+                Name = fileName,
+                UserId = userId
+            };
+
+            await _documentRepository.AddDocumentAsync(document);
+
+            var splitText = SplitText(documentContext);
+
+            var embeddings = new List<Embedding>();
+
+            foreach (var text in splitText)
+            {
+                var embedding = await _customAiService.GetEmbeddingAsync(text);
+                embeddings.Add(new Embedding
+                {
+                    Id = Guid.NewGuid(),
+                    DocumentId = document.Id,
+                    Text = text,
+                    Vector = new Pgvector.Vector(embedding)
+                });
+            }
+
+            await _embeddingRepository.AddRangeEmbeddingsAsync(embeddings);
+        }
+
+        public async Task<List<double>> GetEmbeddingAsync(string text)
+        {
+            var splitText = SplitText(text);
+            foreach (var split in splitText)
+            {
+                var embedding = await _customAiService.GetEmbeddingAsync(text);
+
+            }
+
+            return new List<double>();
+        }
+
+        private List<string> SplitText(string text)
+        {
+            var encoding = Tiktoken.Encoding.ForModel("gpt-3.5-turbo");
+            var tokens = encoding.CountTokens(text);
+            var numSplits = Math.Ceiling((float)tokens / 8000);
+
+            var splits = new List<string>();
+            for (int i = 0; i < numSplits; i++)
+            {
+                var start = i * 8000;
+                var end = Math.Min(tokens, (i + 1) * 8000);
+                splits.Add(text[start..end]);
+            }
+
+            return splits;
         }
     }
 }

@@ -141,7 +141,7 @@ namespace AICommunicationService.BLL.Services
             }
         }
 
-        public async Task<List<double>> GetEmbeddingAsync(string text)
+        public async Task<float[]> GetEmbeddingAsync(string text)
         {
             var content = new StringContent(
                 JsonConvert.SerializeObject(new { input = text }),

@@ -4,7 +4,7 @@
     {
         public string @object { get; set; }
         public int index { get; set; }
-        public List<double> embedding { get; set; }
+        public float[] embedding { get; set; }
     }
 
     public class EmbeddingResponseModel

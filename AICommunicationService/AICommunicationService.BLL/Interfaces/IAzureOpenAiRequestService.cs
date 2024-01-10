@@ -8,7 +8,7 @@ namespace AICommunicationService.BLL.Interfaces
     /// </summary>
     public interface IAzureOpenAiRequestService
     {
-        Task<List<double>> GetEmbeddingAsync(string text);
+        Task<float[]> GetEmbeddingAsync(string text);
 
         /// <summary>
         /// Posts an AI request as a stream and handles data reception asynchronously.

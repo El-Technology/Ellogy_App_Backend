@@ -147,17 +147,6 @@ namespace AICommunicationService.BLL.Services
             return response.Content;
         }
 
-        public async Task<List<double>> GetEmbeddingAsync(string text)
-        {
-            var splitText = SplitText(text);
-            foreach (var t in splitText) 
-            {
-                await _customAiService.GetEmbeddingAsync(t);
-            }
-
-            return new List<double>();
-        }
-
         private int Tokenizer(AiModelEnum aiModelEnum, string text)
         {
             var model = string.Empty;
@@ -173,23 +162,6 @@ namespace AICommunicationService.BLL.Services
             var tokens = encoding.CountTokens(text);
 
             return tokens;
-        }
-
-        private List<string> SplitText(string text)
-        {
-            var encoding = Tiktoken.Encoding.ForModel("gpt-3.5-turbo");
-            var tokens = encoding.CountTokens(text);
-            var numSplits = Math.Ceiling((float)tokens / 8000);
-
-            var splits = new List<string>();
-            for (int i = 0; i < numSplits; i++)
-            {
-                var start = i * 8000;
-                var end = Math.Min(tokens, (i + 1) * 8000);
-                splits.Add(text[start..end]);
-            }
-
-            return splits;
         }
 
         private int TokensToPointsConverter(int amountOfTokens)

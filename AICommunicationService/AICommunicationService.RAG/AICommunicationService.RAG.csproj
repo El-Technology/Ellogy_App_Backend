@@ -20,8 +20,4 @@
     <ProjectReference Include="..\AICommunicationService.Common\AICommunicationService.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
 </Project>

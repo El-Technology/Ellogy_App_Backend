@@ -9,11 +9,9 @@ namespace AICommunicationService.Controllers
     public class RAGController : Controller
     {
         private readonly DocumentService _documentService;
-        private readonly ICommunicationService _communicationService;
         public RAGController(DocumentService documentService, ICommunicationService communicationService)
         {
             _documentService = documentService;
-            _communicationService = communicationService;
         }
 
         [HttpGet]
@@ -49,9 +47,12 @@ namespace AICommunicationService.Controllers
         [Route("embedFile")]
         public async Task<IActionResult> EmbedFile([FromBody] string fileName)
         {
-            var documentText = await _documentService.ReadPdf(fileName);
+            await _documentService.InsertDocumentContextInVectorDbAsync(fileName, Guid.NewGuid());
 
-            return Ok(await _communicationService.GetEmbeddingAsync(text));
+            //var documentText = await _documentService.ReadPdf(fileName);
+
+            //return Ok(await _communicationService.GetEmbeddingAsync(fileName));
+            return Ok();
         }
     }
 }

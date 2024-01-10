@@ -22,7 +22,6 @@ namespace AICommunicationService.BLL.Interfaces
         /// <param name="userId">User id</param>
         /// <returns>Returns string data in Json</returns>
         Task<string> ChatRequestWithFunctionAsync(Guid userId, CreateConversationRequest createConversationRequest);
-        Task<List<double>> GetEmbeddingAsync(string text);
 
         /// <summary>
         /// Endpoint for retrieving AI response as streaming using SignalR.
