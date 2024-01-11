@@ -2,10 +2,12 @@
 using AICommunicationService.RAG.Models;
 using Microsoft.EntityFrameworkCore;
 using Pgvector.EntityFrameworkCore;
+using Pgvector;
+using AICommunicationService.RAG.Interfaces;
 
 namespace AICommunicationService.RAG.Repositories
 {
-    public class EmbeddingRepository
+    public class EmbeddingRepository: IEmbeddingRepository
     {
         private readonly VectorContext _context;
         public EmbeddingRepository(VectorContext context)
@@ -27,12 +29,9 @@ namespace AICommunicationService.RAG.Repositories
 
         public async Task<Embedding?> GetTheClosestEmbeddingAsync(string fileName, float[] searchRequest)
         {
-            Console.WriteLine((await _context.Embeddings.Where(a => a.Document.Name.Equals(fileName)).Select(a => a.Id).ToListAsync()).ToString());
-
-
             return await _context.Embeddings
                 .Where(a => a.Document.Name.Equals(fileName))
-                .OrderBy(a => a.Vector!.L2Distance(new Pgvector.Vector(searchRequest)))
+                .OrderBy(a => a.Vector!.L2Distance(new Vector(searchRequest)))
                 .Take(1)
                 .FirstOrDefaultAsync();
         }

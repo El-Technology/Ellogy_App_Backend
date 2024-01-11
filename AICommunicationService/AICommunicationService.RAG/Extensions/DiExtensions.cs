@@ -1,4 +1,5 @@
 ﻿using AICommunicationService.RAG.Context.Vector;
+using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,8 +13,8 @@ namespace AICommunicationService.RAG.Extensions
         {
             return services
                 .AddDbContext<VectorContext>(c => c.UseNpgsql(vectorConnectionString, o => o.UseVector()))
-                .AddScoped<EmbeddingRepository>()
-                .AddScoped<DocumentRepository>();
+                .AddScoped<IEmbeddingRepository, EmbeddingRepository>()
+                .AddScoped<IDocumentRepository, DocumentRepository>();
         }
     }
 }

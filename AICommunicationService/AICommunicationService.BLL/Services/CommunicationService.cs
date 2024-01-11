@@ -7,9 +7,7 @@ using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.DAL.Interfaces;
 using Microsoft.AspNetCore.SignalR;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AICommunicationService.BLL.Services
 {
@@ -23,18 +21,56 @@ namespace AICommunicationService.BLL.Services
         private readonly IAzureOpenAiRequestService _customAiService;
         private readonly IWalletRepository _walletRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IDocumentService _documentService;
 
         public CommunicationService(IAIPromptRepository aIPromptRepository,
                                     IHubContext<StreamAiHub> hubContext,
                                     IAzureOpenAiRequestService azureOpenAiRequestService,
                                     IUserRepository userRepository,
-                                    IWalletRepository walletRepository)
+                                    IWalletRepository walletRepository,
+                                    IDocumentService documentService)
         {
             _userRepository = userRepository;
             _walletRepository = walletRepository;
             _hubContext = hubContext;
             _aIPromptRepository = aIPromptRepository;
             _customAiService = azureOpenAiRequestService;
+            _documentService = documentService;
+        }
+
+        private int Tokenizer(AiModelEnum aiModelEnum, string text)
+        {
+            var model = string.Empty;
+
+            if (aiModelEnum == AiModelEnum.Turbo)
+                model = "gpt-3.5-turbo";
+
+            if (aiModelEnum == AiModelEnum.Four || aiModelEnum == AiModelEnum.FourTurbo)
+                model = "gpt-4";
+
+
+            var encoding = Tiktoken.Encoding.ForModel(model);
+            var tokens = encoding.CountTokens(text);
+
+            return tokens;
+        }
+
+        private int TokensToPointsConverter(int amountOfTokens)
+        {
+            return amountOfTokens / PaymentConstants.TokensToPointsRelation;
+        }
+
+        private async Task CheckIfUserAllowedToCreateRequest(Guid userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId)
+                ?? throw new Exception("User was not found");
+
+            var minBalanceAllowedToUser = (int)-(user.TotalPurchasedPoints * 0.2f);
+            if (minBalanceAllowedToUser > 0)
+                return;
+
+            if (await _walletRepository.CheckIfUserAllowedToCreateRequest(userId, minBalanceAllowedToUser))
+                throw new BalanceException("You need to replenish your balance in order to perform further requests");
         }
 
         private async Task<string> GetTemplateAsync(string promptName)
@@ -63,6 +99,18 @@ namespace AICommunicationService.BLL.Services
             return $"{AzureAiConstants.BaseUrl}{deploymentName}/chat/completions?{AzureAiConstants.ApiVersion}";
         }
 
+        private async Task<string?> GetRAGContextAsync(CreateConversationRequest createConversationRequest)
+        {
+            string? context = null;
+
+            if (createConversationRequest.UseRAG && createConversationRequest.FileName is not null)
+            {
+                context = await _documentService.GetTheClosesContextAsync(createConversationRequest.UserInput, createConversationRequest.FileName);
+            }
+
+            return context;
+        }
+
         /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(Guid, CreateConversationRequest)"/>
         public async Task<string?> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest)
         {
@@ -70,6 +118,7 @@ namespace AICommunicationService.BLL.Services
 
             var request = new MessageRequest
             {
+                Context = await GetRAGContextAsync(createConversationRequest),
                 Temperature = createConversationRequest.Temperature,
                 Template = await GetTemplateAsync(createConversationRequest.TemplateName),
                 Url = GetAiModelLink(createConversationRequest.AiModelEnum),
@@ -93,6 +142,7 @@ namespace AICommunicationService.BLL.Services
 
             var request = new MessageRequest
             {
+                Context = await GetRAGContextAsync(streamRequest),
                 Temperature = streamRequest.Temperature,
                 Template = await GetTemplateAsync(streamRequest.TemplateName),
                 Url = GetAiModelLink(streamRequest.AiModelEnum),
@@ -133,6 +183,7 @@ namespace AICommunicationService.BLL.Services
 
             var request = new MessageRequest
             {
+                Context = await GetRAGContextAsync(createConversationRequest),
                 Functions = await GetFunctionsAsync(createConversationRequest.TemplateName) ?? throw new Exception("Functions is null, change method or update the prompt"),
                 Temperature = createConversationRequest.Temperature,
                 Template = await GetTemplateAsync(createConversationRequest.TemplateName),
@@ -145,41 +196,6 @@ namespace AICommunicationService.BLL.Services
             await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
 
             return response.Content;
-        }
-
-        private int Tokenizer(AiModelEnum aiModelEnum, string text)
-        {
-            var model = string.Empty;
-
-            if (aiModelEnum == AiModelEnum.Turbo)
-                model = "gpt-3.5-turbo";
-
-            if (aiModelEnum == AiModelEnum.Four || aiModelEnum == AiModelEnum.FourTurbo)
-                model = "gpt-4";
-
-
-            var encoding = Tiktoken.Encoding.ForModel(model);
-            var tokens = encoding.CountTokens(text);
-
-            return tokens;
-        }
-
-        private int TokensToPointsConverter(int amountOfTokens)
-        {
-            return amountOfTokens / PaymentConstants.TokensToPointsRelation;
-        }
-
-        private async Task CheckIfUserAllowedToCreateRequest(Guid userId)
-        {
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new Exception("User was not found");
-
-            var minBalanceAllowedToUser = (int)-(user.TotalPurchasedPoints * 0.2f);
-            if (minBalanceAllowedToUser > 0)
-                return;
-
-            if (await _walletRepository.CheckIfUserAllowedToCreateRequest(userId, minBalanceAllowedToUser))
-                throw new BalanceException("You need to replenish your balance in order to perform further requests");
         }
     }
 }

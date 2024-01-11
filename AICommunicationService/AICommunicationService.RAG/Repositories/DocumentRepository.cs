@@ -1,9 +1,10 @@
 ﻿using AICommunicationService.RAG.Context.Vector;
+using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
 
 namespace AICommunicationService.RAG.Repositories
 {
-    public class DocumentRepository
+    public class DocumentRepository : IDocumentRepository
     {
         private readonly VectorContext _context;
         public DocumentRepository(VectorContext context)

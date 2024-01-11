@@ -14,7 +14,7 @@ namespace AICommunicationService.BLL.Extensions
                 .AddScoped<IAzureOpenAiRequestService, AzureOpenAiRequestService>()
                 .AddScoped<IPromptService, PromptService>()
                 .AddScoped<ICommunicationService, CommunicationService>()
-                .AddScoped<DocumentService>()
+                .AddScoped<IDocumentService, DocumentService>()
                 .AddScoped<BlobServiceClient>(_ => new(EnvironmentVariables.BlobStorageConnectionString)); ;
         }
     }

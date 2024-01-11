@@ -19,14 +19,18 @@ namespace AICommunicationService.BLL.Services
             _httpClient = httpClientFactory.CreateClient("AzureAiRequest");
         }
 
-        private List<object> GetMessages(string systemMessage, string userInput)
+        private List<object> GetMessages(string systemMessage, string userInput, string? context = null)
         {
+            var inputContext = context is not null
+                ? $"Context: {context}"
+                : string.Empty;
+
             return new List<object>
             {
                 new
                 {
                     role = "system",
-                    content = systemMessage
+                    content = $"{systemMessage}\n{inputContext}"
                 },
                 new
                 {
@@ -38,7 +42,7 @@ namespace AICommunicationService.BLL.Services
 
         private StringContent PostAiRequestGetContent(MessageRequest request, AiRequestType requestType)
         {
-            var messages = GetMessages(request.Template, request.UserInput);
+            var messages = GetMessages(request.Template, request.UserInput, request.Context);
             object requestData;
             switch (requestType)
             {

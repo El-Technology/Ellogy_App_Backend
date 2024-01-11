@@ -10,5 +10,7 @@ namespace AICommunicationService.Common.Models.AIRequest
         public string TemplateName { get; set; }
         public string UserInput { get; set; }
         public float Temperature { get; set; }
+        public bool UseRAG { get; set; }
+        public string? FileName { get; set; } = null;
     }
 }

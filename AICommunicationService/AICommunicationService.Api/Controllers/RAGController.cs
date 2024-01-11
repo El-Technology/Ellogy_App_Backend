@@ -1,5 +1,4 @@
 ﻿using AICommunicationService.BLL.Interfaces;
-using AICommunicationService.BLL.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AICommunicationService.Controllers
@@ -8,8 +7,8 @@ namespace AICommunicationService.Controllers
     [ApiController]
     public class RAGController : Controller
     {
-        private readonly DocumentService _documentService;
-        public RAGController(DocumentService documentService, ICommunicationService communicationService)
+        private readonly IDocumentService _documentService;
+        public RAGController(IDocumentService documentService, ICommunicationService communicationService)
         {
             _documentService = documentService;
         }
@@ -35,27 +34,12 @@ namespace AICommunicationService.Controllers
             return Ok(_documentService.GetDeleteFileUrl(fileName));
         }
 
-        [HttpGet]
-        [Route("readText")]
-        public async Task<IActionResult> ReadText([FromQuery] string fileName)
-        {
-            await _documentService.ReadPdf(fileName);
-            return Ok();
-        }
-
         [HttpPost]
         [Route("embedFile")]
         public async Task<IActionResult> EmbedFile([FromBody] string fileName)
         {
-            await _documentService.InsertDocumentContextInVectorDbAsync(fileName, Guid.NewGuid());
+            await _documentService.InsertDocumentContextInVectorDbAsync(fileName, Guid.NewGuid()); // add user id 
             return Ok();
-        }
-
-        [HttpPost]
-        [Route("getTheClosestContext")]
-        public async Task<IActionResult> GetTheClosestContext([FromBody] string fileName, [FromQuery] string searchRequest)
-        {
-            return Ok(await _documentService.GetTheClosesContextAsync(searchRequest, fileName));
         }
     }
 }

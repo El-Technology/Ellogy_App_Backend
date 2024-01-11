@@ -1,7 +1,7 @@
 ﻿using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
+using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
-using AICommunicationService.RAG.Repositories;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
@@ -11,16 +11,16 @@ using UglyToad.PdfPig;
 
 namespace AICommunicationService.BLL.Services
 {
-    public class DocumentService
+    public class DocumentService : IDocumentService
     {
         private readonly BlobServiceClient _blobServiceClient;
         private readonly IAzureOpenAiRequestService _customAiService;
-        private readonly EmbeddingRepository _embeddingRepository;
-        private readonly DocumentRepository _documentRepository;
+        private readonly IEmbeddingRepository _embeddingRepository;
+        private readonly IDocumentRepository _documentRepository;
         public DocumentService(BlobServiceClient blobServiceClient,
                                IAzureOpenAiRequestService customAiService,
-                               EmbeddingRepository embeddingRepository,
-                               DocumentRepository documentRepository)
+                               IEmbeddingRepository embeddingRepository,
+                               IDocumentRepository documentRepository)
         {
             _documentRepository = documentRepository;
             _embeddingRepository = embeddingRepository;
@@ -57,6 +57,23 @@ namespace AICommunicationService.BLL.Services
             return $"{blobClient.Uri}?{sasToken}";
         }
 
+        private List<string> SplitText(string text)
+        {
+            var encoding = Tiktoken.Encoding.ForModel("gpt-3.5-turbo");
+            var tokens = encoding.CountTokens(text);
+            var numSplits = Math.Ceiling((float)tokens / 6000);
+
+            var splits = new List<string>();
+            for (int i = 0; i < numSplits; i++)
+            {
+                var start = i * 6000;
+                var end = Math.Min(tokens, (i + 1) * 6000);
+                splits.Add(text[start..end]);
+            }
+
+            return splits;
+        }
+
         public string GetUploadFileUrl(string fileName)
         {
             return ReturnUrlWithPermission(fileName, 5, BlobSasPermissions.Write);
@@ -80,7 +97,7 @@ namespace AICommunicationService.BLL.Services
             using var document = PdfDocument.Open(await response.Content.ReadAsByteArrayAsync());
 
             var stringBuilder = new StringBuilder();
-          
+
             foreach (var page in document.GetPages())
             {
                 stringBuilder.AppendLine(page.Text);
@@ -126,23 +143,6 @@ namespace AICommunicationService.BLL.Services
             var embedding = await _customAiService.GetEmbeddingAsync(searchRequest);
             var searchResult = await _embeddingRepository.GetTheClosestEmbeddingAsync(fileName, embedding);
             return searchResult!.Text;
-        }
-
-        private List<string> SplitText(string text)
-        {
-            var encoding = Tiktoken.Encoding.ForModel("gpt-3.5-turbo");
-            var tokens = encoding.CountTokens(text);
-            var numSplits = Math.Ceiling((float)tokens / 24000);
-
-            var splits = new List<string>();
-            for (int i = 0; i < numSplits; i++)
-            {
-                var start = i * 24000;
-                var end = Math.Min(tokens, (i + 1) * 24000);
-                splits.Add(text[start..end]);
-            }
-
-            return splits;
         }
     }
 }
