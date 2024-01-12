@@ -17,6 +17,7 @@ namespace AICommunicationService.BLL.Services
         private readonly IAzureOpenAiRequestService _customAiService;
         private readonly IEmbeddingRepository _embeddingRepository;
         private readonly IDocumentRepository _documentRepository;
+        private const int CharactersForSplit = 6000;
         public DocumentService(BlobServiceClient blobServiceClient,
                                IAzureOpenAiRequestService customAiService,
                                IEmbeddingRepository embeddingRepository,
@@ -61,13 +62,13 @@ namespace AICommunicationService.BLL.Services
         {
             var encoding = Tiktoken.Encoding.ForModel("gpt-3.5-turbo");
             var tokens = encoding.CountTokens(text);
-            var numSplits = Math.Ceiling((float)tokens / 6000);
+            var numSplits = Math.Ceiling((float)tokens / CharactersForSplit);
 
             var splits = new List<string>();
             for (int i = 0; i < numSplits; i++)
             {
-                var start = i * 6000;
-                var end = Math.Min(tokens, (i + 1) * 6000);
+                var start = i * CharactersForSplit;
+                var end = Math.Min(tokens, (i + 1) * CharactersForSplit);
                 splits.Add(text[start..end]);
             }
 
@@ -143,6 +144,11 @@ namespace AICommunicationService.BLL.Services
             var embedding = await _customAiService.GetEmbeddingAsync(searchRequest);
             var searchResult = await _embeddingRepository.GetTheClosestEmbeddingAsync(fileName, embedding);
             return searchResult!.Text;
+        }
+
+        public async Task<List<string>> GetAllUserDocumentsAsync(Guid userId)
+        {
+            return await _documentRepository.GetAllUserDocumentsAsync(userId);
         }
     }
 }

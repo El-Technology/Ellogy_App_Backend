@@ -57,7 +57,7 @@ namespace AICommunicationService.Api.Controllers
         [Route("getChatResponse")]
         public async Task<IActionResult> GetChatResponse([FromBody] CreateConversationRequest conversationRequest)
         {
-            var response = await _communicationService.ChatRequestAsync(GetUserIdFromToken() ,conversationRequest);
+            var response = await _communicationService.ChatRequestAsync(GetUserIdFromToken(), conversationRequest);
             return Ok(response);
         }
 

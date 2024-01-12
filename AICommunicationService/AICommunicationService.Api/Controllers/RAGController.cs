@@ -1,16 +1,35 @@
 ﻿using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.Common;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AICommunicationService.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RAGController : Controller
     {
         private readonly IDocumentService _documentService;
         public RAGController(IDocumentService documentService, ICommunicationService communicationService)
         {
             _documentService = documentService;
+        }
+
+        /// <summary>
+        /// This method retrieves the user id from the JWT token
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        private Guid GetUserIdFromToken()
+        {
+            var status = Guid.TryParse(User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out Guid userId);
+            if (!status)
+                throw new Exception("Taking user id error, try again later");
+
+            return userId;
         }
 
         [HttpGet]
@@ -34,11 +53,18 @@ namespace AICommunicationService.Controllers
             return Ok(_documentService.GetDeleteFileUrl(fileName));
         }
 
+        [HttpGet]
+        [Route("getUserDocuments")]
+        public async Task<IActionResult> GetUserDocuments()
+        {
+            return Ok(await _documentService.GetAllUserDocumentsAsync(GetUserIdFromToken()));
+        }
+
         [HttpPost]
         [Route("embedFile")]
         public async Task<IActionResult> EmbedFile([FromBody] string fileName)
         {
-            await _documentService.InsertDocumentContextInVectorDbAsync(fileName, Guid.NewGuid()); // add user id 
+            await _documentService.InsertDocumentContextInVectorDbAsync(fileName, GetUserIdFromToken());
             return Ok();
         }
     }

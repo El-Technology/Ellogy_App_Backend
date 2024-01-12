@@ -1,6 +1,7 @@
 ﻿using AICommunicationService.RAG.Context.Vector;
 using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AICommunicationService.RAG.Repositories
 {
@@ -16,6 +17,14 @@ namespace AICommunicationService.RAG.Repositories
         {
             await _context.Documents.AddAsync(document);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<string>> GetAllUserDocumentsAsync(Guid userId)
+        {
+            return await _context.Documents
+                .Where(a => a.UserId == userId)
+                .Select(a => a.Name)
+                .ToListAsync();
         }
     }
 }
