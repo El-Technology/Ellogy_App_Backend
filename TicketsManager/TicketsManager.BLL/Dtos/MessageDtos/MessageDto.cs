@@ -28,4 +28,9 @@ public class MessageDto
     /// Shows at which stage the message was sent
     /// </summary>
     public MessageStageEnum? Stage { get; set; }
+
+    /// <summary>
+    /// Shows at which sub - stage the message was sent
+    /// </summary>
+    public SubStageEnum? SubStage { get; set; }
 }

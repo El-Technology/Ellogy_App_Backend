@@ -81,6 +81,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Property<int?>("Stage")
                         .HasColumnType("integer");
 
+                    b.Property<int?>("SubStage")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uuid");
 
@@ -209,6 +212,9 @@ namespace TicketsManager.DAL.Migrations
 
                     b.Property<bool>("IsPotential")
                         .HasColumnType("boolean");
+
+                    b.Property<int?>("SubStage")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uuid");
