@@ -21,6 +21,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         builder.Property(c => c.ActionType);
         builder.Property(c => c.ActionState);
         builder.Property(c => c.Stage);
+        builder.Property(c => c.SubStage);
 
         builder.HasOne(c => c.Ticket)
             .WithMany(c => c.TicketMessages)
