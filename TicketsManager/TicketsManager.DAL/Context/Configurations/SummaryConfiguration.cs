@@ -15,6 +15,7 @@ namespace TicketsManager.DAL.Context.Configurations
                 .IsRequired();
             builder.Property(t => t.Data)
                 .IsRequired();
+            builder.Property(t => t.SubStage);
 
             builder.HasOne(t => t.Ticket)
                 .WithMany(t => t.TicketSummaries)
