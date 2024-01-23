@@ -252,6 +252,9 @@ namespace TicketsManager.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uuid");
 
