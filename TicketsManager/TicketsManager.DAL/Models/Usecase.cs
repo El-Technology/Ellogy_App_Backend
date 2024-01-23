@@ -4,6 +4,7 @@
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
+        public string? Description { get; set; }
         public ICollection<TicketTable> Tables { get; set; }
         public ICollection<TicketDiagram> Diagrams { get; set; }
 
