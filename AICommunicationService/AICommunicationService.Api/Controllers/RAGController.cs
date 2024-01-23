@@ -9,7 +9,7 @@ namespace AICommunicationService.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RAGController : Controller
     {
         private readonly IDocumentService _documentService;

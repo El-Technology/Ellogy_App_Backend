@@ -5,6 +5,7 @@ using AICommunicationService.RAG.Models;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
+using LangChain.TextSplitters;
 using System.Data.Common;
 using System.Text;
 using UglyToad.PdfPig;
@@ -17,7 +18,6 @@ namespace AICommunicationService.BLL.Services
         private readonly IAzureOpenAiRequestService _customAiService;
         private readonly IEmbeddingRepository _embeddingRepository;
         private readonly IDocumentRepository _documentRepository;
-        private const int CharactersForSplit = 6000;
         public DocumentService(BlobServiceClient blobServiceClient,
                                IAzureOpenAiRequestService customAiService,
                                IEmbeddingRepository embeddingRepository,
@@ -60,19 +60,9 @@ namespace AICommunicationService.BLL.Services
 
         private List<string> SplitText(string text)
         {
-            var encoding = Tiktoken.Encoding.ForModel("gpt-3.5-turbo");
-            var tokens = encoding.CountTokens(text);
-            var numSplits = Math.Ceiling((float)tokens / CharactersForSplit);
+            var textSplitter = new RecursiveCharacterTextSplitter(chunkSize: 4000, chunkOverlap: 50);
 
-            var splits = new List<string>();
-            for (int i = 0; i < numSplits; i++)
-            {
-                var start = i * CharactersForSplit;
-                var end = Math.Min(tokens, (i + 1) * CharactersForSplit);
-                splits.Add(text[start..end]);
-            }
-
-            return splits;
+            return textSplitter.SplitText(text);
         }
 
         public string GetUploadFileUrl(string fileName)
