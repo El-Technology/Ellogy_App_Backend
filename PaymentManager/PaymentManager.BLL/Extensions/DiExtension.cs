@@ -13,8 +13,10 @@ namespace PaymentManager.BLL.Extensions
             return services
                 .AddScoped<PaymentProducer>()
                 .AddHostedService<PaymentConsumer>()
-                .AddScoped<IPaymentService, PaymentService>()
-                .AddSingleton<ServiceBusClient>(_ => new(EnvironmentVariables.AzureServiceBusConnectionString));
+                .AddScoped<IPaymentSessionService, PaymentSessionService>()
+                .AddSingleton<ServiceBusClient>(_ => new(EnvironmentVariables.AzureServiceBusConnectionString))
+                .AddScoped<PaymentSubscriptionService>()
+                .AddScoped<PaymentCustomerService>();
         }
     }
 }

@@ -8,22 +8,22 @@ using Stripe.Checkout;
 
 namespace PaymentManager.BLL.Services
 {
-    public class PaymentService : IPaymentService
+    public class PaymentSessionService : IPaymentSessionService
     {
-        private readonly ILogger<PaymentService> _logger;
+        private readonly ILogger<PaymentSessionService> _logger;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IUserRepository _userRepository;
 
         private const int amountOfItems = 1;
 
-        public PaymentService(IPaymentRepository paymentRepository, IUserRepository userRepository, ILogger<PaymentService> logger)
+        public PaymentSessionService(IPaymentRepository paymentRepository, IUserRepository userRepository, ILogger<PaymentSessionService> logger)
         {
             _logger = logger;
             _userRepository = userRepository;
             _paymentRepository = paymentRepository;
         }
 
-        /// <inheritdoc cref="IPaymentService.CreatePaymentAsync(Guid, CreatePaymentRequest)"/>
+        /// <inheritdoc cref="IPaymentSessionService.CreatePaymentAsync(Guid, CreatePaymentRequest)"/>
         public async Task<SessionCreateOptions> CreatePaymentAsync(Guid userId, CreatePaymentRequest streamRequest)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
@@ -63,7 +63,7 @@ namespace PaymentManager.BLL.Services
             return sessionCreateOptions;
         }
 
-        /// <inheritdoc cref="IPaymentService.OrderConfirmationAsync(string)"/>
+        /// <inheritdoc cref="IPaymentSessionService.OrderConfirmationAsync(string)"/>
         public async Task OrderConfirmationAsync(string sessionId)
         {
             var service = new SessionService();
@@ -89,7 +89,7 @@ namespace PaymentManager.BLL.Services
             }
         }
 
-        /// <inheritdoc cref="IPaymentService.ExpireSessionAsync(string)"/>
+        /// <inheritdoc cref="IPaymentSessionService.ExpireSessionAsync(string)"/>
         public async Task ExpireSessionAsync(string sessionId)
         {
             var payment = await _paymentRepository.GetPaymentAsync(sessionId)
@@ -116,7 +116,7 @@ namespace PaymentManager.BLL.Services
             _logger.LogInformation($"{sessionId} - was expired");
         }
 
-        /// <inheritdoc cref="IPaymentService.GetUserBalanceAsync(Guid)"/>
+        /// <inheritdoc cref="IPaymentSessionService.GetUserBalanceAsync(Guid)"/>
         public async Task<int> GetUserBalanceAsync(Guid userId)
         {
             var userWallet = await _paymentRepository.GetUserWalletAsync(userId)

@@ -33,5 +33,12 @@ namespace PaymentManager.DAL.Repositories
                 .Where(a => a.Id == userId)
                 .ExecuteUpdateAsync(a => a.SetProperty(a => a.TotalPurchasedPoints, a => a.TotalPurchasedPoints + purchasedTokens));
         }
+
+        public async Task AddStripeCustomerIdAsync(Guid userId, string customerId)
+        {
+            await _userContext.Users
+                .Where(a => a.Id == userId)
+                .ExecuteUpdateAsync(a => a.SetProperty(a => a.StripeCustomerId, a => customerId));
+        }
     }
 }

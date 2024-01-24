@@ -7,6 +7,8 @@ namespace PaymentManager.DAL.Interfaces
     /// </summary>
     public interface IUserRepository
     {
+        Task AddStripeCustomerIdAsync(Guid userId, string customerId);
+
         /// <summary>
         /// Retrieves a list of all users asynchronously.
         /// </summary>

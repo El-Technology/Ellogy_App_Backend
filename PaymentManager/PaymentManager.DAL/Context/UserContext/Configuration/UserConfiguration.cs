@@ -24,6 +24,7 @@ namespace PaymentManager.DAL.Context.UserContext.Configuration
                 .IsRequired()
                 .HasDefaultValue(RoleEnum.User);
             builder.Property(x => x.TotalPurchasedPoints);
+            builder.Property(c => c.StripeCustomerId);
         }
     }
 }

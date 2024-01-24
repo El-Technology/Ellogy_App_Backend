@@ -10,9 +10,9 @@ namespace PaymentManager.API.Controllers
     [ApiController]
     public class WebhookController : Controller
     {
-        private readonly IPaymentService _paymentService;
+        private readonly IPaymentSessionService _paymentService;
 
-        public WebhookController(IPaymentService paymentService)
+        public WebhookController(IPaymentSessionService paymentService)
         {
             _paymentService = paymentService;
         }

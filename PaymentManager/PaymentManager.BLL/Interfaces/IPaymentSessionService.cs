@@ -6,7 +6,7 @@ namespace PaymentManager.BLL.Interfaces
     /// <summary>
     /// Interface defining methods for handling user payments and order confirmations.
     /// </summary>
-    public interface IPaymentService
+    public interface IPaymentSessionService
     {
         /// <summary>
         /// Creates a payment session asynchronously for a user with the given parameters.
