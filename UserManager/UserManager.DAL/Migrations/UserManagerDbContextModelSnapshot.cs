@@ -127,6 +127,9 @@ namespace UserManager.DAL.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("StripeCustomerId")
+                        .HasColumnType("text");
+
                     b.Property<int>("TotalPointsUsage")
                         .HasColumnType("integer");
 

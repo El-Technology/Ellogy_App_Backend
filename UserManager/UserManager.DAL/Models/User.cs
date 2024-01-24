@@ -20,6 +20,7 @@ namespace UserManager.DAL.Models
         public int TotalPurchasedPoints { get; set; }
         public bool IsAccountActivated { get; set; } = true;
         public string? VerifyToken { get; set; }
+        public string? StripeCustomerId { get; set; }
         public RefreshToken RefreshToken { get; set; }
     }
 }
