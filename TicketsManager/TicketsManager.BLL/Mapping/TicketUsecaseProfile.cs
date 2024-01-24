@@ -67,6 +67,8 @@ namespace TicketsManager.BLL.Mapping
                     opts.MapFrom(_ => _.Usecase.Tables))
                 .ForMember(dest => dest.Diagrams, opts =>
                     opts.MapFrom(_ => _.Usecase.Diagrams))
+                .ForMember(dest => dest.Description, opts =>
+                    opts.MapFrom(_ => _.Usecase.Description))
                 .ForMember(dest => dest.Ticket, opts =>
                     opts.Ignore())
                 .ForMember(dest => dest.TicketId, opts =>
