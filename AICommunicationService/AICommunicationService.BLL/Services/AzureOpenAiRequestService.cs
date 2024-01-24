@@ -1,10 +1,12 @@
-﻿using AICommunicationService.BLL.Constants;
+using AICommunicationService.BLL.Constants;
 using AICommunicationService.BLL.Dtos;
+using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
 using Newtonsoft.Json;
+using System.Net;
 using System.Text;
 using UglyToad.PdfPig.Graphics.Operations.MarkedContent;
 
@@ -81,12 +83,21 @@ namespace AICommunicationService.BLL.Services
             return new StringContent(jsonRequest, Encoding.UTF8, "application/json");
         }
 
+        private void ThrowGptException()
+        {
+            throw new GptModelException("Model error, try to replace with another one");
+        }
+
         /// <inheritdoc cref="IAzureOpenAiRequestService.PostAiRequestWithFunctionAsync(MessageRequest)"/>
         public async Task<CommunicationResponseModel> PostAiRequestWithFunctionAsync(MessageRequest request)
         {
             var content = PostAiRequestGetContent(request, AiRequestType.Functions);
 
             var result = await _httpClient.PostAsync(request.Url, content);
+
+            if (result.StatusCode == HttpStatusCode.BadRequest)
+                ThrowGptException();
+
             var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
 
             var communicationModel = new CommunicationResponseModel
@@ -104,6 +115,10 @@ namespace AICommunicationService.BLL.Services
             var content = PostAiRequestGetContent(request, AiRequestType.Default);
 
             var result = await _httpClient.PostAsync(request.Url, content);
+
+            if (result.StatusCode == HttpStatusCode.BadRequest)
+                ThrowGptException();
+
             var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
 
             var communicationModel = new CommunicationResponseModel
@@ -122,6 +137,10 @@ namespace AICommunicationService.BLL.Services
 
             var message = new HttpRequestMessage { RequestUri = new Uri(request.Url), Method = HttpMethod.Post, Content = content };
             var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+                ThrowGptException();
+
             using var stream = await response.Content.ReadAsStreamAsync();
             using (var streamReader = new StreamReader(stream))
             {

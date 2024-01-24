@@ -45,7 +45,9 @@ namespace AICommunicationService.BLL.Services
             if (aiModelEnum == AiModelEnum.Turbo)
                 model = "gpt-3.5-turbo";
 
-            if (aiModelEnum == AiModelEnum.Four || aiModelEnum == AiModelEnum.FourTurbo)
+            if (aiModelEnum == AiModelEnum.Four ||
+                aiModelEnum == AiModelEnum.FourTurbo ||
+                aiModelEnum == AiModelEnum.Four32k)
                 model = "gpt-4";
 
 
@@ -94,6 +96,7 @@ namespace AICommunicationService.BLL.Services
                 AiModelEnum.Turbo => AzureAiConstants.TurboModel,
                 AiModelEnum.Four => AzureAiConstants.FourModel,
                 AiModelEnum.FourTurbo => AzureAiConstants.FourTurboModel,
+                AiModelEnum.Four32k => AzureAiConstants.Four32kModel,
                 _ => throw new Exception("Wrong enum"),
             };
             return $"{AzureAiConstants.BaseUrl}{deploymentName}/chat/completions?{AzureAiConstants.ApiVersion}";
