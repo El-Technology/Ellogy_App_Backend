@@ -29,6 +29,10 @@ public class ExceptionHandlerMiddleware
         {
             await HandleExceptionAsync(context, ex.Message, HttpStatusCode.PaymentRequired, ex.Message);
         }
+        catch (GptModelException ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.BadRequest, ex.Message);
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, ex.Message,
