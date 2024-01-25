@@ -18,16 +18,19 @@ namespace PaymentManager.Controllers
         private readonly IPaymentSessionService _paymentService;
         private readonly PaymentCustomerService _paymentCustomerService;
         private readonly PaymentSubscriptionService _paymentSubscriptionService;
+        private readonly ProductCatalogService _productCatalogService;
 
         public CheckOutController(PaymentProducer serviceBus,
             IPaymentSessionService paymentService,
             PaymentSubscriptionService paymentSubscriptionService,
-            PaymentCustomerService paymentCustomerService)
+            PaymentCustomerService paymentCustomerService,
+            ProductCatalogService productCatalogService)
         {
             _serviceBus = serviceBus;
             _paymentService = paymentService;
             _paymentSubscriptionService = paymentSubscriptionService;
             _paymentCustomerService = paymentCustomerService;
+            _productCatalogService = productCatalogService;
         }
 
         /// <summary>
@@ -79,9 +82,9 @@ namespace PaymentManager.Controllers
 
         [HttpGet]
         [Route("createSubscription")]
-        public async Task<IActionResult> createSubscription()
+        public async Task<IActionResult> createSubscription([FromQuery] string priceId)
         {
-            return Ok(await _paymentSubscriptionService.CreateSubscriptionAsync(GetUserIdFromToken()));
+            return Ok(await _paymentSubscriptionService.CreateSubscriptionAsync(GetUserIdFromToken(), priceId));
         }
 
         [HttpGet]
@@ -90,6 +93,13 @@ namespace PaymentManager.Controllers
         {
             await _paymentSubscriptionService.CancelSubscriptionAsync(GetUserIdFromToken());
             return Ok();
+        }
+
+        [HttpGet]
+        [Route("getProducts")]
+        public async Task<IActionResult> GetProducts()
+        {
+            return Ok(_productCatalogService.GetSubscriptionCatalogAsync());
         }
     }
 }

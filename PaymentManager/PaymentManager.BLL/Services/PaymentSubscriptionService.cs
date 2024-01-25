@@ -12,7 +12,7 @@ namespace PaymentManager.BLL.Services
             _userRepository = userRepository;
         }
 
-        public async Task<string> CreateSubscriptionAsync(Guid userId)
+        public async Task<string> CreateSubscriptionAsync(Guid userId, string priceId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
@@ -39,7 +39,7 @@ namespace PaymentManager.BLL.Services
                 {
                     new SessionLineItemOptions
                     {
-                        Price = "price_1OCkoILwrHIGupwHJRZxysDb",
+                        Price = priceId,
                         Quantity = 1,
                     },
                 }
