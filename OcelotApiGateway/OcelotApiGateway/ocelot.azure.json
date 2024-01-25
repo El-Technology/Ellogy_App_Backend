@@ -674,6 +674,78 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     },
     {
+      "UpstreamPathTemplate": "/dev/RAG/uploadDocumentUrl",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/RAG/uploadDocumentUrl",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/getDocumentUrl",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/RAG/getDocumentUrl",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/deleteDocument",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/api/RAG/deleteDocument",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/getUserDocuments",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/RAG/getUserDocuments",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/verifyDocumentUpload",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/RAG/verifyDocumentUpload",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/embedDocument",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/RAG/embedDocument",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 53053
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/CheckOut/getUserBalance",
       "UpstreamHttpMethod": [ "GET" ],
       "DownstreamPathTemplate": "/api/CheckOut/getUserBalance",
