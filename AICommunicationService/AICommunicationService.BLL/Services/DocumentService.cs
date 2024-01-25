@@ -22,6 +22,7 @@ namespace AICommunicationService.BLL.Services
         private readonly IEmbeddingRepository _embeddingRepository;
         private readonly IDocumentRepository _documentRepository;
         private readonly IMapper _mapper;
+        private const int SAS_TTL = 5;
         public DocumentService(BlobServiceClient blobServiceClient,
                                IAzureOpenAiRequestService customAiService,
                                IEmbeddingRepository embeddingRepository,
@@ -37,12 +38,11 @@ namespace AICommunicationService.BLL.Services
 
         private string ReturnUrlWithPermission(string fileName, int minutesForExpire, BlobSasPermissions permission)
         {
-            var containerClient = _blobServiceClient.GetBlobContainerClient("private-rag-documents");
-            var blobClient = containerClient.GetBlobClient($"{fileName}.pdf");
+            var blobClient = GetBlobContainerClient(fileName);
 
             var sasBuilder = new BlobSasBuilder
             {
-                BlobContainerName = containerClient.Name,
+                BlobContainerName = blobClient.BlobContainerName,
                 BlobName = blobClient.Name,
                 Resource = "b",
                 StartsOn = DateTimeOffset.UtcNow,
@@ -71,14 +71,20 @@ namespace AICommunicationService.BLL.Services
             return textSplitter.SplitText(text);
         }
 
+        private BlobClient GetBlobContainerClient(string fileName)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient("private-rag-documents");
+            return containerClient.GetBlobClient($"{fileName}.pdf");
+        }
+
         public string GetUploadFileUrl(string fileName)
         {
-            return ReturnUrlWithPermission(fileName, 5, BlobSasPermissions.Write);
+            return ReturnUrlWithPermission(fileName, SAS_TTL, BlobSasPermissions.Write);
         }
 
         public string GetFileUrl(string fileName)
         {
-            return ReturnUrlWithPermission(fileName, 5, BlobSasPermissions.Read);
+            return ReturnUrlWithPermission(fileName, SAS_TTL, BlobSasPermissions.Read);
         }
 
         public async Task DeleteFileAsync(Guid userId, string fileName)
@@ -121,6 +127,8 @@ namespace AICommunicationService.BLL.Services
             var document = await _documentRepository.GetDocumentByNameAsync(fileName)
                 ?? throw new Exception("Document was not found");
 
+            var documentIsReady = false;
+
             try
             {
                 var documentContext = await ReadPdf(fileName);
@@ -142,19 +150,17 @@ namespace AICommunicationService.BLL.Services
                 }
 
                 await _embeddingRepository.AddRangeEmbeddingsAsync(embeddings);
-                await _documentRepository.UpdateDocumentStatusAsync(document.Name, true);
+                documentIsReady = true;
             }
-            catch (Exception ex)
+            finally
             {
-                await _documentRepository.UpdateDocumentStatusAsync(document.Name, false);
-                throw new Exception(ex.Message);
+                await _documentRepository.UpdateDocumentStatusAsync(document.Name, documentIsReady);
             }
         }
 
         public async Task CheckIfDocumentWasUploadedAsync(Guid userId, string fileName)
         {
-            var containerClient = _blobServiceClient.GetBlobContainerClient("private-rag-documents");
-            var blobClient = containerClient.GetBlobClient($"{fileName}.pdf");
+            var blobClient = GetBlobContainerClient(fileName);
 
             if (!await blobClient.ExistsAsync())
                 throw new Exception($"File with name:{fileName} cannot be found, try again later");
