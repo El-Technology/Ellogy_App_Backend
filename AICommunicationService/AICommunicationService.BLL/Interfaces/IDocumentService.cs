@@ -3,8 +3,9 @@ namespace AICommunicationService.BLL.Interfaces
 {
     public interface IDocumentService
     {
+        Task CheckIfDocumentWasUploadedAsync(Guid userId, string fileName);
         Task<List<string>> GetAllUserDocumentsAsync(Guid userId);
-        string GetDeleteFileUrl(string fileName);
+        Task DeleteFileAsync(Guid userId, string fileName);
         string GetFileUrl(string fileName);
         Task<string> GetTheClosesContextAsync(string searchRequest, string fileName);
         string GetUploadFileUrl(string fileName);

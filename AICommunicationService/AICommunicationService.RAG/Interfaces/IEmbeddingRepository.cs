@@ -6,6 +6,7 @@ namespace AICommunicationService.RAG.Interfaces
     {
         Task AddEmbeddingAsync(Embedding embedding);
         Task AddRangeEmbeddingsAsync(List<Embedding> embeddings);
+        Task DeleteEmbeddingsAsync(string fileName);
         Task<Embedding?> GetTheClosestEmbeddingAsync(string fileName, float[] searchRequest);
     }
 }

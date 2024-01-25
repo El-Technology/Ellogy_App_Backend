@@ -7,7 +7,7 @@ using AICommunicationService.RAG.Interfaces;
 
 namespace AICommunicationService.RAG.Repositories
 {
-    public class EmbeddingRepository: IEmbeddingRepository
+    public class EmbeddingRepository : IEmbeddingRepository
     {
         private readonly VectorContext _context;
         public EmbeddingRepository(VectorContext context)
@@ -34,6 +34,13 @@ namespace AICommunicationService.RAG.Repositories
                 .OrderBy(a => a.Vector!.L2Distance(new Vector(searchRequest)))
                 .Take(1)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task DeleteEmbeddingsAsync(string fileName)
+        {
+            await _context.Embeddings
+                .Where(a => a.Document.Name.Equals(fileName))
+                .ExecuteDeleteAsync();
         }
     }
 }

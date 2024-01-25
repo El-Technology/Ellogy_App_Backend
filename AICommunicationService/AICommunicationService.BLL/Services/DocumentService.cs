@@ -1,5 +1,6 @@
 ﻿using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
+using AICommunicationService.DAL.Models;
 using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
 using Azure.Storage;
@@ -75,9 +76,22 @@ namespace AICommunicationService.BLL.Services
             return ReturnUrlWithPermission(fileName, 5, BlobSasPermissions.Read);
         }
 
-        public string GetDeleteFileUrl(string fileName)
+        public async Task DeleteFileAsync(Guid userId, string fileName)
         {
-            return ReturnUrlWithPermission(fileName, 5, BlobSasPermissions.Delete);
+            var document = await _documentRepository.GetDocumentByNameAsync(fileName)
+                ?? throw new ArgumentNullException(nameof(fileName));
+
+            if (userId != document.UserId)
+                throw new Exception("You don`t have access to delete this file");
+
+            var httpClient = new HttpClient();
+            var response = await httpClient.DeleteAsync(ReturnUrlWithPermission(fileName, 5, BlobSasPermissions.Delete));
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Delete file error, try again");
+
+            await _embeddingRepository.DeleteEmbeddingsAsync(fileName);
+            await _documentRepository.DeleteDocumentAsync(fileName);
         }
 
         public async Task<string> ReadPdf(string fileName)
@@ -99,16 +113,10 @@ namespace AICommunicationService.BLL.Services
 
         public async Task InsertDocumentContextInVectorDbAsync(string fileName, Guid userId)
         {
+            var document = await _documentRepository.GetDocumentByNameAsync(fileName)
+                ?? throw new Exception("Document was not found");
+
             var documentContext = await ReadPdf(fileName);
-
-            var document = new Document
-            {
-                Id = Guid.NewGuid(),
-                Name = fileName,
-                UserId = userId
-            };
-
-            await _documentRepository.AddDocumentAsync(document);
 
             var splitText = SplitText(documentContext);
 
@@ -127,6 +135,24 @@ namespace AICommunicationService.BLL.Services
             }
 
             await _embeddingRepository.AddRangeEmbeddingsAsync(embeddings);
+        }
+
+        public async Task CheckIfDocumentWasUploadedAsync(Guid userId, string fileName)
+        {
+            var containerClient = _blobServiceClient.GetBlobContainerClient("private-rag-documents");
+            var blobClient = containerClient.GetBlobClient($"{fileName}.pdf");
+
+            if (!await blobClient.ExistsAsync())
+                throw new Exception($"File with name:{fileName} cannot be found, try again later");
+
+            var document = new Document
+            {
+                Id = Guid.NewGuid(),
+                Name = fileName,
+                UserId = userId
+            };
+
+            await _documentRepository.AddDocumentAsync(document);
         }
 
         public async Task<string> GetTheClosesContextAsync(string searchRequest, string fileName)

@@ -9,7 +9,7 @@ namespace AICommunicationService.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RAGController : Controller
     {
         private readonly IDocumentService _documentService;
@@ -46,11 +46,12 @@ namespace AICommunicationService.Controllers
             return Ok(_documentService.GetFileUrl(fileName));
         }
 
-        [HttpGet]
-        [Route("deleteDocumentUrl")]
-        public IActionResult GetUrlForDeletePDFDocuments([FromQuery] string fileName)
+        [HttpDelete]
+        [Route("deleteDocument")]
+        public async Task<IActionResult> DeletePDFDocument([FromQuery] string fileName)
         {
-            return Ok(_documentService.GetDeleteFileUrl(fileName));
+            await _documentService.DeleteFileAsync(GetUserIdFromToken(), fileName);
+            return Ok();
         }
 
         [HttpGet]
@@ -60,9 +61,17 @@ namespace AICommunicationService.Controllers
             return Ok(await _documentService.GetAllUserDocumentsAsync(GetUserIdFromToken()));
         }
 
-        [HttpPost]
+        [HttpGet]
+        [Route("verifyDocumentUpload")]
+        public async Task<IActionResult> VerifyDocumentUpload([FromQuery] string fileName)
+        {
+            await _documentService.CheckIfDocumentWasUploadedAsync(GetUserIdFromToken(), fileName);
+            return Ok();
+        }
+
+        [HttpGet]
         [Route("embedFile")]
-        public async Task<IActionResult> EmbedFile([FromBody] string fileName)
+        public async Task<IActionResult> EmbedFile([FromQuery] string fileName)
         {
             await _documentService.InsertDocumentContextInVectorDbAsync(fileName, GetUserIdFromToken());
             return Ok();

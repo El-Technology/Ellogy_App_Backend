@@ -26,5 +26,19 @@ namespace AICommunicationService.RAG.Repositories
                 .Select(a => a.Name)
                 .ToListAsync();
         }
+
+        public async Task<Document?> GetDocumentByNameAsync(string documentName)
+        {
+            return await _context.Documents
+                .FirstOrDefaultAsync(a => a.Name.Equals(documentName));
+
+        }
+
+        public async Task DeleteDocumentAsync(string documentName)
+        {
+            await _context.Documents
+                .Where(a => a.Name.Equals(documentName))
+                .ExecuteDeleteAsync();
+        }
     }
 }
