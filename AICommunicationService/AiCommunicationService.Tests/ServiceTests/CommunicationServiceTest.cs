@@ -21,6 +21,7 @@ namespace AiCommunicationService.Tests.ServiceTests
         private Mock<IAzureOpenAiRequestService> _customAiServiceMock;
         private Mock<IUserRepository> _userRepositoryMock;
         private Mock<IWalletRepository> _walletRepositoryMock;
+        private Mock<IDocumentService> _documentServiceMock;
         private ICommunicationService _communicationService;
 
         [SetUp]
@@ -40,11 +41,13 @@ namespace AiCommunicationService.Tests.ServiceTests
             _promptRepositoryMock = new Mock<IAIPromptRepository>();
             _hubContextMock = new Mock<IHubContext<StreamAiHub>>();
             _customAiServiceMock = new Mock<IAzureOpenAiRequestService>();
+            _documentServiceMock = new Mock<IDocumentService>();
             _communicationService = new CommunicationService(_promptRepositoryMock.Object,
                                                              _hubContextMock.Object,
                                                              _customAiServiceMock.Object,
                                                              _userRepositoryMock.Object,
-                                                             _walletRepositoryMock.Object);
+                                                             _walletRepositoryMock.Object,
+                                                             _documentServiceMock.Object);
         }
 
         [Test]
