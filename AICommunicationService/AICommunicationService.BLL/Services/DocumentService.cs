@@ -1,8 +1,10 @@
-﻿using AICommunicationService.BLL.Interfaces;
+﻿using AICommunicationService.BLL.Dtos;
+using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
 using AICommunicationService.DAL.Models;
 using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
+using AutoMapper;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
@@ -19,11 +21,14 @@ namespace AICommunicationService.BLL.Services
         private readonly IAzureOpenAiRequestService _customAiService;
         private readonly IEmbeddingRepository _embeddingRepository;
         private readonly IDocumentRepository _documentRepository;
+        private readonly IMapper _mapper;
         public DocumentService(BlobServiceClient blobServiceClient,
                                IAzureOpenAiRequestService customAiService,
                                IEmbeddingRepository embeddingRepository,
-                               IDocumentRepository documentRepository)
+                               IDocumentRepository documentRepository,
+                               IMapper mapper)
         {
+            _mapper = mapper;
             _documentRepository = documentRepository;
             _embeddingRepository = embeddingRepository;
             _customAiService = customAiService;
@@ -116,25 +121,34 @@ namespace AICommunicationService.BLL.Services
             var document = await _documentRepository.GetDocumentByNameAsync(fileName)
                 ?? throw new Exception("Document was not found");
 
-            var documentContext = await ReadPdf(fileName);
-
-            var splitText = SplitText(documentContext);
-
-            var embeddings = new List<Embedding>();
-
-            foreach (var text in splitText)
+            try
             {
-                var embedding = await _customAiService.GetEmbeddingAsync(text);
-                embeddings.Add(new Embedding
-                {
-                    Id = Guid.NewGuid(),
-                    DocumentId = document.Id,
-                    Text = text,
-                    Vector = new Pgvector.Vector(embedding)
-                });
-            }
+                var documentContext = await ReadPdf(fileName);
 
-            await _embeddingRepository.AddRangeEmbeddingsAsync(embeddings);
+                var splitText = SplitText(documentContext);
+
+                var embeddings = new List<Embedding>();
+
+                foreach (var text in splitText)
+                {
+                    var embedding = await _customAiService.GetEmbeddingAsync(text);
+                    embeddings.Add(new Embedding
+                    {
+                        Id = Guid.NewGuid(),
+                        DocumentId = document.Id,
+                        Text = text,
+                        Vector = new Pgvector.Vector(embedding)
+                    });
+                }
+
+                await _embeddingRepository.AddRangeEmbeddingsAsync(embeddings);
+                await _documentRepository.UpdateDocumentStatusAsync(document.Name, true);
+            }
+            catch (Exception ex)
+            {
+                await _documentRepository.UpdateDocumentStatusAsync(document.Name, false);
+                throw new Exception(ex.Message);
+            }
         }
 
         public async Task CheckIfDocumentWasUploadedAsync(Guid userId, string fileName)
@@ -149,7 +163,9 @@ namespace AICommunicationService.BLL.Services
             {
                 Id = Guid.NewGuid(),
                 Name = fileName,
-                UserId = userId
+                UserId = userId,
+                CreationDate = DateTime.UtcNow,
+                IsReadyToUse = null
             };
 
             await _documentRepository.AddDocumentAsync(document);
@@ -162,9 +178,9 @@ namespace AICommunicationService.BLL.Services
             return searchResult!.Text;
         }
 
-        public async Task<List<string>> GetAllUserDocumentsAsync(Guid userId)
+        public async Task<List<DocumentResponseDto>> GetAllUserDocumentsAsync(Guid userId)
         {
-            return await _documentRepository.GetAllUserDocumentsAsync(userId);
+            return _mapper.Map<List<DocumentResponseDto>>(await _documentRepository.GetAllUserDocumentsAsync(userId));
         }
     }
 }

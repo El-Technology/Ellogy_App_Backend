@@ -103,6 +103,7 @@ static void AddServices(WebApplicationBuilder builder)
     builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
     builder.Services.AddRAGDataLayer(EnvironmentVariables.ConnectionStringVector);
     builder.Services.AddBusinessLayer();
+    builder.Services.AddMapping();
 }
 
 static void AddMiddleware(WebApplication app)

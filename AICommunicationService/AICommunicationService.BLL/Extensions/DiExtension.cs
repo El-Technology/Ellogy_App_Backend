@@ -17,5 +17,11 @@ namespace AICommunicationService.BLL.Extensions
                 .AddScoped<IDocumentService, DocumentService>()
                 .AddScoped<BlobServiceClient>(_ => new(EnvironmentVariables.BlobStorageConnectionString)); ;
         }
+
+        public static IServiceCollection AddMapping(this IServiceCollection services)
+        {
+            return services
+                .AddAutoMapper(typeof(DiExtension).Assembly);
+        }
     }
 }

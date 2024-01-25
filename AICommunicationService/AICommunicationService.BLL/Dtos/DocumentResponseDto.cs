@@ -1,13 +1,10 @@
-﻿namespace AICommunicationService.RAG.Models
+﻿namespace AICommunicationService.BLL.Dtos
 {
-    public class Document
+    public class DocumentResponseDto
     {
-        public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public Guid UserId { get; set; }
         public bool? IsReadyToUse { get; set; } = null;
         public DateTime CreationDate { get; set; } = DateTime.UtcNow;
-
-        public IEnumerable<Embedding> Embeddings { get; set; } = new List<Embedding>();
     }
 }

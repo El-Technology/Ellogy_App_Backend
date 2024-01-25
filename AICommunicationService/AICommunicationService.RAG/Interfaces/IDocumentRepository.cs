@@ -6,7 +6,8 @@ namespace AICommunicationService.RAG.Interfaces
     {
         Task AddDocumentAsync(Document document);
         Task DeleteDocumentAsync(string documentName);
-        Task<List<string>> GetAllUserDocumentsAsync(Guid userId);
+        Task<List<Document>> GetAllUserDocumentsAsync(Guid userId);
         Task<Document?> GetDocumentByNameAsync(string documentName);
+        Task UpdateDocumentStatusAsync(string documentName, bool? status);
     }
 }

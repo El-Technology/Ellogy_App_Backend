@@ -19,11 +19,10 @@ namespace AICommunicationService.RAG.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<string>> GetAllUserDocumentsAsync(Guid userId)
+        public async Task<List<Document>> GetAllUserDocumentsAsync(Guid userId)
         {
             return await _context.Documents
                 .Where(a => a.UserId == userId)
-                .Select(a => a.Name)
                 .ToListAsync();
         }
 
@@ -39,6 +38,13 @@ namespace AICommunicationService.RAG.Repositories
             await _context.Documents
                 .Where(a => a.Name.Equals(documentName))
                 .ExecuteDeleteAsync();
+        }
+
+        public async Task UpdateDocumentStatusAsync(string documentName, bool? status)
+        {
+            await _context.Documents
+                .Where(a => a.Name.Equals(documentName))
+                .ExecuteUpdateAsync(a => a.SetProperty(a => a.IsReadyToUse, a => status));
         }
     }
 }
