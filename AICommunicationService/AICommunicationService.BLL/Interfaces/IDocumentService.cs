@@ -10,7 +10,7 @@ namespace AICommunicationService.BLL.Interfaces
         Task DeleteFileAsync(Guid userId, string fileName);
         string GetFileUrl(string fileName);
         Task<string> GetTheClosesContextAsync(string searchRequest, string fileName);
-        string GetUploadFileUrl(string fileName);
+        Task<string> GetUploadFileUrlAsync(string fileName);
         Task<DocumentResponseDto> InsertDocumentContextInVectorDbAsync(string fileName, Guid userId);
         Task<string> ReadPdf(string fileName);
     }

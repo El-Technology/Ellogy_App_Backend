@@ -1,7 +1,6 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
-using AICommunicationService.DAL.Models;
 using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
 using AutoMapper;
@@ -77,8 +76,11 @@ namespace AICommunicationService.BLL.Services
             return containerClient.GetBlobClient($"{fileName}.pdf");
         }
 
-        public string GetUploadFileUrl(string fileName)
+        public async Task<string> GetUploadFileUrlAsync(string fileName)
         {
+            if ((await _documentRepository.GetDocumentByNameAsync(fileName)) is not null)
+                throw new Exception("File already exist");
+
             return ReturnUrlWithPermission(fileName, SAS_TTL, BlobSasPermissions.Write);
         }
 
@@ -124,13 +126,13 @@ namespace AICommunicationService.BLL.Services
 
         public async Task<DocumentResponseDto> InsertDocumentContextInVectorDbAsync(string fileName, Guid userId)
         {
+            var documentIsReady = false;
+
             var document = await _documentRepository.GetDocumentByNameAsync(fileName)
-                ?? throw new Exception("Document was not found");
+            ?? throw new Exception("Document was not found");
 
             if (await _embeddingRepository.CheckIfEmbeddingAlreadyExistAsync(fileName))
                 throw new Exception("Embedding already exist");
-
-            var documentIsReady = false;
 
             try
             {
@@ -176,7 +178,7 @@ namespace AICommunicationService.BLL.Services
                 Name = fileName,
                 UserId = userId,
                 CreationDate = DateTime.UtcNow,
-                IsReadyToUse = null
+                IsReadyToUse = false
             };
 
             await _documentRepository.AddDocumentAsync(document);

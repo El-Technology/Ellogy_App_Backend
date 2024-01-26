@@ -34,9 +34,9 @@ namespace AICommunicationService.Controllers
 
         [HttpGet]
         [Route("uploadDocumentUrl")]
-        public IActionResult GetUrlForPutPDFDocuments([FromQuery] string fileName)
+        public async Task<IActionResult> GetUrlForPutPDFDocuments([FromQuery] string fileName)
         {
-            return Ok(_documentService.GetUploadFileUrl(fileName));
+            return Ok(await _documentService.GetUploadFileUrlAsync(fileName));
         }
 
         [HttpGet]
