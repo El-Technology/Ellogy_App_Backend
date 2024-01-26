@@ -42,5 +42,12 @@ namespace AICommunicationService.RAG.Repositories
                 .Where(a => a.Document.Name.Equals(fileName))
                 .ExecuteDeleteAsync();
         }
+
+        public async Task<bool> CheckIfEmbeddingAlreadyExistAsync(string fileName)
+        {
+            return await _context.Embeddings
+                .Where(a => a.Document.Name.Equals(fileName))
+                .AnyAsync();
+        }
     }
 }

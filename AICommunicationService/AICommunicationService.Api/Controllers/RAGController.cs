@@ -73,8 +73,7 @@ namespace AICommunicationService.Controllers
         [Route("embedDocument")]
         public async Task<IActionResult> EmbedDocument([FromQuery] string fileName)
         {
-            await _documentService.InsertDocumentContextInVectorDbAsync(fileName, GetUserIdFromToken());
-            return Ok();
+            return Ok(await _documentService.InsertDocumentContextInVectorDbAsync(fileName, GetUserIdFromToken()));
         }
     }
 }

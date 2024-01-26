@@ -11,7 +11,7 @@ namespace AICommunicationService.BLL.Interfaces
         string GetFileUrl(string fileName);
         Task<string> GetTheClosesContextAsync(string searchRequest, string fileName);
         string GetUploadFileUrl(string fileName);
-        Task InsertDocumentContextInVectorDbAsync(string fileName, Guid userId);
+        Task<DocumentResponseDto> InsertDocumentContextInVectorDbAsync(string fileName, Guid userId);
         Task<string> ReadPdf(string fileName);
     }
 }

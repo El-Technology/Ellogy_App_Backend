@@ -122,19 +122,20 @@ namespace AICommunicationService.BLL.Services
             return stringBuilder.ToString();
         }
 
-        public async Task InsertDocumentContextInVectorDbAsync(string fileName, Guid userId)
+        public async Task<DocumentResponseDto> InsertDocumentContextInVectorDbAsync(string fileName, Guid userId)
         {
             var document = await _documentRepository.GetDocumentByNameAsync(fileName)
                 ?? throw new Exception("Document was not found");
+
+            if (await _embeddingRepository.CheckIfEmbeddingAlreadyExistAsync(fileName))
+                throw new Exception("Embedding already exist");
 
             var documentIsReady = false;
 
             try
             {
                 var documentContext = await ReadPdf(fileName);
-
                 var splitText = SplitText(documentContext);
-
                 var embeddings = new List<Embedding>();
 
                 foreach (var text in splitText)
@@ -150,12 +151,16 @@ namespace AICommunicationService.BLL.Services
                 }
 
                 await _embeddingRepository.AddRangeEmbeddingsAsync(embeddings);
+
                 documentIsReady = true;
             }
             finally
             {
                 await _documentRepository.UpdateDocumentStatusAsync(document.Name, documentIsReady);
             }
+
+            document.IsReadyToUse = documentIsReady;
+            return _mapper.Map<DocumentResponseDto>(document);
         }
 
         public async Task CheckIfDocumentWasUploadedAsync(Guid userId, string fileName)
