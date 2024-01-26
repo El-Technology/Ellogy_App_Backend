@@ -49,7 +49,7 @@ namespace PaymentManager.BLL.Services
             return creationResult.Url;
         }
 
-        public async Task CancelSubscriptionAsync(Guid userId)
+        public async Task CancelSubscriptionAsync(Guid userId, bool cancelNow, string paymentIntent)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
@@ -68,7 +68,27 @@ namespace PaymentManager.BLL.Services
             var subscriptionService = new SubscriptionService();
             var currentSubscription = await subscriptionService.GetAsync(customerData.Subscriptions.FirstOrDefault()?.Id);
 
-            await subscriptionService.CancelAsync(currentSubscription.Id);
+            if (cancelNow)
+            {
+                await subscriptionService.CancelAsync(currentSubscription.Id);
+
+                var refundService = new RefundService();
+                var refundServiceOptions = new RefundCreateOptions
+                {
+                    PaymentIntent = paymentIntent
+                };
+
+                await refundService.CreateAsync(refundServiceOptions);
+
+                return;
+            }
+
+            var subscriptionUpdateOptions = new SubscriptionUpdateOptions
+            {
+                CancelAtPeriodEnd = true
+            };
+
+            await subscriptionService.UpdateAsync(currentSubscription.Id, subscriptionUpdateOptions);
         }
     }
 }

@@ -1,5 +1,7 @@
-﻿using PaymentManager.DAL.Interfaces;
+﻿using PaymentManager.Common.Constants;
+using PaymentManager.DAL.Interfaces;
 using Stripe;
+using Stripe.Checkout;
 
 namespace PaymentManager.BLL.Services
 {
@@ -16,6 +18,9 @@ namespace PaymentManager.BLL.Services
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
 
+            if (!string.IsNullOrEmpty(user.StripeCustomerId))
+                throw new Exception("Customer is already created");
+
             var options = new CustomerCreateOptions
             {
                 Email = user.Email,
@@ -26,6 +31,48 @@ namespace PaymentManager.BLL.Services
             var customerData = await service.CreateAsync(options);
 
             await _userRepository.AddStripeCustomerIdAsync(userId, customerData.Id);
+        }
+
+        public async Task UpdateCustomerDataAsync(Guid userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId)
+                ?? throw new ArgumentNullException(nameof(userId));
+
+            if (string.IsNullOrEmpty(user.StripeCustomerId))
+                throw new Exception("Customer is not created");
+
+            var service = new CustomerService();
+
+            var updateOptions = new CustomerUpdateOptions
+            {
+                Email = user.Email,
+                Name = $"{user.FirstName} {user.LastName}"
+            };
+
+            await service.UpdateAsync(user.StripeCustomerId, updateOptions);
+        }
+
+        public async Task<string> UpdateCustomerPaymentMethodAsync(Guid userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId)
+                ?? throw new ArgumentNullException(nameof(userId));
+
+            if (user.StripeCustomerId is null)
+                throw new Exception("Customer is not created");
+
+            var sessionService = new SessionService();
+
+            var sessionOptions = new SessionCreateOptions
+            {
+                SuccessUrl = "http://string.com",
+                CancelUrl = "http://string.com",
+                Mode = "setup",
+                Currency = Constants.ApplicationCurrency,
+                Customer = user.StripeCustomerId
+            };
+
+            var result = await sessionService.CreateAsync(sessionOptions);
+            return result.Url;
         }
     }
 }
