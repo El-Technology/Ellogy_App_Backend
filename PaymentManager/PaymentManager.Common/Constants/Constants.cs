@@ -1,4 +1,6 @@
-﻿namespace PaymentManager.Common.Constants
+﻿using System.Runtime.CompilerServices;
+
+namespace PaymentManager.Common.Constants
 {
     public static class Constants
     {
@@ -7,7 +9,10 @@
         public static int PriceInCents = 100;
         public static string ApplicationCurrency = "usd";
 
-        public static string PaymentMode = "payment";
+        public const string PAYMENT_MODE = "payment";
+        public const string SUBSCRIPTION_MODE = "subscription";
+        public const string SETUP_MODE = "setup";
+
         public static string PaymentQueueName = "paymentqueue";
 
         public static string ApplicationJson = "application/json";
