@@ -1,4 +1,5 @@
-﻿using PaymentManager.Common.Constants;
+﻿using PaymentManager.BLL.Models;
+using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Interfaces;
 using Stripe;
 using Stripe.Checkout;
@@ -52,27 +53,87 @@ namespace PaymentManager.BLL.Services
             await service.UpdateAsync(user.StripeCustomerId, updateOptions);
         }
 
-        public async Task<string> UpdateCustomerPaymentMethodAsync(Guid userId)
+        public async Task<SessionCreateOptions> AddCustomerPaymentMethodAsync(Guid userId, CreateSessionRequest createSessionRequest)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
 
             if (user.StripeCustomerId is null)
-                throw new Exception("Customer is not created");
-
-            var sessionService = new SessionService();
+                throw new ArgumentNullException("Customer is not created");
 
             var sessionOptions = new SessionCreateOptions
             {
-                SuccessUrl = "http://string.com",
-                CancelUrl = "http://string.com",
-                Mode = "setup",
+                SuccessUrl = createSessionRequest.SuccessUrl,
+                CancelUrl = createSessionRequest.CancelUrl,
+                Mode = Constants.SETUP_MODE,
                 Currency = Constants.ApplicationCurrency,
-                Customer = user.StripeCustomerId
+                Customer = user.StripeCustomerId,
+                Metadata = new Dictionary<string, string>
+                {
+                    { MetadataConstants.UserId, user.Id.ToString() },
+                    { MetadataConstants.ConnectionId, createSessionRequest.ConnectionId },
+                    { MetadataConstants.SignalRMethodName, createSessionRequest.SignalMethodName }
+                }
             };
 
-            var result = await sessionService.CreateAsync(sessionOptions);
-            return result.Url;
+            return sessionOptions;
+        }
+
+        public async IAsyncEnumerable<object> RetrieveCustomerPaymentMethodsAsync(Guid userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId)
+                ?? throw new ArgumentNullException(nameof(userId));
+
+            if (string.IsNullOrEmpty(user.StripeCustomerId))
+                throw new Exception("Customer is not created");
+
+            var paymentService = new PaymentMethodService();
+
+            var allMethods = await paymentService.ListAsync(new PaymentMethodListOptions { Customer = user.StripeCustomerId });
+            foreach (var method in allMethods)
+            {
+                yield return new
+                {
+                    Id = method.Id,
+                    CardBrand = method.Card.Brand,
+                    Expires = $"{method.Card.ExpMonth}/{method.Card.ExpYear}",
+                    Last4 = method.Card.Last4
+                };
+            }
+        }
+
+        public async Task SetDefaultPaymentMethodAsync(Guid userId, string paymentMethodId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId)
+                ?? throw new ArgumentNullException(nameof(userId));
+
+            var customerService = new CustomerService();
+            var updateOptions = new CustomerUpdateOptions
+            {
+                InvoiceSettings = new()
+                {
+                    DefaultPaymentMethod = paymentMethodId,
+                }
+            };
+
+            await customerService.UpdateAsync(user.StripeCustomerId, updateOptions);
+
+            var customer = await customerService.GetAsync(user.StripeCustomerId,
+                new CustomerGetOptions
+                {
+                    Expand = new() { "subscriptions" }
+                });
+
+            var customerSubscription = customer.Subscriptions.FirstOrDefault()
+                ?? throw new NullReferenceException("Subscription null exception");
+
+            var subscriptionService = new SubscriptionService();
+
+            await subscriptionService.UpdateAsync(customerSubscription!.Id,
+                new SubscriptionUpdateOptions
+                {
+                    DefaultPaymentMethod = paymentMethodId
+                });
         }
     }
 }

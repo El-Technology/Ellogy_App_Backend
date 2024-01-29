@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -44,20 +45,23 @@ namespace PaymentManager.BLL
                 {
                     var message = JsonConvert.DeserializeObject<SessionCreateOptions>(messageArg.Message.Body.ToString());
                     message.ExpiresAt = DateTime.Now.AddMinutes(30);
-                    var session = service.Create(message);
+                    var session = await service.CreateAsync(message);
 
-                    await CreatePaymentAsync(new Payment
+                    if (!session.Mode.Equals(Constants.SETUP_MODE))
                     {
-                        Id = Guid.NewGuid(),
-                        PaymentId = session.PaymentIntentId,
-                        AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
-                        Status = "created",
-                        UserEmail = session.CustomerEmail,
-                        SessionId = session.Id,
-                        UpdatedBallance = false,
-                        UserId = Guid.Parse(session.Metadata[MetadataConstants.UserId]),
-                    });
-
+                        await CreatePaymentAsync(new Payment
+                        {
+                            Id = Guid.NewGuid(),
+                            PaymentId = session.PaymentIntentId,
+                            AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
+                            Status = "created",
+                            UserEmail = session.CustomerEmail ?? string.Empty,
+                            SessionId = session.Id,
+                            UpdatedBallance = false,
+                            UserId = Guid.Parse(session.Metadata[MetadataConstants.UserId]),
+                        });
+                    }
+                        
                     var connectionId = session.Metadata[MetadataConstants.ConnectionId];
                     var signalRMethodName = session.Metadata[MetadataConstants.SignalRMethodName];
 

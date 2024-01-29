@@ -8,20 +8,23 @@ namespace PaymentManager.BLL.Interfaces
     /// </summary>
     public interface IPaymentSessionService
     {
+        Task CancelSubscriptionAsync(Guid userId);
+
         /// <summary>
         /// Creates a payment session asynchronously for a user with the given parameters.
         /// </summary>
         /// <param name="userId">User ID</param>
         /// <param name="streamRequest">Request parameters for payment creation</param>
         /// <returns>Task representing the asynchronous operation, returning the session creation options</returns>
-        Task<SessionCreateOptions> CreatePaymentAsync(Guid userId, CreatePaymentRequest streamRequest);
+        Task<SessionCreateOptions> CreateOneTimePaymentAsync(Guid userId, CreatePaymentRequest streamRequest);
+        Task<SessionCreateOptions> CreateSubscriptionAsync(CreateSubscriptionRequest сreateSubscriptionRequest, Guid userId);
 
         /// <summary>
         /// Expires a payment session based on the provided session ID asynchronously.
         /// </summary>
         /// <param name="sessionId">Payment session ID</param>
         /// <returns>Task representing the asynchronous operation</returns>
-        Task ExpireSessionAsync(string sessionId);
+        Task ExpireSessionAsync(Session session);
 
         /// <summary>
         /// Retrieves the balance of a user based on their ID asynchronously.
@@ -33,8 +36,8 @@ namespace PaymentManager.BLL.Interfaces
         /// <summary>
         /// Handles order confirmation for a payment session asynchronously based on the provided session ID.
         /// </summary>
-        /// <param name="sessionId">Payment session ID</param>
+        /// <param name="session">Payment session ID</param>
         /// <returns>Task representing the asynchronous operation</returns>
-        Task OrderConfirmationAsync(string sessionId);
+        Task OrderConfirmationAsync(Session session);
     }
 }

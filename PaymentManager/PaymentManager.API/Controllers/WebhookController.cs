@@ -31,11 +31,11 @@ namespace PaymentManager.API.Controllers
                 {
                     case Events.CheckoutSessionCompleted:
                         var completedSession = (Session)stripeEvent.Data.Object;
-                        await _paymentService.OrderConfirmationAsync(completedSession.Id);
+                        await _paymentService.OrderConfirmationAsync(completedSession);
                         break;
                     case Events.CheckoutSessionExpired:
                         var expiredSession = (Session)stripeEvent.Data.Object;
-                        await _paymentService.ExpireSessionAsync(expiredSession.Id);
+                        await _paymentService.ExpireSessionAsync(expiredSession);
                         break;
                     default:
                         throw new Exception("Unknown error");

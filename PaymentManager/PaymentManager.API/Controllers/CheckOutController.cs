@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PaymentManager.BLL;
 using PaymentManager.BLL.Interfaces;
-using PaymentManager.BLL.Services;
+using PaymentManager.BLL.Models;
 using PaymentManager.Common.Options;
 
 namespace PaymentManager.Controllers
@@ -15,21 +15,12 @@ namespace PaymentManager.Controllers
     {
         private readonly PaymentProducer _serviceBus;
         private readonly IPaymentSessionService _paymentService;
-        private readonly PaymentCustomerService _paymentCustomerService;
-        private readonly PaymentSubscriptionService _paymentSubscriptionService;
-        private readonly ProductCatalogService _productCatalogService;
 
         public CheckOutController(PaymentProducer serviceBus,
-            IPaymentSessionService paymentService,
-            PaymentSubscriptionService paymentSubscriptionService,
-            PaymentCustomerService paymentCustomerService,
-            ProductCatalogService productCatalogService)
+            IPaymentSessionService paymentService)
         {
             _serviceBus = serviceBus;
             _paymentService = paymentService;
-            _paymentSubscriptionService = paymentSubscriptionService;
-            _paymentCustomerService = paymentCustomerService;
-            _productCatalogService = productCatalogService;
         }
 
         /// <summary>
@@ -54,51 +45,32 @@ namespace PaymentManager.Controllers
             return Ok(products);
         }
 
+        [HttpPost]
+        [Route("createPayment")]
+        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest streamRequest)
+        {
+            var payment = await _paymentService.CreateOneTimePaymentAsync(GetUserIdFromToken(), streamRequest);
+            await _serviceBus.CreateSessionAsync(payment);
+            return Ok();
+        }
+
         // subscription separate logic below
 
-        [HttpGet]
-        [Route("createCustomer")]
-        public async Task<IActionResult> CreateCustomer()
-        {
-            await _paymentCustomerService.CreateCustomerAsync(GetUserIdFromToken());
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("updateCustomedData")]
-        public async Task<IActionResult> UpdateCustomerData()
-        {
-            await _paymentCustomerService.UpdateCustomerDataAsync(GetUserIdFromToken());
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("updateCustomedPaymentMethod")]
-        public async Task<IActionResult> UpdateCustomerPaymentMethod()
-        {
-            return Ok(await _paymentCustomerService.UpdateCustomerPaymentMethodAsync(GetUserIdFromToken()));
-        }
-
-        [HttpGet]
+        [HttpPost]
         [Route("createSubscription")]
-        public async Task<IActionResult> CreateSubscription([FromQuery] string priceId)
+        public async Task<IActionResult> CreateSubscription([FromBody] CreateSubscriptionRequest subscriptionRequest)
         {
-            return Ok(await _paymentSubscriptionService.CreateSubscriptionAsync(GetUserIdFromToken(), priceId));
+            var session = await _paymentService.CreateSubscriptionAsync(subscriptionRequest, GetUserIdFromToken());
+            await _serviceBus.CreateSessionAsync(session);
+            return Ok();
         }
 
         [HttpGet]
         [Route("cancelSubscription")]
-        public async Task<IActionResult> CancelSubscription([FromQuery] bool cancelNow, [FromQuery] string paymentIntent)
+        public async Task<IActionResult> CancelSubscription()
         {
-            await _paymentSubscriptionService.CancelSubscriptionAsync(GetUserIdFromToken(), cancelNow, paymentIntent);
+            await _paymentService.CancelSubscriptionAsync(GetUserIdFromToken());
             return Ok();
-        }
-
-        [HttpGet]
-        [Route("getProducts")]
-        public async Task<IActionResult> GetProducts()
-        {
-            return Ok(_productCatalogService.GetSubscriptionCatalogAsync());
         }
     }
 }
