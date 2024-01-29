@@ -49,7 +49,7 @@ namespace PaymentManager.BLL.Services
             return creationResult.Url;
         }
 
-        public async Task CancelSubscriptionAsync(Guid userId, bool cancelNow, string paymentIntent)
+        public async Task CancelSubscriptionAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
@@ -62,33 +62,17 @@ namespace PaymentManager.BLL.Services
                                 })
                 ?? throw new Exception("We can`t find you payment profile");
 
-            if (customerData.Subscriptions is null && !customerData.Subscriptions.Any())
+            if (customerData.Subscriptions is null && !customerData.Subscriptions!.Any())
                 throw new Exception("You don`t have any subscription");
 
             var subscriptionService = new SubscriptionService();
-            var currentSubscription = await subscriptionService.GetAsync(customerData.Subscriptions.FirstOrDefault()?.Id);
-
-            if (cancelNow)
-            {
-                await subscriptionService.CancelAsync(currentSubscription.Id);
-
-                var refundService = new RefundService();
-                var refundServiceOptions = new RefundCreateOptions
-                {
-                    PaymentIntent = paymentIntent
-                };
-
-                await refundService.CreateAsync(refundServiceOptions);
-
-                return;
-            }
 
             var subscriptionUpdateOptions = new SubscriptionUpdateOptions
             {
                 CancelAtPeriodEnd = true
             };
 
-            await subscriptionService.UpdateAsync(currentSubscription.Id, subscriptionUpdateOptions);
+            await subscriptionService.UpdateAsync(customerData.Subscriptions!.FirstOrDefault()?.Id, subscriptionUpdateOptions);
         }
     }
 }
