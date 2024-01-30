@@ -1,5 +1,4 @@
 ﻿using Azure.Messaging.ServiceBus;
-using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -53,15 +52,18 @@ namespace PaymentManager.BLL
                         {
                             Id = Guid.NewGuid(),
                             PaymentId = session.PaymentIntentId,
+                            InvoiceId = session.InvoiceId,
                             AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
                             Status = "created",
                             UserEmail = session.CustomerEmail ?? string.Empty,
                             SessionId = session.Id,
                             UpdatedBallance = false,
                             UserId = Guid.Parse(session.Metadata[MetadataConstants.UserId]),
+                            Mode = session.Mode,
+                            ProductName = session.Metadata[MetadataConstants.ProductName]
                         });
                     }
-                        
+
                     var connectionId = session.Metadata[MetadataConstants.ConnectionId];
                     var signalRMethodName = session.Metadata[MetadataConstants.SignalRMethodName];
 

@@ -1,4 +1,5 @@
-﻿using PaymentManager.DAL.Models;
+﻿using PaymentManager.DAL.Enums;
+using PaymentManager.DAL.Models;
 
 namespace PaymentManager.DAL.Interfaces
 {
@@ -21,6 +22,7 @@ namespace PaymentManager.DAL.Interfaces
         /// <param name="userId">User ID</param>
         /// <returns>Task representing the asynchronous operation, returning a nullable User object</returns>
         Task<User?> GetUserByIdAsync(Guid userId);
+        Task UpdateAccountPlanAsync(Guid userId, AccountPlan accountPlan);
 
         /// <summary>
         /// Updates the total number of purchased tokens for a user based on their ID asynchronously.

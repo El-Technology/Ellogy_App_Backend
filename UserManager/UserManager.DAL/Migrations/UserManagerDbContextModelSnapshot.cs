@@ -79,6 +79,9 @@ namespace UserManager.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("AccountPlan")
+                        .HasColumnType("integer");
+
                     b.Property<string>("AvatarLink")
                         .HasColumnType("text");
 

@@ -20,24 +20,10 @@ namespace PaymentManager.BLL.Interfaces
         Task<SessionCreateOptions> CreateSubscriptionAsync(CreateSubscriptionRequest сreateSubscriptionRequest, Guid userId);
 
         /// <summary>
-        /// Expires a payment session based on the provided session ID asynchronously.
-        /// </summary>
-        /// <param name="sessionId">Payment session ID</param>
-        /// <returns>Task representing the asynchronous operation</returns>
-        Task ExpireSessionAsync(Session session);
-
-        /// <summary>
         /// Retrieves the balance of a user based on their ID asynchronously.
         /// </summary>
         /// <param name="userId">User ID</param>
         /// <returns>Task representing the asynchronous operation, returning the user's balance</returns>
         Task<int> GetUserBalanceAsync(Guid userId);
-
-        /// <summary>
-        /// Handles order confirmation for a payment session asynchronously based on the provided session ID.
-        /// </summary>
-        /// <param name="session">Payment session ID</param>
-        /// <returns>Task representing the asynchronous operation</returns>
-        Task OrderConfirmationAsync(Session session);
     }
 }

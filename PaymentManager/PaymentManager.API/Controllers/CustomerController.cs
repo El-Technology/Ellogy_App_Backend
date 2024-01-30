@@ -74,5 +74,12 @@ namespace PaymentManager.API.Controllers
             await _paymentCustomerService.SetDefaultPaymentMethodAsync(GetUserIdFromToken(), paymentMethodId);
             return Ok();
         }
+
+        [HttpGet]
+        [Route("getCustomerPayments")]
+        public IActionResult GetCustomerPayments()
+        {
+            return Ok(_paymentCustomerService.GetCustomerPaymentsAsync(GetUserIdFromToken()));
+        }
     }
 }

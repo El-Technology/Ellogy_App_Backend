@@ -9,8 +9,10 @@ namespace PaymentManager.BLL.Services
     public class PaymentCustomerService
     {
         private readonly IUserRepository _userRepository;
-        public PaymentCustomerService(IUserRepository userRepository)
+        private readonly IPaymentRepository _paymentRepository;
+        public PaymentCustomerService(IUserRepository userRepository, IPaymentRepository paymentRepository)
         {
+            _paymentRepository = paymentRepository;
             _userRepository = userRepository;
         }
 
@@ -98,6 +100,7 @@ namespace PaymentManager.BLL.Services
                     CardBrand = method.Card.Brand,
                     Expires = $"{method.Card.ExpMonth}/{method.Card.ExpYear}",
                     Last4 = method.Card.Last4
+                    //need to add default variable
                 };
             }
         }
@@ -124,16 +127,46 @@ namespace PaymentManager.BLL.Services
                     Expand = new() { "subscriptions" }
                 });
 
-            var customerSubscription = customer.Subscriptions.FirstOrDefault()
-                ?? throw new NullReferenceException("Subscription null exception");
+            var customerSubscription = customer.Subscriptions.FirstOrDefault();
+
+            if (customerSubscription is null)
+                return;
 
             var subscriptionService = new SubscriptionService();
 
-            await subscriptionService.UpdateAsync(customerSubscription!.Id,
+            await subscriptionService.UpdateAsync(customerSubscription.Id,
                 new SubscriptionUpdateOptions
                 {
                     DefaultPaymentMethod = paymentMethodId
                 });
+        }
+
+        public async IAsyncEnumerable<object> GetCustomerPaymentsAsync(Guid userId)
+        {
+            var user = await _userRepository.GetUserByIdAsync(userId)
+                ?? throw new ArgumentNullException(nameof(userId));
+
+            var paymentService = new PaymentIntentService();
+            var paymentsList = await paymentService.ListAsync(new PaymentIntentListOptions
+            {
+                Customer = user.StripeCustomerId,
+                Expand = new() { "data.invoice" }
+            });
+
+            foreach (var payment in paymentsList.Data)
+            {
+                var ps = await _paymentRepository.GetPaymentByIdAsync(payment.Id)
+                    ?? await _paymentRepository.GetPaymentByInvoiceIdAsync(payment.InvoiceId);
+
+                yield return new
+                {
+                    Product = ps is null ? "Subscription payment" : ps.ProductName,
+                    Date = payment.Created,
+                    Amount = payment.Amount / 100,
+                    Status = payment.Status,
+                    Download = payment.Invoice?.InvoicePdf
+                };
+            };
         }
     }
 }

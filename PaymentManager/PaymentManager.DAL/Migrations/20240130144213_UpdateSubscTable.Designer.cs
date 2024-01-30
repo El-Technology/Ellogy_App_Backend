@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PaymentManager.DAL.Context.PaymentContext;
@@ -11,9 +12,11 @@ using PaymentManager.DAL.Context.PaymentContext;
 namespace PaymentManager.DAL.Migrations
 {
     [DbContext(typeof(PaymentContext))]
-    partial class PaymentContextModelSnapshot : ModelSnapshot
+    [Migration("20240130144213_UpdateSubscTable")]
+    partial class UpdateSubscTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,24 +38,29 @@ namespace PaymentManager.DAL.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Mode")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("PaymentId")
                         .HasColumnType("text");
 
                     b.Property<string>("ProductName")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SessionId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("UpdatedBallance")
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserEmail")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<Guid>("UserId")

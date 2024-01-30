@@ -21,6 +21,7 @@ namespace UserManager.DAL.Models
         public bool IsAccountActivated { get; set; } = true;
         public string? VerifyToken { get; set; }
         public string? StripeCustomerId { get; set; }
+        public AccountPlan AccountPlan { get; set; } = AccountPlan.Free;
         public RefreshToken RefreshToken { get; set; }
     }
 }

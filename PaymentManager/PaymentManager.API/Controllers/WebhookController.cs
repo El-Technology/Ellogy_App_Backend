@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PaymentManager.BLL.Interfaces;
-using PaymentManager.Common;
+using PaymentManager.BLL.Services;
 using Stripe;
 using Stripe.Checkout;
 
@@ -10,11 +9,11 @@ namespace PaymentManager.API.Controllers
     [ApiController]
     public class WebhookController : Controller
     {
-        private readonly IPaymentSessionService _paymentService;
+        private readonly WebhookService _webhookService;
 
-        public WebhookController(IPaymentSessionService paymentService)
+        public WebhookController(WebhookService webhookService)
         {
-            _paymentService = paymentService;
+            _webhookService = webhookService;
         }
 
         [HttpPost]
@@ -31,11 +30,23 @@ namespace PaymentManager.API.Controllers
                 {
                     case Events.CheckoutSessionCompleted:
                         var completedSession = (Session)stripeEvent.Data.Object;
-                        await _paymentService.OrderConfirmationAsync(completedSession);
+                        await _webhookService.OrderConfirmationAsync(completedSession);
                         break;
                     case Events.CheckoutSessionExpired:
                         var expiredSession = (Session)stripeEvent.Data.Object;
-                        await _paymentService.ExpireSessionAsync(expiredSession);
+                        await _webhookService.ExpireSessionAsync(expiredSession);
+                        break;
+                    case Events.CustomerSubscriptionUpdated:
+                        var subscriptionUpdated = (Subscription)stripeEvent.Data.Object;
+                        await _webhookService.UpdateSubscriptionAsync(subscriptionUpdated);
+                        break;
+                    case Events.CustomerSubscriptionDeleted:
+                        var subscriptionDeleted = (Subscription)stripeEvent.Data.Object;
+                        await _webhookService.DeleteSubscriptionAsync(subscriptionDeleted);
+                        break;
+                    case Events.InvoicePaymentFailed:
+                        var invoice = (Invoice)stripeEvent.Data.Object;
+                        await _webhookService.PaymentFailedHandleAsync(invoice);
                         break;
                     default:
                         throw new Exception("Unknown error");

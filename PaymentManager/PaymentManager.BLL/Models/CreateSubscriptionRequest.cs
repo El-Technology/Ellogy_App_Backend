@@ -2,6 +2,6 @@
 {
     public class CreateSubscriptionRequest : CreateSessionRequest
     {
-        public string PriceId { get; set; }
+        public string ProductId { get; set; }
     }
 }

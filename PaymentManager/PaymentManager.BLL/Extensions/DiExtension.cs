@@ -16,7 +16,8 @@ namespace PaymentManager.BLL.Extensions
                 .AddScoped<IPaymentSessionService, PaymentSessionService>()
                 .AddSingleton<ServiceBusClient>(_ => new(EnvironmentVariables.AzureServiceBusConnectionString))
                 .AddScoped<PaymentCustomerService>()
-                .AddScoped<ProductCatalogService>();
+                .AddScoped<ProductCatalogService>()
+                .AddScoped<WebhookService>();
         }
     }
 }
