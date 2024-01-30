@@ -91,7 +91,8 @@ namespace PaymentManager.BLL.Services
 
             var paymentService = new PaymentMethodService();
 
-            var allMethods = await paymentService.ListAsync(new PaymentMethodListOptions { Customer = user.StripeCustomerId });
+            var allMethods = await paymentService.ListAsync(new PaymentMethodListOptions { Customer = user.StripeCustomerId, Expand = new() { "data.customer.invoice_settings.default_payment_method" } });
+
             foreach (var method in allMethods)
             {
                 yield return new
@@ -99,8 +100,9 @@ namespace PaymentManager.BLL.Services
                     Id = method.Id,
                     CardBrand = method.Card.Brand,
                     Expires = $"{method.Card.ExpMonth}/{method.Card.ExpYear}",
-                    Last4 = method.Card.Last4
-                    //need to add default variable
+                    Last4 = method.Card.Last4,
+                    Default = method.Customer.InvoiceSettings.DefaultPaymentMethodId.Equals(method.Id)
+                    //need to add default variable \\\ and * setDefault while add new card
                 };
             }
         }
