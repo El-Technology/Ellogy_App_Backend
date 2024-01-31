@@ -1,4 +1,5 @@
 ﻿using PaymentManager.BLL.Models;
+using PaymentManager.Common.Constants;
 using Stripe;
 
 namespace PaymentManager.BLL.Services
@@ -14,7 +15,7 @@ namespace PaymentManager.BLL.Services
                 yield return new ProductModel
                 {
                     Name = product.Name,
-                    Price = $"{product.DefaultPrice.UnitAmountDecimal / 100} {product.DefaultPrice.Currency}",
+                    Price = $"{product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents} {product.DefaultPrice.Currency}",
                     Description = product.Description,
                     ProductId = product.Id,
                     PriceId = product.DefaultPrice.Id
@@ -30,7 +31,7 @@ namespace PaymentManager.BLL.Services
             return new ProductModel
             {
                 Name = product.Name,
-                Price = $"{product.DefaultPrice.UnitAmountDecimal / 100} {product.DefaultPrice.Currency}",
+                Price = $"{product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents} {product.DefaultPrice.Currency}",
                 Description = product.Description,
                 ProductId = product.Id,
                 PriceId = product.DefaultPrice.Id

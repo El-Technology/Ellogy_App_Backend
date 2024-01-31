@@ -36,5 +36,11 @@ namespace PaymentManager.DAL.Repositories
 
             await _userRepository.UpdateAccountPlanAsync(subscription.UserId, accountPlan);
         }
+
+        public async Task<Subscription?> GetActiveSubscriptionAsync(Guid userId)
+        {
+            return await _context.Subscriptions
+                .FirstOrDefaultAsync(a => a.UserId == userId && a.IsActive == true);
+        }
     }
 }

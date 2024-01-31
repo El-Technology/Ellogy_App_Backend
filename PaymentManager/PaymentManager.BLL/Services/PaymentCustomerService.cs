@@ -1,6 +1,7 @@
 ﻿using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Interfaces;
+using PaymentManager.DAL.Repositories;
 using Stripe;
 using Stripe.Checkout;
 
@@ -10,8 +11,10 @@ namespace PaymentManager.BLL.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IPaymentRepository _paymentRepository;
-        public PaymentCustomerService(IUserRepository userRepository, IPaymentRepository paymentRepository)
+        private readonly SubscriptionRepository _subscriptionRepository;
+        public PaymentCustomerService(IUserRepository userRepository, IPaymentRepository paymentRepository, SubscriptionRepository subscriptionRepository)
         {
+            _subscriptionRepository = subscriptionRepository;
             _paymentRepository = paymentRepository;
             _userRepository = userRepository;
         }
@@ -95,15 +98,23 @@ namespace PaymentManager.BLL.Services
 
             foreach (var method in allMethods)
             {
-                yield return new
-                {
-                    Id = method.Id,
-                    CardBrand = method.Card.Brand,
-                    Expires = $"{method.Card.ExpMonth}/{method.Card.ExpYear}",
-                    Last4 = method.Card.Last4,
-                    Default = method.Customer.InvoiceSettings.DefaultPaymentMethodId.Equals(method.Id)
-                    //need to add default variable \\\ and * setDefault while add new card
-                };
+                if (method.Card is not null)
+                    yield return new
+                    {
+                        Type = method.Type,
+                        Id = method.Id,
+                        CardBrand = method.Card.Brand,
+                        Expires = $"{method.Card.ExpMonth}/{method.Card.ExpYear}",
+                        Last4 = method.Card.Last4,
+                        Default = (method.Customer.InvoiceSettings.DefaultPaymentMethodId ?? string.Empty).Equals(method.Id)
+                    };
+                else
+                    yield return new
+                    {
+                        Type = method.Type,
+                        Id = method.Id,
+                        Default = (method.Customer.InvoiceSettings.DefaultPaymentMethodId ?? string.Empty).Equals(method.Id)
+                    };
             }
         }
 
@@ -157,18 +168,22 @@ namespace PaymentManager.BLL.Services
 
             foreach (var payment in paymentsList.Data)
             {
-                var ps = await _paymentRepository.GetPaymentByIdAsync(payment.Id)
+                var paymentRecord = await _paymentRepository.GetPaymentByIdAsync(payment.Id)
                     ?? await _paymentRepository.GetPaymentByInvoiceIdAsync(payment.InvoiceId);
 
                 yield return new
                 {
-                    Product = ps is null ? "Subscription payment" : ps.ProductName,
+                    Product = paymentRecord is null ? "Subscription payment" : paymentRecord.ProductName,
                     Date = payment.Created,
-                    Amount = payment.Amount / 100,
+                    Amount = (float)payment.Amount / Constants.PriceInCents,
                     Status = payment.Status,
                     Download = payment.Invoice?.InvoicePdf
                 };
             };
+        }
+        public async Task<DAL.Models.Subscription?> GetActiveSubscriptionAsync(Guid userId)
+        {
+            return await _subscriptionRepository.GetActiveSubscriptionAsync(userId);
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using PaymentManager.BLL.Helpers;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Interfaces;
-using PaymentManager.DAL.Repositories;
+using PaymentManager.DAL.Models;
 using Stripe;
 using Stripe.Checkout;
 
@@ -15,21 +16,33 @@ namespace PaymentManager.BLL.Services
         private readonly IPaymentRepository _paymentRepository;
         private readonly IUserRepository _userRepository;
         private readonly ProductCatalogService _productCatalogService;
-        private readonly SubscriptionRepository _subscriptionRepository;
 
-        private const int amountOfItems = 1;
+        private const int AMMOUNT_OF_ITEMS = 1;
 
         public PaymentSessionService(IPaymentRepository paymentRepository,
             IUserRepository userRepository,
             ILogger<PaymentSessionService> logger,
-            ProductCatalogService productCatalogService,
-            SubscriptionRepository subscriptionRepository)
+            ProductCatalogService productCatalogService)
         {
-            _subscriptionRepository = subscriptionRepository;
             _productCatalogService = productCatalogService;
             _logger = logger;
             _userRepository = userRepository;
             _paymentRepository = paymentRepository;
+        }
+
+        private async Task IfUserAbleToUsePaymentAsync(User user)
+        {
+            if (string.IsNullOrEmpty(user.StripeCustomerId))
+                throw new ArgumentNullException("You have to create a customer billing record");
+
+            var customerService = new CustomerService();
+            var retrievedCustomer = await customerService.GetAsync(user.StripeCustomerId, new()
+            {
+                Expand = new() { "invoice_settings.default_payment_method" }
+            });
+
+            if (string.IsNullOrEmpty(retrievedCustomer.InvoiceSettings.DefaultPaymentMethodId))
+                throw new ArgumentNullException("You have to add payment method/card and set it as default");
         }
 
         /// <inheritdoc cref="IPaymentSessionService.CreateOneTimePaymentAsync(Guid, CreatePaymentRequest)"/>
@@ -37,6 +50,8 @@ namespace PaymentManager.BLL.Services
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException($"User with id - {userId} was not found");
+
+            await IfUserAbleToUsePaymentAsync(user);
 
             var sessionCreateOptions = new SessionCreateOptions()
             {
@@ -55,7 +70,7 @@ namespace PaymentManager.BLL.Services
                             },
                             UnitAmountDecimal = (decimal)(streamRequest.AmountOfPoints * PointPriceConstant.OneTokenPrice * PointPriceConstant.PriceInCents),
                         },
-                        Quantity = amountOfItems
+                        Quantity = AMMOUNT_OF_ITEMS
                     }
                 },
                 Mode = Constants.PAYMENT_MODE,
@@ -88,6 +103,8 @@ namespace PaymentManager.BLL.Services
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
 
+            await IfUserAbleToUsePaymentAsync(user);
+
             var customerService = new CustomerService();
             var customerData = await customerService.GetAsync(user.StripeCustomerId,
                                 new CustomerGetOptions
@@ -112,7 +129,7 @@ namespace PaymentManager.BLL.Services
                     new ()
                     {
                         Price = product.PriceId,
-                        Quantity = 1
+                        Quantity = AMMOUNT_OF_ITEMS
                     },
                 },
                 Metadata = new Dictionary<string, string>
@@ -126,7 +143,7 @@ namespace PaymentManager.BLL.Services
                 SubscriptionData = new()
                 {
                     Metadata = new() {
-                        { MetadataConstants.AccountPlan, "1" },
+                        { MetadataConstants.AccountPlan, SubscriptionHelper.GetSubscriptionCode(product.Name).ToString() },
                         { MetadataConstants.UserId, user.Id.ToString() },
                         { MetadataConstants.ProductName,  product.Name}}
                 }

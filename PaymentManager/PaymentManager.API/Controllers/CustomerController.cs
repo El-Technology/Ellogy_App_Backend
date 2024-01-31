@@ -81,5 +81,12 @@ namespace PaymentManager.API.Controllers
         {
             return Ok(_paymentCustomerService.GetCustomerPaymentsAsync(GetUserIdFromToken()));
         }
+
+        [HttpGet]
+        [Route("getActiveSubscription")]
+        public async Task<IActionResult> GetActiveSubscription()
+        {
+            return Ok(await _paymentCustomerService.GetActiveSubscriptionAsync(GetUserIdFromToken()));
+        }
     }
 }

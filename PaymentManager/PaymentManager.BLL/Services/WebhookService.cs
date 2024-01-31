@@ -102,10 +102,7 @@ namespace PaymentManager.BLL.Services
             var payment = await _paymentRepository.GetPaymentAsync(session.Id);
 
             if (payment is null)
-            {
-                Console.WriteLine("setup");
                 return;
-            }
 
             if (payment.Status == "expired")
                 return;
@@ -148,7 +145,7 @@ namespace PaymentManager.BLL.Services
                 EndDate = subscription.CurrentPeriodEnd,
                 IsActive = true,
                 UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
-                IsCanceled = false //need review and put true when it needed
+                IsCanceled = subscription.CancelAtPeriodEnd
 
             }, Enum.Parse<AccountPlan>(subscription.Metadata[MetadataConstants.AccountPlan]));
         }
