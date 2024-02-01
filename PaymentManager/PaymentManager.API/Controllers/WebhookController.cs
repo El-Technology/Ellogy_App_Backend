@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PaymentManager.BLL.Services;
+using PaymentManager.BLL.Interfaces;
 using Stripe;
 using Stripe.Checkout;
 
@@ -9,9 +9,9 @@ namespace PaymentManager.API.Controllers
     [ApiController]
     public class WebhookController : Controller
     {
-        private readonly WebhookService _webhookService;
+        private readonly IWebhookService _webhookService;
 
-        public WebhookController(WebhookService webhookService)
+        public WebhookController(IWebhookService webhookService)
         {
             _webhookService = webhookService;
         }

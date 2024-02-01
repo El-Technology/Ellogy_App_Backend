@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PaymentManager.BLL;
+using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
-using PaymentManager.BLL.Services;
 using PaymentManager.Common.Options;
 
 namespace PaymentManager.API.Controllers
@@ -13,9 +13,9 @@ namespace PaymentManager.API.Controllers
     [ApiController]
     public class CustomerController : Controller
     {
-        private readonly PaymentCustomerService _paymentCustomerService;
+        private readonly IPaymentCustomerService _paymentCustomerService;
         private readonly PaymentProducer _serviceBus;
-        public CustomerController(PaymentProducer serviceBus, PaymentCustomerService paymentCustomerService)
+        public CustomerController(PaymentProducer serviceBus, IPaymentCustomerService paymentCustomerService)
         {
             _paymentCustomerService = paymentCustomerService;
             _serviceBus = serviceBus;

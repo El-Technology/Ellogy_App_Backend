@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace PaymentManager.Common.Constants
+﻿namespace PaymentManager.Common.Constants
 {
     public static class Constants
     {

@@ -4,23 +4,22 @@ using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
-using PaymentManager.DAL.Repositories;
 using Stripe;
 using Stripe.Checkout;
 
 
 namespace PaymentManager.BLL.Services
 {
-    public class WebhookService
+    public class WebhookService : IWebhookService
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly IUserRepository _userRepository;
-        private readonly SubscriptionRepository _subscriptionRepository;
+        private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly ILogger<WebhookService> _logger;
 
         public WebhookService(IPaymentRepository paymentRepository,
             IUserRepository userRepository,
-            SubscriptionRepository subscriptionRepository,
+            ISubscriptionRepository subscriptionRepository,
             ILogger<WebhookService> logger)
         {
             _logger = logger;
@@ -29,6 +28,7 @@ namespace PaymentManager.BLL.Services
             _subscriptionRepository = subscriptionRepository;
         }
 
+        /// <inheritdoc cref="IWebhookService.OrderConfirmationAsync(Session)"/>
         public async Task OrderConfirmationAsync(Session session)
         {
             var payment = await _paymentRepository.GetPaymentAsync(session.Id);
@@ -96,7 +96,7 @@ namespace PaymentManager.BLL.Services
             }
         }
 
-        /// <inheritdoc cref="IPaymentSessionService.ExpireSessionAsync(Session)"/>
+        /// <inheritdoc cref="IWebhookService.ExpireSessionAsync(Session)"/>
         public async Task ExpireSessionAsync(Session session)
         {
             var payment = await _paymentRepository.GetPaymentAsync(session.Id);
@@ -124,6 +124,7 @@ namespace PaymentManager.BLL.Services
             _logger.LogInformation($"{session.Id} - was expired");
         }
 
+        /// <inheritdoc cref="IWebhookService.UpdateSubscriptionAsync(Stripe.Subscription)"/>
         public async Task UpdateSubscriptionAsync(Stripe.Subscription subscription)
         {
             await _paymentRepository.CreatePaymentAsync(new()
@@ -150,6 +151,7 @@ namespace PaymentManager.BLL.Services
             }, Enum.Parse<AccountPlan>(subscription.Metadata[MetadataConstants.AccountPlan]));
         }
 
+        /// <inheritdoc cref="IWebhookService.DeleteSubscriptionAsync(Stripe.Subscription)"/>
         public async Task DeleteSubscriptionAsync(Stripe.Subscription subscription)
         {
             await _subscriptionRepository.UpdateSubscriptionAsync(new()
@@ -164,6 +166,7 @@ namespace PaymentManager.BLL.Services
             }, AccountPlan.Free);
         }
 
+        /// <inheritdoc cref="IWebhookService.PaymentFailedHandleAsync(Invoice)"/>
         public async Task PaymentFailedHandleAsync(Invoice invoice)
         {
             var subscriptionService = new SubscriptionService();

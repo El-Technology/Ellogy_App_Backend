@@ -76,6 +76,7 @@ namespace PaymentManager.DAL.Repositories
             return await _context.Payments.FirstOrDefaultAsync(a => a.SessionId.Equals(sessionId));
         }
 
+        /// <inheritdoc cref="IPaymentRepository.GetPaymentByInvoiceIdAsync(string)"/>
         public async Task<Payment?> GetPaymentByInvoiceIdAsync(string invoiceId)
         {
             return await _context.Payments.FirstOrDefaultAsync(a => a.InvoiceId.Equals(invoiceId));

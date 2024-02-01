@@ -15,9 +15,9 @@ namespace PaymentManager.BLL.Extensions
                 .AddHostedService<PaymentConsumer>()
                 .AddScoped<IPaymentSessionService, PaymentSessionService>()
                 .AddSingleton<ServiceBusClient>(_ => new(EnvironmentVariables.AzureServiceBusConnectionString))
-                .AddScoped<PaymentCustomerService>()
-                .AddScoped<ProductCatalogService>()
-                .AddScoped<WebhookService>();
+                .AddScoped<IPaymentCustomerService, PaymentCustomerService>()
+                .AddScoped<IProductCatalogService, ProductCatalogService>()
+                .AddScoped<IWebhookService, WebhookService>();
         }
     }
 }

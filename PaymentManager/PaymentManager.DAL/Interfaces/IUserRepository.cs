@@ -8,6 +8,12 @@ namespace PaymentManager.DAL.Interfaces
     /// </summary>
     public interface IUserRepository
     {
+        /// <summary>
+        /// Adds a Stripe customer ID asynchronously for a user.
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="customerId">Stripe customer ID</param>
+        /// <returns>Task representing the asynchronous operation</returns>
         Task AddStripeCustomerIdAsync(Guid userId, string customerId);
 
         /// <summary>
@@ -22,10 +28,17 @@ namespace PaymentManager.DAL.Interfaces
         /// <param name="userId">User ID</param>
         /// <returns>Task representing the asynchronous operation, returning a nullable User object</returns>
         Task<User?> GetUserByIdAsync(Guid userId);
+
+        /// <summary>
+        /// Updates the account plan for a user asynchronously.
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="accountPlan">Account plan to update</param>
+        /// <returns>Task representing the asynchronous operation</returns>
         Task UpdateAccountPlanAsync(Guid userId, AccountPlan accountPlan);
 
         /// <summary>
-        /// Updates the total number of purchased tokens for a user based on their ID asynchronously.
+        /// Updates the total number of purchased tokens for a user asynchronously.
         /// </summary>
         /// <param name="userId">User ID</param>
         /// <param name="purchasedTokens">Number of purchased tokens to update</param>

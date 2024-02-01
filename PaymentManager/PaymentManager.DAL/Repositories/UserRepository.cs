@@ -35,6 +35,7 @@ namespace PaymentManager.DAL.Repositories
                 .ExecuteUpdateAsync(a => a.SetProperty(a => a.TotalPurchasedPoints, a => a.TotalPurchasedPoints + purchasedTokens));
         }
 
+        /// <inheritdoc cref="IUserRepository.AddStripeCustomerIdAsync(Guid, string)"/>
         public async Task AddStripeCustomerIdAsync(Guid userId, string customerId)
         {
             await _userContext.Users
@@ -42,6 +43,7 @@ namespace PaymentManager.DAL.Repositories
                 .ExecuteUpdateAsync(a => a.SetProperty(a => a.StripeCustomerId, a => customerId));
         }
 
+        /// <inheritdoc cref="IUserRepository.UpdateAccountPlanAsync(Guid, AccountPlan)"/>
         public async Task UpdateAccountPlanAsync(Guid userId, AccountPlan accountPlan)
         {
             await _userContext.Users.Where(a => a.Id == userId).

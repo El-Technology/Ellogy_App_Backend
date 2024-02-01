@@ -1,11 +1,13 @@
-﻿using PaymentManager.BLL.Models;
+﻿using PaymentManager.BLL.Interfaces;
+using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
 using Stripe;
 
 namespace PaymentManager.BLL.Services
 {
-    public class ProductCatalogService
+    public class ProductCatalogService : IProductCatalogService
     {
+        /// <inheritdoc cref="IProductCatalogService.GetSubscriptionCatalogAsync"/>
         public async IAsyncEnumerable<ProductModel> GetSubscriptionCatalogAsync()
         {
             var productService = new ProductService();
@@ -23,6 +25,7 @@ namespace PaymentManager.BLL.Services
             }
         }
 
+        /// <inheritdoc cref="IProductCatalogService.GetProductAsync(string)"/>
         public async Task<ProductModel> GetProductAsync(string productId)
         {
             var productService = new ProductService();

@@ -15,14 +15,14 @@ namespace PaymentManager.BLL.Services
         private readonly ILogger<PaymentSessionService> _logger;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IUserRepository _userRepository;
-        private readonly ProductCatalogService _productCatalogService;
+        private readonly IProductCatalogService _productCatalogService;
 
         private const int AMMOUNT_OF_ITEMS = 1;
 
         public PaymentSessionService(IPaymentRepository paymentRepository,
             IUserRepository userRepository,
             ILogger<PaymentSessionService> logger,
-            ProductCatalogService productCatalogService)
+            IProductCatalogService productCatalogService)
         {
             _productCatalogService = productCatalogService;
             _logger = logger;
@@ -98,6 +98,7 @@ namespace PaymentManager.BLL.Services
             return userWallet.Balance;
         }
 
+        /// <inheritdoc cref="IPaymentSessionService.CreateSubscriptionAsync(CreateSubscriptionRequest, Guid)"/>
         public async Task<SessionCreateOptions> CreateSubscriptionAsync(CreateSubscriptionRequest createSubscriptionRequest, Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
@@ -152,6 +153,7 @@ namespace PaymentManager.BLL.Services
             return sessionCreateOptions;
         }
 
+        /// <inheritdoc cref="IPaymentSessionService.CancelSubscriptionAsync(Guid)"/>
         public async Task CancelSubscriptionAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)

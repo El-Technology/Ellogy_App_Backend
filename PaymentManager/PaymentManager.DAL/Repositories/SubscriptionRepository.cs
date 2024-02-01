@@ -6,7 +6,7 @@ using PaymentManager.DAL.Models;
 
 namespace PaymentManager.DAL.Repositories
 {
-    public class SubscriptionRepository
+    public class SubscriptionRepository : ISubscriptionRepository
     {
         private readonly IUserRepository _userRepository;
         private readonly PaymentContext _context;
@@ -16,6 +16,7 @@ namespace PaymentManager.DAL.Repositories
             _userRepository = userRepository;
         }
 
+        /// <inheritdoc cref="ISubscriptionRepository.CreateSubscriptionAsync(Subscription, AccountPlan)"/>
         public async Task CreateSubscriptionAsync(Subscription subscription, AccountPlan accountPlan)
         {
             await _context.Subscriptions.AddAsync(subscription);
@@ -24,6 +25,7 @@ namespace PaymentManager.DAL.Repositories
             await _userRepository.UpdateAccountPlanAsync(subscription.UserId, accountPlan);
         }
 
+        /// <inheritdoc cref="ISubscriptionRepository.UpdateSubscriptionAsync(Subscription, AccountPlan)"/>
         public async Task UpdateSubscriptionAsync(Subscription subscription, AccountPlan accountPlan)
         {
             await _context.Subscriptions
@@ -37,6 +39,7 @@ namespace PaymentManager.DAL.Repositories
             await _userRepository.UpdateAccountPlanAsync(subscription.UserId, accountPlan);
         }
 
+        /// <inheritdoc cref="ISubscriptionRepository.GetActiveSubscriptionAsync(Guid)"/>
         public async Task<Subscription?> GetActiveSubscriptionAsync(Guid userId)
         {
             return await _context.Subscriptions

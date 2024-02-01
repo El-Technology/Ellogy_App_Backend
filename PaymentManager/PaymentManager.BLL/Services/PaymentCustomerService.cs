@@ -1,24 +1,25 @@
-﻿using PaymentManager.BLL.Models;
+﻿using PaymentManager.BLL.Interfaces;
+using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Interfaces;
-using PaymentManager.DAL.Repositories;
 using Stripe;
 using Stripe.Checkout;
 
 namespace PaymentManager.BLL.Services
 {
-    public class PaymentCustomerService
+    public class PaymentCustomerService : IPaymentCustomerService
     {
         private readonly IUserRepository _userRepository;
         private readonly IPaymentRepository _paymentRepository;
-        private readonly SubscriptionRepository _subscriptionRepository;
-        public PaymentCustomerService(IUserRepository userRepository, IPaymentRepository paymentRepository, SubscriptionRepository subscriptionRepository)
+        private readonly ISubscriptionRepository _subscriptionRepository;
+        public PaymentCustomerService(IUserRepository userRepository, IPaymentRepository paymentRepository, ISubscriptionRepository subscriptionRepository)
         {
             _subscriptionRepository = subscriptionRepository;
             _paymentRepository = paymentRepository;
             _userRepository = userRepository;
         }
 
+        /// <inheritdoc cref="IPaymentCustomerService.CreateCustomerAsync(Guid)"/>
         public async Task CreateCustomerAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
@@ -39,6 +40,7 @@ namespace PaymentManager.BLL.Services
             await _userRepository.AddStripeCustomerIdAsync(userId, customerData.Id);
         }
 
+        /// <inheritdoc cref="IPaymentCustomerService.UpdateCustomerDataAsync(Guid)"/>
         public async Task UpdateCustomerDataAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
@@ -58,6 +60,7 @@ namespace PaymentManager.BLL.Services
             await service.UpdateAsync(user.StripeCustomerId, updateOptions);
         }
 
+        /// <inheritdoc cref="IPaymentCustomerService.AddCustomerPaymentMethodAsync(Guid, CreateSessionRequest)"/>
         public async Task<SessionCreateOptions> AddCustomerPaymentMethodAsync(Guid userId, CreateSessionRequest createSessionRequest)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
@@ -84,6 +87,7 @@ namespace PaymentManager.BLL.Services
             return sessionOptions;
         }
 
+        /// <inheritdoc cref="IPaymentCustomerService.RetrieveCustomerPaymentMethodsAsync(Guid)"/>
         public async IAsyncEnumerable<object> RetrieveCustomerPaymentMethodsAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
@@ -118,6 +122,7 @@ namespace PaymentManager.BLL.Services
             }
         }
 
+        /// <inheritdoc cref="IPaymentCustomerService.SetDefaultPaymentMethodAsync(Guid, string)"/>
         public async Task SetDefaultPaymentMethodAsync(Guid userId, string paymentMethodId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
@@ -154,6 +159,7 @@ namespace PaymentManager.BLL.Services
                 });
         }
 
+        /// <inheritdoc cref="IPaymentCustomerService.GetCustomerPaymentsAsync(Guid)"/>
         public async IAsyncEnumerable<object> GetCustomerPaymentsAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
@@ -181,6 +187,8 @@ namespace PaymentManager.BLL.Services
                 };
             };
         }
+
+        /// <inheritdoc cref="IPaymentCustomerService.GetActiveSubscriptionAsync(Guid)"/>
         public async Task<DAL.Models.Subscription?> GetActiveSubscriptionAsync(Guid userId)
         {
             return await _subscriptionRepository.GetActiveSubscriptionAsync(userId);

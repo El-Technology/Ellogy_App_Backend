@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using PaymentManager.BLL.Services;
+using PaymentManager.BLL.Interfaces;
 
 namespace PaymentManager.API.Controllers
 {
@@ -10,8 +10,8 @@ namespace PaymentManager.API.Controllers
     [ApiController]
     public class ProductController : Controller
     {
-        private readonly ProductCatalogService _productCatalogService;
-        public ProductController(ProductCatalogService productCatalogService)
+        private readonly IProductCatalogService _productCatalogService;
+        public ProductController(IProductCatalogService productCatalogService)
         {
             _productCatalogService = productCatalogService;
         }
