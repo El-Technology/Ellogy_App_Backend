@@ -40,5 +40,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(c => c.TotalPurchasedPoints);
         builder.Property(c => c.IsAccountActivated);
         builder.Property(c => c.VerifyToken);
+        builder.Property(c => c.StripeCustomerId);
+        builder.Property(c => c.AccountPlan);
     }
 }

@@ -15,7 +15,8 @@ namespace PaymentManager.DAL.Extensions
                 .AddDbContext<PaymentContext>(c => c.UseNpgsql(paymentConnectionString))
                 .AddDbContext<UserContext>(c => c.UseNpgsql(connectionString))
                 .AddScoped<IPaymentRepository, PaymentRepository>()
-                .AddScoped<IUserRepository, UserRepository>();
+                .AddScoped<IUserRepository, UserRepository>()
+                .AddScoped<ISubscriptionRepository, SubscriptionRepository>();
         }
     }
 }

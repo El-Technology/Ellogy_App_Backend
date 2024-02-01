@@ -59,6 +59,7 @@ namespace PaymentManager.DAL.Repositories
                 .ExecuteUpdateAsync(u => u
                 .SetProperty(s => s.Status, s => payment.Status)
                 .SetProperty(p => p.PaymentId, s => payment.PaymentId)
+                .SetProperty(p => p.InvoiceId, p => payment.InvoiceId)
                 .SetProperty(p => p.UpdatedBallance, s => payment.UpdatedBallance));
         }
 
@@ -73,6 +74,12 @@ namespace PaymentManager.DAL.Repositories
         public async Task<Payment?> GetPaymentAsync(string sessionId)
         {
             return await _context.Payments.FirstOrDefaultAsync(a => a.SessionId.Equals(sessionId));
+        }
+
+        /// <inheritdoc cref="IPaymentRepository.GetPaymentByInvoiceIdAsync(string)"/>
+        public async Task<Payment?> GetPaymentByInvoiceIdAsync(string invoiceId)
+        {
+            return await _context.Payments.FirstOrDefaultAsync(a => a.InvoiceId.Equals(invoiceId));
         }
     }
 }

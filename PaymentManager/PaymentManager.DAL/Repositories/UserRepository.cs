@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PaymentManager.DAL.Context.UserContext;
+using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
 
@@ -32,6 +33,21 @@ namespace PaymentManager.DAL.Repositories
             await _userContext.Users
                 .Where(a => a.Id == userId)
                 .ExecuteUpdateAsync(a => a.SetProperty(a => a.TotalPurchasedPoints, a => a.TotalPurchasedPoints + purchasedTokens));
+        }
+
+        /// <inheritdoc cref="IUserRepository.AddStripeCustomerIdAsync(Guid, string)"/>
+        public async Task AddStripeCustomerIdAsync(Guid userId, string customerId)
+        {
+            await _userContext.Users
+                .Where(a => a.Id == userId)
+                .ExecuteUpdateAsync(a => a.SetProperty(a => a.StripeCustomerId, a => customerId));
+        }
+
+        /// <inheritdoc cref="IUserRepository.UpdateAccountPlanAsync(Guid, AccountPlan)"/>
+        public async Task UpdateAccountPlanAsync(Guid userId, AccountPlan accountPlan)
+        {
+            await _userContext.Users.Where(a => a.Id == userId).
+                 ExecuteUpdateAsync(a => a.SetProperty(a => a.AccountPlan, a => accountPlan));
         }
     }
 }

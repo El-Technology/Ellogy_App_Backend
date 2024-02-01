@@ -2,6 +2,8 @@
 {
     public static class MetadataConstants
     {
+        public static string AccountPlan = "accountPlan";
+        public static string ProductName = "productName";
         public static string AmountOfPoint = "amountOfPoint";
         public static string TotalPrice = "totalPrice";
         public static string UserId = "userId";

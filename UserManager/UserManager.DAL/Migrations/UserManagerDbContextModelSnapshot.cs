@@ -79,6 +79,9 @@ namespace UserManager.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<int>("AccountPlan")
+                        .HasColumnType("integer");
+
                     b.Property<string>("AvatarLink")
                         .HasColumnType("text");
 
@@ -126,6 +129,9 @@ namespace UserManager.DAL.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("StripeCustomerId")
+                        .HasColumnType("text");
 
                     b.Property<int>("TotalPointsUsage")
                         .HasColumnType("integer");

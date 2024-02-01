@@ -14,6 +14,9 @@ namespace PaymentManager.DAL.Context.PaymentContext.Configurations
             builder.Property(x => x.UserEmail);
             builder.Property(x => x.AmountOfPoints);
             builder.Property(x => x.PaymentId);
+            builder.Property(x => x.InvoiceId);
+            builder.Property(x => x.Mode);
+            builder.Property(x => x.ProductName);
             builder.Property(x => x.UpdatedBallance);
             builder.Property(x => x.UserId);
         }

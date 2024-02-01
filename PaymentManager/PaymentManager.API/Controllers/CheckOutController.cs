@@ -14,9 +14,10 @@ namespace PaymentManager.Controllers
     public class CheckOutController : Controller
     {
         private readonly PaymentProducer _serviceBus;
-        private readonly IPaymentService _paymentService;
+        private readonly IPaymentSessionService _paymentService;
 
-        public CheckOutController(PaymentProducer serviceBus, IPaymentService paymentService)
+        public CheckOutController(PaymentProducer serviceBus,
+            IPaymentSessionService paymentService)
         {
             _serviceBus = serviceBus;
             _paymentService = paymentService;
@@ -48,16 +49,27 @@ namespace PaymentManager.Controllers
         [Route("createPayment")]
         public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest streamRequest)
         {
-            var payment = await _paymentService.CreatePaymentAsync(GetUserIdFromToken(), streamRequest);
-            await _serviceBus.CreatePaymentAsync(payment);
+            var payment = await _paymentService.CreateOneTimePaymentAsync(GetUserIdFromToken(), streamRequest);
+            await _serviceBus.CreateSessionAsync(payment);
+            return Ok();
+        }
+
+        // subscription separate logic below
+
+        [HttpPost]
+        [Route("createSubscription")]
+        public async Task<IActionResult> CreateSubscription([FromBody] CreateSubscriptionRequest subscriptionRequest)
+        {
+            var session = await _paymentService.CreateSubscriptionAsync(subscriptionRequest, GetUserIdFromToken());
+            await _serviceBus.CreateSessionAsync(session);
             return Ok();
         }
 
         [HttpGet]
-        [Route("expireSession")]
-        public async Task<IActionResult> ExpireSession(string sessionId)
+        [Route("cancelSubscription")]
+        public async Task<IActionResult> CancelSubscription()
         {
-            await _paymentService.ExpireSessionAsync(sessionId);
+            await _paymentService.CancelSubscriptionAsync(GetUserIdFromToken());
             return Ok();
         }
     }

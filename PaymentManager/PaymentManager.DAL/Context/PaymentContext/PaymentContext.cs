@@ -8,6 +8,7 @@ namespace PaymentManager.DAL.Context.PaymentContext
     {
         public DbSet<Payment> Payments { get; set; } = null!;
         public DbSet<Wallet> Wallets { get; set; } = null!;
+        public DbSet<Subscription> Subscriptions { get; set; } = null!;
 
         public PaymentContext() { }
         public PaymentContext(DbContextOptions<PaymentContext> options) : base(options) { }

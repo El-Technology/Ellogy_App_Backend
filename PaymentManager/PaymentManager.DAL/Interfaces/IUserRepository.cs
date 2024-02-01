@@ -1,4 +1,5 @@
-﻿using PaymentManager.DAL.Models;
+﻿using PaymentManager.DAL.Enums;
+using PaymentManager.DAL.Models;
 
 namespace PaymentManager.DAL.Interfaces
 {
@@ -7,6 +8,14 @@ namespace PaymentManager.DAL.Interfaces
     /// </summary>
     public interface IUserRepository
     {
+        /// <summary>
+        /// Adds a Stripe customer ID asynchronously for a user.
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="customerId">Stripe customer ID</param>
+        /// <returns>Task representing the asynchronous operation</returns>
+        Task AddStripeCustomerIdAsync(Guid userId, string customerId);
+
         /// <summary>
         /// Retrieves a list of all users asynchronously.
         /// </summary>
@@ -21,7 +30,15 @@ namespace PaymentManager.DAL.Interfaces
         Task<User?> GetUserByIdAsync(Guid userId);
 
         /// <summary>
-        /// Updates the total number of purchased tokens for a user based on their ID asynchronously.
+        /// Updates the account plan for a user asynchronously.
+        /// </summary>
+        /// <param name="userId">User ID</param>
+        /// <param name="accountPlan">Account plan to update</param>
+        /// <returns>Task representing the asynchronous operation</returns>
+        Task UpdateAccountPlanAsync(Guid userId, AccountPlan accountPlan);
+
+        /// <summary>
+        /// Updates the total number of purchased tokens for a user asynchronously.
         /// </summary>
         /// <param name="userId">User ID</param>
         /// <param name="purchasedTokens">Number of purchased tokens to update</param>
