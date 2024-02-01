@@ -32,5 +32,15 @@ namespace UserManager.BLL.Dtos.LoginDtos
         /// The role assigned to the user.
         /// </summary>
         public RoleEnum Role { get; set; }
+
+        /// <summary>
+        /// The Stripe customer ID associated with the user.
+        /// </summary>
+        public string? StripeCustomerId { get; set; }
+
+        /// <summary>
+        /// The account plan assigned to the user.
+        /// </summary>
+        public AccountPlan AccountPlan { get; set; }
     }
 }
