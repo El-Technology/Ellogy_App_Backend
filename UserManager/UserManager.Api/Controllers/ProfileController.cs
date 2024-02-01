@@ -35,7 +35,7 @@ namespace UserManager.Api.Controllers
 
         [HttpDelete]
         [Route("deleteUser")]
-        public async Task<IActionResult> GetUserProfile(Guid userId)
+        public async Task<IActionResult> DeleteUserProfile(Guid userId)
         {
             var response = await _userProfileService.DeleteUserProfileAsync(userId, GetUserIdFromToken());
             return Ok(response);
@@ -62,6 +62,14 @@ namespace UserManager.Api.Controllers
         public async Task<IActionResult> UploadAvatar(UploadAvatar uploadAvatar)
         {
             var response = await _userProfileService.UploadUserAvatarAsync(uploadAvatar, GetUserIdFromToken());
+            return Ok(response);
+        }
+
+        [HttpPost]
+        [Route("getUserProfile")]
+        public async Task<IActionResult> GetUserProfile()
+        {
+            var response = await _userProfileService.GetUserProfileAsync(GetUserIdFromToken());
             return Ok(response);
         }
     }

@@ -101,5 +101,10 @@ namespace UserManager.BLL.Services
             await _userRepository.UpdateUserAsync(user);
             return blobUri;
         }
+
+        public async Task<GetUserProfileDto> GetUserProfileAsync(Guid userId)
+        {
+            return _mapper.Map<GetUserProfileDto>(await GetUserByIdAsync(userId));
+        }
     }
 }

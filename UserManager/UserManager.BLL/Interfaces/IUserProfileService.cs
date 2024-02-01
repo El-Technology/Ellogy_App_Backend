@@ -23,6 +23,13 @@ namespace UserManager.BLL.Interfaces
         Task<bool> DeleteUserProfileAsync(Guid userId, Guid idFromToken);
 
         /// <summary>
+        /// Retrieves the user profile asynchronously based on the user ID.
+        /// </summary>
+        /// <param name="userId">The unique identifier of the user</param>
+        /// <returns>Task representing the asynchronous operation, returning the user profile DTO</returns>
+        Task<GetUserProfileDto> GetUserProfileAsync(Guid userId);
+
+        /// <summary>
         /// Update the user profile for a user with the specified user ID.
         /// </summary>
         /// <param name="userId">The unique identifier of the user.</param>

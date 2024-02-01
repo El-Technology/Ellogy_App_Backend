@@ -30,6 +30,8 @@ namespace UserManager.BLL.Mapping
 
             CreateMap<User, UserProfileDto>()
                 .ReverseMap();
+
+            CreateMap<User, GetUserProfileDto>();
         }
     }
 }
