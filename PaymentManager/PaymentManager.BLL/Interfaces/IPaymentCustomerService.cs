@@ -36,14 +36,14 @@ namespace PaymentManager.BLL.Interfaces
         /// </summary>
         /// <param name="userId">User ID</param>
         /// <returns>An asynchronous enumerable collection of customer payments</returns>
-        IAsyncEnumerable<object> GetCustomerPaymentsAsync(Guid userId);
+        Task<IEnumerable<PaymentObject>> GetCustomerPaymentsAsync(Guid userId);
 
         /// <summary>
         /// Retrieves customer payment methods asynchronously.
         /// </summary>
         /// <param name="userId">User ID</param>
         /// <returns>An asynchronous enumerable collection of customer payment methods</returns>
-        IAsyncEnumerable<object> RetrieveCustomerPaymentMethodsAsync(Guid userId);
+        Task<IEnumerable<PaymentMethod>> RetrieveCustomerPaymentMethodsAsync(Guid userId);
 
         /// <summary>
         /// Sets the default payment method for a customer asynchronously.

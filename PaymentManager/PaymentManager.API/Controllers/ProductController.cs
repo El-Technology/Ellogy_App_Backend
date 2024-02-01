@@ -18,9 +18,9 @@ namespace PaymentManager.API.Controllers
 
         [HttpGet]
         [Route("getProducts")]
-        public IActionResult GetProducts()
+        public async Task<IActionResult> GetProducts()
         {
-            return Ok(_productCatalogService.GetSubscriptionCatalogAsync());
+            return Ok(await _productCatalogService.GetSubscriptionCatalogAsync());
         }
     }
 }

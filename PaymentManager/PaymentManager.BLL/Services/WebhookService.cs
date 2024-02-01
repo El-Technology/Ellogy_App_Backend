@@ -3,14 +3,13 @@ using PaymentManager.BLL.Interfaces;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
-using PaymentManager.DAL.Models;
 using Stripe;
 using Stripe.Checkout;
 
 
 namespace PaymentManager.BLL.Services
 {
-    public class WebhookService : IWebhookService
+    public class WebhookService : StripeBaseService, IWebhookService
     {
         private readonly IPaymentRepository _paymentRepository;
         private readonly IUserRepository _userRepository;
@@ -42,7 +41,7 @@ namespace PaymentManager.BLL.Services
             switch (session.Mode)
             {
                 case Constants.PAYMENT_MODE:
-                    await _paymentRepository.UpdatePaymentAsync(new Payment
+                    await _paymentRepository.UpdatePaymentAsync(new()
                     {
                         PaymentId = session.PaymentIntentId,
                         AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
@@ -57,7 +56,7 @@ namespace PaymentManager.BLL.Services
                     break;
 
                 case Constants.SUBSCRIPTION_MODE:
-                    await _paymentRepository.UpdatePaymentAsync(new Payment
+                    await _paymentRepository.UpdatePaymentAsync(new()
                     {
                         InvoiceId = session.InvoiceId,
                         AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
@@ -68,9 +67,7 @@ namespace PaymentManager.BLL.Services
                         UpdatedBallance = true,
                     });
 
-                    var expandedSession = new SessionService();
-
-                    var result = await expandedSession.GetAsync(session.Id, new SessionGetOptions
+                    var result = await GetSessionService().GetAsync(session.Id, new()
                     {
                         Expand = new() { "subscription" }
                     });
@@ -107,10 +104,8 @@ namespace PaymentManager.BLL.Services
             if (payment.Status == "expired")
                 return;
 
-            var service = new SessionService();
-
             if (session.Status != "expired")
-                await service.ExpireAsync(session.Id);
+                await GetSessionService().ExpireAsync(session.Id);
 
             await _paymentRepository.UpdatePaymentAsync(new()
             {
@@ -169,8 +164,7 @@ namespace PaymentManager.BLL.Services
         /// <inheritdoc cref="IWebhookService.PaymentFailedHandleAsync(Invoice)"/>
         public async Task PaymentFailedHandleAsync(Invoice invoice)
         {
-            var subscriptionService = new SubscriptionService();
-            var subscription = await subscriptionService.GetAsync(invoice.SubscriptionId);
+            var subscription = await GetSubscriptionService().GetAsync(invoice.SubscriptionId);
 
             await _subscriptionRepository.UpdateSubscriptionAsync(new()
             {

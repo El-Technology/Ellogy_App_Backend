@@ -18,6 +18,6 @@ namespace PaymentManager.BLL.Interfaces
         /// Retrieves the subscription catalog asynchronously.
         /// </summary>
         /// <returns>An asynchronous enumerable collection of product models representing the subscription catalog</returns>
-        IAsyncEnumerable<ProductModel> GetSubscriptionCatalogAsync();
+        Task<IEnumerable<ProductModel>> GetSubscriptionCatalogAsync();
     }
 }

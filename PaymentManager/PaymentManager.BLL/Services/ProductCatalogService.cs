@@ -5,16 +5,22 @@ using Stripe;
 
 namespace PaymentManager.BLL.Services
 {
-    public class ProductCatalogService : IProductCatalogService
+    public class ProductCatalogService : StripeBaseService, IProductCatalogService
     {
         /// <inheritdoc cref="IProductCatalogService.GetSubscriptionCatalogAsync"/>
-        public async IAsyncEnumerable<ProductModel> GetSubscriptionCatalogAsync()
+        public async Task<IEnumerable<ProductModel>> GetSubscriptionCatalogAsync()
         {
-            var productService = new ProductService();
-            var allProducts = await productService.ListAsync(new ProductListOptions { Active = true, Expand = new List<string> { "data.default_price" } });
+            var allProducts = await GetProductService().ListAsync(new()
+            {
+                Active = true,
+                Expand = new List<string> { "data.default_price" }
+            });
+
+            var productModels = new List<ProductModel>();
+
             foreach (var product in allProducts)
             {
-                yield return new ProductModel
+                var productModel = new ProductModel
                 {
                     Name = product.Name,
                     Price = $"{product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents} {product.DefaultPrice.Currency}",
@@ -22,14 +28,18 @@ namespace PaymentManager.BLL.Services
                     ProductId = product.Id,
                     PriceId = product.DefaultPrice.Id
                 };
+
+                productModels.Add(productModel);
             }
+
+            return productModels;
         }
+
 
         /// <inheritdoc cref="IProductCatalogService.GetProductAsync(string)"/>
         public async Task<ProductModel> GetProductAsync(string productId)
         {
-            var productService = new ProductService();
-            var product = await productService.GetAsync(productId, new ProductGetOptions { Expand = new List<string> { "default_price" } });
+            var product = await GetProductService().GetAsync(productId, new ProductGetOptions { Expand = new List<string> { "default_price" } });
 
             return new ProductModel
             {

@@ -2,17 +2,19 @@
 using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Interfaces;
-using Stripe;
 using Stripe.Checkout;
 
 namespace PaymentManager.BLL.Services
 {
-    public class PaymentCustomerService : IPaymentCustomerService
+    public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     {
         private readonly IUserRepository _userRepository;
         private readonly IPaymentRepository _paymentRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
-        public PaymentCustomerService(IUserRepository userRepository, IPaymentRepository paymentRepository, ISubscriptionRepository subscriptionRepository)
+
+        public PaymentCustomerService(IUserRepository userRepository,
+            IPaymentRepository paymentRepository,
+            ISubscriptionRepository subscriptionRepository)
         {
             _subscriptionRepository = subscriptionRepository;
             _paymentRepository = paymentRepository;
@@ -28,14 +30,11 @@ namespace PaymentManager.BLL.Services
             if (!string.IsNullOrEmpty(user.StripeCustomerId))
                 throw new Exception("Customer is already created");
 
-            var options = new CustomerCreateOptions
+            var customerData = await GetCustomerService().CreateAsync(new()
             {
                 Email = user.Email,
                 Name = $"{user.FirstName} {user.LastName}",
-            };
-
-            var service = new CustomerService();
-            var customerData = await service.CreateAsync(options);
+            });
 
             await _userRepository.AddStripeCustomerIdAsync(userId, customerData.Id);
         }
@@ -49,15 +48,11 @@ namespace PaymentManager.BLL.Services
             if (string.IsNullOrEmpty(user.StripeCustomerId))
                 throw new Exception("Customer is not created");
 
-            var service = new CustomerService();
-
-            var updateOptions = new CustomerUpdateOptions
+            await GetCustomerService().UpdateAsync(user.StripeCustomerId, new()
             {
                 Email = user.Email,
                 Name = $"{user.FirstName} {user.LastName}"
-            };
-
-            await service.UpdateAsync(user.StripeCustomerId, updateOptions);
+            });
         }
 
         /// <inheritdoc cref="IPaymentCustomerService.AddCustomerPaymentMethodAsync(Guid, CreateSessionRequest)"/>
@@ -88,7 +83,7 @@ namespace PaymentManager.BLL.Services
         }
 
         /// <inheritdoc cref="IPaymentCustomerService.RetrieveCustomerPaymentMethodsAsync(Guid)"/>
-        public async IAsyncEnumerable<object> RetrieveCustomerPaymentMethodsAsync(Guid userId)
+        public async Task<IEnumerable<PaymentMethod>> RetrieveCustomerPaymentMethodsAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
@@ -96,14 +91,19 @@ namespace PaymentManager.BLL.Services
             if (string.IsNullOrEmpty(user.StripeCustomerId))
                 throw new Exception("Customer is not created");
 
-            var paymentService = new PaymentMethodService();
+            var allMethods = await GetPaymentMethodService().ListAsync(new()
+            {
+                Customer = user.StripeCustomerId,
+                Expand = new() { "data.customer.invoice_settings.default_payment_method" }
+            });
 
-            var allMethods = await paymentService.ListAsync(new PaymentMethodListOptions { Customer = user.StripeCustomerId, Expand = new() { "data.customer.invoice_settings.default_payment_method" } });
+            var paymentMethods = new List<PaymentMethod>();
 
             foreach (var method in allMethods)
             {
                 if (method.Card is not null)
-                    yield return new
+                {
+                    var paymentMethod = new PaymentMethod
                     {
                         Type = method.Type,
                         Id = method.Id,
@@ -112,14 +112,21 @@ namespace PaymentManager.BLL.Services
                         Last4 = method.Card.Last4,
                         Default = (method.Customer.InvoiceSettings.DefaultPaymentMethodId ?? string.Empty).Equals(method.Id)
                     };
+                    paymentMethods.Add(paymentMethod);
+                }
                 else
-                    yield return new
+                {
+                    var paymentMethod = new PaymentMethod
                     {
                         Type = method.Type,
                         Id = method.Id,
                         Default = (method.Customer.InvoiceSettings.DefaultPaymentMethodId ?? string.Empty).Equals(method.Id)
                     };
+                    paymentMethods.Add(paymentMethod);
+                }
             }
+
+            return paymentMethods;
         }
 
         /// <inheritdoc cref="IPaymentCustomerService.SetDefaultPaymentMethodAsync(Guid, string)"/>
@@ -128,65 +135,64 @@ namespace PaymentManager.BLL.Services
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
 
-            var customerService = new CustomerService();
-            var updateOptions = new CustomerUpdateOptions
+            await GetCustomerService().UpdateAsync(user.StripeCustomerId, new()
             {
                 InvoiceSettings = new()
                 {
                     DefaultPaymentMethod = paymentMethodId,
                 }
-            };
+            });
 
-            await customerService.UpdateAsync(user.StripeCustomerId, updateOptions);
-
-            var customer = await customerService.GetAsync(user.StripeCustomerId,
-                new CustomerGetOptions
-                {
-                    Expand = new() { "subscriptions" }
-                });
+            var customer = await GetCustomerService().GetAsync(user.StripeCustomerId, new()
+            {
+                Expand = new() { "subscriptions" }
+            });
 
             var customerSubscription = customer.Subscriptions.FirstOrDefault();
 
             if (customerSubscription is null)
                 return;
 
-            var subscriptionService = new SubscriptionService();
-
-            await subscriptionService.UpdateAsync(customerSubscription.Id,
-                new SubscriptionUpdateOptions
-                {
-                    DefaultPaymentMethod = paymentMethodId
-                });
+            await GetSubscriptionService().UpdateAsync(customerSubscription.Id, new()
+            {
+                DefaultPaymentMethod = paymentMethodId
+            });
         }
 
         /// <inheritdoc cref="IPaymentCustomerService.GetCustomerPaymentsAsync(Guid)"/>
-        public async IAsyncEnumerable<object> GetCustomerPaymentsAsync(Guid userId)
+        public async Task<IEnumerable<PaymentObject>> GetCustomerPaymentsAsync(Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
 
-            var paymentService = new PaymentIntentService();
-            var paymentsList = await paymentService.ListAsync(new PaymentIntentListOptions
+            var paymentsList = await GetPaymentIntentService().ListAsync(new()
             {
                 Customer = user.StripeCustomerId,
                 Expand = new() { "data.invoice" }
             });
+
+            var paymentRecords = new List<PaymentObject>();
 
             foreach (var payment in paymentsList.Data)
             {
                 var paymentRecord = await _paymentRepository.GetPaymentByIdAsync(payment.Id)
                     ?? await _paymentRepository.GetPaymentByInvoiceIdAsync(payment.InvoiceId);
 
-                yield return new
+                var paymentObject = new PaymentObject
                 {
                     Product = paymentRecord is null ? "Subscription payment" : paymentRecord.ProductName,
                     Date = payment.Created,
                     Amount = (float)payment.Amount / Constants.PriceInCents,
                     Status = payment.Status,
-                    Download = payment.Invoice?.InvoicePdf
+                    DownloadLink = payment.Invoice?.InvoicePdf
                 };
-            };
+
+                paymentRecords.Add(paymentObject);
+            }
+
+            return paymentRecords;
         }
+
 
         /// <inheritdoc cref="IPaymentCustomerService.GetActiveSubscriptionAsync(Guid)"/>
         public async Task<DAL.Models.Subscription?> GetActiveSubscriptionAsync(Guid userId)

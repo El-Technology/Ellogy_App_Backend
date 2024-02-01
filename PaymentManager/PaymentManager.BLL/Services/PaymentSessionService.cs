@@ -5,12 +5,11 @@ using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
-using Stripe;
 using Stripe.Checkout;
 
 namespace PaymentManager.BLL.Services
 {
-    public class PaymentSessionService : IPaymentSessionService
+    public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     {
         private readonly ILogger<PaymentSessionService> _logger;
         private readonly IPaymentRepository _paymentRepository;
@@ -35,8 +34,7 @@ namespace PaymentManager.BLL.Services
             if (string.IsNullOrEmpty(user.StripeCustomerId))
                 throw new ArgumentNullException("You have to create a customer billing record");
 
-            var customerService = new CustomerService();
-            var retrievedCustomer = await customerService.GetAsync(user.StripeCustomerId, new()
+            var retrievedCustomer = await GetCustomerService().GetAsync(user.StripeCustomerId, new()
             {
                 Expand = new() { "invoice_settings.default_payment_method" }
             });
@@ -106,13 +104,10 @@ namespace PaymentManager.BLL.Services
 
             await IfUserAbleToUsePaymentAsync(user);
 
-            var customerService = new CustomerService();
-            var customerData = await customerService.GetAsync(user.StripeCustomerId,
-                                new CustomerGetOptions
-                                {
-                                    Expand = new() { "subscriptions" }
-                                })
-                ?? throw new Exception("We can`t find you payment profile");
+            var customerData = await GetCustomerService().GetAsync(user.StripeCustomerId, new()
+            {
+                Expand = new() { "subscriptions" }
+            }) ?? throw new Exception("We can`t find you payment profile");
 
             if (customerData.Subscriptions is not null && customerData.Subscriptions.Any())
                 throw new Exception("You have to cancel your existing subscription before having a new one");
@@ -159,25 +154,18 @@ namespace PaymentManager.BLL.Services
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
 
-            var customerService = new CustomerService();
-            var customerData = await customerService.GetAsync(user.StripeCustomerId,
-                                new CustomerGetOptions
-                                {
-                                    Expand = new() { "subscriptions" }
-                                })
-                ?? throw new Exception("We can`t find you payment profile");
+            var customerData = await GetCustomerService().GetAsync(user.StripeCustomerId, new()
+            {
+                Expand = new() { "subscriptions" }
+            }) ?? throw new Exception("We can`t find you payment profile");
 
             if (customerData.Subscriptions?.Any() != true)
                 throw new Exception("You don`t have any subscription");
 
-            var subscriptionService = new SubscriptionService();
-
-            var subscriptionUpdateOptions = new SubscriptionUpdateOptions
+            await GetSubscriptionService().UpdateAsync(customerData.Subscriptions.FirstOrDefault()?.Id, new()
             {
                 CancelAtPeriodEnd = true
-            };
-
-            await subscriptionService.UpdateAsync(customerData.Subscriptions.FirstOrDefault()?.Id, subscriptionUpdateOptions);
+            });
         }
     }
 }

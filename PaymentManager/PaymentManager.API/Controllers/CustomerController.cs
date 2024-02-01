@@ -62,9 +62,9 @@ namespace PaymentManager.API.Controllers
 
         [HttpGet]
         [Route("getAllPaymentMethods")]
-        public IActionResult GetPaymentMethods()
+        public async Task<IActionResult> GetPaymentMethods()
         {
-            return Ok(_paymentCustomerService.RetrieveCustomerPaymentMethodsAsync(GetUserIdFromToken()));
+            return Ok(await _paymentCustomerService.RetrieveCustomerPaymentMethodsAsync(GetUserIdFromToken()));
         }
 
         [HttpGet]
@@ -77,9 +77,9 @@ namespace PaymentManager.API.Controllers
 
         [HttpGet]
         [Route("getCustomerPayments")]
-        public IActionResult GetCustomerPayments()
+        public async Task<IActionResult> GetCustomerPayments()
         {
-            return Ok(_paymentCustomerService.GetCustomerPaymentsAsync(GetUserIdFromToken()));
+            return Ok(await _paymentCustomerService.GetCustomerPaymentsAsync(GetUserIdFromToken()));
         }
 
         [HttpGet]
