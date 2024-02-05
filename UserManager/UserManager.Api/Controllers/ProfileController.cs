@@ -65,7 +65,7 @@ namespace UserManager.Api.Controllers
             return Ok(response);
         }
 
-        [HttpPost]
+        [HttpGet]
         [Route("getUserProfile")]
         public async Task<IActionResult> GetUserProfile()
         {
