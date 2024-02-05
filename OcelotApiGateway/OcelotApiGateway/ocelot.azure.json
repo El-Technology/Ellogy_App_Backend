@@ -133,6 +133,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/gateway/Profile/getUserProfile",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/Profile/getUserProfile",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.124.185",
+          "Port": 5281
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/gateway/Tickets/getTickets/{userId}",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Tickets/tickets/{userId}",
