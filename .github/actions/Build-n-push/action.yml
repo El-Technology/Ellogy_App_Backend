@@ -29,7 +29,7 @@ runs:
 
     - name: Convert to repository name lowercase
       id: imageName-lowercase
-      uses: ASzc/change-string-case-action@v5
+      uses: ASzc/change-string-case-action@v6
       env:
         REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{ inputs.MicroserviceName }}:${{ inputs.Environment }}-${{ github.run_number }}
       with:
@@ -50,7 +50,7 @@ runs:
 
     - name: Get lowercase package name
       id: packageName-lowercase
-      uses: ASzc/change-string-case-action@v5
+      uses: ASzc/change-string-case-action@v6
       env:
         PACKAGE_NAME: ${{ github.event.repository.name }}/${{ inputs.MicroserviceName }}
       with:
@@ -58,7 +58,7 @@ runs:
 
     - name: Delete old images
       id: delete-images
-      uses: actions/delete-package-versions@v4.1.1
+      uses: actions/delete-package-versions@v5
       with:
         package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
         package-type: 'container'
