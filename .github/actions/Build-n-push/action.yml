@@ -58,7 +58,7 @@ runs:
 
     - name: Delete old images
       id: delete-images
-      uses: actions/delete-package-versions@v4
+      uses: actions/delete-package-versions@v5.0.0
       with:
         package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
         package-type: 'container'
