@@ -7,6 +7,7 @@ using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using UglyToad.PdfPig.Graphics.Operations.MarkedContent;
 
@@ -83,9 +84,9 @@ namespace AICommunicationService.BLL.Services
             return new StringContent(jsonRequest, Encoding.UTF8, "application/json");
         }
 
-        private void ThrowGptException()
+        private void ThrowGptException(string? message = "empty")
         {
-            throw new GptModelException("Model error, try to replace with another one");
+            throw new GptModelException($"Model error, try to replace with another one\nRequest return message: {message}");
         }
 
         /// <inheritdoc cref="IAzureOpenAiRequestService.PostAiRequestWithFunctionAsync(MessageRequest)"/>
@@ -96,7 +97,10 @@ namespace AICommunicationService.BLL.Services
             var result = await _httpClient.PostAsync(request.Url, content);
 
             if (result.StatusCode == HttpStatusCode.BadRequest)
-                ThrowGptException();
+            {
+                var exceptionResponse = await result.Content.ReadFromJsonAsync<ModelError>();
+                ThrowGptException(exceptionResponse?.Error?.Message);
+            }
 
             var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
 
@@ -117,7 +121,10 @@ namespace AICommunicationService.BLL.Services
             var result = await _httpClient.PostAsync(request.Url, content);
 
             if (result.StatusCode == HttpStatusCode.BadRequest)
-                ThrowGptException();
+            {
+                var exceptionResponse = await result.Content.ReadFromJsonAsync<ModelError>();
+                ThrowGptException(exceptionResponse?.Error?.Message);
+            }
 
             var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
 
@@ -139,28 +146,30 @@ namespace AICommunicationService.BLL.Services
             var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
-                ThrowGptException();
+            {
+                var exceptionResponse = await response.Content.ReadFromJsonAsync<ModelError>();
+                ThrowGptException(exceptionResponse?.Error?.Message);
+            }
 
             using var stream = await response.Content.ReadAsStreamAsync();
-            using (var streamReader = new StreamReader(stream))
+            using var streamReader = new StreamReader(stream);
+
+            while (!streamReader.EndOfStream)
             {
-                while (!streamReader.EndOfStream)
+                var line = await streamReader.ReadLineAsync();
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
+                var aiResponse = new AiResponseModel();
+                try
                 {
-                    var line = await streamReader.ReadLineAsync();
-                    if (string.IsNullOrEmpty(line))
-                        continue;
-
-                    var aiResponse = new AiResponseModel();
-                    try
-                    {
-                        aiResponse = JsonConvert.DeserializeObject<AiResponseModel>(line.Replace("data: ", ""));
-                    }
-                    catch (Exception) { continue; };
-
-                    var stringAiResponse = aiResponse?.Choices?.FirstOrDefault()?.Delta?.Content;
-                    if (!string.IsNullOrEmpty(stringAiResponse))
-                        await onDataReceived(stringAiResponse);
+                    aiResponse = JsonConvert.DeserializeObject<AiResponseModel>(line.Replace("data: ", ""));
                 }
+                catch (Exception) { continue; };
+
+                var stringAiResponse = aiResponse?.Choices?.FirstOrDefault()?.Delta?.Content;
+                if (!string.IsNullOrEmpty(stringAiResponse))
+                    await onDataReceived(stringAiResponse);
             }
         }
 
