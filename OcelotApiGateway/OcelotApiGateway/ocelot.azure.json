@@ -892,7 +892,7 @@
     {
       "UpstreamPathTemplate": "/dev/Product/getProducts",
       "UpstreamHttpMethod": [ "GET" ],
-      "DownstreamPathTemplate": "/api/Customer/getProducts",
+      "DownstreamPathTemplate": "/api/Product/getProducts",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
