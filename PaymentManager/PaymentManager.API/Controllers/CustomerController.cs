@@ -44,7 +44,7 @@ namespace PaymentManager.API.Controllers
         }
 
         [HttpGet]
-        [Route("updateCustomedData")]
+        [Route("updateCustomerData")]
         public async Task<IActionResult> UpdateCustomerData()
         {
             await _paymentCustomerService.UpdateCustomerDataAsync(GetUserIdFromToken());
