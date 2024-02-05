@@ -41,6 +41,6 @@ namespace UserManager.BLL.Dtos.LoginDtos
         /// <summary>
         /// The account plan assigned to the user.
         /// </summary>
-        public AccountPlan AccountPlan { get; set; }
+        public AccountPlan? AccountPlan { get; set; }
     }
 }

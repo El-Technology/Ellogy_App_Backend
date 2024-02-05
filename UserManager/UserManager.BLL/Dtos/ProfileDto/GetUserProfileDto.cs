@@ -12,6 +12,6 @@ namespace UserManager.BLL.Dtos.ProfileDto
         /// <summary>
         /// The account plan assigned to the user.
         /// </summary>
-        public AccountPlan AccountPlan { get; set; }
+        public AccountPlan? AccountPlan { get; set; }
     }
 }

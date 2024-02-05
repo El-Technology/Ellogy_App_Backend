@@ -128,6 +128,7 @@ namespace PaymentManager.BLL.Services
                         Quantity = AMMOUNT_OF_ITEMS
                     },
                 },
+                PaymentMethodCollection = product.Name.Equals("Free") ? "if_required" : "always",
                 Metadata = new Dictionary<string, string>
                 {
                     { MetadataConstants.ProductName,  product.Name},
