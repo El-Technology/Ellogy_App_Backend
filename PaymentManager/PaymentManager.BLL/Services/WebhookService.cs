@@ -36,6 +36,9 @@ namespace PaymentManager.BLL.Services
             if (payment is null)
                 return;
 
+            if (payment.Mode is null)
+                return;
+
             if (payment.UpdatedBallance && payment.Mode.Equals(Constants.PAYMENT_MODE))
                 return;
 
@@ -57,33 +60,6 @@ namespace PaymentManager.BLL.Services
                     break;
 
                 case Constants.SUBSCRIPTION_MODE:
-                    await _paymentRepository.UpdatePaymentAsync(new()
-                    {
-                        InvoiceId = session.InvoiceId,
-                        AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
-                        Status = session.Status,
-                        UserEmail = session.CustomerEmail,
-                        UserId = payment.UserId,
-                        SessionId = session.Id,
-                        UpdatedBallance = true,
-                    });
-
-                    var result = await GetSessionService().GetAsync(session.Id, new()
-                    {
-                        Expand = new() { "subscription" }
-                    });
-
-                    await _subscriptionRepository.CreateSubscriptionAsync(new()
-                    {
-                        Id = Guid.NewGuid(),
-                        StartDate = result.Subscription.CurrentPeriodStart,
-                        EndDate = result.Subscription.CurrentPeriodEnd,
-                        IsActive = true,
-                        UserId = payment.UserId,
-                        SubscriptionStripeId = result.SubscriptionId,
-                        IsCanceled = false
-                    },
-                    Enum.Parse<AccountPlan>(result.Subscription.Metadata[MetadataConstants.AccountPlan]));
                     break;
 
                 case Constants.SETUP_MODE:
@@ -123,6 +99,9 @@ namespace PaymentManager.BLL.Services
         /// <inheritdoc cref="IWebhookService.UpdateSubscriptionAsync(Subscription)"/>
         public async Task UpdateSubscriptionAsync(Subscription subscription)
         {
+            var user = await _userRepository.GetUserByIdAsync(Guid.Parse(subscription.Metadata[MetadataConstants.UserId]))
+                ?? throw new Exception("User was not found");
+
             await _paymentRepository.CreatePaymentAsync(new()
             {
                 Id = Guid.NewGuid(),

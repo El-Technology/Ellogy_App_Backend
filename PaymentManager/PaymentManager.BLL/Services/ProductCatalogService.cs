@@ -64,6 +64,28 @@ namespace PaymentManager.BLL.Services
                 PriceId = product.DefaultPrice?.Id
             };
         }
+
+        public async Task<ProductModel> GetProductByNameAsync(string productName)
+        {
+            var product = (await GetProductService().SearchAsync(new()
+            {
+                Expand = new List<string> { "data.default_price" },
+                Query = $"active:'true' AND name~'{productName}'"
+            })).FirstOrDefault() ?? throw new Exception($"Product with name {productName} was not found");
+
+            var price = product.DefaultPrice != null
+                ? product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents
+                : null;
+
+            return new ProductModel
+            {
+                Name = product.Name,
+                Price = price,
+                Description = product.Description,
+                ProductId = product.Id,
+                PriceId = product.DefaultPrice?.Id
+            };
+        }
     }
 }
 

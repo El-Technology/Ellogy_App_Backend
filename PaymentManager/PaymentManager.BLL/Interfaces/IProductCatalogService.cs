@@ -13,6 +13,7 @@ namespace PaymentManager.BLL.Interfaces
         /// <param name="productId">The unique identifier of the product</param>
         /// <returns>Task representing the asynchronous operation, returning the product model</returns>
         Task<ProductModel> GetProductAsync(string productId);
+        Task<ProductModel> GetProductByNameAsync(string productName);
 
         /// <summary>
         /// Retrieves the subscription catalog asynchronously.

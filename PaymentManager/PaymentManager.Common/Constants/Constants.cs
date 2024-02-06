@@ -12,6 +12,7 @@
         public const string SETUP_MODE = "setup";
 
         public static string PaymentQueueName = "paymentqueue";
+        public static string FreeSubscriptionQueueName = "freesubscriptionqueue";
 
         public static string ApplicationJson = "application/json";
 

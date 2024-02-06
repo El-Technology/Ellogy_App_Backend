@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using PaymentManager.BLL.Helpers;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
@@ -7,6 +6,7 @@ using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
+using Stripe;
 using Stripe.Checkout;
 
 namespace PaymentManager.BLL.Services
@@ -104,57 +104,28 @@ namespace PaymentManager.BLL.Services
             return userWallet.Balance;
         }
 
-        /// <inheritdoc cref="IPaymentSessionService.CreateSubscriptionAsync(CreateSubscriptionRequest, Guid)"/>
-        public async Task<SessionCreateOptions> CreateSubscriptionAsync(CreateSubscriptionRequest createSubscriptionRequest, Guid userId)
+        public async Task<SubscriptionCreateOptions> CreateFreeSubscriptionAsync(SignalRModel signalRModel, Guid userId)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
 
-            var product = await _productCatalogService.GetProductAsync(createSubscriptionRequest.ProductId);
+            var product = await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString());
 
             await IfUserAbleToUsePaymentAsync(user, product.Name.Equals(AccountPlan.Free.ToString()));
 
-            var customerData = await GetCustomerService().GetAsync(user.StripeCustomerId, new()
+            return new SubscriptionCreateOptions()
             {
-                Expand = new() { "subscriptions" }
-            }) ?? throw new Exception("We can`t find you payment profile");
-
-            if (customerData.Subscriptions is not null && customerData.Subscriptions.Any())
-                throw new Exception("You have to cancel your existing subscription before having a new one");
-
-            var sessionCreateOptions = new SessionCreateOptions()
-            {
-                SuccessUrl = createSubscriptionRequest.SuccessUrl,
-                CancelUrl = createSubscriptionRequest.CancelUrl,
                 Customer = user.StripeCustomerId,
-                Mode = Constants.SUBSCRIPTION_MODE,
-                LineItems = new List<SessionLineItemOptions>
+                Items = new() { new() { Price = product.PriceId }, new() { } },
+                Metadata = new()
                 {
-                    new ()
-                    {
-                        Price = product.PriceId,
-                        Quantity = AMMOUNT_OF_ITEMS
-                    },
-                },
-                PaymentMethodCollection = product.Name.Equals(AccountPlan.Free.ToString()) ? "if_required" : "always",
-                Metadata = new Dictionary<string, string>
-                {
-                    { MetadataConstants.ProductName,  product.Name},
-                    { MetadataConstants.AmountOfPoint, "0" },
-                    { MetadataConstants.UserId, user.Id.ToString() },
-                    { MetadataConstants.ConnectionId, createSubscriptionRequest.ConnectionId },
-                    { MetadataConstants.SignalRMethodName, createSubscriptionRequest.SignalMethodName }
-                },
-                SubscriptionData = new()
-                {
-                    Metadata = new() {
-                        { MetadataConstants.AccountPlan, SubscriptionHelper.GetSubscriptionCode(product.Name).ToString() },
+                        { MetadataConstants.AccountPlan, AccountPlan.Free.ToString() },
                         { MetadataConstants.UserId, user.Id.ToString() },
-                        { MetadataConstants.ProductName,  product.Name}}
+                        { MetadataConstants.ProductName,  product.Name},
+                        { MetadataConstants.ConnectionId, signalRModel.ConnectionId },
+                        { MetadataConstants.SignalRMethodName, signalRModel.SignalMethodName }
                 }
             };
-
-            return sessionCreateOptions;
         }
 
         /// <inheritdoc cref="IPaymentSessionService.CancelSubscriptionAsync(Guid)"/>
@@ -182,27 +153,27 @@ namespace PaymentManager.BLL.Services
 
         public async Task UpgradeSubscriptionAsync(Guid userId, string newPriceId)
         {
-            var getActiveSubscription = await _paymentCustomerService.GetActiveSubscriptionAsync(userId)
-                ?? throw new Exception("You don`t have active subscription");
+            //var getActiveSubscription = await _paymentCustomerService.GetActiveSubscriptionAsync(userId)
+            //    ?? throw new Exception("You don`t have active subscription");
 
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new Exception("User was not found");
+            //var user = await _userRepository.GetUserByIdAsync(userId)
+            //    ?? throw new Exception("User was not found");
 
-            var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
+            //var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
 
-            if (subscription.Items.Data.Count() > 1)
-                throw new Exception($"You cant upgrade your subscription not, wait until {subscription.CurrentPeriodEnd}");
+            //if (subscription.Items.Data.Count() > 1)
+            //    throw new Exception($"You cant upgrade your subscription not, wait until {subscription.CurrentPeriodEnd}");
 
-            await GetSubscriptionService().UpdateAsync(subscription.Id, new()
-            {
-                ProrationBehavior = "always_invoice",
-                ProrationDate = DateTime.UtcNow,
-                Items = new()
-                {
-                    new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
-                    new(){ Price = newPriceId }
-                },
-            });
+            //await GetSubscriptionService().UpdateAsync(subscription.Id, new()
+            //{
+            //    ProrationBehavior = "always_invoice",
+            //    ProrationDate = DateTime.UtcNow,
+            //    Items = new()
+            //    {
+            //        new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
+            //        new(){ Price = newPriceId }
+            //    },
+            //});
         }
     }
 }

@@ -57,11 +57,11 @@ namespace PaymentManager.Controllers
         // subscription separate logic below
 
         [HttpPost]
-        [Route("createSubscription")]
-        public async Task<IActionResult> CreateSubscription([FromBody] CreateSubscriptionRequest subscriptionRequest)
+        [Route("createFreeSubscription")]
+        public async Task<IActionResult> CreateSubscription([FromBody] SignalRModel signalRModel)
         {
-            var session = await _paymentService.CreateSubscriptionAsync(subscriptionRequest, GetUserIdFromToken());
-            await _serviceBus.CreateSessionAsync(session);
+            var session = await _paymentService.CreateFreeSubscriptionAsync(signalRModel, GetUserIdFromToken());
+            await _serviceBus.CreateFreeSubscriptionAsync(session);
             return Ok();
         }
 
