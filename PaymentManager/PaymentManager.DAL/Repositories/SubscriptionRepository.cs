@@ -26,7 +26,7 @@ namespace PaymentManager.DAL.Repositories
         }
 
         /// <inheritdoc cref="ISubscriptionRepository.UpdateSubscriptionAsync(Subscription, AccountPlan)"/>
-        public async Task UpdateSubscriptionAsync(Subscription subscription, AccountPlan accountPlan)
+        public async Task UpdateSubscriptionAsync(Subscription subscription, AccountPlan? accountPlan)
         {
             await _context.Subscriptions
                 .Where(a => a.SubscriptionStripeId.Equals(subscription.SubscriptionStripeId))

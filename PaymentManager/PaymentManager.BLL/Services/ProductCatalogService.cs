@@ -21,8 +21,13 @@ namespace PaymentManager.BLL.Services
             foreach (var product in allProducts)
             {
                 var price = product.DefaultPrice != null
-                    ? $"{product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents} {product.DefaultPrice.Currency}"
-                    : "Price was not found, contact with our service please";
+                    ? product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents
+                    : null;
+
+                var listOfFeatures = new List<string>();
+
+                foreach (var feature in product.Features)
+                    listOfFeatures.Add(feature.Name);
 
                 var productModel = new ProductModel
                 {
@@ -30,7 +35,8 @@ namespace PaymentManager.BLL.Services
                     Price = price,
                     Description = product.Description,
                     ProductId = product.Id,
-                    PriceId = product.DefaultPrice?.Id
+                    PriceId = product.DefaultPrice?.Id,
+                    Features = listOfFeatures,
                 };
 
                 productModels.Add(productModel);
@@ -46,8 +52,8 @@ namespace PaymentManager.BLL.Services
             var product = await GetProductService().GetAsync(productId, new ProductGetOptions { Expand = new List<string> { "default_price" } });
 
             var price = product.DefaultPrice != null
-                ? $"{product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents} {product.DefaultPrice.Currency}"
-                : "0";
+                ? product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents
+                : null;
 
             return new ProductModel
             {

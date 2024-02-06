@@ -2,12 +2,13 @@
 {
     public static class SubscriptionHelper
     {
-        public static int GetSubscriptionCode(string subscriptionName)
+        public static int? GetSubscriptionCode(string subscriptionName)
         {
             return subscriptionName switch
             {
                 "Basic" => 1,
-                _ => 0,
+                "Free" => 0,
+                _ => null
             };
         }
     }

@@ -35,7 +35,7 @@ namespace PaymentManager.DAL.Interfaces
         /// <param name="userId">User ID</param>
         /// <param name="accountPlan">Account plan to update</param>
         /// <returns>Task representing the asynchronous operation</returns>
-        Task UpdateAccountPlanAsync(Guid userId, AccountPlan accountPlan);
+        Task UpdateAccountPlanAsync(Guid userId, AccountPlan? accountPlan);
 
         /// <summary>
         /// Updates the total number of purchased tokens for a user asynchronously.

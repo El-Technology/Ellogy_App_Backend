@@ -44,7 +44,7 @@ namespace PaymentManager.DAL.Repositories
         }
 
         /// <inheritdoc cref="IUserRepository.UpdateAccountPlanAsync(Guid, AccountPlan)"/>
-        public async Task UpdateAccountPlanAsync(Guid userId, AccountPlan accountPlan)
+        public async Task UpdateAccountPlanAsync(Guid userId, AccountPlan? accountPlan)
         {
             await _userContext.Users.Where(a => a.Id == userId).
                  ExecuteUpdateAsync(a => a.SetProperty(a => a.AccountPlan, a => accountPlan));

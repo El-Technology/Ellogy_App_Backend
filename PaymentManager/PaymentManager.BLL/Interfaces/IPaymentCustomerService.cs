@@ -59,5 +59,6 @@ namespace PaymentManager.BLL.Interfaces
         /// <param name="userId">User ID</param>
         /// <returns>Task representing the asynchronous operation</returns>
         Task UpdateCustomerDataAsync(Guid userId);
+        Task<decimal> UpgradeSubscriptionPreviewAsync(Guid userId, string newPriceId);
     }
 }

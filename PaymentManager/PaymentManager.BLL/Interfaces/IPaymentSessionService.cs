@@ -37,5 +37,6 @@ namespace PaymentManager.BLL.Interfaces
         /// <param name="userId">User ID</param>
         /// <returns>Task representing the asynchronous operation, returning the user's balance</returns>
         Task<int> GetUserBalanceAsync(Guid userId);
+        Task UpgradeSubscriptionAsync(Guid userId, string newPriceId);
     }
 }

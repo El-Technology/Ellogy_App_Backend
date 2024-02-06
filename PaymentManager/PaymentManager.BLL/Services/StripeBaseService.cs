@@ -11,6 +11,13 @@ namespace PaymentManager.BLL.Services
         private Lazy<PaymentIntentService>? _paymentIntentService;
         private Lazy<ProductService>? _productService;
         private Lazy<SessionService>? _sessionService;
+        private Lazy<InvoiceService>? _invoiceService;
+
+        protected InvoiceService GetInvoiceService()
+        {
+            _invoiceService ??= new Lazy<InvoiceService>(() => new InvoiceService());
+            return _invoiceService.Value;
+        }
 
         protected CustomerService GetCustomerService()
         {

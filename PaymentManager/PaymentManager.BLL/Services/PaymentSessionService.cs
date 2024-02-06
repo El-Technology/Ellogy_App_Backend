@@ -1,8 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.Extensions.Logging;
 using PaymentManager.BLL.Helpers;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
+using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
 using Stripe.Checkout;
@@ -15,31 +17,37 @@ namespace PaymentManager.BLL.Services
         private readonly IPaymentRepository _paymentRepository;
         private readonly IUserRepository _userRepository;
         private readonly IProductCatalogService _productCatalogService;
+        private readonly IPaymentCustomerService _paymentCustomerService;
 
         private const int AMMOUNT_OF_ITEMS = 1;
 
         public PaymentSessionService(IPaymentRepository paymentRepository,
             IUserRepository userRepository,
             ILogger<PaymentSessionService> logger,
-            IProductCatalogService productCatalogService)
+            IProductCatalogService productCatalogService,
+            IPaymentCustomerService paymentCustomerService)
         {
+            _paymentRepository = paymentRepository;
             _productCatalogService = productCatalogService;
             _logger = logger;
             _userRepository = userRepository;
             _paymentRepository = paymentRepository;
         }
 
-        private async Task IfUserAbleToUsePaymentAsync(User user)
+        private async Task IfUserAbleToUsePaymentAsync(User user, bool isFreeSubscription = false)
         {
             if (string.IsNullOrEmpty(user.StripeCustomerId))
                 throw new ArgumentNullException("You have to create a customer billing record");
+
+            if (isFreeSubscription)
+                return;
 
             var retrievedCustomer = await GetCustomerService().GetAsync(user.StripeCustomerId, new()
             {
                 Expand = new() { "invoice_settings.default_payment_method" }
             });
 
-            if (string.IsNullOrEmpty(retrievedCustomer.InvoiceSettings.DefaultPaymentMethodId))
+            if (retrievedCustomer.InvoiceSettings is null || string.IsNullOrEmpty(retrievedCustomer.InvoiceSettings.DefaultPaymentMethodId))
                 throw new ArgumentNullException("You have to add payment method/card and set it as default");
         }
 
@@ -102,7 +110,9 @@ namespace PaymentManager.BLL.Services
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
 
-            await IfUserAbleToUsePaymentAsync(user);
+            var product = await _productCatalogService.GetProductAsync(createSubscriptionRequest.ProductId);
+
+            await IfUserAbleToUsePaymentAsync(user, product.Name.Equals(AccountPlan.Free.ToString()));
 
             var customerData = await GetCustomerService().GetAsync(user.StripeCustomerId, new()
             {
@@ -111,8 +121,6 @@ namespace PaymentManager.BLL.Services
 
             if (customerData.Subscriptions is not null && customerData.Subscriptions.Any())
                 throw new Exception("You have to cancel your existing subscription before having a new one");
-
-            var product = await _productCatalogService.GetProductAsync(createSubscriptionRequest.ProductId);
 
             var sessionCreateOptions = new SessionCreateOptions()
             {
@@ -128,7 +136,7 @@ namespace PaymentManager.BLL.Services
                         Quantity = AMMOUNT_OF_ITEMS
                     },
                 },
-                PaymentMethodCollection = product.Name.Equals("Free") ? "if_required" : "always",
+                PaymentMethodCollection = product.Name.Equals(AccountPlan.Free.ToString()) ? "if_required" : "always",
                 Metadata = new Dictionary<string, string>
                 {
                     { MetadataConstants.ProductName,  product.Name},
@@ -163,9 +171,38 @@ namespace PaymentManager.BLL.Services
             if (customerData.Subscriptions?.Any() != true)
                 throw new Exception("You don`t have any subscription");
 
+            if (customerData.Subscriptions.First().Metadata[MetadataConstants.ProductName].Equals(AccountPlan.Free.ToString()))
+                throw new Exception("You can`t cancel Free subscription");
+
             await GetSubscriptionService().UpdateAsync(customerData.Subscriptions.FirstOrDefault()?.Id, new()
             {
                 CancelAtPeriodEnd = true
+            });
+        }
+
+        public async Task UpgradeSubscriptionAsync(Guid userId, string newPriceId)
+        {
+            var getActiveSubscription = await _paymentCustomerService.GetActiveSubscriptionAsync(userId)
+                ?? throw new Exception("You don`t have active subscription");
+
+            var user = await _userRepository.GetUserByIdAsync(userId)
+                ?? throw new Exception("User was not found");
+
+            var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
+
+            if (subscription.Items.Data.Count() > 1)
+                throw new Exception($"You cant upgrade your subscription not, wait until {subscription.CurrentPeriodEnd}");
+
+            await GetSubscriptionService().UpdateAsync(subscription.Id, new()
+            {
+                ProrationBehavior = "always_invoice",
+                ProrationDate = DateTime.UtcNow,
+                Items = new()
+                {
+                    new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
+                    new(){ Price = newPriceId }
+                },
+                //Metadata = 
             });
         }
     }

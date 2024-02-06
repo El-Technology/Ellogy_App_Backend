@@ -4,7 +4,7 @@
     {
         public static int OneDollarInPoints = 100;
         public static int NewWalletBalance = 0;
-        public static int PriceInCents = 100;
+        public static decimal PriceInCents = 100;
         public static string ApplicationCurrency = "usd";
 
         public const string PAYMENT_MODE = "payment";

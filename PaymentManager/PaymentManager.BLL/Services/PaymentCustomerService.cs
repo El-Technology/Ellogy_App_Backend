@@ -182,7 +182,7 @@ namespace PaymentManager.BLL.Services
                 {
                     Product = paymentRecord is null ? "Subscription payment" : paymentRecord.ProductName,
                     Date = payment.Created,
-                    Amount = (float)payment.Amount / Constants.PriceInCents,
+                    Amount = payment.Amount / Constants.PriceInCents,
                     Status = payment.Status,
                     DownloadLink = payment.Invoice?.InvoicePdf
                 };
@@ -198,6 +198,35 @@ namespace PaymentManager.BLL.Services
         public async Task<DAL.Models.Subscription?> GetActiveSubscriptionAsync(Guid userId)
         {
             return await _subscriptionRepository.GetActiveSubscriptionAsync(userId);
+        }
+
+        public async Task<decimal> UpgradeSubscriptionPreviewAsync(Guid userId, string newPriceId)
+        {
+            var getActiveSubscription = await GetActiveSubscriptionAsync(userId)
+                ?? throw new Exception("You don`t have active subscription");
+
+            var user = await _userRepository.GetUserByIdAsync(userId)
+                ?? throw new Exception("User was not found");
+
+            var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
+
+            if (subscription.Items.Data.Count() > 1)
+                throw new Exception($"You cant upgrade your subscription not, wait until {subscription.CurrentPeriodEnd}");
+
+            var result = await GetInvoiceService().UpcomingAsync(new()
+            {
+                Customer = user.StripeCustomerId,
+                Subscription = getActiveSubscription.SubscriptionStripeId,
+                SubscriptionItems = new()
+                {
+                    new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
+                    new(){ Price = newPriceId }
+                },
+                SubscriptionProrationDate = DateTime.UtcNow,
+                SubscriptionProrationBehavior = "always_invoice"
+            });
+
+            return result.AmountDue / Constants.PriceInCents;
         }
     }
 }
