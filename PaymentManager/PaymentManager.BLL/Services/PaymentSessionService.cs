@@ -202,7 +202,6 @@ namespace PaymentManager.BLL.Services
                     new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
                     new(){ Price = newPriceId }
                 },
-                //Metadata = 
             });
         }
     }
