@@ -30,6 +30,7 @@ namespace PaymentManager.DAL.Interfaces
         /// <param name="accountPlan">Account plan information</param>
         /// <returns>Task representing the asynchronous operation</returns>
         Task UpdateSubscriptionAsync(Subscription subscription, AccountPlan? accountPlan);
+        Task UpdateSubscriptionIsCanceledAsync(string stripeId, bool isCanceled);
     }
 
 }

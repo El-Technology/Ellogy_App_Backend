@@ -118,6 +118,9 @@ namespace PaymentManager.BLL.Services
                 AmountOfPoints = 0,
                 UpdatedBallance = true
             });
+
+            if (subscription.CancelAtPeriodEnd)
+                await _subscriptionRepository.UpdateSubscriptionIsCanceledAsync(subscription.Id, subscription.CancelAtPeriodEnd);
         }
 
         /// <inheritdoc cref="IWebhookService.DeleteSubscriptionAsync(Subscription)"/>
