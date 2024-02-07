@@ -57,20 +57,16 @@ namespace PaymentManager.BLL
             }
         }
 
-        private async Task<Guid> CreateFreeSubscriptionDataBaseRecordAsync(Stripe.Subscription subscription)
+        private async Task CreateFreeSubscriptionDataBaseRecordAsync(Stripe.Subscription subscription)
         {
             using var scope = _serviceProvider.CreateAsyncScope();
             var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
 
-            var subscriptionId = Guid.Empty;
-
             try
             {
-                subscriptionId = Guid.NewGuid();
-
                 await subscriptionRepository.CreateSubscriptionAsync(new()
                 {
-                    Id = subscriptionId,
+                    Id = Guid.NewGuid(),
                     EndDate = subscription.CurrentPeriodEnd,
                     IsActive = true,
                     IsCanceled = false,
@@ -83,8 +79,6 @@ namespace PaymentManager.BLL
             {
                 await scope.DisposeAsync();
             }
-
-            return subscriptionId;
         }
 
         private async Task<string> ProcessOneTimePaymentsAsync(SessionCreateOptions message)
@@ -112,10 +106,11 @@ namespace PaymentManager.BLL
             return session.Url;
         }
 
-        private async Task<Guid> ProcessFreeSubscription(SubscriptionCreateOptions message)
+        private async Task<string> ProcessFreeSubscription(SubscriptionCreateOptions message)
         {
             var createSubscription = await GetSubscriptionService().CreateAsync(message);
-            return await CreateFreeSubscriptionDataBaseRecordAsync(createSubscription);
+            await CreateFreeSubscriptionDataBaseRecordAsync(createSubscription);
+            return "success";
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -148,7 +143,7 @@ namespace PaymentManager.BLL
                         connectionId = message.Metadata[MetadataConstants.ConnectionId];
                         signalRMethodName = message.Metadata[MetadataConstants.SignalRMethodName];
 
-                        resultMessage = (await ProcessFreeSubscription(message)).ToString();
+                        resultMessage = await ProcessFreeSubscription(message);
                     }
 
                     await SendResultBySignalRAsync(connectionId, signalRMethodName, resultMessage);

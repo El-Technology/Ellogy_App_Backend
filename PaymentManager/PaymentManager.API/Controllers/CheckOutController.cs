@@ -65,6 +65,14 @@ namespace PaymentManager.Controllers
             return Ok();
         }
 
+        [HttpPost]
+        [Route("upgradeSubscription")]
+        public async Task<IActionResult> UpgradeSubscription([FromBody] string newPriceId)
+        {
+            await _paymentService.UpgradeSubscriptionAsync(GetUserIdFromToken(), newPriceId);
+            return Ok();
+        }
+
         [HttpGet]
         [Route("cancelSubscription")]
         public async Task<IActionResult> CancelSubscription()

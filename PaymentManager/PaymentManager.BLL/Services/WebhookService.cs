@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using PaymentManager.BLL.Helpers;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
@@ -16,12 +15,15 @@ namespace PaymentManager.BLL.Services
         private readonly IUserRepository _userRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly ILogger<WebhookService> _logger;
+        private readonly IProductCatalogService _productCatalogService;
 
         public WebhookService(IPaymentRepository paymentRepository,
             IUserRepository userRepository,
             ISubscriptionRepository subscriptionRepository,
-            ILogger<WebhookService> logger)
+            ILogger<WebhookService> logger,
+            IProductCatalogService productCatalogService)
         {
+            _productCatalogService = productCatalogService;
             _logger = logger;
             _paymentRepository = paymentRepository;
             _userRepository = userRepository;
@@ -99,31 +101,23 @@ namespace PaymentManager.BLL.Services
         /// <inheritdoc cref="IWebhookService.UpdateSubscriptionAsync(Subscription)"/>
         public async Task UpdateSubscriptionAsync(Subscription subscription)
         {
-            var user = await _userRepository.GetUserByIdAsync(Guid.Parse(subscription.Metadata[MetadataConstants.UserId]))
-                ?? throw new Exception("User was not found");
+            var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
+                ?? throw new Exception("Taking productId error");
+
+            var productModel = await _productCatalogService.GetProductAsync(getProductId);
+            var productName = productModel.Name.Substring(0, productModel.Name.IndexOf("/"));
 
             await _paymentRepository.CreatePaymentAsync(new()
             {
                 Id = Guid.NewGuid(),
                 InvoiceId = subscription.LatestInvoiceId,
                 Mode = "subscription update",
-                ProductName = subscription.Metadata[MetadataConstants.ProductName],
+                ProductName = productName,
                 UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
                 Status = "updated",
                 AmountOfPoints = 0,
                 UpdatedBallance = true
             });
-
-            await _subscriptionRepository.UpdateSubscriptionAsync(new()
-            {
-                SubscriptionStripeId = subscription.Id,
-                StartDate = subscription.CurrentPeriodStart,
-                EndDate = subscription.CurrentPeriodEnd,
-                IsActive = true,
-                UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
-                IsCanceled = subscription.CancelAtPeriodEnd
-
-            }, Enum.Parse<AccountPlan>(subscription.Metadata[MetadataConstants.AccountPlan]));
         }
 
         /// <inheritdoc cref="IWebhookService.DeleteSubscriptionAsync(Subscription)"/>
@@ -148,20 +142,59 @@ namespace PaymentManager.BLL.Services
         public async Task PaymentFailedHandleAsync(Invoice invoice)
         {
             var subscription = await GetSubscriptionService().GetAsync(invoice.SubscriptionId);
+
+            var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
+                ?? throw new Exception("Taking productId error");
+
+            var productModel = await _productCatalogService.GetProductAsync(getProductId);
+            var productName = productModel.Name.Substring(0, productModel.Name.IndexOf("/"));
+
+            await _paymentRepository.CreatePaymentAsync(new()
+            {
+                Id = Guid.NewGuid(),
+                InvoiceId = subscription.LatestInvoiceId,
+                Mode = "subscription payment",
+                ProductName = productName,
+                UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
+                Status = "failed",
+                AmountOfPoints = 0,
+                UpdatedBallance = false
+            });
+        }
+
+        public async Task PaymentSucceededHandleAsync(Invoice invoice)
+        {
+            var subscription = await GetSubscriptionService().GetAsync(invoice.SubscriptionId);
             var userId = subscription.Metadata[MetadataConstants.UserId];
+
+            var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
+                ?? throw new Exception("Taking productId error");
+
+            var productModel = await _productCatalogService.GetProductAsync(getProductId);
+            var productName = productModel.Name.Substring(0, productModel.Name.IndexOf("/"));
 
             await _subscriptionRepository.UpdateSubscriptionAsync(new()
             {
                 SubscriptionStripeId = invoice.SubscriptionId,
                 StartDate = subscription.CurrentPeriodStart,
                 EndDate = subscription.CurrentPeriodEnd,
-                IsActive = false,
+                IsActive = true,
                 UserId = Guid.Parse(userId),
-                IsCanceled = true
+                IsCanceled = subscription.CancelAtPeriodEnd
 
-            }, null);
+            }, Enum.Parse<AccountPlan>(productName));
 
-            await SetDefaultSubscriptionAsync(invoice.CustomerId, userId);
+            await _paymentRepository.CreatePaymentAsync(new()
+            {
+                Id = Guid.NewGuid(),
+                InvoiceId = subscription.LatestInvoiceId,
+                Mode = "subscription update",
+                ProductName = productName,
+                UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
+                Status = "updated",
+                AmountOfPoints = 0,
+                UpdatedBallance = false
+            });
         }
 
         private async Task SetDefaultSubscriptionAsync(string customerId, string userId)
@@ -176,9 +209,10 @@ namespace PaymentManager.BLL.Services
                 Customer = customerId,
                 Items = new() { new() { Price = product.DefaultPriceId } },
                 Metadata = new() {
-                        { MetadataConstants.AccountPlan, SubscriptionHelper.GetSubscriptionCode(AccountPlan.Free.ToString()).ToString() },
+                        { MetadataConstants.AccountPlan, AccountPlan.Free.ToString() },
                         { MetadataConstants.UserId, userId },
-                        { MetadataConstants.ProductName,  product.Name}}
+                        { MetadataConstants.ProductName,  product.Name}
+                }
             });
 
             await _subscriptionRepository.CreateSubscriptionAsync(new DAL.Models.Subscription()

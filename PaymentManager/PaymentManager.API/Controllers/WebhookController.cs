@@ -24,7 +24,7 @@ namespace PaymentManager.API.Controllers
             try
             {
                 var stripeEvent = EventUtility.ConstructEvent(json,
-                      Request.Headers["Stripe-Signature"], EnvironmentVariables.WebhookKey);
+                      Request.Headers["Stripe-Signature"], /*EnvironmentVariables.WebhookKey*/ "whsec_5b9a006da20c4f3853b0364e4771ece0c1caa3ed956f89b1828ceb174b8f0274");
 
                 switch (stripeEvent.Type)
                 {
@@ -44,9 +44,13 @@ namespace PaymentManager.API.Controllers
                         var subscriptionDeleted = (Subscription)stripeEvent.Data.Object;
                         await _webhookService.DeleteSubscriptionAsync(subscriptionDeleted);
                         break;
+                    case Events.InvoicePaymentSucceeded:
+                        var invoiceSucceeded = (Invoice)stripeEvent.Data.Object;
+                        await _webhookService.PaymentSucceededHandleAsync(invoiceSucceeded);
+                        break;
                     case Events.InvoicePaymentFailed:
-                        var invoice = (Invoice)stripeEvent.Data.Object;
-                        await _webhookService.PaymentFailedHandleAsync(invoice);
+                        var invoiceFailed = (Invoice)stripeEvent.Data.Object;
+                        await _webhookService.PaymentFailedHandleAsync(invoiceFailed);
                         break;
                     default:
                         throw new Exception("Unknown error");

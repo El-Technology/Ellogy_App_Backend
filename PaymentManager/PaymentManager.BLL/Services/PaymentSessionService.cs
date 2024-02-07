@@ -27,7 +27,7 @@ namespace PaymentManager.BLL.Services
             IProductCatalogService productCatalogService,
             IPaymentCustomerService paymentCustomerService)
         {
-            _paymentRepository = paymentRepository;
+            _paymentCustomerService = paymentCustomerService;
             _productCatalogService = productCatalogService;
             _logger = logger;
             _userRepository = userRepository;
@@ -109,9 +109,12 @@ namespace PaymentManager.BLL.Services
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
 
+            if (user.AccountPlan is not null)
+                throw new Exception("You already have subscription");
+
             var product = await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString());
 
-            await IfUserAbleToUsePaymentAsync(user, product.Name.Equals(AccountPlan.Free.ToString()));
+            await IfUserAbleToUsePaymentAsync(user, true);
 
             return new SubscriptionCreateOptions()
             {
@@ -142,7 +145,13 @@ namespace PaymentManager.BLL.Services
             if (customerData.Subscriptions?.Any() != true)
                 throw new Exception("You don`t have any subscription");
 
-            if (customerData.Subscriptions.First().Metadata[MetadataConstants.ProductName].Equals(AccountPlan.Free.ToString()))
+            var getProductId = customerData.Subscriptions.First().Items.Data.FirstOrDefault()?.Plan.ProductId
+                ?? throw new Exception("Taking productId error");
+
+            var productModel = await _productCatalogService.GetProductAsync(getProductId);
+            var productName = productModel.Name.Substring(0, productModel.Name.IndexOf("/"));
+
+            if (productName.Equals(AccountPlan.Free.ToString()))
                 throw new Exception("You can`t cancel Free subscription");
 
             await GetSubscriptionService().UpdateAsync(customerData.Subscriptions.FirstOrDefault()?.Id, new()
@@ -153,27 +162,27 @@ namespace PaymentManager.BLL.Services
 
         public async Task UpgradeSubscriptionAsync(Guid userId, string newPriceId)
         {
-            //var getActiveSubscription = await _paymentCustomerService.GetActiveSubscriptionAsync(userId)
-            //    ?? throw new Exception("You don`t have active subscription");
+            var getActiveSubscription = await _paymentCustomerService.GetActiveSubscriptionAsync(userId)
+                ?? throw new Exception("You don`t have active subscription");
 
-            //var user = await _userRepository.GetUserByIdAsync(userId)
-            //    ?? throw new Exception("User was not found");
+            var user = await _userRepository.GetUserByIdAsync(userId)
+                ?? throw new Exception("User was not found");
 
-            //var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
+            var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
 
-            //if (subscription.Items.Data.Count() > 1)
-            //    throw new Exception($"You cant upgrade your subscription not, wait until {subscription.CurrentPeriodEnd}");
+            if (subscription.Items.Data.Count() > 1)
+                throw new Exception($"You cant upgrade your subscription not, wait until {subscription.CurrentPeriodEnd}");
 
-            //await GetSubscriptionService().UpdateAsync(subscription.Id, new()
-            //{
-            //    ProrationBehavior = "always_invoice",
-            //    ProrationDate = DateTime.UtcNow,
-            //    Items = new()
-            //    {
-            //        new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
-            //        new(){ Price = newPriceId }
-            //    },
-            //});
+            await GetSubscriptionService().UpdateAsync(subscription.Id, new()
+            {
+                ProrationBehavior = "always_invoice",
+                ProrationDate = DateTime.UtcNow,
+                Items = new()
+                {
+                    new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
+                    new(){ Price = newPriceId }
+                },
+            });
         }
     }
 }
