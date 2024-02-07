@@ -794,9 +794,21 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/dev/CheckOut/createSubscription",
+      "UpstreamPathTemplate": "/dev/CheckOut/createFreeSubscription",
       "UpstreamHttpMethod": [ "POST" ],
-      "DownstreamPathTemplate": "/api/CheckOut/createSubscription",
+      "DownstreamPathTemplate": "/api/CheckOut/createFreeSubscription",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/CheckOut/upgradeSubscription",
+      "UpstreamHttpMethod": [ "POST" ],
+      "DownstreamPathTemplate": "/api/CheckOut/upgradeSubscription",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
