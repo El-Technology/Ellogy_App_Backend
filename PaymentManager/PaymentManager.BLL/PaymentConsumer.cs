@@ -152,8 +152,6 @@ namespace PaymentManager.BLL
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
-                    await SendResultBySignalRAsync(connectionId, signalRMethodName, "error");
-
                     await messageArg.DeadLetterMessageAsync(messageArg.Message);
                 }
             };
