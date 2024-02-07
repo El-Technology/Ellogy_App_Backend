@@ -1,6 +1,4 @@
-﻿using Stripe;
-
-namespace PaymentManager.BLL.Models
+﻿namespace PaymentManager.BLL.Models
 {
     public class ProductModel
     {
