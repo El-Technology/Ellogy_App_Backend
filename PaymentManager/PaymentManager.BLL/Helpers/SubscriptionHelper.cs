@@ -1,14 +1,17 @@
-﻿namespace PaymentManager.BLL.Helpers
+﻿using PaymentManager.DAL.Enums;
+using Stripe;
+
+namespace PaymentManager.BLL.Helpers
 {
     public static class SubscriptionHelper
     {
-        public static int? GetSubscriptionCode(string subscriptionName)
+        public static int GetAmountOfTokens(AccountPlan accountPlan)
         {
-            return subscriptionName switch
+            return accountPlan switch
             {
-                "Basic" => 1,
-                "Free" => 0,
-                _ => null
+                AccountPlan.Basic => 45000,
+                AccountPlan.Free => 15000,
+                _ => 0
             };
         }
     }

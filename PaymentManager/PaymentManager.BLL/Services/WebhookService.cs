@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
+using PaymentManager.BLL.Helpers;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
 using Stripe;
 using Stripe.Checkout;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace PaymentManager.BLL.Services
@@ -57,16 +59,8 @@ namespace PaymentManager.BLL.Services
                         SessionId = session.Id,
                         UpdatedBallance = true,
                     });
-                    await _paymentRepository.UpdateBalanceAsync(payment.UserId, payment.AmountOfPoints);
-                    await _userRepository.UpdateTotalPurchasedTokensAsync(payment.UserId, payment.AmountOfPoints);
+                    await UpdateUserBalanceAsync(payment.UserId, payment.AmountOfPoints);
                     break;
-
-                case Constants.SUBSCRIPTION_MODE:
-                    break;
-
-                case Constants.SETUP_MODE:
-                    break;
-
                 default:
                     throw new Exception("Session confirmation error");
             }
@@ -206,6 +200,8 @@ namespace PaymentManager.BLL.Services
 
             var productModel = await _productCatalogService.GetProductAsync(getProductId);
             var productName = productModel.Name.Substring(0, productModel.Name.IndexOf("/"));
+            var accountPlanEnum = Enum.Parse<AccountPlan>(productName);
+            var amountOfTokens = SubscriptionHelper.GetAmountOfTokens(accountPlanEnum);
 
             await _subscriptionRepository.UpdateSubscriptionAsync(new()
             {
@@ -217,7 +213,9 @@ namespace PaymentManager.BLL.Services
                 IsActive = true,
                 UserId = Guid.Parse(userId),
                 IsCanceled = subscription.CancelAtPeriodEnd
-            }, Enum.Parse<AccountPlan>(productName));
+            }, accountPlanEnum);
+
+            await UpdateUserBalanceAsync(Guid.Parse(userId), amountOfTokens);
 
             await _paymentRepository.CreatePaymentAsync(new()
             {
@@ -225,11 +223,17 @@ namespace PaymentManager.BLL.Services
                 InvoiceId = subscription.LatestInvoiceId,
                 Mode = "subscription update",
                 ProductName = productName,
-                UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
+                UserId = Guid.Parse(userId),
                 Status = "updated",
-                AmountOfPoints = 0,
-                UpdatedBallance = false
+                AmountOfPoints = amountOfTokens,
+                UpdatedBallance = true
             });
+        }
+
+        private async Task UpdateUserBalanceAsync(Guid userId, int amountOfPoints)
+        {
+            await _paymentRepository.UpdateBalanceAsync(userId, amountOfPoints);
+            await _userRepository.UpdateTotalPurchasedTokensAsync(userId, amountOfPoints);
         }
 
         private async Task SetDefaultSubscriptionAsync(string customerId, string userId)
