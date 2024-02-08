@@ -926,6 +926,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/dev/Customer/updateSubscriptionPreview",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/Customer/updateSubscriptionPreview",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5021
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/Product/getProducts",
       "UpstreamHttpMethod": [ "GET" ],
       "DownstreamPathTemplate": "/api/Product/getProducts",
