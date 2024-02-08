@@ -127,7 +127,7 @@ namespace PaymentManager.BLL.Services
 
             var productModel = await _productCatalogService.GetProductAsync(getProductId);
 
-            var numberOfUpdatedRows = await _subscriptionRepository.UpdateSubscriptionAsync(new()
+            await _subscriptionRepository.UpdateSubscriptionAsync(new()
             {
                 Name = productModel.Name,
                 Price = productModel.Price,
@@ -138,12 +138,6 @@ namespace PaymentManager.BLL.Services
                 UserId = Guid.Parse(userId),
                 IsCanceled = true
             }, null);
-
-            if (numberOfUpdatedRows == 0)
-            {
-                _logger.LogError($"{subscription.Id} was not updated");
-                return;
-            }
 
             await SetDefaultSubscriptionAsync(subscription.CustomerId, userId);
         }
