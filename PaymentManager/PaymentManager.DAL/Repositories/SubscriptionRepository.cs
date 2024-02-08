@@ -28,7 +28,7 @@ namespace PaymentManager.DAL.Repositories
         /// <inheritdoc cref="ISubscriptionRepository.UpdateSubscriptionAsync(Subscription, AccountPlan)"/>
         public async Task UpdateSubscriptionAsync(Subscription subscription, AccountPlan? accountPlan)
         {
-            await _context.Subscriptions
+            var updatedRows = await _context.Subscriptions
                 .Where(a => a.SubscriptionStripeId.Equals(subscription.SubscriptionStripeId))
                 .ExecuteUpdateAsync(a => a
                     .SetProperty(a => a.Name, a => subscription.Name)
@@ -38,7 +38,9 @@ namespace PaymentManager.DAL.Repositories
                     .SetProperty(a => a.StartDate, a => subscription.StartDate)
                     .SetProperty(a => a.IsCanceled, a => subscription.IsCanceled));
 
-            await _userRepository.UpdateAccountPlanAsync(subscription.UserId, accountPlan);
+
+            if (updatedRows > 0)
+                await _userRepository.UpdateAccountPlanAsync(subscription.UserId, accountPlan);
         }
 
         public async Task UpdateSubscriptionIsCanceledAsync(string stripeId, bool isCanceled)
