@@ -158,8 +158,6 @@ namespace PaymentManager.BLL.Services
 
             await GetSubscriptionService().UpdateAsync(subscription.Id, new()
             {
-                ProrationBehavior = "none",
-                BillingCycleAnchor = SubscriptionBillingCycleAnchor.Now,
                 Items = new()
                 {
                     new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
@@ -167,7 +165,7 @@ namespace PaymentManager.BLL.Services
                 },
             });
 
-            await GetInvoiceService().DeleteAsync(invoice.Id);
+            await GetInvoiceService().VoidInvoiceAsync(invoice.Id);
 
             var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
                 ?? throw new Exception("Taking productId error");
