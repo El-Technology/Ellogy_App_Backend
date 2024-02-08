@@ -164,13 +164,15 @@ namespace PaymentManager.BLL.Services
             var getActiveSubscription = await _paymentCustomerService.GetActiveSubscriptionAsync(userId)
                 ?? throw new Exception("You don`t have active subscription");
 
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new Exception("User was not found");
+            var newPriceInformation = await GetPriceService().GetAsync(newPriceId);
+
+            if (newPriceInformation.UnitAmountDecimal / Constants.PriceInCents <= getActiveSubscription.Price)
+                throw new Exception("You can`t upgrade on a subscription with the same or a lower price");
 
             var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
 
-            if (subscription.Items.Data.Count() > 1)
-                throw new Exception($"You cant upgrade your subscription not, wait until {subscription.CurrentPeriodEnd}");
+            if (subscription.Items.Data.Count > 1)
+                throw new Exception($"You can`t upgrade your subscription, wait until {subscription.CurrentPeriodEnd}");
 
             await GetSubscriptionService().UpdateAsync(subscription.Id, new()
             {

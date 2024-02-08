@@ -12,6 +12,13 @@ namespace PaymentManager.BLL.Services
         private Lazy<ProductService>? _productService;
         private Lazy<SessionService>? _sessionService;
         private Lazy<InvoiceService>? _invoiceService;
+        private Lazy<PriceService>? _priceService;
+
+        protected PriceService GetPriceService()
+        {
+            _priceService ??= new Lazy<PriceService>(() => new PriceService());
+            return _priceService.Value;
+        }
 
         protected InvoiceService GetInvoiceService()
         {
