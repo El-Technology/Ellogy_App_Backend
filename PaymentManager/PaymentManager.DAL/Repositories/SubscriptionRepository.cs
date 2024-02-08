@@ -26,7 +26,7 @@ namespace PaymentManager.DAL.Repositories
         }
 
         /// <inheritdoc cref="ISubscriptionRepository.UpdateSubscriptionAsync(Subscription, AccountPlan)"/>
-        public async Task UpdateSubscriptionAsync(Subscription subscription, AccountPlan? accountPlan)
+        public async Task<int> UpdateSubscriptionAsync(Subscription subscription, AccountPlan? accountPlan)
         {
             var updatedRows = await _context.Subscriptions
                 .Where(a => a.SubscriptionStripeId.Equals(subscription.SubscriptionStripeId))
@@ -41,6 +41,8 @@ namespace PaymentManager.DAL.Repositories
 
             if (updatedRows > 0)
                 await _userRepository.UpdateAccountPlanAsync(subscription.UserId, accountPlan);
+
+            return updatedRows;
         }
 
         public async Task UpdateSubscriptionIsCanceledAsync(string stripeId, bool isCanceled)
