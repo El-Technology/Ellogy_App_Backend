@@ -118,7 +118,7 @@ namespace PaymentManager.BLL.Services
             return new SubscriptionCreateOptions()
             {
                 Customer = user.StripeCustomerId,
-                Items = new() { new() { Price = product.PriceId }, new() { } },
+                Items = new() { new() { Price = product.PriceId } },
                 Metadata = new()
                 {
                         { MetadataConstants.AccountPlan, AccountPlan.Free.ToString() },

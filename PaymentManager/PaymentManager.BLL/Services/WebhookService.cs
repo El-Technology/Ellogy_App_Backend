@@ -151,7 +151,23 @@ namespace PaymentManager.BLL.Services
         /// <inheritdoc cref="IWebhookService.PaymentFailedHandleAsync(Invoice)"/>
         public async Task PaymentFailedHandleAsync(Invoice invoice)
         {
+            if (invoice.SubscriptionId is null)
+                return;
+
             var subscription = await GetSubscriptionService().GetAsync(invoice.SubscriptionId);
+
+            await GetSubscriptionService().UpdateAsync(subscription.Id, new()
+            {
+                ProrationBehavior = "none",
+                BillingCycleAnchor = SubscriptionBillingCycleAnchor.Now,
+                Items = new()
+                {
+                    new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
+                    new(){ Price = (await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString())).PriceId }
+                },
+            });
+
+            await GetInvoiceService().DeleteAsync(invoice.Id);
 
             var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
                 ?? throw new Exception("Taking productId error");
