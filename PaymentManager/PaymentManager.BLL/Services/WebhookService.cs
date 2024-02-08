@@ -155,32 +155,41 @@ namespace PaymentManager.BLL.Services
                 return;
 
             var subscription = await GetSubscriptionService().GetAsync(invoice.SubscriptionId);
+            var freeProduct = await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString());
 
-            await GetSubscriptionService().UpdateAsync(subscription.Id, new()
+            var newSubscription = await GetSubscriptionService().UpdateAsync(subscription.Id, new()
             {
                 ProrationBehavior = "none",
                 Items = new()
                 {
                     new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
-                    new(){ Price = (await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString())).PriceId }
+                    new(){ Price = freeProduct.PriceId }
                 },
             });
 
             await GetInvoiceService().VoidInvoiceAsync(invoice.Id);
 
-            var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
-                ?? throw new Exception("Taking productId error");
+            var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
 
-            var productModel = await _productCatalogService.GetProductAsync(getProductId);
-            var productName = productModel.Name.Substring(0, productModel.Name.IndexOf("/"));
+            await _subscriptionRepository.UpdateSubscriptionAsync(new()
+            {
+                Name = freeProduct.Name,
+                Price = freeProduct.Price,
+                SubscriptionStripeId = newSubscription.Id,
+                StartDate = newSubscription.CurrentPeriodStart,
+                EndDate = newSubscription.CurrentPeriodEnd,
+                IsActive = true,
+                UserId = userId,
+                IsCanceled = newSubscription.CancelAtPeriodEnd
+            }, AccountPlan.Free);
 
             await _paymentRepository.CreatePaymentAsync(new()
             {
                 Id = Guid.NewGuid(),
                 InvoiceId = subscription.LatestInvoiceId,
                 Mode = "subscription payment",
-                ProductName = productName,
-                UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
+                ProductName = $"Changed to {freeProduct}",
+                UserId = userId,
                 Status = "failed",
                 AmountOfPoints = 0,
                 UpdatedBallance = false
@@ -208,7 +217,6 @@ namespace PaymentManager.BLL.Services
                 IsActive = true,
                 UserId = Guid.Parse(userId),
                 IsCanceled = subscription.CancelAtPeriodEnd
-
             }, Enum.Parse<AccountPlan>(productName));
 
             await _paymentRepository.CreatePaymentAsync(new()
