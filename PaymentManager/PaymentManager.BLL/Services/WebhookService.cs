@@ -128,8 +128,15 @@ namespace PaymentManager.BLL.Services
         {
             var userId = subscription.Metadata[MetadataConstants.UserId];
 
+            var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
+                ?? throw new Exception("Taking productId error");
+
+            var productModel = await _productCatalogService.GetProductAsync(getProductId);
+
             await _subscriptionRepository.UpdateSubscriptionAsync(new()
             {
+                Name = productModel.Name,
+                Price = productModel.Price,
                 SubscriptionStripeId = subscription.Id,
                 StartDate = subscription.CurrentPeriodStart,
                 EndDate = subscription.CurrentPeriodEnd,
@@ -178,6 +185,8 @@ namespace PaymentManager.BLL.Services
 
             await _subscriptionRepository.UpdateSubscriptionAsync(new()
             {
+                Name = productModel.Name,
+                Price = productModel.Price,
                 SubscriptionStripeId = invoice.SubscriptionId,
                 StartDate = subscription.CurrentPeriodStart,
                 EndDate = subscription.CurrentPeriodEnd,

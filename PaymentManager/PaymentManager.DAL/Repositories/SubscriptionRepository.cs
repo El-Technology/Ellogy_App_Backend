@@ -31,6 +31,8 @@ namespace PaymentManager.DAL.Repositories
             await _context.Subscriptions
                 .Where(a => a.SubscriptionStripeId.Equals(subscription.SubscriptionStripeId))
                 .ExecuteUpdateAsync(a => a
+                    .SetProperty(a => a.Name, a => subscription.Name)
+                    .SetProperty(a => a.Price, a => subscription.Price)
                     .SetProperty(a => a.IsActive, a => subscription.IsActive)
                     .SetProperty(a => a.EndDate, a => subscription.EndDate)
                     .SetProperty(a => a.StartDate, a => subscription.StartDate)
