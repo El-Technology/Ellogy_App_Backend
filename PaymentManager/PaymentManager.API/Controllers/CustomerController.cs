@@ -95,5 +95,13 @@ namespace PaymentManager.API.Controllers
         {
             return Ok(await _paymentCustomerService.UpgradeSubscriptionPreviewAsync(GetUserIdFromToken(), newPriceId));
         }
+
+        [HttpGet]
+        [Route("detachPaymentMethod")]
+        public async Task<IActionResult> DetachPaymentMethod(string paymentMethodId)
+        {
+            await _paymentCustomerService.DetachPaymentMethodAsync(paymentMethodId);
+            return Ok();
+        }
     }
 }

@@ -23,6 +23,7 @@ namespace PaymentManager.BLL.Interfaces
         /// <param name="userId">User ID</param>
         /// <returns>Task representing the asynchronous operation</returns>
         Task CreateCustomerAsync(Guid userId);
+        Task DetachPaymentMethodAsync(string paymentMethodId);
 
         /// <summary>
         /// Retrieves the active subscription of a user asynchronously.

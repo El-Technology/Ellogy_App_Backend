@@ -180,7 +180,7 @@ namespace PaymentManager.BLL.Services
 
                 var paymentObject = new PaymentObject
                 {
-                    Product = paymentRecord is null ? "Subscription payment" : paymentRecord.ProductName,
+                    Product = paymentRecord is null ? "Payment" : paymentRecord.ProductName,
                     Date = payment.Created,
                     Amount = payment.Amount / Constants.PriceInCents,
                     Status = payment.Status,
@@ -227,6 +227,11 @@ namespace PaymentManager.BLL.Services
             });
 
             return result.AmountDue / Constants.PriceInCents;
+        }
+
+        public async Task DetachPaymentMethodAsync(string paymentMethodId)
+        {
+            await GetPaymentMethodService().DetachAsync(paymentMethodId);
         }
     }
 }
