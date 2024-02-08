@@ -14,7 +14,7 @@ namespace UserManager.DAL.Repositories
 
         public async Task CreateWalletForNewUserAsync(Guid userId)
         {
-            await _context.Wallets.AddAsync(new Wallet { Balance = 15000, Id = Guid.NewGuid(), UserId = userId });
+            await _context.Wallets.AddAsync(new Wallet { Balance = 0, Id = Guid.NewGuid(), UserId = userId });
             await _context.SaveChangesAsync();
         }
     }
