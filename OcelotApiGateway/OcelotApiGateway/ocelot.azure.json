@@ -807,7 +807,7 @@
     },
     {
       "UpstreamPathTemplate": "/dev/CheckOut/upgradeSubscription",
-      "UpstreamHttpMethod": [ "POST" ],
+      "UpstreamHttpMethod": [ "GET" ],
       "DownstreamPathTemplate": "/api/CheckOut/upgradeSubscription",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
