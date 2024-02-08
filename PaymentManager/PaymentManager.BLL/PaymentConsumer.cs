@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PaymentManager.BLL.Hubs;
+using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
 using PaymentManager.BLL.Services;
 using PaymentManager.Common.Constants;
@@ -61,12 +62,20 @@ namespace PaymentManager.BLL
         {
             using var scope = _serviceProvider.CreateAsyncScope();
             var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
+            var productService = scope.ServiceProvider.GetRequiredService<IProductCatalogService>();
 
             try
             {
+                var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
+                    ?? throw new Exception("Taking productId error");
+
+                var productModel = await productService.GetProductAsync(getProductId);
+
                 await subscriptionRepository.CreateSubscriptionAsync(new()
                 {
                     Id = Guid.NewGuid(),
+                    Name = productModel.Name,
+                    Price = productModel.Price,
                     EndDate = subscription.CurrentPeriodEnd,
                     IsActive = true,
                     IsCanceled = false,
