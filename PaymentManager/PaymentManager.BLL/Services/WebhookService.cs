@@ -158,6 +158,7 @@ namespace PaymentManager.BLL.Services
 
             await GetSubscriptionService().UpdateAsync(subscription.Id, new()
             {
+                ProrationBehavior = "none",
                 Items = new()
                 {
                     new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
