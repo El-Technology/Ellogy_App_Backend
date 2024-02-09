@@ -85,7 +85,7 @@ namespace PaymentManager.BLL.Services
         }
 
         /// <inheritdoc cref="IPaymentCustomerService.RetrieveCustomerPaymentMethodsAsync(Guid, StripePaginationRequestDto)"/>
-        public async Task<IEnumerable<PaymentMethod>> RetrieveCustomerPaymentMethodsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto)
+        public async Task<StripePaginationResponseDto<IEnumerable<PaymentMethod>>> RetrieveCustomerPaymentMethodsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
@@ -131,7 +131,7 @@ namespace PaymentManager.BLL.Services
                 }
             }
 
-            return paymentMethods;
+            return new StripePaginationResponseDto<IEnumerable<PaymentMethod>>() { HasMore = allMethods.HasMore, Data = paymentMethods };
         }
 
         /// <inheritdoc cref="IPaymentCustomerService.SetDefaultPaymentMethodAsync(Guid, string)"/>
@@ -165,7 +165,7 @@ namespace PaymentManager.BLL.Services
         }
 
         /// <inheritdoc cref="IPaymentCustomerService.GetCustomerPaymentsAsync(Guid, StripePaginationRequestDto)"/>
-        public async Task<IEnumerable<PaymentObject>> GetCustomerPaymentsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto)
+        public async Task<StripePaginationResponseDto<IEnumerable<PaymentObject>>> GetCustomerPaymentsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
@@ -198,7 +198,7 @@ namespace PaymentManager.BLL.Services
                 paymentRecords.Add(paymentObject);
             }
 
-            return paymentRecords;
+            return new StripePaginationResponseDto<IEnumerable<PaymentObject>>() { HasMore = paymentsList.HasMore, Data = paymentRecords };
         }
 
 

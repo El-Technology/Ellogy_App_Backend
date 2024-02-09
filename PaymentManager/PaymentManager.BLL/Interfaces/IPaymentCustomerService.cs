@@ -38,14 +38,14 @@ namespace PaymentManager.BLL.Interfaces
         /// </summary>
         /// <param name="userId">User ID</param>
         /// <returns>An asynchronous enumerable collection of customer payments</returns>
-        Task<IEnumerable<PaymentObject>> GetCustomerPaymentsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto);
+        Task<StripePaginationResponseDto<IEnumerable<PaymentObject>>> GetCustomerPaymentsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto);
 
         /// <summary>
         /// Retrieves customer payment methods asynchronously.
         /// </summary>
         /// <param name="userId">User ID</param>
         /// <returns>An asynchronous enumerable collection of customer payment methods</returns>
-        Task<IEnumerable<PaymentMethod>> RetrieveCustomerPaymentMethodsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto);
+        Task<StripePaginationResponseDto<IEnumerable<PaymentMethod>>> RetrieveCustomerPaymentMethodsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto);
 
         /// <summary>
         /// Sets the default payment method for a customer asynchronously.
