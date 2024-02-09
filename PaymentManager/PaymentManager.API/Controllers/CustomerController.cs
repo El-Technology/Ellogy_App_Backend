@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PaymentManager.BLL;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
+using PaymentManager.Common.Dtos;
 using PaymentManager.Common.Options;
 
 namespace PaymentManager.API.Controllers
@@ -60,11 +61,11 @@ namespace PaymentManager.API.Controllers
             return Ok();
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("getAllPaymentMethods")]
-        public async Task<IActionResult> GetPaymentMethods()
+        public async Task<IActionResult> GetPaymentMethods([FromBody] StripePaginationRequestDto stripePaginationRequestDto)
         {
-            return Ok(await _paymentCustomerService.RetrieveCustomerPaymentMethodsAsync(GetUserIdFromToken()));
+            return Ok(await _paymentCustomerService.RetrieveCustomerPaymentMethodsAsync(GetUserIdFromToken(), stripePaginationRequestDto));
         }
 
         [HttpGet]
@@ -75,11 +76,11 @@ namespace PaymentManager.API.Controllers
             return Ok();
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("getCustomerPayments")]
-        public async Task<IActionResult> GetCustomerPayments()
+        public async Task<IActionResult> GetCustomerPayments([FromBody] StripePaginationRequestDto stripePaginationRequestDto)
         {
-            return Ok(await _paymentCustomerService.GetCustomerPaymentsAsync(GetUserIdFromToken()));
+            return Ok(await _paymentCustomerService.GetCustomerPaymentsAsync(GetUserIdFromToken(), stripePaginationRequestDto));
         }
 
         [HttpGet]

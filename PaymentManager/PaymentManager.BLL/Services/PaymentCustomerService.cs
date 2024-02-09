@@ -1,6 +1,7 @@
 ﻿using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
+using PaymentManager.Common.Dtos;
 using PaymentManager.DAL.Interfaces;
 using Stripe.Checkout;
 
@@ -83,8 +84,8 @@ namespace PaymentManager.BLL.Services
             return sessionOptions;
         }
 
-        /// <inheritdoc cref="IPaymentCustomerService.RetrieveCustomerPaymentMethodsAsync(Guid)"/>
-        public async Task<IEnumerable<PaymentMethod>> RetrieveCustomerPaymentMethodsAsync(Guid userId)
+        /// <inheritdoc cref="IPaymentCustomerService.RetrieveCustomerPaymentMethodsAsync(Guid, StripePaginationRequestDto)"/>
+        public async Task<IEnumerable<PaymentMethod>> RetrieveCustomerPaymentMethodsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
@@ -95,7 +96,10 @@ namespace PaymentManager.BLL.Services
             var allMethods = await GetPaymentMethodService().ListAsync(new()
             {
                 Customer = user.StripeCustomerId,
-                Expand = new() { "data.customer.invoice_settings.default_payment_method" }
+                Expand = new() { "data.customer.invoice_settings.default_payment_method" },
+                Limit = paginationRequestDto.RecordsPerPage,
+                StartingAfter = paginationRequestDto.StartAfter,
+                EndingBefore = paginationRequestDto.EndBefore
             });
 
             var paymentMethods = new List<PaymentMethod>();
@@ -160,8 +164,8 @@ namespace PaymentManager.BLL.Services
             });
         }
 
-        /// <inheritdoc cref="IPaymentCustomerService.GetCustomerPaymentsAsync(Guid)"/>
-        public async Task<IEnumerable<PaymentObject>> GetCustomerPaymentsAsync(Guid userId)
+        /// <inheritdoc cref="IPaymentCustomerService.GetCustomerPaymentsAsync(Guid, StripePaginationRequestDto)"/>
+        public async Task<IEnumerable<PaymentObject>> GetCustomerPaymentsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto)
         {
             var user = await _userRepository.GetUserByIdAsync(userId)
                 ?? throw new ArgumentNullException(nameof(userId));
@@ -169,7 +173,10 @@ namespace PaymentManager.BLL.Services
             var paymentsList = await GetPaymentIntentService().ListAsync(new()
             {
                 Customer = user.StripeCustomerId,
-                Expand = new() { "data.invoice" }
+                Expand = new() { "data.invoice" },
+                Limit = paginationRequestDto.RecordsPerPage,
+                EndingBefore = paginationRequestDto.EndBefore,
+                StartingAfter = paginationRequestDto.StartAfter
             });
 
             var paymentRecords = new List<PaymentObject>();
