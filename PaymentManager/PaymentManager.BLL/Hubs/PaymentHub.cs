@@ -30,10 +30,13 @@ namespace PaymentManager.BLL.Hubs
             await Clients.Client(Context.ConnectionId).SendAsync(Constants.OnConnectedMethod, Context.ConnectionId);
         }
 
-        public override Task OnDisconnectedAsync(Exception? exception)
+        public override async Task OnDisconnectedAsync(Exception? exception)
         {
             listOfConnections.Remove(Context.ConnectionId);
-            return base.OnDisconnectedAsync(exception);
+
+            await Clients.All.SendAsync("Disconnected", Context.ConnectionId); //for testing, will be removed
+
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }
