@@ -8,6 +8,8 @@ namespace PaymentManager.BLL.Interfaces
     /// </summary>
     public interface IWebhookService
     {
+        Task CreateCustomerAsync(Customer customer);
+
         /// <summary>
         /// Deletes a subscription asynchronously.
         /// </summary>

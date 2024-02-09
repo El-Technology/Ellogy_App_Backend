@@ -1,12 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using PaymentManager.BLL.Helpers;
+using PaymentManager.BLL.Hubs;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
 using Stripe;
 using Stripe.Checkout;
-using System.ComponentModel.DataAnnotations;
 
 
 namespace PaymentManager.BLL.Services
@@ -18,13 +19,16 @@ namespace PaymentManager.BLL.Services
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly ILogger<WebhookService> _logger;
         private readonly IProductCatalogService _productCatalogService;
+        private readonly IHubContext<PaymentHub> _hubContext;
 
         public WebhookService(IPaymentRepository paymentRepository,
             IUserRepository userRepository,
             ISubscriptionRepository subscriptionRepository,
             ILogger<WebhookService> logger,
-            IProductCatalogService productCatalogService)
+            IProductCatalogService productCatalogService,
+            IHubContext<PaymentHub> hubContext)
         {
+            _hubContext = hubContext;
             _productCatalogService = productCatalogService;
             _logger = logger;
             _paymentRepository = paymentRepository;
@@ -100,6 +104,7 @@ namespace PaymentManager.BLL.Services
 
             var productModel = await _productCatalogService.GetProductAsync(getProductId);
             var productName = productModel.Name.Substring(0, productModel.Name.IndexOf("/"));
+            var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
 
             await _paymentRepository.CreatePaymentAsync(new()
             {
@@ -107,14 +112,17 @@ namespace PaymentManager.BLL.Services
                 InvoiceId = subscription.LatestInvoiceId,
                 Mode = "subscription update",
                 ProductName = productName,
-                UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
+                UserId = userId,
                 Status = "updated",
                 AmountOfPoints = 0,
                 UpdatedBallance = true
             });
 
             if (subscription.CancelAtPeriodEnd)
+            {
                 await _subscriptionRepository.UpdateSubscriptionIsCanceledAsync(subscription.Id, subscription.CancelAtPeriodEnd);
+                await SendEventResultAsync(userId, EventResultConstants.SubscriptionCanceled, EventResultConstants.Success);
+            }
         }
 
         /// <inheritdoc cref="IWebhookService.DeleteSubscriptionAsync(Subscription)"/>
@@ -140,6 +148,12 @@ namespace PaymentManager.BLL.Services
             }, null);
 
             await SetDefaultSubscriptionAsync(subscription.CustomerId, userId);
+        }
+
+        public async Task CreateCustomerAsync(Customer customer)
+        {
+            var userId = Guid.Parse(customer.Metadata[MetadataConstants.UserId]);
+            await SendEventResultAsync(userId, EventResultConstants.CustomerCreated, EventResultConstants.Success);
         }
 
         /// <inheritdoc cref="IWebhookService.PaymentFailedHandleAsync(Invoice)"/>
@@ -177,6 +191,8 @@ namespace PaymentManager.BLL.Services
                 IsCanceled = newSubscription.CancelAtPeriodEnd
             }, AccountPlan.Free);
 
+            await SendEventResultAsync(userId, EventResultConstants.PaymentSuccess, EventResultConstants.Error);
+
             await _paymentRepository.CreatePaymentAsync(new()
             {
                 Id = Guid.NewGuid(),
@@ -193,7 +209,7 @@ namespace PaymentManager.BLL.Services
         public async Task PaymentSucceededHandleAsync(Invoice invoice)
         {
             var subscription = await GetSubscriptionService().GetAsync(invoice.SubscriptionId);
-            var userId = subscription.Metadata[MetadataConstants.UserId];
+            var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
 
             var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
                 ?? throw new Exception("Taking productId error");
@@ -211,11 +227,11 @@ namespace PaymentManager.BLL.Services
                 StartDate = subscription.CurrentPeriodStart,
                 EndDate = subscription.CurrentPeriodEnd,
                 IsActive = true,
-                UserId = Guid.Parse(userId),
+                UserId = userId,
                 IsCanceled = subscription.CancelAtPeriodEnd
             }, accountPlanEnum);
 
-            await UpdateUserBalanceAsync(Guid.Parse(userId), amountOfTokens);
+            await UpdateUserBalanceAsync(userId, amountOfTokens);
 
             await _paymentRepository.CreatePaymentAsync(new()
             {
@@ -223,11 +239,13 @@ namespace PaymentManager.BLL.Services
                 InvoiceId = subscription.LatestInvoiceId,
                 Mode = "subscription update",
                 ProductName = productName,
-                UserId = Guid.Parse(userId),
+                UserId = userId,
                 Status = "updated",
                 AmountOfPoints = amountOfTokens,
                 UpdatedBallance = true
             });
+
+            await SendEventResultAsync(userId, EventResultConstants.PaymentSuccess, EventResultConstants.Success);
         }
 
         private async Task UpdateUserBalanceAsync(Guid userId, int amountOfPoints)
@@ -264,6 +282,15 @@ namespace PaymentManager.BLL.Services
                 SubscriptionStripeId = createdSubscription.Id,
                 UserId = Guid.Parse(userId)
             }, AccountPlan.Free);
+        }
+
+        private async Task SendEventResultAsync(Guid userId, string methodName, string message)
+        {
+            var connectionId = PaymentHub.CheckIfUserIdExistAndReturnConnectionId(userId);
+            if (string.IsNullOrEmpty(connectionId))
+                return;
+
+            await _hubContext.Clients.Client(connectionId).SendAsync(methodName, message);
         }
     }
 }

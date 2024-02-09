@@ -36,6 +36,10 @@ namespace PaymentManager.API.Controllers
                         var expiredSession = (Session)stripeEvent.Data.Object;
                         await _webhookService.ExpireSessionAsync(expiredSession);
                         break;
+                    case Events.CustomerCreated:
+                        var customerCreated = (Customer)stripeEvent.Data.Object;
+                        await _webhookService.CreateCustomerAsync(customerCreated);
+                        break;
                     case Events.CustomerSubscriptionUpdated:
                         var subscriptionUpdated = (Subscription)stripeEvent.Data.Object;
                         await _webhookService.UpdateSubscriptionAsync(subscriptionUpdated);

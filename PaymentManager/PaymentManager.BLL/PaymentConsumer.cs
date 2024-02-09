@@ -37,8 +37,8 @@ namespace PaymentManager.BLL
 
         private async Task SendResultBySignalRAsync(string connectionId, string signalRMethodName, string message)
         {
-            if (!PaymentHub.listOfConnections.Any(c => c.Equals(connectionId)))
-                throw new Exception($"We can`t find connectionId => {connectionId}");
+            if (!PaymentHub.CheckIfConnectionIdExist(connectionId))
+                return;
 
             await _hubContext.Clients.Client(connectionId).SendAsync(signalRMethodName, message);
         }
@@ -119,7 +119,7 @@ namespace PaymentManager.BLL
         {
             var createSubscription = await GetSubscriptionService().CreateAsync(message);
             await CreateFreeSubscriptionDataBaseRecordAsync(createSubscription);
-            return "success";
+            return EventResultConstants.Success;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)

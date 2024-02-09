@@ -34,6 +34,7 @@ namespace PaymentManager.BLL.Services
             {
                 Email = user.Email,
                 Name = $"{user.FirstName} {user.LastName}",
+                Metadata = new() { { MetadataConstants.UserId, userId.ToString() } }
             });
 
             await _userRepository.AddStripeCustomerIdAsync(userId, customerData.Id);
