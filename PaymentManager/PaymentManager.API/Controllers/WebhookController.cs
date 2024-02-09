@@ -50,11 +50,11 @@ namespace PaymentManager.API.Controllers
                         break;
                     case Events.InvoicePaymentSucceeded:
                         var invoiceSucceeded = (Invoice)stripeEvent.Data.Object;
-                        await _webhookService.PaymentSucceededHandleAsync(invoiceSucceeded);
+                        await _webhookService.InvoiceSucceededHandleAsync(invoiceSucceeded);
                         break;
                     case Events.InvoicePaymentFailed:
                         var invoiceFailed = (Invoice)stripeEvent.Data.Object;
-                        await _webhookService.PaymentFailedHandleAsync(invoiceFailed);
+                        await _webhookService.InvoiceFailedHandleAsync(invoiceFailed);
                         break;
                     default:
                         throw new Exception("Unknown error");

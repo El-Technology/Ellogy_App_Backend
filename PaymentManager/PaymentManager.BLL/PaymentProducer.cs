@@ -21,7 +21,7 @@ namespace PaymentManager.BLL
         {
             var messageQueueModel = new MessageQueueModel<SessionCreateOptions>
             {
-                Type = "session",
+                Type = Constants.PAYMENT_MODE,
                 CreateOptions = options
             };
 
@@ -38,7 +38,7 @@ namespace PaymentManager.BLL
         {
             var messageQueueModel = new MessageQueueModel<SubscriptionCreateOptions>
             {
-                Type = "subscription",
+                Type = Constants.SUBSCRIPTION_MODE,
                 CreateOptions = options
             };
 

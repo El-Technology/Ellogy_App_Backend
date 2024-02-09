@@ -21,6 +21,8 @@ namespace PaymentManager.BLL.Services
         private readonly IProductCatalogService _productCatalogService;
         private readonly IHubContext<PaymentHub> _hubContext;
 
+        private const int START_INDEX = 0;
+
         public WebhookService(IPaymentRepository paymentRepository,
             IUserRepository userRepository,
             ISubscriptionRepository subscriptionRepository,
@@ -36,15 +38,58 @@ namespace PaymentManager.BLL.Services
             _subscriptionRepository = subscriptionRepository;
         }
 
+        private async Task UpdateUserBalanceAsync(Guid userId, int amountOfPoints)
+        {
+            await _paymentRepository.UpdateBalanceAsync(userId, amountOfPoints);
+            await _userRepository.UpdateTotalPurchasedTokensAsync(userId, amountOfPoints);
+        }
+
+        private async Task SetDefaultSubscriptionAsync(string customerId, string userId)
+        {
+            var product = (await GetProductService().SearchAsync(new()
+            {
+                Query = $"active:'true' AND name~'{AccountPlan.Free}'"
+            })).Data.FirstOrDefault() ?? throw new Exception("Taking product for free subscription failed");
+
+            var createdSubscription = await GetSubscriptionService().CreateAsync(new()
+            {
+                Customer = customerId,
+                Items = new() { new() { Price = product.DefaultPriceId } },
+                Metadata = new() {
+                        { MetadataConstants.AccountPlan, AccountPlan.Free.ToString() },
+                        { MetadataConstants.UserId, userId },
+                        { MetadataConstants.ProductName,  product.Name}
+                }
+            });
+
+            await _subscriptionRepository.CreateSubscriptionAsync(new DAL.Models.Subscription()
+            {
+                EndDate = createdSubscription.CurrentPeriodEnd,
+                Id = Guid.NewGuid(),
+                IsActive = true,
+                IsCanceled = false,
+                StartDate = createdSubscription.CurrentPeriodStart,
+                SubscriptionStripeId = createdSubscription.Id,
+                UserId = Guid.Parse(userId)
+            }, AccountPlan.Free);
+        }
+
+        private async Task SendEventResultAsync(Guid userId, string methodName, string message)
+        {
+            var connections = PaymentHub.CheckIfUserIdExistAndReturnConnections(userId);
+            if (!connections.Any())
+                return;
+
+            foreach (var connection in connections)
+                await _hubContext.Clients.Client(connection.Key).SendAsync(methodName, message);
+        }
+
         /// <inheritdoc cref="IWebhookService.OrderConfirmationAsync(Session)"/>
         public async Task OrderConfirmationAsync(Session session)
         {
             var payment = await _paymentRepository.GetPaymentAsync(session.Id);
 
-            if (payment is null)
-                return;
-
-            if (payment.Mode is null)
+            if (payment is null || payment.Mode is null)
                 return;
 
             if (payment.UpdatedBallance && payment.Mode.Equals(Constants.PAYMENT_MODE))
@@ -65,6 +110,7 @@ namespace PaymentManager.BLL.Services
                     });
                     await UpdateUserBalanceAsync(payment.UserId, payment.AmountOfPoints);
                     break;
+
                 default:
                     throw new Exception("Session confirmation error");
             }
@@ -75,10 +121,7 @@ namespace PaymentManager.BLL.Services
         {
             var payment = await _paymentRepository.GetPaymentAsync(session.Id);
 
-            if (payment is null)
-                return;
-
-            if (payment.Status == "expired")
+            if (payment is null || payment.Status == "expired")
                 return;
 
             if (session.Status != "expired")
@@ -99,27 +142,10 @@ namespace PaymentManager.BLL.Services
         /// <inheritdoc cref="IWebhookService.UpdateSubscriptionAsync(Subscription)"/>
         public async Task UpdateSubscriptionAsync(Subscription subscription)
         {
-            var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
-                ?? throw new Exception("Taking productId error");
-
-            var productModel = await _productCatalogService.GetProductAsync(getProductId);
-            var productName = productModel.Name.Substring(0, productModel.Name.IndexOf("/"));
-            var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
-
-            await _paymentRepository.CreatePaymentAsync(new()
-            {
-                Id = Guid.NewGuid(),
-                InvoiceId = subscription.LatestInvoiceId,
-                Mode = "subscription update",
-                ProductName = productName,
-                UserId = userId,
-                Status = "updated",
-                AmountOfPoints = 0,
-                UpdatedBallance = true
-            });
-
             if (subscription.CancelAtPeriodEnd)
             {
+                var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
+
                 await _subscriptionRepository.UpdateSubscriptionIsCanceledAsync(subscription.Id, subscription.CancelAtPeriodEnd);
                 await SendEventResultAsync(userId, EventResultConstants.SubscriptionCanceled, EventResultConstants.Success);
             }
@@ -156,8 +182,8 @@ namespace PaymentManager.BLL.Services
             await SendEventResultAsync(userId, EventResultConstants.CustomerCreated, EventResultConstants.Success);
         }
 
-        /// <inheritdoc cref="IWebhookService.PaymentFailedHandleAsync(Invoice)"/>
-        public async Task PaymentFailedHandleAsync(Invoice invoice)
+        /// <inheritdoc cref="IWebhookService.InvoiceFailedHandleAsync(Invoice)"/>
+        public async Task InvoiceFailedHandleAsync(Invoice invoice)
         {
             if (invoice.SubscriptionId is null)
                 return;
@@ -206,7 +232,7 @@ namespace PaymentManager.BLL.Services
             });
         }
 
-        public async Task PaymentSucceededHandleAsync(Invoice invoice)
+        public async Task InvoiceSucceededHandleAsync(Invoice invoice)
         {
             var subscription = await GetSubscriptionService().GetAsync(invoice.SubscriptionId);
             var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
@@ -215,7 +241,7 @@ namespace PaymentManager.BLL.Services
                 ?? throw new Exception("Taking productId error");
 
             var productModel = await _productCatalogService.GetProductAsync(getProductId);
-            var productName = productModel.Name.Substring(0, productModel.Name.IndexOf("/"));
+            var productName = productModel.Name.Substring(START_INDEX, productModel.Name.IndexOf("/"));
             var accountPlanEnum = Enum.Parse<AccountPlan>(productName);
             var amountOfTokens = SubscriptionHelper.GetAmountOfTokens(accountPlanEnum);
 
@@ -246,52 +272,6 @@ namespace PaymentManager.BLL.Services
             });
 
             await SendEventResultAsync(userId, EventResultConstants.PaymentSuccess, EventResultConstants.Success);
-        }
-
-        private async Task UpdateUserBalanceAsync(Guid userId, int amountOfPoints)
-        {
-            await _paymentRepository.UpdateBalanceAsync(userId, amountOfPoints);
-            await _userRepository.UpdateTotalPurchasedTokensAsync(userId, amountOfPoints);
-        }
-
-        private async Task SetDefaultSubscriptionAsync(string customerId, string userId)
-        {
-            var product = (await GetProductService().SearchAsync(new()
-            {
-                Query = $"active:'true' AND name~'{AccountPlan.Free}'"
-            })).Data.FirstOrDefault() ?? throw new Exception("Taking product for free subscription failed");
-
-            var createdSubscription = await GetSubscriptionService().CreateAsync(new()
-            {
-                Customer = customerId,
-                Items = new() { new() { Price = product.DefaultPriceId } },
-                Metadata = new() {
-                        { MetadataConstants.AccountPlan, AccountPlan.Free.ToString() },
-                        { MetadataConstants.UserId, userId },
-                        { MetadataConstants.ProductName,  product.Name}
-                }
-            });
-
-            await _subscriptionRepository.CreateSubscriptionAsync(new DAL.Models.Subscription()
-            {
-                EndDate = createdSubscription.CurrentPeriodEnd,
-                Id = Guid.NewGuid(),
-                IsActive = true,
-                IsCanceled = false,
-                StartDate = createdSubscription.CurrentPeriodStart,
-                SubscriptionStripeId = createdSubscription.Id,
-                UserId = Guid.Parse(userId)
-            }, AccountPlan.Free);
-        }
-
-        private async Task SendEventResultAsync(Guid userId, string methodName, string message)
-        {
-            var connections = PaymentHub.CheckIfUserIdExistAndReturnConnections(userId);
-            if (connections.Count() < 0)
-                return;
-
-            foreach (var connection in connections)
-                await _hubContext.Clients.Client(connection.Key).SendAsync(methodName, message);
         }
     }
 }

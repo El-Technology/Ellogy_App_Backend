@@ -36,8 +36,8 @@ namespace PaymentManager.BLL.Interfaces
         /// </summary>
         /// <param name="invoice">The invoice related to the failed payment</param>
         /// <returns>Task representing the asynchronous operation</returns>
-        Task PaymentFailedHandleAsync(Invoice invoice);
-        Task PaymentSucceededHandleAsync(Invoice invoice);
+        Task InvoiceFailedHandleAsync(Invoice invoice);
+        Task InvoiceSucceededHandleAsync(Invoice invoice);
 
         /// <summary>
         /// Updates a subscription asynchronously.

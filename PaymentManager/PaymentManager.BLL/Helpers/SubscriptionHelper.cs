@@ -1,5 +1,4 @@
 ﻿using PaymentManager.DAL.Enums;
-using Stripe;
 
 namespace PaymentManager.BLL.Helpers
 {

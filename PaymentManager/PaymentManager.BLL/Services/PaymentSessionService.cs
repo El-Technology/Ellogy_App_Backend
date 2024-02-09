@@ -73,7 +73,7 @@ namespace PaymentManager.BLL.Services
                             {
                                 Name = $"{streamRequest.AmountOfPoints} - points"
                             },
-                            UnitAmountDecimal = (decimal)(streamRequest.AmountOfPoints * PointPriceConstant.OneTokenPrice * PointPriceConstant.PriceInCents),
+                            UnitAmountDecimal = (streamRequest.AmountOfPoints * Constants.OneTokenPrice * Constants.PriceInCents),
                         },
                         Quantity = AMMOUNT_OF_ITEMS
                     }

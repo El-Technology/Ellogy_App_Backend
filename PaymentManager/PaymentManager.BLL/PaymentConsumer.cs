@@ -136,23 +136,28 @@ namespace PaymentManager.BLL
                 {
                     var messageQueueModel = JsonConvert.DeserializeObject<MessageQueueModel<object>>(messageArg.Message.Body.ToString());
 
-                    if (messageQueueModel.Type.Equals("session"))
+                    switch (messageQueueModel.Type)
                     {
-                        var message = JsonConvert.DeserializeObject<MessageQueueModel<SessionCreateOptions>>(messageArg.Message.Body.ToString()).CreateOptions;
+                        case Constants.PAYMENT_MODE:
+                            var sessionMessage = JsonConvert.DeserializeObject<MessageQueueModel<SessionCreateOptions>>(messageArg.Message.Body.ToString()).CreateOptions;
 
-                        connectionId = message.Metadata[MetadataConstants.ConnectionId];
-                        signalRMethodName = message.Metadata[MetadataConstants.SignalRMethodName];
+                            connectionId = sessionMessage.Metadata[MetadataConstants.ConnectionId];
+                            signalRMethodName = sessionMessage.Metadata[MetadataConstants.SignalRMethodName];
 
-                        resultMessage = await ProcessOneTimePaymentsAsync(message);
-                    }
-                    else
-                    {
-                        var message = JsonConvert.DeserializeObject<MessageQueueModel<SubscriptionCreateOptions>>(messageArg.Message.Body.ToString()).CreateOptions;
+                            resultMessage = await ProcessOneTimePaymentsAsync(sessionMessage);
+                            break;
 
-                        connectionId = message.Metadata[MetadataConstants.ConnectionId];
-                        signalRMethodName = message.Metadata[MetadataConstants.SignalRMethodName];
+                        case Constants.SUBSCRIPTION_MODE:
+                            var subscriptionMessage = JsonConvert.DeserializeObject<MessageQueueModel<SubscriptionCreateOptions>>(messageArg.Message.Body.ToString()).CreateOptions;
 
-                        resultMessage = await ProcessFreeSubscription(message);
+                            connectionId = subscriptionMessage.Metadata[MetadataConstants.ConnectionId];
+                            signalRMethodName = subscriptionMessage.Metadata[MetadataConstants.SignalRMethodName];
+
+                            resultMessage = await ProcessFreeSubscription(subscriptionMessage);
+                            break;
+
+                        default:
+                            throw new Exception($"Message type {messageQueueModel.Type} was not found");
                     }
 
                     await SendResultBySignalRAsync(connectionId, signalRMethodName, resultMessage);
@@ -161,7 +166,7 @@ namespace PaymentManager.BLL
                 catch (Exception ex)
                 {
                     _logger.LogError(ex.Message);
-                    await messageArg.DeadLetterMessageAsync(messageArg.Message);
+                    await messageArg.DeadLetterMessageAsync(messageArg.Message, deadLetterReason: ex.Message);
                 }
             };
 
