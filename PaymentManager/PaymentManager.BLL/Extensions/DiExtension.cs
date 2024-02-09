@@ -19,5 +19,11 @@ namespace PaymentManager.BLL.Extensions
                 .AddScoped<IProductCatalogService, ProductCatalogService>()
                 .AddScoped<IWebhookService, WebhookService>();
         }
+
+        public static IServiceCollection AddMapping(this IServiceCollection services)
+        {
+            return services
+                .AddAutoMapper(typeof(DiExtension).Assembly);
+        }
     }
 }

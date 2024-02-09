@@ -1,4 +1,5 @@
-﻿using PaymentManager.BLL.Interfaces;
+﻿using AutoMapper;
+using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
 using PaymentManager.Common.Dtos;
@@ -12,11 +13,14 @@ namespace PaymentManager.BLL.Services
         private readonly IUserRepository _userRepository;
         private readonly IPaymentRepository _paymentRepository;
         private readonly ISubscriptionRepository _subscriptionRepository;
+        private readonly IMapper _mapper;
 
         public PaymentCustomerService(IUserRepository userRepository,
             IPaymentRepository paymentRepository,
-            ISubscriptionRepository subscriptionRepository)
+            ISubscriptionRepository subscriptionRepository,
+            IMapper mapper)
         {
+            _mapper = mapper;
             _subscriptionRepository = subscriptionRepository;
             _paymentRepository = paymentRepository;
             _userRepository = userRepository;
@@ -102,36 +106,11 @@ namespace PaymentManager.BLL.Services
                 EndingBefore = paginationRequestDto.EndBefore
             });
 
-            var paymentMethods = new List<PaymentMethod>();
-
-            foreach (var method in allMethods)
+            return new StripePaginationResponseDto<IEnumerable<PaymentMethod>>()
             {
-                if (method.Card is not null)
-                {
-                    var paymentMethod = new PaymentMethod
-                    {
-                        Type = method.Type,
-                        Id = method.Id,
-                        CardBrand = method.Card.Brand,
-                        Expires = $"{method.Card.ExpMonth}/{method.Card.ExpYear}",
-                        Last4 = method.Card.Last4,
-                        Default = (method.Customer.InvoiceSettings.DefaultPaymentMethodId ?? string.Empty).Equals(method.Id)
-                    };
-                    paymentMethods.Add(paymentMethod);
-                }
-                else
-                {
-                    var paymentMethod = new PaymentMethod
-                    {
-                        Type = method.Type,
-                        Id = method.Id,
-                        Default = (method.Customer.InvoiceSettings.DefaultPaymentMethodId ?? string.Empty).Equals(method.Id)
-                    };
-                    paymentMethods.Add(paymentMethod);
-                }
-            }
-
-            return new StripePaginationResponseDto<IEnumerable<PaymentMethod>>() { HasMore = allMethods.HasMore, Data = paymentMethods };
+                HasMore = allMethods.HasMore,
+                Data = _mapper.Map<List<PaymentMethod>>(allMethods)
+            };
         }
 
         /// <inheritdoc cref="IPaymentCustomerService.SetDefaultPaymentMethodAsync(Guid, string)"/>
@@ -179,26 +158,7 @@ namespace PaymentManager.BLL.Services
                 StartingAfter = paginationRequestDto.StartAfter
             });
 
-            var paymentRecords = new List<PaymentObject>();
-
-            foreach (var payment in paymentsList.Data)
-            {
-                var paymentRecord = await _paymentRepository.GetPaymentByIdAsync(payment.Id)
-                    ?? await _paymentRepository.GetPaymentByInvoiceIdAsync(payment.InvoiceId);
-
-                var paymentObject = new PaymentObject
-                {
-                    Product = paymentRecord is null ? "Payment" : paymentRecord.ProductName,
-                    Date = payment.Created,
-                    Amount = payment.Amount / Constants.PriceInCents,
-                    Status = payment.Status,
-                    DownloadLink = payment.Invoice?.InvoicePdf
-                };
-
-                paymentRecords.Add(paymentObject);
-            }
-
-            return new StripePaginationResponseDto<IEnumerable<PaymentObject>>() { HasMore = paymentsList.HasMore, Data = paymentRecords };
+            return new StripePaginationResponseDto<IEnumerable<PaymentObject>>() { HasMore = paymentsList.HasMore, Data = _mapper.Map<List<PaymentObject>>(paymentsList) };
         }
 
 

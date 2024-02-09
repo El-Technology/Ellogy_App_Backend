@@ -106,6 +106,7 @@ static void AddServices(WebApplicationBuilder builder)
     });
 
     builder.Services.AddBusinessLayer();
+    builder.Services.AddMapping();
     builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
 }
 

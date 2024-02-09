@@ -81,5 +81,10 @@ namespace PaymentManager.DAL.Repositories
         {
             return await _context.Payments.FirstOrDefaultAsync(a => a.InvoiceId.Equals(invoiceId));
         }
+
+        public async Task<Payment?> GetPaymentByInvoiceOrPaymentIdAsync(string paymentId, string invoiceId)
+        {
+            return await _context.Payments.FirstOrDefaultAsync(a => a.PaymentId.Equals(paymentId) || a.InvoiceId.Equals(invoiceId));
+        }
     }
 }

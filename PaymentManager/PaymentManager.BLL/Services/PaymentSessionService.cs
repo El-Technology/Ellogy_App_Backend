@@ -78,6 +78,7 @@ namespace PaymentManager.BLL.Services
                         Quantity = AMMOUNT_OF_ITEMS
                     }
                 },
+                PaymentIntentData = new() { Description = $"{streamRequest.AmountOfPoints} - points" },
                 Mode = Constants.PAYMENT_MODE,
                 Customer = string.IsNullOrEmpty(user.StripeCustomerId) ? null : user.StripeCustomerId,
                 CustomerEmail = string.IsNullOrEmpty(user.StripeCustomerId) ? user.Email : null,

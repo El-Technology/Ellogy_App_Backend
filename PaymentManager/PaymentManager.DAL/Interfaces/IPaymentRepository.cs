@@ -41,6 +41,7 @@ namespace PaymentManager.DAL.Interfaces
         /// <param name="invoiceId">The unique identifier of the invoice</param>
         /// <returns>Task representing the asynchronous operation, returning the payment if found; otherwise, null</returns>
         Task<Payment?> GetPaymentByInvoiceIdAsync(string invoiceId);
+        Task<Payment?> GetPaymentByInvoiceOrPaymentIdAsync(string paymentId, string invoiceId);
 
         /// <summary>
         /// Retrieves the wallet of a user based on their ID asynchronously.
