@@ -867,7 +867,7 @@
     },
     {
       "UpstreamPathTemplate": "/dev/Customer/getAllPaymentMethods",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamHttpMethod": [ "POST" ],
       "DownstreamPathTemplate": "/api/Customer/getAllPaymentMethods",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -891,7 +891,7 @@
     },
     {
       "UpstreamPathTemplate": "/dev/Customer/getCustomerPayments",
-      "UpstreamHttpMethod": [ "GET" ],
+      "UpstreamHttpMethod": [ "POST" ],
       "DownstreamPathTemplate": "/api/Customer/getCustomerPayments",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
