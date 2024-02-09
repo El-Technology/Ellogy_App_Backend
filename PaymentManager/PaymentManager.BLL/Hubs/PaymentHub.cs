@@ -18,7 +18,7 @@ namespace PaymentManager.BLL.Hubs
 
         public static string? CheckIfUserIdExistAndReturnConnectionId(Guid userId)
         {
-            return listOfConnections.FirstOrDefault(x => x.Value == userId).Key;
+            return listOfConnections.LastOrDefault(x => x.Value == userId).Key;
         }
 
         public override async Task OnConnectedAsync()
