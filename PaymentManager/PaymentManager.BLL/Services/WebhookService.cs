@@ -286,11 +286,12 @@ namespace PaymentManager.BLL.Services
 
         private async Task SendEventResultAsync(Guid userId, string methodName, string message)
         {
-            var connectionId = PaymentHub.CheckIfUserIdExistAndReturnConnectionId(userId);
-            if (string.IsNullOrEmpty(connectionId))
+            var connections = PaymentHub.CheckIfUserIdExistAndReturnConnections(userId);
+            if (connections.Count() < 0)
                 return;
 
-            await _hubContext.Clients.Client(connectionId).SendAsync(methodName, message);
+            foreach (var connection in connections)
+                await _hubContext.Clients.Client(connection.Key).SendAsync(methodName, message);
         }
     }
 }

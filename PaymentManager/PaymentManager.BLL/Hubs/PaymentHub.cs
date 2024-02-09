@@ -16,9 +16,9 @@ namespace PaymentManager.BLL.Hubs
             return listOfConnections.ContainsKey(connectionId);
         }
 
-        public static string? CheckIfUserIdExistAndReturnConnectionId(Guid userId)
+        public static IEnumerable<KeyValuePair<string, Guid>> CheckIfUserIdExistAndReturnConnections(Guid userId)
         {
-            return listOfConnections.LastOrDefault(x => x.Value == userId).Key;
+            return listOfConnections.Where(x => x.Value == userId);
         }
 
         public override async Task OnConnectedAsync()
