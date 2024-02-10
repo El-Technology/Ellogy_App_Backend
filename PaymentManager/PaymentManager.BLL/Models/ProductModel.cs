@@ -1,12 +1,11 @@
-﻿namespace PaymentManager.BLL.Models
+﻿namespace PaymentManager.BLL.Models;
+
+public class ProductModel
 {
-    public class ProductModel
-    {
-        public string Name { get; set; }
-        public decimal? Price { get; set; }
-        public string Description { get; set; }
-        public string ProductId { get; set; }
-        public string? PriceId { get; set; }
-        public List<string>? Features { get; set; }
-    }
+    public string Name { get; set; } = string.Empty;
+    public decimal? Price { get; set; }
+    public string Description { get; set; } = string.Empty;
+    public string ProductId { get; set; } = string.Empty;
+    public string? PriceId { get; set; }
+    public List<string>? Features { get; set; }
 }
