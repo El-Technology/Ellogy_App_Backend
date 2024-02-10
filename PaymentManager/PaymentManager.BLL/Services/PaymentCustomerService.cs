@@ -4,207 +4,215 @@ using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
 using PaymentManager.Common.Dtos;
 using PaymentManager.DAL.Interfaces;
+using Stripe;
 using Stripe.Checkout;
+using PaymentMethod = PaymentManager.BLL.Models.PaymentMethod;
+using Subscription = PaymentManager.DAL.Models.Subscription;
 
-namespace PaymentManager.BLL.Services
+namespace PaymentManager.BLL.Services;
+
+/// <summary>
+///     Service for managing customer payments and subscriptions.
+/// </summary>
+public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
 {
-    public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
+    private readonly IMapper _mapper;
+    private readonly ISubscriptionRepository _subscriptionRepository;
+    private readonly IUserRepository _userRepository;
+
+    public PaymentCustomerService(IUserRepository userRepository,
+        ISubscriptionRepository subscriptionRepository,
+        IMapper mapper)
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IPaymentRepository _paymentRepository;
-        private readonly ISubscriptionRepository _subscriptionRepository;
-        private readonly IMapper _mapper;
+        _mapper = mapper;
+        _subscriptionRepository = subscriptionRepository;
+        _userRepository = userRepository;
+    }
 
-        public PaymentCustomerService(IUserRepository userRepository,
-            IPaymentRepository paymentRepository,
-            ISubscriptionRepository subscriptionRepository,
-            IMapper mapper)
+    /// <inheritdoc cref="IPaymentCustomerService.CreateCustomerAsync(Guid)" />
+    public async Task CreateCustomerAsync(Guid userId)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new ArgumentNullException(nameof(userId));
+
+        if (!string.IsNullOrEmpty(user.StripeCustomerId))
+            throw new Exception("Customer is already created");
+
+        var customerData = await GetCustomerService().CreateAsync(new CustomerCreateOptions
         {
-            _mapper = mapper;
-            _subscriptionRepository = subscriptionRepository;
-            _paymentRepository = paymentRepository;
-            _userRepository = userRepository;
-        }
+            Email = user.Email,
+            Name = $"{user.FirstName} {user.LastName}",
+            Metadata = new Dictionary<string, string> { { MetadataConstants.UserId, userId.ToString() } }
+        });
 
-        /// <inheritdoc cref="IPaymentCustomerService.CreateCustomerAsync(Guid)"/>
-        public async Task CreateCustomerAsync(Guid userId)
+        await _userRepository.AddStripeCustomerIdAsync(userId, customerData.Id);
+    }
+
+    /// <inheritdoc cref="IPaymentCustomerService.UpdateCustomerDataAsync(Guid)" />
+    public async Task UpdateCustomerDataAsync(Guid userId)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new ArgumentNullException(nameof(userId));
+
+        if (string.IsNullOrEmpty(user.StripeCustomerId))
+            throw new Exception("Customer is not created");
+
+        await GetCustomerService().UpdateAsync(user.StripeCustomerId, new CustomerUpdateOptions
         {
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new ArgumentNullException(nameof(userId));
+            Email = user.Email,
+            Name = $"{user.FirstName} {user.LastName}"
+        });
+    }
 
-            if (!string.IsNullOrEmpty(user.StripeCustomerId))
-                throw new Exception("Customer is already created");
+    /// <inheritdoc cref="IPaymentCustomerService.AddCustomerPaymentMethodAsync(Guid, CreateSessionRequest)" />
+    public async Task<SessionCreateOptions> AddCustomerPaymentMethodAsync(Guid userId,
+        CreateSessionRequest createSessionRequest)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new ArgumentNullException(nameof(userId));
 
-            var customerData = await GetCustomerService().CreateAsync(new()
-            {
-                Email = user.Email,
-                Name = $"{user.FirstName} {user.LastName}",
-                Metadata = new() { { MetadataConstants.UserId, userId.ToString() } }
-            });
+        if (user.StripeCustomerId is null)
+            throw new Exception("Customer is not created");
 
-            await _userRepository.AddStripeCustomerIdAsync(userId, customerData.Id);
-        }
-
-        /// <inheritdoc cref="IPaymentCustomerService.UpdateCustomerDataAsync(Guid)"/>
-        public async Task UpdateCustomerDataAsync(Guid userId)
+        var sessionOptions = new SessionCreateOptions
         {
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new ArgumentNullException(nameof(userId));
-
-            if (string.IsNullOrEmpty(user.StripeCustomerId))
-                throw new Exception("Customer is not created");
-
-            await GetCustomerService().UpdateAsync(user.StripeCustomerId, new()
+            SuccessUrl = createSessionRequest.SuccessUrl,
+            CancelUrl = createSessionRequest.CancelUrl,
+            Mode = Constants.SetupMode,
+            Currency = Constants.ApplicationCurrency,
+            Customer = user.StripeCustomerId,
+            Metadata = new Dictionary<string, string>
             {
-                Email = user.Email,
-                Name = $"{user.FirstName} {user.LastName}"
-            });
-        }
+                { MetadataConstants.UserId, user.Id.ToString() },
+                { MetadataConstants.ConnectionId, createSessionRequest.ConnectionId },
+                { MetadataConstants.SignalRMethodName, createSessionRequest.SignalMethodName }
+            }
+        };
 
-        /// <inheritdoc cref="IPaymentCustomerService.AddCustomerPaymentMethodAsync(Guid, CreateSessionRequest)"/>
-        public async Task<SessionCreateOptions> AddCustomerPaymentMethodAsync(Guid userId, CreateSessionRequest createSessionRequest)
+        return sessionOptions;
+    }
+
+    /// <inheritdoc cref="IPaymentCustomerService.RetrieveCustomerPaymentMethodsAsync(Guid, StripePaginationRequestDto)" />
+    public async Task<StripePaginationResponseDto<IEnumerable<PaymentMethod>>> RetrieveCustomerPaymentMethodsAsync(
+        Guid userId, StripePaginationRequestDto paginationRequestDto)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new ArgumentNullException(nameof(userId));
+
+        if (string.IsNullOrEmpty(user.StripeCustomerId))
+            throw new Exception("Customer is not created");
+
+        var allMethods = await GetPaymentMethodService().ListAsync(new PaymentMethodListOptions
         {
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new ArgumentNullException(nameof(userId));
+            Customer = user.StripeCustomerId,
+            Expand = new List<string> { "data.customer.invoice_settings.default_payment_method" },
+            Limit = paginationRequestDto.RecordsPerPage,
+            StartingAfter = paginationRequestDto.StartAfter,
+            EndingBefore = paginationRequestDto.EndBefore
+        });
 
-            if (user.StripeCustomerId is null)
-                throw new ArgumentNullException("Customer is not created");
-
-            var sessionOptions = new SessionCreateOptions
-            {
-                SuccessUrl = createSessionRequest.SuccessUrl,
-                CancelUrl = createSessionRequest.CancelUrl,
-                Mode = Constants.SETUP_MODE,
-                Currency = Constants.ApplicationCurrency,
-                Customer = user.StripeCustomerId,
-                Metadata = new Dictionary<string, string>
-                {
-                    { MetadataConstants.UserId, user.Id.ToString() },
-                    { MetadataConstants.ConnectionId, createSessionRequest.ConnectionId },
-                    { MetadataConstants.SignalRMethodName, createSessionRequest.SignalMethodName }
-                }
-            };
-
-            return sessionOptions;
-        }
-
-        /// <inheritdoc cref="IPaymentCustomerService.RetrieveCustomerPaymentMethodsAsync(Guid, StripePaginationRequestDto)"/>
-        public async Task<StripePaginationResponseDto<IEnumerable<PaymentMethod>>> RetrieveCustomerPaymentMethodsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto)
+        return new StripePaginationResponseDto<IEnumerable<PaymentMethod>>
         {
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new ArgumentNullException(nameof(userId));
+            HasMore = allMethods.HasMore,
+            Data = _mapper.Map<List<PaymentMethod>>(allMethods)
+        };
+    }
 
-            if (string.IsNullOrEmpty(user.StripeCustomerId))
-                throw new Exception("Customer is not created");
+    /// <inheritdoc cref="IPaymentCustomerService.SetDefaultPaymentMethodAsync(Guid, string)" />
+    public async Task SetDefaultPaymentMethodAsync(Guid userId, string paymentMethodId)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new ArgumentNullException(nameof(userId));
 
-            var allMethods = await GetPaymentMethodService().ListAsync(new()
-            {
-                Customer = user.StripeCustomerId,
-                Expand = new() { "data.customer.invoice_settings.default_payment_method" },
-                Limit = paginationRequestDto.RecordsPerPage,
-                StartingAfter = paginationRequestDto.StartAfter,
-                EndingBefore = paginationRequestDto.EndBefore
-            });
-
-            return new StripePaginationResponseDto<IEnumerable<PaymentMethod>>()
-            {
-                HasMore = allMethods.HasMore,
-                Data = _mapper.Map<List<PaymentMethod>>(allMethods)
-            };
-        }
-
-        /// <inheritdoc cref="IPaymentCustomerService.SetDefaultPaymentMethodAsync(Guid, string)"/>
-        public async Task SetDefaultPaymentMethodAsync(Guid userId, string paymentMethodId)
+        await GetCustomerService().UpdateAsync(user.StripeCustomerId, new CustomerUpdateOptions
         {
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new ArgumentNullException(nameof(userId));
-
-            await GetCustomerService().UpdateAsync(user.StripeCustomerId, new()
-            {
-                InvoiceSettings = new()
-                {
-                    DefaultPaymentMethod = paymentMethodId,
-                }
-            });
-
-            var customer = await GetCustomerService().GetAsync(user.StripeCustomerId, new()
-            {
-                Expand = new() { "subscriptions" }
-            });
-
-            var customerSubscription = customer.Subscriptions.FirstOrDefault();
-
-            if (customerSubscription is null)
-                return;
-
-            await GetSubscriptionService().UpdateAsync(customerSubscription.Id, new()
+            InvoiceSettings = new CustomerInvoiceSettingsOptions
             {
                 DefaultPaymentMethod = paymentMethodId
-            });
-        }
+            }
+        });
 
-        /// <inheritdoc cref="IPaymentCustomerService.GetCustomerPaymentsAsync(Guid, StripePaginationRequestDto)"/>
-        public async Task<StripePaginationResponseDto<IEnumerable<PaymentObject>>> GetCustomerPaymentsAsync(Guid userId, StripePaginationRequestDto paginationRequestDto)
+        var customer = await GetCustomerService().GetAsync(user.StripeCustomerId, new CustomerGetOptions
         {
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new ArgumentNullException(nameof(userId));
+            Expand = new List<string> { "subscriptions" }
+        });
 
-            var paymentsList = await GetPaymentIntentService().ListAsync(new()
+        var customerSubscription = customer.Subscriptions.FirstOrDefault();
+
+        if (customerSubscription is null)
+            return;
+
+        await GetSubscriptionService().UpdateAsync(customerSubscription.Id, new SubscriptionUpdateOptions
+        {
+            DefaultPaymentMethod = paymentMethodId
+        });
+    }
+
+    /// <inheritdoc cref="IPaymentCustomerService.GetCustomerPaymentsAsync(Guid, StripePaginationRequestDto)" />
+    public async Task<StripePaginationResponseDto<IEnumerable<PaymentObject>>> GetCustomerPaymentsAsync(Guid userId,
+        StripePaginationRequestDto paginationRequestDto)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new ArgumentNullException(nameof(userId));
+
+        var paymentsList = await GetPaymentIntentService().ListAsync(new PaymentIntentListOptions
+        {
+            Customer = user.StripeCustomerId,
+            Expand = new List<string> { "data.invoice" },
+            Limit = paginationRequestDto.RecordsPerPage,
+            EndingBefore = paginationRequestDto.EndBefore,
+            StartingAfter = paginationRequestDto.StartAfter
+        });
+
+        return new StripePaginationResponseDto<IEnumerable<PaymentObject>>
+            { HasMore = paymentsList.HasMore, Data = _mapper.Map<List<PaymentObject>>(paymentsList) };
+    }
+
+
+    /// <inheritdoc cref="IPaymentCustomerService.GetActiveSubscriptionAsync(Guid)" />
+    public async Task<Subscription?> GetActiveSubscriptionAsync(Guid userId)
+    {
+        return await _subscriptionRepository.GetActiveSubscriptionAsync(userId);
+    }
+
+    /// <inheritdoc cref="IPaymentCustomerService.UpgradeSubscriptionPreviewAsync(Guid, string)" />
+    public async Task<decimal> UpgradeSubscriptionPreviewAsync(Guid userId, string newPriceId)
+    {
+        var getActiveSubscription = await GetActiveSubscriptionAsync(userId)
+                                    ?? throw new Exception("You don`t have active subscription");
+
+        var newPriceInformation = await GetPriceService().GetAsync(newPriceId);
+
+        if (newPriceInformation.UnitAmountDecimal / Constants.PriceInCents <= getActiveSubscription.Price)
+            throw new Exception("You can`t upgrade on a subscription with the same or a lower price");
+
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new Exception("User was not found");
+
+        var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
+
+        if (subscription.Items.Data.Count > 1)
+            throw new Exception($"You cant upgrade your subscription not, wait until {subscription.CurrentPeriodEnd}");
+
+        var result = await GetInvoiceService().UpcomingAsync(new UpcomingInvoiceOptions
+        {
+            Customer = user.StripeCustomerId,
+            Subscription = getActiveSubscription.SubscriptionStripeId,
+            SubscriptionItems = new List<InvoiceSubscriptionItemOptions>
             {
-                Customer = user.StripeCustomerId,
-                Expand = new() { "data.invoice" },
-                Limit = paginationRequestDto.RecordsPerPage,
-                EndingBefore = paginationRequestDto.EndBefore,
-                StartingAfter = paginationRequestDto.StartAfter
-            });
+                new() { Id = subscription.Items.Data.First().Id, Deleted = true },
+                new() { Price = newPriceId }
+            },
+            SubscriptionProrationDate = DateTime.UtcNow,
+            SubscriptionProrationBehavior = "always_invoice"
+        });
 
-            return new StripePaginationResponseDto<IEnumerable<PaymentObject>>() { HasMore = paymentsList.HasMore, Data = _mapper.Map<List<PaymentObject>>(paymentsList) };
-        }
+        return result.AmountDue / Constants.PriceInCents;
+    }
 
-
-        /// <inheritdoc cref="IPaymentCustomerService.GetActiveSubscriptionAsync(Guid)"/>
-        public async Task<DAL.Models.Subscription?> GetActiveSubscriptionAsync(Guid userId)
-        {
-            return await _subscriptionRepository.GetActiveSubscriptionAsync(userId);
-        }
-
-        public async Task<decimal> UpgradeSubscriptionPreviewAsync(Guid userId, string newPriceId)
-        {
-            var getActiveSubscription = await GetActiveSubscriptionAsync(userId)
-                ?? throw new Exception("You don`t have active subscription");
-
-            var newPriceInformation = await GetPriceService().GetAsync(newPriceId);
-
-            if (newPriceInformation.UnitAmountDecimal / Constants.PriceInCents <= getActiveSubscription.Price)
-                throw new Exception("You can`t upgrade on a subscription with the same or a lower price");
-
-            var user = await _userRepository.GetUserByIdAsync(userId)
-                ?? throw new Exception("User was not found");
-
-            var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
-
-            if (subscription.Items.Data.Count > 1)
-                throw new Exception($"You cant upgrade your subscription not, wait until {subscription.CurrentPeriodEnd}");
-
-            var result = await GetInvoiceService().UpcomingAsync(new()
-            {
-                Customer = user.StripeCustomerId,
-                Subscription = getActiveSubscription.SubscriptionStripeId,
-                SubscriptionItems = new()
-                {
-                    new(){ Id = subscription.Items.Data.First().Id, Deleted = true },
-                    new(){ Price = newPriceId }
-                },
-                SubscriptionProrationDate = DateTime.UtcNow,
-                SubscriptionProrationBehavior = "always_invoice"
-            });
-
-            return result.AmountDue / Constants.PriceInCents;
-        }
-
-        public async Task DetachPaymentMethodAsync(string paymentMethodId)
-        {
-            await GetPaymentMethodService().DetachAsync(paymentMethodId);
-        }
+    /// <inheritdoc cref="IPaymentCustomerService.DetachPaymentMethodAsync(string)" />
+    public async Task DetachPaymentMethodAsync(string paymentMethodId)
+    {
+        await GetPaymentMethodService().DetachAsync(paymentMethodId);
     }
 }

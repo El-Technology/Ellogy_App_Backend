@@ -18,7 +18,7 @@ public class WebhookController : Controller
     }
 
     /// <summary>
-    ///    This method handles stripe events
+    ///     This method handles stripe events
     /// </summary>
     /// <returns></returns>
     [HttpPost]

@@ -5,18 +5,18 @@ using PaymentManager.DAL.Context.UserContext;
 using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Repositories;
 
-namespace PaymentManager.DAL.Extensions
+namespace PaymentManager.DAL.Extensions;
+
+public static class DiExtensions
 {
-    public static class DiExtensions
+    public static IServiceCollection AddDataLayer(this IServiceCollection services, string connectionString,
+        string paymentConnectionString)
     {
-        public static IServiceCollection AddDataLayer(this IServiceCollection services, string connectionString, string paymentConnectionString)
-        {
-            return services
-                .AddDbContext<PaymentContext>(c => c.UseNpgsql(paymentConnectionString))
-                .AddDbContext<UserContext>(c => c.UseNpgsql(connectionString))
-                .AddScoped<IPaymentRepository, PaymentRepository>()
-                .AddScoped<IUserRepository, UserRepository>()
-                .AddScoped<ISubscriptionRepository, SubscriptionRepository>();
-        }
+        return services
+            .AddDbContext<PaymentContext>(c => c.UseNpgsql(paymentConnectionString))
+            .AddDbContext<UserContext>(c => c.UseNpgsql(connectionString))
+            .AddScoped<IPaymentRepository, PaymentRepository>()
+            .AddScoped<IUserRepository, UserRepository>()
+            .AddScoped<ISubscriptionRepository, SubscriptionRepository>();
     }
 }

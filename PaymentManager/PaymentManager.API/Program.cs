@@ -64,7 +64,7 @@ static void AddServices(WebApplicationBuilder builder)
                 ValidateAudience = false,
                 ValidateLifetime = true,
                 IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(),
-                ValidateIssuerSigningKey = true,
+                ValidateIssuerSigningKey = true
             };
         });
 
@@ -75,10 +75,10 @@ static void AddServices(WebApplicationBuilder builder)
 
     builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc("v1", new()
+        c.SwaggerDoc("v1", new OpenApiInfo
         {
             Title = "Ellogy. Payment Manager service API",
-            Version = "v1",
+            Version = "v1"
         });
 
         c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -89,17 +89,17 @@ static void AddServices(WebApplicationBuilder builder)
             BearerFormat = "JWT"
         });
 
-        c.AddSecurityRequirement(new()
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
         {
             {
-                new()
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
                     {
-                        Reference = new()
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
                 new List<string>()
             }
         });
@@ -116,10 +116,7 @@ static void MigrateDatabase(IHost app)
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<PaymentContext>();
-    if (context.Database.GetPendingMigrations().Any())
-    {
-        context.Database.Migrate();
-    }
+    if (context.Database.GetPendingMigrations().Any()) context.Database.Migrate();
 }
 
 static void AddMiddleware(WebApplication app)

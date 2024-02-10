@@ -1,8 +1,7 @@
-﻿namespace PaymentManager.BLL.Models
+﻿namespace PaymentManager.BLL.Models;
+
+public class MessageQueueModel<T> where T : class
 {
-    public class MessageQueueModel<T> where T : class
-    {
-        public string Type { get; set; }
-        public T CreateOptions { get; set; }
-    }
+    public string Type { get; set; } = null!;
+    public T CreateOptions { get; set; } = null!;
 }

@@ -1,7 +1,6 @@
-﻿namespace PaymentManager.BLL.Models
+﻿namespace PaymentManager.BLL.Models;
+
+public class CreatePaymentRequest : CreateSessionRequest
 {
-    public class CreatePaymentRequest : CreateSessionRequest
-    {
-        public int AmountOfPoints { get; set; }
-    }
+    public int AmountOfPoints { get; set; }
 }

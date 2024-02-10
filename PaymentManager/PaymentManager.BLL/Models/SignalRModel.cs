@@ -1,8 +1,7 @@
-﻿namespace PaymentManager.BLL.Models
+﻿namespace PaymentManager.BLL.Models;
+
+public class SignalRModel
 {
-    public class SignalRModel
-    {
-        public string ConnectionId { get; set; }
-        public string SignalMethodName { get; set; }
-    }
+    public string ConnectionId { get; set; } = null!;
+    public string SignalMethodName { get; set; } = null!;
 }

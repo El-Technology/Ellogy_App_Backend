@@ -1,8 +1,7 @@
-﻿namespace PaymentManager.BLL.Models
+﻿namespace PaymentManager.BLL.Models;
+
+public class CreateSessionRequest : SignalRModel
 {
-    public class CreateSessionRequest : SignalRModel
-    {
-        public string SuccessUrl { get; set; }
-        public string CancelUrl { get; set; }
-    }
+    public string SuccessUrl { get; set; } = null!;
+    public string CancelUrl { get; set; } = null!;
 }

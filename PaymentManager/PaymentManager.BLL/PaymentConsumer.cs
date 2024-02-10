@@ -14,173 +14,164 @@ using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
 using Stripe;
 using Stripe.Checkout;
+using Subscription = PaymentManager.DAL.Models.Subscription;
 
-namespace PaymentManager.BLL
+namespace PaymentManager.BLL;
+
+/// <summary>
+///     This class contains methods for consuming messages from the payment queue
+/// </summary>
+public class PaymentConsumer : StripeBaseService, IHostedService
 {
-    public class PaymentConsumer : StripeBaseService, IHostedService
+    private readonly ServiceBusClient _busClient;
+    private readonly IHubContext<PaymentHub> _hubContext;
+    private readonly ILogger<PaymentConsumer> _logger;
+    private readonly ServiceBusProcessorOptions _processorOptions;
+    private readonly IServiceProvider _serviceProvider;
+
+    public PaymentConsumer(ServiceBusClient busClient, IServiceProvider serviceProvider,
+        IHubContext<PaymentHub> hubContext, ILogger<PaymentConsumer> logger)
     {
-        private readonly ILogger<PaymentConsumer> _logger;
-        private readonly ServiceBusClient _busClient;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly IHubContext<PaymentHub> _hubContext;
-        private readonly ServiceBusProcessorOptions _processorOptions;
+        _logger = logger;
+        _hubContext = hubContext;
+        _busClient = busClient;
+        _serviceProvider = serviceProvider;
 
-        public PaymentConsumer(ServiceBusClient busClient, IServiceProvider serviceProvider, IHubContext<PaymentHub> hubContext, ILogger<PaymentConsumer> logger)
+        _processorOptions = new ServiceBusProcessorOptions { PrefetchCount = 25 };
+    }
+
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        var queueMessageProcessor = _busClient.CreateProcessor(Constants.PaymentQueueName, _processorOptions);
+
+        queueMessageProcessor.ProcessMessageAsync += async messageArg =>
         {
-            _logger = logger;
-            _hubContext = hubContext;
-            _busClient = busClient;
-            _serviceProvider = serviceProvider;
-
-            _processorOptions = new ServiceBusProcessorOptions { PrefetchCount = 25 };
-        }
-
-        private async Task SendResultBySignalRAsync(string connectionId, string signalRMethodName, string message)
-        {
-            if (!PaymentHub.CheckIfConnectionIdExist(connectionId))
-                return;
-
-            await _hubContext.Clients.Client(connectionId).SendAsync(signalRMethodName, message);
-        }
-
-        private async Task CreatePaymentAsync(Payment payment)
-        {
-            using var scope = _serviceProvider.CreateAsyncScope();
-            var testRepo = scope.ServiceProvider.GetRequiredService<IPaymentRepository>();
-
             try
             {
-                await testRepo.CreatePaymentAsync(payment);
-            }
-            finally
-            {
-                await scope.DisposeAsync();
-            }
-        }
+                var messageQueueModel =
+                    JsonConvert.DeserializeObject<MessageQueueModel<object>>(messageArg.Message.Body.ToString());
 
-        private async Task CreateFreeSubscriptionDataBaseRecordAsync(Stripe.Subscription subscription)
-        {
-            using var scope = _serviceProvider.CreateAsyncScope();
-            var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
-            var productService = scope.ServiceProvider.GetRequiredService<IProductCatalogService>();
+                string connectionId;
+                string signalRMethodName;
+                string resultMessage;
 
-            try
-            {
-                var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
-                    ?? throw new Exception("Taking productId error");
-
-                var productModel = await productService.GetProductAsync(getProductId);
-
-                await subscriptionRepository.CreateSubscriptionAsync(new()
+                switch (messageQueueModel.Type)
                 {
-                    Id = Guid.NewGuid(),
-                    Name = productModel.Name,
-                    Price = productModel.Price,
-                    EndDate = subscription.CurrentPeriodEnd,
-                    IsActive = true,
-                    IsCanceled = false,
-                    StartDate = subscription.CurrentPeriodStart,
-                    UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
-                    SubscriptionStripeId = subscription.Id
-                }, AccountPlan.Free);
-            }
-            finally
-            {
-                await scope.DisposeAsync();
-            }
-        }
+                    case Constants.PaymentMode:
+                        var sessionMessage = JsonConvert
+                            .DeserializeObject<MessageQueueModel<SessionCreateOptions>>(
+                                messageArg.Message.Body.ToString()).CreateOptions;
 
-        private async Task<string> ProcessOneTimePaymentsAsync(SessionCreateOptions message)
-        {
-            message.ExpiresAt = DateTime.Now.AddMinutes(30);
-            var session = await GetSessionService().CreateAsync(message);
+                        connectionId = sessionMessage.Metadata[MetadataConstants.ConnectionId];
+                        signalRMethodName = sessionMessage.Metadata[MetadataConstants.SignalRMethodName];
 
-            if (!session.Mode.Equals(Constants.SETUP_MODE))
-            {
-                await CreatePaymentAsync(new Payment
-                {
-                    Id = Guid.NewGuid(),
-                    PaymentId = session.PaymentIntentId,
-                    InvoiceId = session.InvoiceId,
-                    AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
-                    Status = "created",
-                    UserEmail = session.CustomerEmail ?? string.Empty,
-                    SessionId = session.Id,
-                    UpdatedBallance = false,
-                    UserId = Guid.Parse(session.Metadata[MetadataConstants.UserId]),
-                    Mode = session.Mode,
-                    ProductName = session.Metadata[MetadataConstants.ProductName]
-                });
-            }
-            return session.Url;
-        }
+                        resultMessage = await ProcessOneTimePaymentsAsync(sessionMessage);
+                        break;
 
-        private async Task<string> ProcessFreeSubscription(SubscriptionCreateOptions message)
-        {
-            var createSubscription = await GetSubscriptionService().CreateAsync(message);
-            await CreateFreeSubscriptionDataBaseRecordAsync(createSubscription);
-            return EventResultConstants.Success;
-        }
+                    case Constants.SubscriptionMode:
+                        var subscriptionMessage = JsonConvert
+                            .DeserializeObject<MessageQueueModel<SubscriptionCreateOptions>>(messageArg.Message.Body
+                                .ToString()).CreateOptions;
 
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            var queueMessageProcessor = _busClient.CreateProcessor(Constants.PaymentQueueName, _processorOptions);
+                        connectionId = subscriptionMessage.Metadata[MetadataConstants.ConnectionId];
+                        signalRMethodName = subscriptionMessage.Metadata[MetadataConstants.SignalRMethodName];
 
-            queueMessageProcessor.ProcessMessageAsync += async (messageArg) =>
-            {
-                var connectionId = string.Empty;
-                var signalRMethodName = string.Empty;
-                var resultMessage = string.Empty;
+                        resultMessage = await ProcessFreeSubscription(subscriptionMessage);
+                        break;
 
-                try
-                {
-                    var messageQueueModel = JsonConvert.DeserializeObject<MessageQueueModel<object>>(messageArg.Message.Body.ToString());
-
-                    switch (messageQueueModel.Type)
-                    {
-                        case Constants.PAYMENT_MODE:
-                            var sessionMessage = JsonConvert.DeserializeObject<MessageQueueModel<SessionCreateOptions>>(messageArg.Message.Body.ToString()).CreateOptions;
-
-                            connectionId = sessionMessage.Metadata[MetadataConstants.ConnectionId];
-                            signalRMethodName = sessionMessage.Metadata[MetadataConstants.SignalRMethodName];
-
-                            resultMessage = await ProcessOneTimePaymentsAsync(sessionMessage);
-                            break;
-
-                        case Constants.SUBSCRIPTION_MODE:
-                            var subscriptionMessage = JsonConvert.DeserializeObject<MessageQueueModel<SubscriptionCreateOptions>>(messageArg.Message.Body.ToString()).CreateOptions;
-
-                            connectionId = subscriptionMessage.Metadata[MetadataConstants.ConnectionId];
-                            signalRMethodName = subscriptionMessage.Metadata[MetadataConstants.SignalRMethodName];
-
-                            resultMessage = await ProcessFreeSubscription(subscriptionMessage);
-                            break;
-
-                        default:
-                            throw new Exception($"Message type {messageQueueModel.Type} was not found");
-                    }
-
-                    await SendResultBySignalRAsync(connectionId, signalRMethodName, resultMessage);
-                    await messageArg.CompleteMessageAsync(messageArg.Message);
+                    default:
+                        throw new Exception($"Message type {messageQueueModel.Type} was not found");
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex.Message);
-                    await messageArg.DeadLetterMessageAsync(messageArg.Message, deadLetterReason: ex.Message);
-                }
-            };
 
-            queueMessageProcessor.ProcessErrorAsync += (messageArgs) =>
+                await SendResultBySignalRAsync(connectionId, signalRMethodName, resultMessage);
+                await messageArg.CompleteMessageAsync(messageArg.Message, cancellationToken);
+            }
+            catch (Exception ex)
             {
-                throw new Exception(messageArgs.Exception.Message);
-            };
+                _logger.LogError(ex.Message);
+                await messageArg.DeadLetterMessageAsync(messageArg.Message, ex.Message,
+                    cancellationToken: cancellationToken);
+            }
+        };
 
-            await queueMessageProcessor.StartProcessingAsync(cancellationToken);
-        }
+        queueMessageProcessor.ProcessErrorAsync += messageArgs => throw new Exception(messageArgs.Exception.Message);
 
-        public async Task StopAsync(CancellationToken cancellationToken)
+        await queueMessageProcessor.StartProcessingAsync(cancellationToken);
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await _busClient.DisposeAsync();
+    }
+
+    private async Task SendResultBySignalRAsync(string connectionId, string signalRMethodName, string message)
+    {
+        if (!PaymentHub.CheckIfConnectionIdExist(connectionId))
+            return;
+
+        await _hubContext.Clients.Client(connectionId).SendAsync(signalRMethodName, message);
+    }
+
+    private async Task CreatePaymentAsync(Payment payment)
+    {
+        await using var scope = _serviceProvider.CreateAsyncScope();
+        var testRepo = scope.ServiceProvider.GetRequiredService<IPaymentRepository>();
+
+        await testRepo.CreatePaymentAsync(payment);
+    }
+
+    private async Task CreateFreeSubscriptionDataBaseRecordAsync(Stripe.Subscription subscription)
+    {
+        await using var scope = _serviceProvider.CreateAsyncScope();
+        var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
+        var productService = scope.ServiceProvider.GetRequiredService<IProductCatalogService>();
+
+        var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
+                           ?? throw new Exception("Taking productId error");
+
+        var productModel = await productService.GetProductAsync(getProductId);
+
+        await subscriptionRepository.CreateSubscriptionAsync(new Subscription
         {
-            await _busClient.DisposeAsync();
-        }
+            Id = Guid.NewGuid(),
+            Name = productModel.Name,
+            Price = productModel.Price,
+            EndDate = subscription.CurrentPeriodEnd,
+            IsActive = true,
+            IsCanceled = false,
+            StartDate = subscription.CurrentPeriodStart,
+            UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
+            SubscriptionStripeId = subscription.Id
+        }, AccountPlan.Free);
+    }
+
+    private async Task<string> ProcessOneTimePaymentsAsync(SessionCreateOptions message)
+    {
+        message.ExpiresAt = DateTime.Now.AddMinutes(30);
+        var session = await GetSessionService().CreateAsync(message);
+
+        if (!session.Mode.Equals(Constants.SetupMode))
+            await CreatePaymentAsync(new Payment
+            {
+                Id = Guid.NewGuid(),
+                PaymentId = session.PaymentIntentId,
+                InvoiceId = session.InvoiceId,
+                AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
+                Status = "created",
+                UserEmail = session.CustomerEmail ?? string.Empty,
+                SessionId = session.Id,
+                UpdatedBallance = false,
+                UserId = Guid.Parse(session.Metadata[MetadataConstants.UserId]),
+                Mode = session.Mode,
+                ProductName = session.Metadata[MetadataConstants.ProductName]
+            });
+        return session.Url;
+    }
+
+    private async Task<string> ProcessFreeSubscription(SubscriptionCreateOptions message)
+    {
+        var createSubscription = await GetSubscriptionService().CreateAsync(message);
+        await CreateFreeSubscriptionDataBaseRecordAsync(createSubscription);
+        return EventResultConstants.Success;
     }
 }

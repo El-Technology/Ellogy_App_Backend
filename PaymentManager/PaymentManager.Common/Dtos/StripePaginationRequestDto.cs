@@ -1,11 +1,9 @@
-﻿namespace PaymentManager.Common.Dtos
+﻿namespace PaymentManager.Common.Dtos;
+
+public class StripePaginationRequestDto
 {
-    public class StripePaginationRequestDto
-    {
+    public int RecordsPerPage { get; set; } = 10;
 
-        public int RecordsPerPage { get; set; } = 10;
-
-        public string? StartAfter { get; set; } = null;
-        public string? EndBefore { get; set; } = null;
-    }
+    public string? StartAfter { get; set; } = null;
+    public string? EndBefore { get; set; } = null;
 }

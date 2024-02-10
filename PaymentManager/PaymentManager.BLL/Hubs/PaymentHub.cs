@@ -4,39 +4,60 @@ using Microsoft.AspNetCore.SignalR;
 using PaymentManager.Common.Constants;
 using PaymentManager.Common.Options;
 
-namespace PaymentManager.BLL.Hubs
+namespace PaymentManager.BLL.Hubs;
+
+/// <summary>
+///     This class is responsible for managing the payment hub
+/// </summary>
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+public class PaymentHub : Hub
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class PaymentHub : Hub
+    /// <summary>
+    ///     This dictionary contains the list of connections
+    /// </summary>
+    public static readonly Dictionary<string, Guid> ListOfConnections = new();
+
+    /// <summary>
+    ///     This method checks if the connection id exists
+    /// </summary>
+    /// <param name="connectionId"></param>
+    /// <returns></returns>
+    public static bool CheckIfConnectionIdExist(string connectionId)
     {
-        public static readonly Dictionary<string, Guid> listOfConnections = new();
+        return ListOfConnections.ContainsKey(connectionId);
+    }
 
-        public static bool CheckIfConnectionIdExist(string connectionId)
-        {
-            return listOfConnections.ContainsKey(connectionId);
-        }
+    /// <summary>
+    ///     This method checks if the user id exists and returns the connections
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public static IEnumerable<KeyValuePair<string, Guid>> CheckIfUserIdExistAndReturnConnections(Guid userId)
+    {
+        return ListOfConnections.Where(x => x.Value == userId);
+    }
 
-        public static IEnumerable<KeyValuePair<string, Guid>> CheckIfUserIdExistAndReturnConnections(Guid userId)
-        {
-            return listOfConnections.Where(x => x.Value == userId);
-        }
+    /// <summary>
+    ///     This method is called when a client is connected
+    /// </summary>
+    /// <returns></returns>
+    public override async Task OnConnectedAsync()
+    {
+        var userId = Context.GetHttpContext()?.User.FindFirst(JwtOptions.UserIdClaimName)?.Value
+                     ?? throw new Exception("UserId was not found");
+        ListOfConnections.Add(Context.ConnectionId, Guid.Parse(userId));
+        await Clients.Client(Context.ConnectionId).SendAsync(Constants.OnConnectedMethod, Context.ConnectionId);
+    }
 
-        public override async Task OnConnectedAsync()
-        {
-            var userId = Context.GetHttpContext()?.User.FindFirst(JwtOptions.UserIdClaimName)?.Value
-                ?? throw new Exception($"UserId was not found");
-
-            listOfConnections.Add(Context.ConnectionId, Guid.Parse(userId));
-            await Clients.Client(Context.ConnectionId).SendAsync(Constants.OnConnectedMethod, Context.ConnectionId);
-        }
-
-        public override async Task OnDisconnectedAsync(Exception? exception)
-        {
-            listOfConnections.Remove(Context.ConnectionId);
-
-            await Clients.All.SendAsync("Disconnected", Context.ConnectionId); //for testing, will be removed
-
-            await base.OnDisconnectedAsync(exception);
-        }
+    /// <summary>
+    ///     This method is called when a client is disconnected
+    /// </summary>
+    /// <param name="exception"></param>
+    /// <returns></returns>
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        ListOfConnections.Remove(Context.ConnectionId);
+        await Clients.All.SendAsync("Disconnected", Context.ConnectionId); //for testing, will be removed
+        await base.OnDisconnectedAsync(exception);
     }
 }

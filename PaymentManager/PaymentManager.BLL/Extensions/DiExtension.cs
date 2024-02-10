@@ -4,26 +4,35 @@ using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Services;
 using PaymentManager.Common;
 
-namespace PaymentManager.BLL.Extensions
-{
-    public static class DiExtension
-    {
-        public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
-        {
-            return services
-                .AddScoped<PaymentProducer>()
-                .AddHostedService<PaymentConsumer>()
-                .AddScoped<IPaymentSessionService, PaymentSessionService>()
-                .AddSingleton<ServiceBusClient>(_ => new(EnvironmentVariables.AzureServiceBusConnectionString))
-                .AddScoped<IPaymentCustomerService, PaymentCustomerService>()
-                .AddScoped<IProductCatalogService, ProductCatalogService>()
-                .AddScoped<IWebhookService, WebhookService>();
-        }
+namespace PaymentManager.BLL.Extensions;
 
-        public static IServiceCollection AddMapping(this IServiceCollection services)
-        {
-            return services
-                .AddAutoMapper(typeof(DiExtension).Assembly);
-        }
+public static class DiExtension
+{
+    /// <summary>
+    ///     This method adds the business layer services to the DI container
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
+    {
+        return services
+            .AddScoped<PaymentProducer>()
+            .AddHostedService<PaymentConsumer>()
+            .AddScoped<IPaymentSessionService, PaymentSessionService>()
+            .AddSingleton(_ => new ServiceBusClient(EnvironmentVariables.AzureServiceBusConnectionString))
+            .AddScoped<IPaymentCustomerService, PaymentCustomerService>()
+            .AddScoped<IProductCatalogService, ProductCatalogService>()
+            .AddScoped<IWebhookService, WebhookService>();
+    }
+
+    /// <summary>
+    ///     This method adds the mapping services to the DI container
+    /// </summary>
+    /// <param name="services"></param>
+    /// <returns></returns>
+    public static IServiceCollection AddMapping(this IServiceCollection services)
+    {
+        return services
+            .AddAutoMapper(typeof(DiExtension).Assembly);
     }
 }

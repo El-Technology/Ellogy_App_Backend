@@ -1,9 +1,8 @@
-﻿namespace PaymentManager.DAL.Models
+﻿namespace PaymentManager.DAL.Models;
+
+public class Wallet
 {
-    public class Wallet
-    {
-        public Guid Id { get; set; }
-        public Guid UserId { get; set; }
-        public int Balance { get; set; }
-    }
+    public Guid Id { get; set; }
+    public Guid UserId { get; set; }
+    public int Balance { get; set; }
 }

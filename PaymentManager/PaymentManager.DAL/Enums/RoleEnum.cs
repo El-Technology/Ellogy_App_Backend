@@ -1,9 +1,8 @@
-﻿namespace PaymentManager.DAL.Enums
+﻿namespace PaymentManager.DAL.Enums;
+
+public enum RoleEnum
 {
-    public enum RoleEnum
-    {
-        User = 0,
-        Admin = 1,
-        SomeDesigner = 2,
-    }
+    User = 0,
+    Admin = 1,
+    SomeDesigner = 2
 }

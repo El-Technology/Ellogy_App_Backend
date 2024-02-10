@@ -1,43 +1,55 @@
 ﻿using System.Net;
 
-namespace PaymentManager.API.Middlewares
+namespace PaymentManager.API.Middlewares;
+
+public class ExceptionHandlerMiddleware
 {
-    public class ExceptionHandlerMiddleware
+    private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionHandlerMiddleware> _logger;
+    private const string DefaultResponseMessage = "Internal server error";
+    private const HttpStatusCode DefaultHttpStatusCode = HttpStatusCode.InternalServerError;
+
+    public ExceptionHandlerMiddleware(RequestDelegate requestDelegate, ILogger<ExceptionHandlerMiddleware> logger)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<ExceptionHandlerMiddleware> _logger;
-        private const string StandartResponseMessage = "Internal server error";
-        private const HttpStatusCode StandartHttpStatusCode = HttpStatusCode.InternalServerError;
+        _next = requestDelegate;
+        _logger = logger;
+    }
 
-        public ExceptionHandlerMiddleware(RequestDelegate requestDelegate, ILogger<ExceptionHandlerMiddleware> logger)
+    /// <summary>
+    ///    Entry point for handling exceptions
+    /// </summary>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
         {
-            _next = requestDelegate;
-            _logger = logger;
+            await _next(context);
         }
-
-        public async Task InvokeAsync(HttpContext context)
+        catch (Exception ex)
         {
-            try
-            {
-                await _next(context);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                await HandleExceptionAsync(context, ex.Message,
-                    responseMessage: string.IsNullOrEmpty(ex.Message)
-                        ? StandartResponseMessage
-                        : ex.Message);
-            }
+            _logger.LogError(ex.Message);
+            await HandleExceptionAsync(context, ex.Message,
+                responseMessage: string.IsNullOrEmpty(ex.Message)
+                    ? DefaultResponseMessage
+                    : ex.Message);
         }
+    }
 
-        private static async Task HandleExceptionAsync(HttpContext context, string errorMessage,
-                                                       HttpStatusCode httpStatusCode = StandartHttpStatusCode, string responseMessage = StandartResponseMessage)
-        {
-            context.Response.ContentType = "text/plain";
-            context.Response.StatusCode = (int)httpStatusCode;
+    /// <summary>
+    ///   This method handles exceptions
+    /// </summary>
+    /// <param name="context"></param>
+    /// <param name="errorMessage"></param>
+    /// <param name="httpStatusCode"></param>
+    /// <param name="responseMessage"></param>
+    /// <returns></returns>
+    private static async Task HandleExceptionAsync(HttpContext context, string errorMessage,
+        HttpStatusCode httpStatusCode = DefaultHttpStatusCode, string responseMessage = DefaultResponseMessage)
+    {
+        context.Response.ContentType = "text/plain";
+        context.Response.StatusCode = (int)httpStatusCode;
 
-            await context.Response.WriteAsync(responseMessage);
-        }
+        await context.Response.WriteAsync(responseMessage);
     }
 }

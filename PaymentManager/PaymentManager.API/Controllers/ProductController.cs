@@ -18,7 +18,7 @@ public class ProductController : Controller
     }
 
     /// <summary>
-    /// This method retrieves the list of products
+    ///     This method retrieves the list of products
     /// </summary>
     /// <returns></returns>
     [HttpGet]

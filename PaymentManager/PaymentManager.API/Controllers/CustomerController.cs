@@ -109,7 +109,8 @@ public class CustomerController : Controller
     /// <returns></returns>
     [HttpPost]
     [Route("getCustomerPayments")]
-    public async Task<IActionResult> GetCustomerPayments([FromBody] StripePaginationRequestDto stripePaginationRequestDto)
+    public async Task<IActionResult> GetCustomerPayments(
+        [FromBody] StripePaginationRequestDto stripePaginationRequestDto)
     {
         return Ok(await _paymentCustomerService.GetCustomerPaymentsAsync(GetUserIdFromToken(),
             stripePaginationRequestDto));

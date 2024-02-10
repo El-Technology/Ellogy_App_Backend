@@ -1,8 +1,7 @@
-﻿namespace PaymentManager.DAL.Enums
+﻿namespace PaymentManager.DAL.Enums;
+
+public enum AccountPlan
 {
-    public enum AccountPlan
-    {
-        Free = 0,
-        Basic = 1
-    }
+    Free = 0,
+    Basic = 1
 }

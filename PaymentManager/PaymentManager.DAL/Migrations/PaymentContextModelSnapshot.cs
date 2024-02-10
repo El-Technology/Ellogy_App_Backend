@@ -49,7 +49,7 @@ namespace PaymentManager.DAL.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("text");
 
-                    b.Property<bool>("UpdatedBallance")
+                    b.Property<bool>("UpdatedBalance")
                         .HasColumnType("boolean");
 
                     b.Property<string>("UserEmail")

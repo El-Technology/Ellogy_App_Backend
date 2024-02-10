@@ -1,91 +1,53 @@
-﻿using PaymentManager.BLL.Interfaces;
+﻿using AutoMapper;
+using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
-using PaymentManager.Common.Constants;
 using Stripe;
 
-namespace PaymentManager.BLL.Services
+namespace PaymentManager.BLL.Services;
+
+/// <summary>
+///     This class contains methods for product catalog related operations
+/// </summary>
+public class ProductCatalogService : StripeBaseService, IProductCatalogService
 {
-    public class ProductCatalogService : StripeBaseService, IProductCatalogService
+    private readonly IMapper _mapper;
+
+    public ProductCatalogService(IMapper mapper)
     {
-        /// <inheritdoc cref="IProductCatalogService.GetSubscriptionCatalogAsync"/>
-        public async Task<IEnumerable<ProductModel>> GetSubscriptionCatalogAsync()
+        _mapper = mapper;
+    }
+
+    /// <inheritdoc cref="IProductCatalogService.GetSubscriptionCatalogAsync" />
+    public async Task<IEnumerable<ProductModel>> GetSubscriptionCatalogAsync()
+    {
+        var allProducts = await GetProductService().ListAsync(new ProductListOptions
         {
-            var allProducts = await GetProductService().ListAsync(new()
-            {
-                Active = true,
-                Expand = new List<string> { "data.default_price" }
-            });
+            Active = true,
+            Expand = new List<string> { "data.default_price" }
+        });
 
-            var productModels = new List<ProductModel>();
-
-            foreach (var product in allProducts)
-            {
-                var price = product.DefaultPrice != null
-                    ? product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents
-                    : null;
-
-                var listOfFeatures = new List<string>();
-
-                foreach (var feature in product.Features)
-                    listOfFeatures.Add(feature.Name);
-
-                var productModel = new ProductModel
-                {
-                    Name = product.Name,
-                    Price = price,
-                    Description = product.Description,
-                    ProductId = product.Id,
-                    PriceId = product.DefaultPrice?.Id,
-                    Features = listOfFeatures,
-                };
-
-                productModels.Add(productModel);
-            }
-
-            return productModels;
-        }
+        return _mapper.Map<List<ProductModel>>(allProducts);
+    }
 
 
-        /// <inheritdoc cref="IProductCatalogService.GetProductAsync(string)"/>
-        public async Task<ProductModel> GetProductAsync(string productId)
+    /// <inheritdoc cref="IProductCatalogService.GetProductAsync(string)" />
+    public async Task<ProductModel> GetProductAsync(string productId)
+    {
+        var product = await GetProductService().GetAsync(productId,
+            new ProductGetOptions { Expand = new List<string> { "default_price" } });
+
+        return _mapper.Map<ProductModel>(product);
+    }
+
+    /// <inheritdoc cref="IProductCatalogService.GetProductByNameAsync(string)" />
+    public async Task<ProductModel> GetProductByNameAsync(string productName)
+    {
+        var product = (await GetProductService().SearchAsync(new ProductSearchOptions
         {
-            var product = await GetProductService().GetAsync(productId, new ProductGetOptions { Expand = new List<string> { "default_price" } });
+            Expand = new List<string> { "data.default_price" },
+            Query = $"active:'true' AND name~'{productName}'"
+        })).FirstOrDefault() ?? throw new Exception($"Product with name {productName} was not found");
 
-            var price = product.DefaultPrice != null
-                ? product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents
-                : null;
-
-            return new ProductModel
-            {
-                Name = product.Name,
-                Price = price,
-                Description = product.Description,
-                ProductId = product.Id,
-                PriceId = product.DefaultPrice?.Id
-            };
-        }
-
-        public async Task<ProductModel> GetProductByNameAsync(string productName)
-        {
-            var product = (await GetProductService().SearchAsync(new()
-            {
-                Expand = new List<string> { "data.default_price" },
-                Query = $"active:'true' AND name~'{productName}'"
-            })).FirstOrDefault() ?? throw new Exception($"Product with name {productName} was not found");
-
-            var price = product.DefaultPrice != null
-                ? product.DefaultPrice.UnitAmountDecimal / Constants.PriceInCents
-                : null;
-
-            return new ProductModel
-            {
-                Name = product.Name,
-                Price = price,
-                Description = product.Description,
-                ProductId = product.Id,
-                PriceId = product.DefaultPrice?.Id
-            };
-        }
+        return _mapper.Map<ProductModel>(product);
     }
 }
-
