@@ -6,79 +6,99 @@ using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
 using PaymentManager.Common.Options;
 
-namespace PaymentManager.Controllers
+namespace PaymentManager.API.Controllers;
+
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Route("api/[controller]")]
+[ApiController]
+public class CheckOutController : Controller
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Route("api/[controller]")]
-    [ApiController]
-    public class CheckOutController : Controller
+    private readonly IPaymentSessionService _paymentService;
+    private readonly PaymentProducer _serviceBus;
+
+    public CheckOutController(PaymentProducer serviceBus,
+        IPaymentSessionService paymentService)
     {
-        private readonly PaymentProducer _serviceBus;
-        private readonly IPaymentSessionService _paymentService;
+        _serviceBus = serviceBus;
+        _paymentService = paymentService;
+    }
 
-        public CheckOutController(PaymentProducer serviceBus,
-            IPaymentSessionService paymentService)
-        {
-            _serviceBus = serviceBus;
-            _paymentService = paymentService;
-        }
+    /// <summary>
+    ///     This method retrieves the user id from the JWT token
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    private Guid GetUserIdFromToken()
+    {
+        var status = Guid.TryParse(User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out var userId);
+        if (!status)
+            throw new Exception("Taking user id error, try again later");
 
-        /// <summary>
-        /// This method retrieves the user id from the JWT token
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="Exception"></exception>
-        private Guid GetUserIdFromToken()
-        {
-            var status = Guid.TryParse(User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out Guid userId);
-            if (!status)
-                throw new Exception("Taking user id error, try again later");
+        return userId;
+    }
 
-            return userId;
-        }
+    /// <summary>
+    ///     This method retrieves the user balance
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("getUserBalance")]
+    public async Task<IActionResult> GetUserBalance()
+    {
+        var products = await _paymentService.GetUserBalanceAsync(GetUserIdFromToken());
+        return Ok(products);
+    }
 
-        [HttpGet]
-        [Route("getUserBalance")]
-        public async Task<IActionResult> GetUserBalance()
-        {
-            var products = await _paymentService.GetUserBalanceAsync(GetUserIdFromToken());
-            return Ok(products);
-        }
+    /// <summary>
+    ///     This method creates one time payment request for purchase tokens
+    /// </summary>
+    /// <param name="streamRequest"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("createPayment")]
+    public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest streamRequest)
+    {
+        var payment = await _paymentService.CreateOneTimePaymentAsync(GetUserIdFromToken(), streamRequest);
+        await _serviceBus.CreateSessionAsync(payment);
+        return Ok();
+    }
 
-        [HttpPost]
-        [Route("createPayment")]
-        public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest streamRequest)
-        {
-            var payment = await _paymentService.CreateOneTimePaymentAsync(GetUserIdFromToken(), streamRequest);
-            await _serviceBus.CreateSessionAsync(payment);
-            return Ok();
-        }
+    /// <summary>
+    ///     This method creates free subscription for user
+    /// </summary>
+    /// <param name="signalRModel"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("createFreeSubscription")]
+    public async Task<IActionResult> CreateSubscription([FromBody] SignalRModel signalRModel)
+    {
+        var session = await _paymentService.CreateFreeSubscriptionAsync(signalRModel, GetUserIdFromToken());
+        await _serviceBus.CreateFreeSubscriptionAsync(session);
+        return Ok();
+    }
 
-        // subscription separate logic below
+    /// <summary>
+    ///     This method updates current subscription to new one
+    /// </summary>
+    /// <param name="newPriceId"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("upgradeSubscription")]
+    public async Task<IActionResult> UpgradeSubscription([FromQuery] string newPriceId)
+    {
+        await _paymentService.UpgradeSubscriptionAsync(GetUserIdFromToken(), newPriceId);
+        return Ok();
+    }
 
-        [HttpPost]
-        [Route("createFreeSubscription")]
-        public async Task<IActionResult> CreateSubscription([FromBody] SignalRModel signalRModel)
-        {
-            var session = await _paymentService.CreateFreeSubscriptionAsync(signalRModel, GetUserIdFromToken());
-            await _serviceBus.CreateFreeSubscriptionAsync(session);
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("upgradeSubscription")]
-        public async Task<IActionResult> UpgradeSubscription([FromQuery] string newPriceId)
-        {
-            await _paymentService.UpgradeSubscriptionAsync(GetUserIdFromToken(), newPriceId);
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("cancelSubscription")]
-        public async Task<IActionResult> CancelSubscription()
-        {
-            await _paymentService.CancelSubscriptionAsync(GetUserIdFromToken());
-            return Ok();
-        }
+    /// <summary>
+    ///     This method cancels current subscription
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("cancelSubscription")]
+    public async Task<IActionResult> CancelSubscription()
+    {
+        await _paymentService.CancelSubscriptionAsync(GetUserIdFromToken());
+        return Ok();
     }
 }
