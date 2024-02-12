@@ -97,17 +97,20 @@ public class DocumentService : IDocumentService
         try
         {
             var documentContext = await ReadPdf(userId, fileName);
+
+            Console.WriteLine(documentContext);
+
             var splitText = SplitText(documentContext);
             var embeddings = new List<Embedding>();
 
-            foreach (var text in splitText)
+            foreach (var sanitizedText in splitText.Select(text => text.Replace("\0", string.Empty)))
             {
-                var embedding = await _customAiService.GetEmbeddingAsync(text);
+                var embedding = await _customAiService.GetEmbeddingAsync(sanitizedText);
                 embeddings.Add(new Embedding
                 {
                     Id = Guid.NewGuid(),
                     DocumentId = document.Id,
-                    Text = text,
+                    Text = sanitizedText,
                     Vector = new Vector(embedding)
                 });
             }
