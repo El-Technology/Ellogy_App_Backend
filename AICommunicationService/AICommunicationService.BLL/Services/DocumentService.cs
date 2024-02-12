@@ -3,8 +3,10 @@ using System.Text;
 using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
+using AICommunicationService.DAL.Interfaces;
 using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
+using AICommunicationService.RAG.Repositories;
 using AutoMapper;
 using Azure.Storage;
 using Azure.Storage.Blobs;
@@ -21,15 +23,21 @@ public class DocumentService : IDocumentService
     private readonly BlobServiceClient _blobServiceClient;
     private readonly IAzureOpenAiRequestService _customAiService;
     private readonly IDocumentRepository _documentRepository;
+    private readonly DocumentSharingRepository _documentSharingRepository;
     private readonly IEmbeddingRepository _embeddingRepository;
     private readonly IMapper _mapper;
+    private readonly IUserRepository _userRepository;
 
     public DocumentService(BlobServiceClient blobServiceClient,
         IAzureOpenAiRequestService customAiService,
         IEmbeddingRepository embeddingRepository,
         IDocumentRepository documentRepository,
-        IMapper mapper)
+        IMapper mapper,
+        IUserRepository userRepository,
+        DocumentSharingRepository documentSharingRepository)
     {
+        _documentSharingRepository = documentSharingRepository;
+        _userRepository = userRepository;
         _mapper = mapper;
         _documentRepository = documentRepository;
         _embeddingRepository = embeddingRepository;
@@ -78,13 +86,27 @@ public class DocumentService : IDocumentService
     }
 
     /// <inheritdoc cref="IDocumentService.GetAllUserDocumentsAsync" />
-    public async Task<List<DocumentResponseDto>> GetAllUserDocumentsAsync(Guid userId)
+    public async Task<List<DocumentResponseWithOwner>> GetAllUserDocumentsAsync(Guid userId)
     {
-        return _mapper.Map<List<DocumentResponseDto>>(await _documentRepository.GetAllUserDocumentsAsync(userId));
+        var documentResponse =
+            _mapper.Map<List<DocumentResponseWithOwner>>(await _documentRepository.GetAllUserDocumentsAsync(userId));
+
+        var users = await _userRepository.GetUsersByIds(documentResponse.Select(a => a.UserId).ToList());
+
+        foreach (var document in documentResponse)
+        {
+            var user = users.FirstOrDefault(a => a.Id == document.UserId);
+            document.Email = user.Email;
+            document.FirstName = user.FirstName;
+            document.LastName = user.LastName;
+            document.AvatarLink = user.AvatarLink;
+        }
+
+        return documentResponse;
     }
 
     /// <inheritdoc cref="IDocumentService.InsertDocumentContextInVectorDbAsync" />
-    public async Task<DocumentResponseDto> InsertDocumentContextInVectorDbAsync(Guid userId, string fileName)
+    public async Task<DocumentResponseWithOwner> InsertDocumentContextInVectorDbAsync(Guid userId, string fileName)
     {
         var documentIsReady = false;
 
@@ -97,8 +119,6 @@ public class DocumentService : IDocumentService
         try
         {
             var documentContext = await ReadPdf(userId, fileName);
-
-            Console.WriteLine(documentContext);
 
             var splitText = SplitText(documentContext);
             var embeddings = new List<Embedding>();
@@ -125,7 +145,18 @@ public class DocumentService : IDocumentService
         }
 
         document.IsReadyToUse = documentIsReady;
-        return _mapper.Map<DocumentResponseDto>(document);
+
+        var documentWithOwner = _mapper.Map<DocumentResponseWithOwner>(document);
+
+        var user = await _userRepository.GetUserByIdAsync(documentWithOwner.UserId)
+                   ?? throw new Exception("User was not found");
+
+        documentWithOwner.Email = user.Email;
+        documentWithOwner.FirstName = user.FirstName;
+        documentWithOwner.LastName = user.LastName;
+        documentWithOwner.AvatarLink = user.AvatarLink;
+
+        return documentWithOwner;
     }
 
     /// <inheritdoc cref="IDocumentService.ReadPdf" />
@@ -163,7 +194,52 @@ public class DocumentService : IDocumentService
     {
         var embedding = await _customAiService.GetEmbeddingAsync(searchRequest);
         var searchResult = await _embeddingRepository.GetTheClosestEmbeddingAsync(userId, fileName, embedding);
-        return searchResult!.Text;
+
+        return searchResult?.Text ?? string.Empty;
+    }
+
+    /// <inheritdoc cref="IDocumentService.FindUserByEmailAsync" />
+    public async Task<List<UserDto>> FindUserByEmailAsync(string emailPrefix)
+    {
+        return _mapper.Map<List<UserDto>>(await _userRepository.FindUserByEmailAsync(emailPrefix));
+    }
+
+    /// <inheritdoc cref="IDocumentService.GivePermissionForUsingDocumentAsync" />
+    public async Task GivePermissionForUsingDocumentAsync(Guid ownerId, PermissionDto permissionDto)
+    {
+        if (ownerId == permissionDto.ReceiverId)
+            throw new Exception("You cannot give permission to yourself");
+
+        var document = await _documentRepository.GetDocumentByNameAsync(ownerId, permissionDto.DocumentName)
+                       ?? throw new Exception("Document was not found");
+
+        await _documentSharingRepository.AddDocumentSharingAsync(new DocumentSharing
+        {
+            Id = Guid.NewGuid(),
+            DocumentId = document.Id,
+            UserId = permissionDto.ReceiverId
+        });
+    }
+
+    public async Task RemovePermissionForUsingDocumentAsync(Guid ownerId, PermissionDto permissionDto)
+    {
+        if (ownerId == permissionDto.ReceiverId)
+            throw new Exception("You cannot remove permission to yourself");
+
+        var document = await _documentRepository.GetDocumentByNameAsync(ownerId, permissionDto.DocumentName)
+                       ?? throw new Exception("Document was not found");
+
+        await _documentSharingRepository.DeleteDocumentSharingAsync(permissionDto.ReceiverId, document.Id);
+    }
+
+    public async Task<List<UserDto>> GetAllUsersWithPermissionAsync(Guid ownerId, string documentName)
+    {
+        var document = await _documentRepository.GetDocumentByNameAsync(ownerId, documentName)
+                       ?? throw new Exception("Document was not found");
+
+        var users = await _documentSharingRepository.GetAllSharedUsersAsync(document.Id);
+
+        return _mapper.Map<List<UserDto>>(await _userRepository.GetUsersByIds(users));
     }
 
     private string ReturnUrlWithPermission(Guid userId, string fileName, int minutesForExpire,

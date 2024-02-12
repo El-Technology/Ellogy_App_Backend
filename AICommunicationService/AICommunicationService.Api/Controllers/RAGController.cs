@@ -1,4 +1,5 @@
-﻿using AICommunicationService.BLL.Interfaces;
+﻿using AICommunicationService.BLL.Dtos;
+using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -104,5 +105,55 @@ public class RAGController : Controller
     public async Task<IActionResult> EmbedDocument([FromQuery] string fileName)
     {
         return Ok(await _documentService.InsertDocumentContextInVectorDbAsync(GetUserIdFromToken(), fileName));
+    }
+
+    /// <summary>
+    ///     This method finds the user by email prefix
+    /// </summary>
+    /// <param name="emailPrefix"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("findUser")]
+    public async Task<IActionResult> FindUser([FromQuery] string emailPrefix)
+    {
+        return Ok(await _documentService.FindUserByEmailAsync(emailPrefix));
+    }
+
+    /// <summary>
+    ///     This method gives permission for using the document
+    /// </summary>
+    /// <param name="permissionDto"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("givePermission")]
+    public async Task<IActionResult> GivePermission([FromBody] PermissionDto permissionDto)
+    {
+        await _documentService.GivePermissionForUsingDocumentAsync(GetUserIdFromToken(), permissionDto);
+        return Ok();
+    }
+
+    /// <summary>
+    ///     This method removes permission for using the document
+    /// </summary>
+    /// <param name="permissionDto"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("removePermission")]
+    public async Task<IActionResult> RemovePermission([FromBody] PermissionDto permissionDto)
+    {
+        await _documentService.RemovePermissionForUsingDocumentAsync(GetUserIdFromToken(), permissionDto);
+        return Ok();
+    }
+
+    /// <summary>
+    ///     This method returns the list of the users with permission for using the document
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("getAllUsersWithPermission")]
+    public async Task<IActionResult> GetAllUsersWithPermission([FromQuery] string fileName)
+    {
+        return Ok(await _documentService.GetAllUsersWithPermissionAsync(GetUserIdFromToken(), fileName));
     }
 }

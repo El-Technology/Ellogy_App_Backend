@@ -20,7 +20,7 @@ public interface IDocumentService
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
-    Task<List<DocumentResponseDto>> GetAllUserDocumentsAsync(Guid userId);
+    Task<List<DocumentResponseWithOwner>> GetAllUserDocumentsAsync(Guid userId);
 
     /// <summary>
     ///     This method deletes the document from the storage
@@ -61,7 +61,7 @@ public interface IDocumentService
     /// <param name="userId"></param>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    Task<DocumentResponseDto> InsertDocumentContextInVectorDbAsync(Guid userId, string fileName);
+    Task<DocumentResponseWithOwner> InsertDocumentContextInVectorDbAsync(Guid userId, string fileName);
 
     /// <summary>
     ///     This method reads the pdf
@@ -70,4 +70,15 @@ public interface IDocumentService
     /// <param name="fileName"></param>
     /// <returns></returns>
     Task<string> ReadPdf(Guid userId, string fileName);
+
+    /// <summary>
+    ///     This method is used for finding user by email prefix
+    /// </summary>
+    /// <param name="emailPrefix"></param>
+    /// <returns></returns>
+    Task<List<UserDto>> FindUserByEmailAsync(string emailPrefix);
+
+    Task GivePermissionForUsingDocumentAsync(Guid ownerId, PermissionDto permissionDto);
+    Task RemovePermissionForUsingDocumentAsync(Guid ownerId, PermissionDto permissionDto);
+    Task<List<UserDto>> GetAllUsersWithPermissionAsync(Guid ownerId, string documentName);
 }

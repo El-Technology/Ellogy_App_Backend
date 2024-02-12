@@ -23,7 +23,7 @@ public class DocumentRepository : IDocumentRepository
     public async Task<List<Document>> GetAllUserDocumentsAsync(Guid userId)
     {
         return await _context.Documents
-            .Where(a => a.UserId == userId)
+            .Where(a => a.UserId == userId || a.DocumentSharing.Any(sharing => sharing.UserId == userId))
             .ToListAsync();
     }
 
