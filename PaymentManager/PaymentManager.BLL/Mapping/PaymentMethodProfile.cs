@@ -14,14 +14,12 @@ public class PaymentMethodProfile : Profile
                 opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Default, opt =>
                 opt.MapFrom(src =>
-                    (src.Customer.InvoiceSettings.DefaultPaymentMethodId ?? string.Empty).Equals(src.Id)));
-
-        CreateMap<Card, Models.PaymentMethod>()
+                    (src.Customer.InvoiceSettings.DefaultPaymentMethodId ?? string.Empty).Equals(src.Id)))
             .ForMember(dest => dest.CardBrand, opt =>
-                opt.MapFrom(src => src.Brand))
+                opt.MapFrom(src => src.Card.Brand))
             .ForMember(dest => dest.Expires, opt =>
-                opt.MapFrom(src => $"{src.ExpMonth}/{src.ExpYear}"))
+                opt.MapFrom(src => $"{src.Card.ExpMonth}/{src.Card.ExpYear}"))
             .ForMember(dest => dest.Last4, opt =>
-                opt.MapFrom(src => src.Last4));
+                opt.MapFrom(src => src.Card.Last4));
     }
 }
