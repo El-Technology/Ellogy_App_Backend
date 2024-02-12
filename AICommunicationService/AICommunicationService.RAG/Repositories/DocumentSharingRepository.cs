@@ -1,10 +1,11 @@
 ﻿using AICommunicationService.RAG.Context.Vector;
+using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AICommunicationService.RAG.Repositories;
 
-public class DocumentSharingRepository
+public class DocumentSharingRepository : IDocumentSharingRepository
 {
     private readonly VectorContext _context;
 
@@ -23,6 +24,13 @@ public class DocumentSharingRepository
     {
         await _context.DocumentSharing
             .Where(a => a.UserId == userId && a.DocumentId == documentId)
+            .ExecuteDeleteAsync();
+    }
+
+    public async Task DeleteAllDocumentSharingAsync(Guid documentId)
+    {
+        await _context.DocumentSharing
+            .Where(a => a.DocumentId == documentId)
             .ExecuteDeleteAsync();
     }
 

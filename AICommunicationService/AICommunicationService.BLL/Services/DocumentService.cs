@@ -6,7 +6,6 @@ using AICommunicationService.Common;
 using AICommunicationService.DAL.Interfaces;
 using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
-using AICommunicationService.RAG.Repositories;
 using AutoMapper;
 using Azure.Storage;
 using Azure.Storage.Blobs;
@@ -23,7 +22,7 @@ public class DocumentService : IDocumentService
     private readonly BlobServiceClient _blobServiceClient;
     private readonly IAzureOpenAiRequestService _customAiService;
     private readonly IDocumentRepository _documentRepository;
-    private readonly DocumentSharingRepository _documentSharingRepository;
+    private readonly IDocumentSharingRepository _documentSharingRepository;
     private readonly IEmbeddingRepository _embeddingRepository;
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
@@ -34,7 +33,7 @@ public class DocumentService : IDocumentService
         IDocumentRepository documentRepository,
         IMapper mapper,
         IUserRepository userRepository,
-        DocumentSharingRepository documentSharingRepository)
+        IDocumentSharingRepository documentSharingRepository)
     {
         _documentSharingRepository = documentSharingRepository;
         _userRepository = userRepository;
@@ -63,6 +62,7 @@ public class DocumentService : IDocumentService
 
         await _embeddingRepository.DeleteEmbeddingsAsync(userId, fileName);
         await _documentRepository.DeleteDocumentAsync(userId, fileName);
+        await _documentSharingRepository.DeleteAllDocumentSharingAsync(document.Id);
     }
 
     /// <inheritdoc cref="IDocumentService.CheckIfDocumentWasUploadedAsync" />

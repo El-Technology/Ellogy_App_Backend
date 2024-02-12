@@ -15,6 +15,6 @@ public static class DiExtension
             .AddDbContext<VectorContext>(c => c.UseNpgsql(vectorConnectionString, o => o.UseVector()))
             .AddScoped<IEmbeddingRepository, EmbeddingRepository>()
             .AddScoped<IDocumentRepository, DocumentRepository>()
-            .AddScoped<DocumentSharingRepository>();
+            .AddScoped<IDocumentSharingRepository, DocumentSharingRepository>();
     }
 }
