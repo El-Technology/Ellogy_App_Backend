@@ -1,13 +1,12 @@
 ﻿using AICommunicationService.RAG.Models;
 
-namespace AICommunicationService.RAG.Interfaces
+namespace AICommunicationService.RAG.Interfaces;
+
+public interface IDocumentRepository
 {
-    public interface IDocumentRepository
-    {
-        Task AddDocumentAsync(Document document);
-        Task DeleteDocumentAsync(string documentName);
-        Task<List<Document>> GetAllUserDocumentsAsync(Guid userId);
-        Task<Document?> GetDocumentByNameAsync(string documentName);
-        Task UpdateDocumentStatusAsync(string documentName, bool? status);
-    }
+    Task AddDocumentAsync(Document document);
+    Task DeleteDocumentAsync(Guid userId, string documentName);
+    Task<List<Document>> GetAllUserDocumentsAsync(Guid userId);
+    Task<Document?> GetDocumentByNameAsync(Guid userId, string documentName);
+    Task UpdateDocumentStatusAsync(Guid userId, string documentName, bool? status);
 }

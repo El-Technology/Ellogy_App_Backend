@@ -1,13 +1,12 @@
 ﻿using AICommunicationService.RAG.Models;
 
-namespace AICommunicationService.RAG.Interfaces
+namespace AICommunicationService.RAG.Interfaces;
+
+public interface IEmbeddingRepository
 {
-    public interface IEmbeddingRepository
-    {
-        Task AddEmbeddingAsync(Embedding embedding);
-        Task AddRangeEmbeddingsAsync(List<Embedding> embeddings);
-        Task<bool> CheckIfEmbeddingAlreadyExistAsync(string fileName);
-        Task DeleteEmbeddingsAsync(string fileName);
-        Task<Embedding?> GetTheClosestEmbeddingAsync(string fileName, float[] searchRequest);
-    }
+    Task AddEmbeddingAsync(Embedding embedding);
+    Task AddRangeEmbeddingsAsync(List<Embedding> embeddings);
+    Task<bool> CheckIfEmbeddingAlreadyExistAsync(Guid userId, string fileName);
+    Task DeleteEmbeddingsAsync(Guid userId, string fileName);
+    Task<Embedding?> GetTheClosestEmbeddingAsync(Guid userId, string fileName, float[] searchRequest);
 }

@@ -1,4 +1,6 @@
-﻿using AICommunicationService.BLL.Dtos;
+﻿using System.Data.Common;
+using System.Text;
+using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
 using AICommunicationService.RAG.Interfaces;
@@ -8,192 +10,197 @@ using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
 using LangChain.TextSplitters;
-using System.Data.Common;
-using System.Text;
+using Pgvector;
 using UglyToad.PdfPig;
 
-namespace AICommunicationService.BLL.Services
+namespace AICommunicationService.BLL.Services;
+
+public class DocumentService : IDocumentService
 {
-    public class DocumentService : IDocumentService
+    private const int SAS_TTL = 5;
+    private readonly BlobServiceClient _blobServiceClient;
+    private readonly IAzureOpenAiRequestService _customAiService;
+    private readonly IDocumentRepository _documentRepository;
+    private readonly IEmbeddingRepository _embeddingRepository;
+    private readonly IMapper _mapper;
+
+    public DocumentService(BlobServiceClient blobServiceClient,
+        IAzureOpenAiRequestService customAiService,
+        IEmbeddingRepository embeddingRepository,
+        IDocumentRepository documentRepository,
+        IMapper mapper)
     {
-        private readonly BlobServiceClient _blobServiceClient;
-        private readonly IAzureOpenAiRequestService _customAiService;
-        private readonly IEmbeddingRepository _embeddingRepository;
-        private readonly IDocumentRepository _documentRepository;
-        private readonly IMapper _mapper;
-        private const int SAS_TTL = 5;
-        public DocumentService(BlobServiceClient blobServiceClient,
-                               IAzureOpenAiRequestService customAiService,
-                               IEmbeddingRepository embeddingRepository,
-                               IDocumentRepository documentRepository,
-                               IMapper mapper)
-        {
-            _mapper = mapper;
-            _documentRepository = documentRepository;
-            _embeddingRepository = embeddingRepository;
-            _customAiService = customAiService;
-            _blobServiceClient = blobServiceClient;
-        }
+        _mapper = mapper;
+        _documentRepository = documentRepository;
+        _embeddingRepository = embeddingRepository;
+        _customAiService = customAiService;
+        _blobServiceClient = blobServiceClient;
+    }
 
-        private string ReturnUrlWithPermission(string fileName, int minutesForExpire, BlobSasPermissions permission)
-        {
-            var blobClient = GetBlobContainerClient(fileName);
+    /// <inheritdoc cref="IDocumentService.DeleteFileAsync" />
+    public async Task DeleteFileAsync(Guid userId, string fileName)
+    {
+        var document = await _documentRepository.GetDocumentByNameAsync(userId, fileName)
+                       ?? throw new ArgumentNullException(nameof(fileName));
 
-            var sasBuilder = new BlobSasBuilder
+        if (userId != document.UserId)
+            throw new Exception("You don`t have access to delete this file");
+
+        var httpClient = new HttpClient();
+        var response =
+            await httpClient.DeleteAsync(ReturnUrlWithPermission(userId, fileName, 5, BlobSasPermissions.Delete));
+
+        if (!response.IsSuccessStatusCode)
+            throw new Exception("Delete file error, try again");
+
+        await _embeddingRepository.DeleteEmbeddingsAsync(userId, fileName);
+        await _documentRepository.DeleteDocumentAsync(userId, fileName);
+    }
+
+    /// <inheritdoc cref="IDocumentService.CheckIfDocumentWasUploadedAsync" />
+    public async Task CheckIfDocumentWasUploadedAsync(Guid userId, string fileName)
+    {
+        var blobClient = GetBlobContainerClient(userId, fileName);
+
+        if (!await blobClient.ExistsAsync())
+            throw new Exception($"File with name:{fileName} cannot be found, try again later");
+
+        var document = new Document
+        {
+            Id = Guid.NewGuid(),
+            Name = fileName,
+            UserId = userId,
+            CreationDate = DateTime.UtcNow,
+            IsReadyToUse = false
+        };
+
+        await _documentRepository.AddDocumentAsync(document);
+    }
+
+    /// <inheritdoc cref="IDocumentService.GetAllUserDocumentsAsync" />
+    public async Task<List<DocumentResponseDto>> GetAllUserDocumentsAsync(Guid userId)
+    {
+        return _mapper.Map<List<DocumentResponseDto>>(await _documentRepository.GetAllUserDocumentsAsync(userId));
+    }
+
+    /// <inheritdoc cref="IDocumentService.InsertDocumentContextInVectorDbAsync" />
+    public async Task<DocumentResponseDto> InsertDocumentContextInVectorDbAsync(Guid userId, string fileName)
+    {
+        var documentIsReady = false;
+
+        var document = await _documentRepository.GetDocumentByNameAsync(userId, fileName)
+                       ?? throw new Exception("Document was not found");
+
+        if (await _embeddingRepository.CheckIfEmbeddingAlreadyExistAsync(userId, fileName))
+            throw new Exception("Embedding already exist");
+
+        try
+        {
+            var documentContext = await ReadPdf(userId, fileName);
+            var splitText = SplitText(documentContext);
+            var embeddings = new List<Embedding>();
+
+            foreach (var text in splitText)
             {
-                BlobContainerName = blobClient.BlobContainerName,
-                BlobName = blobClient.Name,
-                Resource = "b",
-                StartsOn = DateTimeOffset.UtcNow,
-                ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(minutesForExpire)
-            };
-            sasBuilder.SetPermissions(permission);
-
-            var conBuilder = new DbConnectionStringBuilder
-            {
-                ConnectionString = EnvironmentVariables.BlobStorageConnectionString
-            };
-
-            var sasToken = sasBuilder
-                .ToSasQueryParameters(new StorageSharedKeyCredential(
-                    conBuilder["AccountName"] as string,
-                    conBuilder["AccountKey"] as string))
-                .ToString();
-
-            return $"{blobClient.Uri}?{sasToken}";
-        }
-
-        private List<string> SplitText(string text)
-        {
-            var textSplitter = new RecursiveCharacterTextSplitter(chunkSize: 4000, chunkOverlap: 50);
-
-            return textSplitter.SplitText(text);
-        }
-
-        private BlobClient GetBlobContainerClient(string fileName)
-        {
-            var containerClient = _blobServiceClient.GetBlobContainerClient("private-rag-documents");
-            return containerClient.GetBlobClient($"{fileName}.pdf");
-        }
-
-        public async Task<string> GetUploadFileUrlAsync(string fileName)
-        {
-            if ((await _documentRepository.GetDocumentByNameAsync(fileName)) is not null)
-                throw new Exception("File already exist");
-
-            return ReturnUrlWithPermission(fileName, SAS_TTL, BlobSasPermissions.Write);
-        }
-
-        public string GetFileUrl(string fileName)
-        {
-            return ReturnUrlWithPermission(fileName, SAS_TTL, BlobSasPermissions.Read);
-        }
-
-        public async Task DeleteFileAsync(Guid userId, string fileName)
-        {
-            var document = await _documentRepository.GetDocumentByNameAsync(fileName)
-                ?? throw new ArgumentNullException(nameof(fileName));
-
-            if (userId != document.UserId)
-                throw new Exception("You don`t have access to delete this file");
-
-            var httpClient = new HttpClient();
-            var response = await httpClient.DeleteAsync(ReturnUrlWithPermission(fileName, 5, BlobSasPermissions.Delete));
-
-            if (!response.IsSuccessStatusCode)
-                throw new Exception("Delete file error, try again");
-
-            await _embeddingRepository.DeleteEmbeddingsAsync(fileName);
-            await _documentRepository.DeleteDocumentAsync(fileName);
-        }
-
-        public async Task<string> ReadPdf(string fileName)
-        {
-            var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync(GetFileUrl(fileName));
-
-            using var document = PdfDocument.Open(await response.Content.ReadAsByteArrayAsync());
-
-            var stringBuilder = new StringBuilder();
-
-            foreach (var page in document.GetPages())
-            {
-                stringBuilder.AppendLine(page.Text);
-            }
-
-            return stringBuilder.ToString();
-        }
-
-        public async Task<DocumentResponseDto> InsertDocumentContextInVectorDbAsync(string fileName, Guid userId)
-        {
-            var documentIsReady = false;
-
-            var document = await _documentRepository.GetDocumentByNameAsync(fileName)
-            ?? throw new Exception("Document was not found");
-
-            if (await _embeddingRepository.CheckIfEmbeddingAlreadyExistAsync(fileName))
-                throw new Exception("Embedding already exist");
-
-            try
-            {
-                var documentContext = await ReadPdf(fileName);
-                var splitText = SplitText(documentContext);
-                var embeddings = new List<Embedding>();
-
-                foreach (var text in splitText)
+                var embedding = await _customAiService.GetEmbeddingAsync(text);
+                embeddings.Add(new Embedding
                 {
-                    var embedding = await _customAiService.GetEmbeddingAsync(text);
-                    embeddings.Add(new Embedding
-                    {
-                        Id = Guid.NewGuid(),
-                        DocumentId = document.Id,
-                        Text = text,
-                        Vector = new Pgvector.Vector(embedding)
-                    });
-                }
-
-                await _embeddingRepository.AddRangeEmbeddingsAsync(embeddings);
-
-                documentIsReady = true;
-            }
-            finally
-            {
-                await _documentRepository.UpdateDocumentStatusAsync(document.Name, documentIsReady);
+                    Id = Guid.NewGuid(),
+                    DocumentId = document.Id,
+                    Text = text,
+                    Vector = new Vector(embedding)
+                });
             }
 
-            document.IsReadyToUse = documentIsReady;
-            return _mapper.Map<DocumentResponseDto>(document);
-        }
+            await _embeddingRepository.AddRangeEmbeddingsAsync(embeddings);
 
-        public async Task CheckIfDocumentWasUploadedAsync(Guid userId, string fileName)
+            documentIsReady = true;
+        }
+        finally
         {
-            var blobClient = GetBlobContainerClient(fileName);
-
-            if (!await blobClient.ExistsAsync())
-                throw new Exception($"File with name:{fileName} cannot be found, try again later");
-
-            var document = new Document
-            {
-                Id = Guid.NewGuid(),
-                Name = fileName,
-                UserId = userId,
-                CreationDate = DateTime.UtcNow,
-                IsReadyToUse = false
-            };
-
-            await _documentRepository.AddDocumentAsync(document);
+            await _documentRepository.UpdateDocumentStatusAsync(userId, document.Name, documentIsReady);
         }
 
-        public async Task<string> GetTheClosesContextAsync(string searchRequest, string fileName)
+        document.IsReadyToUse = documentIsReady;
+        return _mapper.Map<DocumentResponseDto>(document);
+    }
+
+    /// <inheritdoc cref="IDocumentService.ReadPdf" />
+    public async Task<string> ReadPdf(Guid userId, string fileName)
+    {
+        var httpClient = new HttpClient();
+        var response = await httpClient.GetAsync(GetFileUrl(userId, fileName));
+
+        using var document = PdfDocument.Open(await response.Content.ReadAsByteArrayAsync());
+
+        var stringBuilder = new StringBuilder();
+
+        foreach (var page in document.GetPages()) stringBuilder.AppendLine(page.Text);
+
+        return stringBuilder.ToString();
+    }
+
+    /// <inheritdoc cref="IDocumentService.GetUploadFileUrlAsync" />
+    public async Task<string> GetUploadFileUrlAsync(Guid userId, string fileName)
+    {
+        if (await _documentRepository.GetDocumentByNameAsync(userId, fileName) is not null)
+            throw new Exception("File already exist");
+
+        return ReturnUrlWithPermission(userId, fileName, SAS_TTL, BlobSasPermissions.Write);
+    }
+
+    /// <inheritdoc cref="IDocumentService.GetFileUrl" />
+    public string GetFileUrl(Guid userId, string fileName)
+    {
+        return ReturnUrlWithPermission(userId, fileName, SAS_TTL, BlobSasPermissions.Read);
+    }
+
+    /// <inheritdoc cref="IDocumentService.GetTheClosesContextAsync" />
+    public async Task<string> GetTheClosesContextAsync(Guid userId, string searchRequest, string fileName)
+    {
+        var embedding = await _customAiService.GetEmbeddingAsync(searchRequest);
+        var searchResult = await _embeddingRepository.GetTheClosestEmbeddingAsync(userId, fileName, embedding);
+        return searchResult!.Text;
+    }
+
+    private string ReturnUrlWithPermission(Guid userId, string fileName, int minutesForExpire,
+        BlobSasPermissions permission)
+    {
+        var blobClient = GetBlobContainerClient(userId, fileName);
+
+        var sasBuilder = new BlobSasBuilder
         {
-            var embedding = await _customAiService.GetEmbeddingAsync(searchRequest);
-            var searchResult = await _embeddingRepository.GetTheClosestEmbeddingAsync(fileName, embedding);
-            return searchResult!.Text;
-        }
+            BlobContainerName = blobClient.BlobContainerName,
+            BlobName = blobClient.Name,
+            Resource = "b",
+            StartsOn = DateTimeOffset.UtcNow,
+            ExpiresOn = DateTimeOffset.UtcNow.AddMinutes(minutesForExpire)
+        };
+        sasBuilder.SetPermissions(permission);
 
-        public async Task<List<DocumentResponseDto>> GetAllUserDocumentsAsync(Guid userId)
+        var conBuilder = new DbConnectionStringBuilder
         {
-            return _mapper.Map<List<DocumentResponseDto>>(await _documentRepository.GetAllUserDocumentsAsync(userId));
-        }
+            ConnectionString = EnvironmentVariables.BlobStorageConnectionString
+        };
+
+        var sasToken = sasBuilder
+            .ToSasQueryParameters(new StorageSharedKeyCredential(
+                conBuilder["AccountName"] as string,
+                conBuilder["AccountKey"] as string))
+            .ToString();
+
+        return $"{blobClient.Uri}?{sasToken}";
+    }
+
+    private List<string> SplitText(string text)
+    {
+        var textSplitter = new RecursiveCharacterTextSplitter(chunkSize: 4000, chunkOverlap: 50);
+        return textSplitter.SplitText(text);
+    }
+
+    private BlobClient GetBlobContainerClient(Guid userId, string fileName)
+    {
+        var containerClient = _blobServiceClient.GetBlobContainerClient("private-rag-documents");
+        return containerClient.GetBlobClient($"{fileName}-{userId}.pdf");
     }
 }
