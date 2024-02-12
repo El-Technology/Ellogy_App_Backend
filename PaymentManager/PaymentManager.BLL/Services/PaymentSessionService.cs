@@ -157,7 +157,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
 
         var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
 
-        if (subscription.Items.Data.Any())
+        if (subscription.Items.Data.Count > 1)
             throw new Exception($"You can`t upgrade your subscription, wait until {subscription.CurrentPeriodEnd}");
 
         await GetSubscriptionService().UpdateAsync(subscription.Id, new SubscriptionUpdateOptions
