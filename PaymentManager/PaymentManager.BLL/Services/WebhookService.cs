@@ -127,8 +127,6 @@ public class WebhookService : StripeBaseService, IWebhookService
             UserId = Guid.Parse(userId),
             IsCanceled = true
         }, null);
-
-        await SetDefaultSubscriptionAsync(subscription.CustomerId, userId);
     }
 
     /// <inheritdoc cref="IWebhookService.CreateCustomerAsync(Customer)" />
