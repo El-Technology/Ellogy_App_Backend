@@ -10,6 +10,8 @@ public class PaymentObjectProfile : Profile
     public PaymentObjectProfile()
     {
         CreateMap<PaymentIntent, PaymentObject>()
+            .ForMember(dest => dest.Id, opt =>
+                opt.MapFrom(src => src.Id))
             .ForMember(dest => dest.Product, opt =>
                 opt.MapFrom(src => src.Description))
             .ForMember(dest => dest.Date, opt =>
