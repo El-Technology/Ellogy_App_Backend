@@ -3,6 +3,7 @@ using System.Text;
 using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
+using AICommunicationService.Common.Dtos;
 using AICommunicationService.DAL.Interfaces;
 using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
@@ -86,16 +87,19 @@ public class DocumentService : IDocumentService
     }
 
     /// <inheritdoc cref="IDocumentService.GetAllUserDocumentsAsync" />
-    public async Task<List<DocumentResponseWithOwner>> GetAllUserDocumentsAsync(Guid userId)
+    public async Task<PaginationResponseDto<DocumentResponseWithOwner>> GetAllUserDocumentsAsync(Guid userId,
+        PaginationRequestDto paginationRequest)
     {
         var documentResponse =
-            _mapper.Map<List<DocumentResponseWithOwner>>(await _documentRepository.GetAllUserDocumentsAsync(userId));
+            _mapper.Map<PaginationResponseDto<DocumentResponseWithOwner>>(
+                await _documentRepository.GetAllUserDocumentsAsync(userId, paginationRequest));
 
-        var users = await _userRepository.GetUsersByIds(documentResponse.Select(a => a.UserId).ToList());
+        var users = await _userRepository.GetUsersByIds(documentResponse.Data.Select(a => a.UserId).ToList(),
+            paginationRequest);
 
-        foreach (var document in documentResponse)
+        foreach (var document in documentResponse.Data)
         {
-            var user = users.FirstOrDefault(a => a.Id == document.UserId);
+            var user = users.Data.FirstOrDefault(a => a.Id == document.UserId);
             document.Email = user.Email;
             document.FirstName = user.FirstName;
             document.LastName = user.LastName;
@@ -232,14 +236,16 @@ public class DocumentService : IDocumentService
         await _documentSharingRepository.DeleteDocumentSharingAsync(permissionDto.ReceiverId, document.Id);
     }
 
-    public async Task<List<UserDto>> GetAllUsersWithPermissionAsync(Guid ownerId, string documentName)
+    public async Task<PaginationResponseDto<UserDto>> GetAllUsersWithPermissionAsync(Guid ownerId, string documentName,
+        PaginationRequestDto paginationRequest)
     {
         var document = await _documentRepository.GetDocumentByNameAsync(ownerId, documentName)
                        ?? throw new Exception("Document was not found");
 
         var users = await _documentSharingRepository.GetAllSharedUsersAsync(document.Id);
 
-        return _mapper.Map<List<UserDto>>(await _userRepository.GetUsersByIds(users));
+        return _mapper.Map<PaginationResponseDto<UserDto>>(
+            await _userRepository.GetUsersByIds(users, paginationRequest));
     }
 
     private string ReturnUrlWithPermission(Guid userId, string fileName, int minutesForExpire,

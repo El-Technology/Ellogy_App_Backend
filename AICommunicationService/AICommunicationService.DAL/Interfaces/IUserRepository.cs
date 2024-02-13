@@ -1,4 +1,5 @@
-﻿using AICommunicationService.DAL.Models;
+﻿using AICommunicationService.Common.Dtos;
+using AICommunicationService.DAL.Models;
 
 namespace AICommunicationService.DAL.Interfaces;
 
@@ -36,5 +37,11 @@ public interface IUserRepository
     /// <returns></returns>
     Task<List<User>> FindUserByEmailAsync(string emailPrefix);
 
-    Task<List<User>> GetUsersByIds(List<Guid> userIds);
+    /// <summary>
+    ///     Retrieves a list of users based on their unique identifiers asynchronously.
+    /// </summary>
+    /// <param name="userIds">List of user IDs</param>
+    /// <param name="paginationRequest">Pagination request object</param>
+    /// <returns>Task representing the asynchronous operation, returning a list of users</returns>
+    Task<PaginationResponseDto<User>> GetUsersByIds(List<Guid> userIds, PaginationRequestDto paginationRequest);
 }

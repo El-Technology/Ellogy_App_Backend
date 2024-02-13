@@ -1,4 +1,5 @@
 ﻿using AICommunicationService.BLL.Dtos;
+using AICommunicationService.Common.Dtos;
 using AICommunicationService.DAL.Models;
 using AutoMapper;
 
@@ -9,5 +10,7 @@ public class UserProfile : Profile
     public UserProfile()
     {
         CreateMap<User, UserDto>();
+
+        CreateMap<PaginationResponseDto<User>, PaginationResponseDto<UserDto>>();
     }
 }

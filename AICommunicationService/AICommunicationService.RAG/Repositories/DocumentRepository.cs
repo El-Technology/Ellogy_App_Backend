@@ -1,4 +1,6 @@
-﻿using AICommunicationService.RAG.Context.Vector;
+﻿using AICommunicationService.Common.Dtos;
+using AICommunicationService.RAG.Context.Vector;
+using AICommunicationService.RAG.Extensions;
 using AICommunicationService.RAG.Interfaces;
 using AICommunicationService.RAG.Models;
 using Microsoft.EntityFrameworkCore;
@@ -20,13 +22,6 @@ public class DocumentRepository : IDocumentRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<List<Document>> GetAllUserDocumentsAsync(Guid userId)
-    {
-        return await _context.Documents
-            .Where(a => a.UserId == userId || a.DocumentSharing.Any(sharing => sharing.UserId == userId))
-            .ToListAsync();
-    }
-
     public async Task<Document?> GetDocumentByNameAsync(Guid userId, string documentName)
     {
         return await _context.Documents
@@ -45,5 +40,13 @@ public class DocumentRepository : IDocumentRepository
         await _context.Documents
             .Where(a => a.Name.Equals(documentName) && a.UserId == userId)
             .ExecuteDeleteAsync();
+    }
+
+    public async Task<PaginationResponseDto<Document>> GetAllUserDocumentsAsync(Guid userId,
+        PaginationRequestDto paginationRequest)
+    {
+        return await _context.Documents
+            .Where(a => a.UserId == userId || a.DocumentSharing.Any(sharing => sharing.UserId == userId))
+            .GetDocumentsPaginatedResult(paginationRequest);
     }
 }

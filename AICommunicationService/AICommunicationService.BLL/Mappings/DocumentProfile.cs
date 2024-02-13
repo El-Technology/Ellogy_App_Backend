@@ -1,4 +1,5 @@
 ﻿using AICommunicationService.BLL.Dtos;
+using AICommunicationService.Common.Dtos;
 using AICommunicationService.RAG.Models;
 using AutoMapper;
 
@@ -9,6 +10,8 @@ public class DocumentProfile : Profile
     public DocumentProfile()
     {
         CreateMap<Document, DocumentResponseDto>();
+
+        CreateMap<PaginationResponseDto<Document>, PaginationResponseDto<DocumentResponseWithOwner>>();
 
         CreateMap<Document, DocumentResponseWithOwner>()
             .ForMember(dest => dest.Email, opt =>

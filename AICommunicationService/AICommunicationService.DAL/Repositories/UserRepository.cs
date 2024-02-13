@@ -1,4 +1,6 @@
-﻿using AICommunicationService.DAL.Context.AiCommunication;
+﻿using AICommunicationService.Common.Dtos;
+using AICommunicationService.DAL.Context.AiCommunication;
+using AICommunicationService.DAL.Extensions;
 using AICommunicationService.DAL.Interfaces;
 using AICommunicationService.DAL.Models;
 using Microsoft.EntityFrameworkCore;
@@ -46,11 +48,12 @@ public class UserRepository : IUserRepository
             .ToListAsync();
     }
 
-    /// <inheritdoc cref="IUserRepository.GetUsersByIds(List{Guid})" />
-    public async Task<List<User>> GetUsersByIds(List<Guid> userIds)
+    /// <inheritdoc cref="IUserRepository.GetUsersByIds(List{Guid}, PaginationRequestDto)" />
+    public async Task<PaginationResponseDto<User>> GetUsersByIds(List<Guid> userIds,
+        PaginationRequestDto paginationRequest)
     {
         return await _context.Users
             .Where(u => userIds.Contains(u.Id))
-            .ToListAsync();
+            .GetUsersPaginatedResult(paginationRequest);
     }
 }

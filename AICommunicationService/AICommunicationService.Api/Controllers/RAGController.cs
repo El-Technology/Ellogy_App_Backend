@@ -1,6 +1,7 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
+using AICommunicationService.Common.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,12 +50,14 @@ public class RAGController : Controller
     ///     This method returns the url for downloading the document
     /// </summary>
     /// <param name="fileName"></param>
+    /// <param name="ownerId"></param>
     /// <returns></returns>
     [HttpGet]
     [Route("getDocumentUrl")]
-    public IActionResult GetUrlOfPdfDocuments([FromQuery] string fileName)
+    public IActionResult GetUrlOfPdfDocuments([FromQuery] string fileName, [FromQuery] Guid? ownerId)
     {
-        return Ok(_documentService.GetFileUrl(GetUserIdFromToken(), fileName));
+        var userId = ownerId ?? GetUserIdFromToken();
+        return Ok(_documentService.GetFileUrl(userId, fileName));
     }
 
     /// <summary>
@@ -73,12 +76,13 @@ public class RAGController : Controller
     /// <summary>
     ///     This method returns the list of the user documents
     /// </summary>
+    /// <param name="paginationRequest"></param>
     /// <returns></returns>
-    [HttpGet]
+    [HttpPost]
     [Route("getUserDocuments")]
-    public async Task<IActionResult> GetUserDocuments()
+    public async Task<IActionResult> GetUserDocuments([FromBody] PaginationRequestDto paginationRequest)
     {
-        return Ok(await _documentService.GetAllUserDocumentsAsync(GetUserIdFromToken()));
+        return Ok(await _documentService.GetAllUserDocumentsAsync(GetUserIdFromToken(), paginationRequest));
     }
 
 
@@ -149,11 +153,14 @@ public class RAGController : Controller
     ///     This method returns the list of the users with permission for using the document
     /// </summary>
     /// <param name="fileName"></param>
+    /// <param name="paginationRequest"></param>
     /// <returns></returns>
-    [HttpGet]
+    [HttpPost]
     [Route("getAllUsersWithPermission")]
-    public async Task<IActionResult> GetAllUsersWithPermission([FromQuery] string fileName)
+    public async Task<IActionResult> GetAllUsersWithPermission([FromQuery] string fileName,
+        [FromBody] PaginationRequestDto paginationRequest)
     {
-        return Ok(await _documentService.GetAllUsersWithPermissionAsync(GetUserIdFromToken(), fileName));
+        return Ok(await _documentService.GetAllUsersWithPermissionAsync(GetUserIdFromToken(), fileName,
+            paginationRequest));
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AICommunicationService.BLL.Dtos;
+using AICommunicationService.Common.Dtos;
 
 namespace AICommunicationService.BLL.Interfaces;
 
@@ -19,8 +20,10 @@ public interface IDocumentService
     ///     This method returns the list of the user documents
     /// </summary>
     /// <param name="userId"></param>
+    /// <param name="paginationRequest"></param>
     /// <returns></returns>
-    Task<List<DocumentResponseWithOwner>> GetAllUserDocumentsAsync(Guid userId);
+    Task<PaginationResponseDto<DocumentResponseWithOwner>> GetAllUserDocumentsAsync(Guid userId,
+        PaginationRequestDto paginationRequest);
 
     /// <summary>
     ///     This method deletes the document from the storage
@@ -78,7 +81,29 @@ public interface IDocumentService
     /// <returns></returns>
     Task<List<UserDto>> FindUserByEmailAsync(string emailPrefix);
 
+    /// <summary>
+    ///     This method give another user permission to use the document
+    /// </summary>
+    /// <param name="ownerId"></param>
+    /// <param name="permissionDto"></param>
+    /// <returns></returns>
     Task GivePermissionForUsingDocumentAsync(Guid ownerId, PermissionDto permissionDto);
+
+    /// <summary>
+    ///     This method removes permission for using the document
+    /// </summary>
+    /// <param name="ownerId"></param>
+    /// <param name="permissionDto"></param>
+    /// <returns></returns>
     Task RemovePermissionForUsingDocumentAsync(Guid ownerId, PermissionDto permissionDto);
-    Task<List<UserDto>> GetAllUsersWithPermissionAsync(Guid ownerId, string documentName);
+
+    /// <summary>
+    ///     This method returns the list of the users with permission
+    /// </summary>
+    /// <param name="ownerId"></param>
+    /// <param name="documentName"></param>
+    /// <param name="paginationRequest"></param>
+    /// <returns></returns>
+    Task<PaginationResponseDto<UserDto>> GetAllUsersWithPermissionAsync(Guid ownerId, string documentName,
+        PaginationRequestDto paginationRequest);
 }
