@@ -145,6 +145,14 @@ public class PaymentConsumer : StripeBaseService, IHostedService
         }, AccountPlan.Free);
     }
 
+    private async Task<bool> CheckIfFreeSubscriptionWasCreated(Guid userId)
+    {
+        await using var scope = _serviceProvider.CreateAsyncScope();
+        var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
+
+        return await subscriptionRepository.GetActiveSubscriptionAsync(userId) is not null;
+    }
+
     private async Task<string> ProcessOneTimePaymentsAsync(SessionCreateOptions message)
     {
         message.ExpiresAt = DateTime.Now.AddMinutes(30);
@@ -170,8 +178,12 @@ public class PaymentConsumer : StripeBaseService, IHostedService
 
     private async Task<string> ProcessFreeSubscription(SubscriptionCreateOptions message)
     {
+        if (await CheckIfFreeSubscriptionWasCreated(Guid.Parse(message.Metadata[MetadataConstants.UserId])))
+            return EventResultConstants.Error;
+
         var createSubscription = await GetSubscriptionService().CreateAsync(message);
         await CreateFreeSubscriptionDataBaseRecordAsync(createSubscription);
+
         return EventResultConstants.Success;
     }
 }
