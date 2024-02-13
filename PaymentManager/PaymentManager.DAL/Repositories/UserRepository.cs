@@ -54,4 +54,13 @@ public class UserRepository : IUserRepository
         await _userContext.Users.Where(a => a.Id == userId)
             .ExecuteUpdateAsync(a => a.SetProperty(a => a.AccountPlan, a => accountPlan));
     }
+
+    /// <inheritdoc cref="IUserRepository.RemoveStripeCustomerIdAsync(Guid)" />
+    public async Task RemoveStripeCustomerIdAsync(Guid userId)
+    {
+        await _userContext.Users
+            .Where(a => a.Id == userId)
+            .ExecuteUpdateAsync(a => a
+                .SetProperty(user => user.StripeCustomerId, stringCustomerId => null));
+    }
 }

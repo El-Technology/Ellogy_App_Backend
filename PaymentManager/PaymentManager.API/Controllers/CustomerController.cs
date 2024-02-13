@@ -151,4 +151,16 @@ public class CustomerController : Controller
         await _paymentCustomerService.DetachPaymentMethodAsync(paymentMethodId);
         return Ok();
     }
+
+    /// <summary>
+    ///     This method deletes the customer
+    /// </summary>
+    /// <returns></returns>
+    [HttpDelete]
+    [Route("deleteCustomer")]
+    public async Task<IActionResult> DeleteCustomer()
+    {
+        await _paymentCustomerService.DeleteCustomerAsync(GetUserIdFromToken());
+        return Ok();
+    }
 }

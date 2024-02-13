@@ -11,6 +11,13 @@ namespace PaymentManager.BLL.Interfaces;
 public interface IPaymentCustomerService
 {
     /// <summary>
+    ///     Deletes a customer asynchronously.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task DeleteCustomerAsync(Guid userId);
+
+    /// <summary>
     ///     Adds a customer's payment method asynchronously.
     /// </summary>
     /// <param name="userId">User ID</param>

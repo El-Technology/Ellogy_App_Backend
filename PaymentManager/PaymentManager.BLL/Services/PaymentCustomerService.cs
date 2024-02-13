@@ -215,4 +215,14 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     {
         await GetPaymentMethodService().DetachAsync(paymentMethodId);
     }
+
+    /// <inheritdoc cref="IPaymentCustomerService.DeleteCustomerAsync(Guid)" />
+    public async Task DeleteCustomerAsync(Guid userId)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new ArgumentNullException(nameof(userId));
+
+        await GetCustomerService().DeleteAsync(user.StripeCustomerId);
+        await _userRepository.RemoveStripeCustomerIdAsync(userId);
+    }
 }

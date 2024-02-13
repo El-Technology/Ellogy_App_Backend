@@ -44,4 +44,6 @@ public interface IUserRepository
     /// <param name="purchasedTokens">Number of purchased tokens to update</param>
     /// <returns>Task representing the asynchronous operation</returns>
     Task UpdateTotalPurchasedTokensAsync(Guid userId, int purchasedTokens);
+
+    Task RemoveStripeCustomerIdAsync(Guid userId);
 }
