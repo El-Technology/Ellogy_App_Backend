@@ -878,6 +878,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/dev/Customer/deleteCustomer",
+      "UpstreamHttpMethod": [ "DELETE" ],
+      "DownstreamPathTemplate": "/api/Customer/deleteCustomer",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5021
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/Customer/createCustomer",
       "UpstreamHttpMethod": [ "GET" ],
       "DownstreamPathTemplate": "/api/Customer/createCustomer",
