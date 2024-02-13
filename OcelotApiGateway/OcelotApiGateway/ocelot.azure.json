@@ -735,7 +735,7 @@
     },
     {
       "UpstreamPathTemplate": "/dev/RAG/getUserDocuments",
-      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/RAG/getUserDocuments",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
@@ -807,7 +807,7 @@
     },
     {
       "UpstreamPathTemplate": "/dev/RAG/getAllUsersWithPermission",
-      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/RAG/getAllUsersWithPermission",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
