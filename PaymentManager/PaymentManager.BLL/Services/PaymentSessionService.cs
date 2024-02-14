@@ -153,6 +153,9 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
         var getActiveSubscription = await _paymentCustomerService.GetActiveSubscriptionAsync(userId)
                                     ?? throw new Exception("You don`t have active subscription");
 
+        if (getActiveSubscription.IsCanceled)
+            throw new Exception("You can`t upgrade canceled subscription");
+
         var newPriceInformation = await GetPriceService().GetAsync(newPriceId);
 
         if (newPriceInformation.UnitAmountDecimal / Constants.PriceInCents <= getActiveSubscription.Price)
@@ -179,6 +182,9 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     {
         var getActiveSubscription = await _paymentCustomerService.GetActiveSubscriptionAsync(userId)
                                     ?? throw new Exception("You don`t have active subscription");
+
+        if (getActiveSubscription.IsCanceled)
+            throw new Exception("You can`t downgrade canceled subscription");
 
         var user = await _userRepository.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
