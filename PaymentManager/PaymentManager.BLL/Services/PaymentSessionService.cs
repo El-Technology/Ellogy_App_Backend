@@ -18,17 +18,20 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     private readonly IPaymentCustomerService _paymentCustomerService;
     private readonly IPaymentRepository _paymentRepository;
     private readonly IProductCatalogService _productCatalogService;
+    private readonly ISubscriptionRepository _subscriptionRepository;
     private readonly IUserRepository _userRepository;
 
     public PaymentSessionService(IPaymentRepository paymentRepository,
         IUserRepository userRepository,
         IProductCatalogService productCatalogService,
-        IPaymentCustomerService paymentCustomerService)
+        IPaymentCustomerService paymentCustomerService,
+        ISubscriptionRepository subscriptionRepository)
     {
         _paymentCustomerService = paymentCustomerService;
         _productCatalogService = productCatalogService;
         _userRepository = userRepository;
         _paymentRepository = paymentRepository;
+        _subscriptionRepository = subscriptionRepository;
     }
 
     /// <inheritdoc cref="IPaymentSessionService.CreateOneTimePaymentAsync(Guid, CreatePaymentRequest)" />
@@ -170,6 +173,35 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
                 new() { Price = newPriceId }
             }
         });
+    }
+
+    public async Task DowngradeSubscriptionAsync(Guid userId, string newPriceId)
+    {
+        var getActiveSubscription = await _paymentCustomerService.GetActiveSubscriptionAsync(userId)
+                                    ?? throw new Exception("You don`t have active subscription");
+
+        var newPriceInformation = await GetPriceService().GetAsync(newPriceId);
+
+        if (newPriceInformation.UnitAmountDecimal / Constants.PriceInCents >= getActiveSubscription.Price)
+            throw new Exception("You can`t downgrade on a subscription with the same or a higher price");
+
+        var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
+
+        if (subscription.Items.Data.Count > 1)
+            throw new Exception($"You can`t downgrade your subscription, wait until {subscription.CurrentPeriodEnd}");
+
+        await GetSubscriptionService().UpdateAsync(subscription.Id, new SubscriptionUpdateOptions
+        {
+            ProrationBehavior = "none",
+            Items = new List<SubscriptionItemOptions>
+            {
+                new() { Id = subscription.Items.Data.First().Id, Deleted = true },
+                new() { Price = newPriceId }
+            }
+        });
+
+        await _subscriptionRepository.UpdateSubscriptionIsCanceledAsync(subscription.Id,
+            subscription.CancelAtPeriodEnd);
     }
 
     private async Task IfUserAbleToUsePaymentAsync(User user, bool isFreeSubscription = false)

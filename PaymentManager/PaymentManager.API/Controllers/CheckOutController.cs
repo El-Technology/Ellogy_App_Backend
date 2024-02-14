@@ -91,6 +91,19 @@ public class CheckOutController : Controller
     }
 
     /// <summary>
+    ///     This method downgrades current subscription to a lower one
+    /// </summary>
+    /// <param name="newPriceId"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("downgradeSubscription")]
+    public async Task<IActionResult> DowngradeSubscription([FromQuery] string newPriceId)
+    {
+        await _paymentService.DowngradeSubscriptionAsync(GetUserIdFromToken(), newPriceId);
+        return Ok();
+    }
+
+    /// <summary>
     ///     This method cancels current subscription
     /// </summary>
     /// <returns></returns>

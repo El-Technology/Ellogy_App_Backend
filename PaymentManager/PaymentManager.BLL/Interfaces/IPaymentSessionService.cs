@@ -46,4 +46,12 @@ public interface IPaymentSessionService
     /// <param name="newPriceId">New price ID</param>
     /// <returns>Task representing the asynchronous operation</returns>
     Task UpgradeSubscriptionAsync(Guid userId, string newPriceId);
+
+    /// <summary>
+    ///     Downgrades a user's subscription asynchronously.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="newPriceId"></param>
+    /// <returns></returns>
+    Task DowngradeSubscriptionAsync(Guid userId, string newPriceId);
 }
