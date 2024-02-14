@@ -1,6 +1,7 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
+using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Dtos;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,8 @@ namespace AICommunicationService.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme,
+    Policy = PolicyConstants.REQUIRE_BASIC_ACCOUNT)]
 public class RAGController : Controller
 {
     private readonly IDocumentService _documentService;
@@ -27,7 +29,7 @@ public class RAGController : Controller
     /// <exception cref="Exception"></exception>
     private Guid GetUserIdFromToken()
     {
-        var status = Guid.TryParse(User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out var userId);
+        var status = Guid.TryParse(User.FindFirst(JwtOptions.USER_ID_CLAIM_NAME)?.Value, out var userId);
         if (!status)
             throw new Exception("Taking user id error, try again later");
 

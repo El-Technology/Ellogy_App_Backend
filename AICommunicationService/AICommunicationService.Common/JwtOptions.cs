@@ -1,19 +1,20 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.Text;
+﻿using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace AICommunicationService.Common;
 
 public static class JwtOptions
 {
-    public const string UserIdClaimName = "userId";
-    public const string Issuer = "https://ellogy.usermanager";
-    public static readonly TimeSpan TokenLifeTime = TimeSpan.FromMinutes(10);
+    public const string ACCOUNT_PLAN = "AccountPlan";
+    public const string USER_ID_CLAIM_NAME = "userId";
+    public const string ISSUER = "https://ellogy.usermanager";
 
     private static readonly string? Key = EnvironmentVariables.JwtSecretKey;
 
-    public static SymmetricSecurityKey GetSymmetricSecurityKey() =>
-        Key is null
+    public static SymmetricSecurityKey GetSymmetricSecurityKey()
+    {
+        return Key is null
             ? throw new NullReferenceException()
-            : new(Encoding.UTF8.GetBytes(Key));
-
+            : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key));
+    }
 }

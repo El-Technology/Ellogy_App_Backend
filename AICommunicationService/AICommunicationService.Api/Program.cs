@@ -1,7 +1,11 @@
+using System.Reflection;
+using System.Text.Json.Serialization;
 using AICommunicationService.Api.Middlewares;
 using AICommunicationService.BLL.Extensions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.Common;
+using AICommunicationService.Common.Constants;
+using AICommunicationService.Common.Enums;
 using AICommunicationService.DAL.Context.AiCommunication;
 using AICommunicationService.DAL.Extensions;
 using AICommunicationService.RAG.Context.Vector;
@@ -10,8 +14,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,18 +44,24 @@ static void AddServices(WebApplicationBuilder builder)
     });
 
     builder.Services.AddSignalR();
-    builder.Services.AddAuthorization();
+
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy(PolicyConstants.REQUIRE_BASIC_ACCOUNT, policy =>
+            policy.RequireClaim(JwtOptions.ACCOUNT_PLAN, AccountPlan.Basic.ToString()));
+    });
+
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
-                ValidIssuer = JwtOptions.Issuer,
+                ValidIssuer = JwtOptions.ISSUER,
                 ValidateAudience = false,
                 ValidateLifetime = true,
                 IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(),
-                ValidateIssuerSigningKey = true,
+                ValidateIssuerSigningKey = true
             };
         });
 
@@ -63,7 +71,7 @@ static void AddServices(WebApplicationBuilder builder)
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
     {
-        options.SwaggerDoc("v1", new() { Title = "Ellogy. AI communication service API", Version = "v1" });
+        options.SwaggerDoc("v1", new OpenApiInfo { Title = "Ellogy. AI communication service API", Version = "v1" });
 
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
@@ -73,12 +81,12 @@ static void AddServices(WebApplicationBuilder builder)
             BearerFormat = "JWT"
         });
 
-        options.AddSecurityRequirement(new()
+        options.AddSecurityRequirement(new OpenApiSecurityRequirement
         {
             {
-                new()
+                new OpenApiSecurityScheme
                 {
-                    Reference = new()
+                    Reference = new OpenApiReference
                     {
                         Type = ReferenceType.SecurityScheme,
                         Id = "Bearer"
@@ -94,10 +102,8 @@ static void AddServices(WebApplicationBuilder builder)
         options.IncludeXmlComments(xmlPath);
     });
 
-    builder.Services.AddHttpClient("AzureAiRequest", client =>
-    {
-        client.DefaultRequestHeaders.Add("api-key", EnvironmentVariables.OpenAiKey);
-    });
+    builder.Services.AddHttpClient("AzureAiRequest",
+        client => { client.DefaultRequestHeaders.Add("api-key", EnvironmentVariables.OpenAiKey); });
 
     builder.Services.AddHealthChecks();
     builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
@@ -126,16 +132,14 @@ static void AddMiddleware(WebApplication app)
     app.MapHub<StreamAiHub>("/dev/streamHub");
     app.UseMiddleware<ExceptionHandlerMiddleware>();
 }
+
 static void MigrateDatabase(IHost app)
 {
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<AICommunicationContext>();
-    if (context.Database.GetPendingMigrations().Any())
-    {
-        context.Database.Migrate();
-    }
+    if (context.Database.GetPendingMigrations().Any()) context.Database.Migrate();
 }
 
 static void MigrateRAG(IHost app)
@@ -144,8 +148,5 @@ static void MigrateRAG(IHost app)
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<VectorContext>();
-    if (context.Database.GetPendingMigrations().Any())
-    {
-        context.Database.Migrate();
-    }
+    if (context.Database.GetPendingMigrations().Any()) context.Database.Migrate();
 }
