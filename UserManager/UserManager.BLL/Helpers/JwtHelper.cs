@@ -1,6 +1,6 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 using UserManager.BLL.Exceptions;
 using UserManager.Common.Options;
 using UserManager.DAL.Models;
@@ -13,8 +13,9 @@ public static class JwtHelper
     {
         return new List<Claim>
         {
-            new (JwtOptions.UserIdClaimName, user.Id.ToString()),
-            new (ClaimTypes.Email, user.Email),
+            new(JwtOptions.AccountPlan, user.AccountPlan.ToString() ?? string.Empty),
+            new(JwtOptions.UserIdClaimName, user.Id.ToString()),
+            new(ClaimTypes.Email, user.Email)
         };
     }
 
@@ -35,13 +36,14 @@ public static class JwtHelper
     {
         var claims = GetClaims(user);
 
-        var tokenDescriptor = new SecurityTokenDescriptor()
+        var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new(claims),
+            Subject = new ClaimsIdentity(claims),
             Expires = DateTime.Now.Add(JwtOptions.TokenLifeTime),
             IssuedAt = DateTime.Now,
             Issuer = JwtOptions.Issuer,
-            SigningCredentials = new(JwtOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
+            SigningCredentials =
+                new SigningCredentials(JwtOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
         };
 
         return new JwtSecurityTokenHandler().CreateEncodedJwt(tokenDescriptor);
@@ -52,5 +54,4 @@ public static class JwtHelper
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
         return jwt.Claims.FirstOrDefault(c => c.Type == claimName)?.Value;
     }
-
 }

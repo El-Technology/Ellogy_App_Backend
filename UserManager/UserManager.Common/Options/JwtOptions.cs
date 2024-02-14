@@ -1,10 +1,11 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.Text;
+﻿using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace UserManager.Common.Options;
 
 public static class JwtOptions
 {
+    public const string AccountPlan = "AccountPlan";
     public const string UserIdClaimName = "userId";
     public const string Issuer = "https://ellogy.usermanager";
 
@@ -13,9 +14,10 @@ public static class JwtOptions
 
     private static readonly string? Key = EnvironmentVariables.JwtSecretKey;
 
-    public static SymmetricSecurityKey GetSymmetricSecurityKey() =>
-        Key is null
+    public static SymmetricSecurityKey GetSymmetricSecurityKey()
+    {
+        return Key is null
             ? throw new NullReferenceException()
-            : new(Encoding.UTF8.GetBytes(Key));
-
+            : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key));
+    }
 }
