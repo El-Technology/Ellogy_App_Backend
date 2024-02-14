@@ -12,12 +12,21 @@ using UserManager.DAL.Models;
 
 namespace UserManager.BLL.Services;
 
+/// <summary>
+///     Service for user profile operations
+/// </summary>
 public class UserProfileService : IUserProfileService
 {
     private readonly BlobServiceClient _blobServiceClient;
     private readonly IMapper _mapper;
     private readonly IUserRepository _userRepository;
 
+    /// <summary>
+    ///     Constructor
+    /// </summary>
+    /// <param name="userRepository"></param>
+    /// <param name="mapper"></param>
+    /// <param name="blobServiceClient"></param>
     public UserProfileService(IUserRepository userRepository, IMapper mapper, BlobServiceClient blobServiceClient)
     {
         _blobServiceClient = blobServiceClient;
@@ -106,6 +115,12 @@ public class UserProfileService : IUserProfileService
             throw new Exception("You don`t have access to another user data");
     }
 
+    /// <summary>
+    ///     This method retrieves the user by id
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="UserNotFoundException"></exception>
     private async Task<User> GetUserByIdAsync(Guid userId)
     {
         var user = await _userRepository.GetUserByIdAsync(userId)

@@ -14,12 +14,14 @@ public class ForgotPasswordRepository : IForgotPasswordRepository
         _context = context;
     }
 
+    /// <inheritdoc cref="IForgotPasswordRepository.AddForgotTokenAsync" />
     public async Task AddForgotTokenAsync(ForgotPassword forgotPasswordEntry)
     {
         await _context.ForgotPasswords.AddAsync(forgotPasswordEntry);
         await _context.SaveChangesAsync();
     }
 
+    /// <inheritdoc cref="IForgotPasswordRepository.ValidateResetRequestAsync" />
     public async Task<bool> ValidateResetRequestAsync(Guid id, string token)
     {
         var forgotPasswordEntry = await _context.ForgotPasswords.FindAsync(id);
@@ -30,6 +32,7 @@ public class ForgotPasswordRepository : IForgotPasswordRepository
                forgotPasswordEntry.IsValid;
     }
 
+    /// <inheritdoc cref="IForgotPasswordRepository.InvalidateTokenAsync" />
     public async Task InvalidateTokenAsync(Guid id)
     {
         var entry = await _context.ForgotPasswords.FindAsync(id);

@@ -1,8 +1,18 @@
-﻿
-namespace UserManager.DAL.Interfaces
+﻿namespace UserManager.DAL.Interfaces;
+
+public interface IPaymentRepository
 {
-    public interface IPaymentRepository
-    {
-        Task CreateWalletForNewUserAsync(Guid userId);
-    }
+    /// <summary>
+    ///     Create wallet for new user
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task CreateWalletForNewUserAsync(Guid userId);
+
+    /// <summary>
+    ///     Check if user have wallet
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<bool> CheckIfUserHaveWalletAsync(Guid userId);
 }

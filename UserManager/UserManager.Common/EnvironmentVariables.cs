@@ -1,6 +1,4 @@
-﻿using UserManager.Common.Exceptions;
-
-namespace UserManager.Common;
+﻿namespace UserManager.Common;
 
 public static class EnvironmentVariables
 {
@@ -9,15 +7,16 @@ public static class EnvironmentVariables
         get
         {
             var variable = Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING");
-            return variable is null ? variable = "default_AZURE_SERVICE_BUS_CONNECTION_STRING" : variable;
+            return variable ??= "default_AZURE_SERVICE_BUS_CONNECTION_STRING";
         }
     }
+
     public static string ConnectionString
     {
         get
         {
             var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            return variable is null ? variable = "default_CONNECTION_STRING" : variable;
+            return variable ??= "default_CONNECTION_STRING";
         }
     }
 
@@ -26,7 +25,7 @@ public static class EnvironmentVariables
         get
         {
             var variable = Environment.GetEnvironmentVariable("CONNECTIONSTRING_PAYMENT");
-            return variable is null ? variable = "default_CONNECTIONSTRING_PAYMENT" : variable;
+            return variable ??= "default_CONNECTIONSTRING_PAYMENT";
         }
     }
 
@@ -35,23 +34,25 @@ public static class EnvironmentVariables
         get
         {
             var variable = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-            return variable is null ? variable = "default_JWT_SECRET_KEY_HAVE_32_S" : variable;
+            return variable ??= "default_JWT_SECRET_KEY_HAVE_32_S";
         }
     }
+
     public static string EmailClientConnectionString
     {
         get
         {
             var variable = Environment.GetEnvironmentVariable("EMAIL_CLIENT_CONNECTION_STRING");
-            return variable is null ? variable = "default_EMAIL_CLIENT_CONNECTION_STRING" : variable;
+            return variable ??= "default_EMAIL_CLIENT_CONNECTION_STRING";
         }
     }
+
     public static string BlobStorageConnectionString
     {
         get
         {
             var variable = Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING");
-            return variable is null ? variable = "default_BLOB_STORAGE_CONNECTION_STRING" : variable;
+            return variable ??= "default_BLOB_STORAGE_CONNECTION_STRING";
         }
     }
 }

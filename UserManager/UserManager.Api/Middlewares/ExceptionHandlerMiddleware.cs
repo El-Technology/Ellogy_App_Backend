@@ -3,18 +3,28 @@ using UserManager.BLL.Exceptions;
 
 namespace UserManager.Api.Middlewares;
 
+/// <summary>
+///     The middleware for handling exceptions.
+/// </summary>
 public class ExceptionHandlerMiddleware
 {
-    private readonly RequestDelegate _next;
-
     private const string StandartResponseMessage = "Internal server error";
     private const HttpStatusCode StandartHttpStatusCode = HttpStatusCode.InternalServerError;
+    private readonly RequestDelegate _next;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ExceptionHandlerMiddleware" /> class.
+    /// </summary>
+    /// <param name="requestDelegate"></param>
     public ExceptionHandlerMiddleware(RequestDelegate requestDelegate)
     {
         _next = requestDelegate;
     }
 
+    /// <summary>
+    ///     The method for handling exceptions.
+    /// </summary>
+    /// <param name="context"></param>
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -61,7 +71,7 @@ public class ExceptionHandlerMiddleware
     }
 
     private static async Task HandleExceptionAsync(HttpContext context, string errorMessage,
-                                                   HttpStatusCode httpStatusCode = StandartHttpStatusCode, string responseMessage = StandartResponseMessage)
+        HttpStatusCode httpStatusCode = StandartHttpStatusCode, string responseMessage = StandartResponseMessage)
     {
         context.Response.ContentType = "text/plain";
         context.Response.StatusCode = (int)httpStatusCode;

@@ -1,29 +1,36 @@
-﻿using Azure.Messaging.ServiceBus;
-using System.Text.Json;
+﻿using System.Text.Json;
+using Azure.Messaging.ServiceBus;
 using UserManager.BLL.Interfaces;
 using UserManager.Common;
 using UserManager.Common.Models.NotificationModels;
 
-namespace UserManager.BLL.Services
+namespace UserManager.BLL.Services;
+
+/// <summary>
+///     Service for sending notification to queue
+/// </summary>
+public class NotificationQueueService : INotificationQueueService
 {
-    public class NotificationQueueService : INotificationQueueService
+    private readonly ServiceBusClient _busClient;
+
+    /// <summary>
+    ///     Constructor
+    /// </summary>
+    /// <param name="busClient"></param>
+    public NotificationQueueService(ServiceBusClient busClient)
     {
-        private readonly ServiceBusClient _busClient;
+        _busClient = busClient;
+    }
 
-        public NotificationQueueService(ServiceBusClient busClient)
+    /// <inheritdoc cref="INotificationQueueService.SendNotificationAsync" />
+    public async Task SendNotificationAsync(NotificationModel notificationModel)
+    {
+        var busSender = _busClient.CreateSender(NotificationQueueOptions.QueueName);
+        var message = new ServiceBusMessage(JsonSerializer.Serialize(notificationModel))
         {
-            _busClient = busClient;
-        }
+            ContentType = NotificationQueueOptions.MessageContentType
+        };
 
-        public async Task SendNotificationAsync(NotificationModel notificationModel)
-        {
-            var busSender = _busClient.CreateSender(NotificationQueueOptions.QueueName);
-            var message = new ServiceBusMessage(JsonSerializer.Serialize(notificationModel))
-            {
-                ContentType = NotificationQueueOptions.MessageContentType
-            };
-
-            await busSender.SendMessageAsync(message);
-        }
+        await busSender.SendMessageAsync(message);
     }
 }

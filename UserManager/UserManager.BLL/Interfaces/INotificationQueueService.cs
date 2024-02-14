@@ -1,9 +1,13 @@
 ﻿using UserManager.Common.Models.NotificationModels;
 
-namespace UserManager.BLL.Interfaces
+namespace UserManager.BLL.Interfaces;
+
+public interface INotificationQueueService
 {
-    public interface INotificationQueueService
-    {
-        public Task SendNotificationAsync(NotificationModel notificationModel);
-    }
+    /// <summary>
+    ///     Send notification to queue
+    /// </summary>
+    /// <param name="notificationModel"></param>
+    /// <returns></returns>
+    public Task SendNotificationAsync(NotificationModel notificationModel);
 }

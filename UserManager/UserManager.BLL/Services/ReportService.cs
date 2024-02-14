@@ -6,67 +6,78 @@ using UserManager.Common.Constants;
 using UserManager.Common.Models.NotificationModels;
 using UserManager.DAL.Interfaces;
 
-namespace UserManager.BLL.Services
+namespace UserManager.BLL.Services;
+
+/// <summary>
+///     Service for report operations
+/// </summary>
+public class ReportService : IReportService
 {
-    public class ReportService : IReportService
+    private const string UserNamePattern = "{{{userName}}}";
+    private const string UserEmailPattern = "{{{userEmail}}}";
+    private const string UserTextPattern = "{{{userText}}}";
+    private const string CategoryPattern = "{{{category}}}";
+    private const string OptionPattern = "{{{option}}}";
+    private readonly BlobServiceClient _blobServiceClient;
+
+    private readonly NotificationModel _notificationModel = new()
     {
-        private readonly BlobServiceClient _blobServiceClient;
-        private readonly IUserRepository _userRepository;
-        private readonly INotificationQueueService _notificationQueueService;
-        private readonly NotificationModel _notificationModel = new()
+        BlobUrls = new List<string>(),
+        Type = NotificationTypeEnum.Report,
+        Way = NotificationWayEnum.Email
+    };
+
+    private readonly INotificationQueueService _notificationQueueService;
+    private readonly IUserRepository _userRepository;
+
+    /// <summary>
+    ///     Constructor
+    /// </summary>
+    /// <param name="userRepository"></param>
+    /// <param name="notificationQueueService"></param>
+    /// <param name="blobServiceClient"></param>
+    public ReportService(IUserRepository userRepository, INotificationQueueService notificationQueueService,
+        BlobServiceClient blobServiceClient)
+    {
+        _blobServiceClient = blobServiceClient;
+        _userRepository = userRepository;
+        _notificationQueueService = notificationQueueService;
+    }
+
+    /// <inheritdoc cref="IReportService.SendReportAsync(ReportModel)" />
+    public async Task SendReportAsync(ReportModel reportModel)
+    {
+        if (!await _userRepository.CheckEmailIsExistAsync(reportModel.UserEmail))
+            throw new UserNotFoundException(reportModel.UserEmail);
+
+        var user = (await _userRepository.GetUserByEmailAsync(reportModel.UserEmail))!;
+
+        var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerConstants.ImagesContainer);
+
+
+        foreach (var file in reportModel.Base64JpgFiles)
         {
-            BlobUrls = new(),
-            Type = NotificationTypeEnum.Report,
-            Way = NotificationWayEnum.Email
-        };
-        private const string UserNamePattern = "{{{userName}}}";
-        private const string UserEmailPattern = "{{{userEmail}}}";
-        private const string UserTextPattern = "{{{userText}}}";
-        private const string CategoryPattern = "{{{category}}}";
-        private const string OptionPattern = "{{{option}}}";
-
-        public ReportService(IUserRepository userRepository, INotificationQueueService notificationQueueService, BlobServiceClient blobServiceClient)
-        {
-            _blobServiceClient = blobServiceClient;
-            _userRepository = userRepository;
-            _notificationQueueService = notificationQueueService;
-        }
-
-        /// <inheritdoc cref="IReportService.SendReportAsync(ReportModel)" />
-        public async Task SendReportAsync(ReportModel reportModel)
-        {
-            if (!await _userRepository.CheckEmailIsExistAsync(reportModel.UserEmail))
-                throw new UserNotFoundException(reportModel.UserEmail);
-
-            var user = (await _userRepository.GetUserByEmailAsync(reportModel.UserEmail))!;
-
-            var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerConstants.ImagesContainer);
-
-
-            foreach (var file in reportModel.Base64JpgFiles)
+            var bytes = Convert.FromBase64String(file);
+            var fileName = $"scr{Guid.NewGuid()}.jpg";
+            var blobClient = containerClient.GetBlobClient(fileName);
+            using (var memoryStream = new MemoryStream(bytes))
             {
-                var bytes = Convert.FromBase64String(file);
-                var fileName = $"scr{Guid.NewGuid()}.jpg";
-                var blobClient = containerClient.GetBlobClient(fileName);
-                using (var memoryStream = new MemoryStream(bytes))
-                {
-                    await blobClient.UploadAsync(memoryStream, overwrite: true);
-                }
-
-                _notificationModel.BlobUrls.Add(fileName);
+                await blobClient.UploadAsync(memoryStream, true);
             }
 
-            _notificationModel.Consumer = reportModel.ReceiverEmail;
-            _notificationModel.MetaData = new()
-            {
-                { CategoryPattern, reportModel.Category },
-                { OptionPattern, reportModel.Option },
-                { UserNamePattern, $"{user.FirstName} {user.LastName}" },
-                { UserEmailPattern, user.Email },
-                { UserTextPattern, reportModel.UserText }
-            };
-
-            await _notificationQueueService.SendNotificationAsync(_notificationModel);
+            _notificationModel.BlobUrls?.Add(fileName);
         }
+
+        _notificationModel.Consumer = reportModel.ReceiverEmail;
+        _notificationModel.MetaData = new Dictionary<string, string>
+        {
+            { CategoryPattern, reportModel.Category },
+            { OptionPattern, reportModel.Option },
+            { UserNamePattern, $"{user.FirstName} {user.LastName}" },
+            { UserEmailPattern, user.Email },
+            { UserTextPattern, reportModel.UserText }
+        };
+
+        await _notificationQueueService.SendNotificationAsync(_notificationModel);
     }
 }

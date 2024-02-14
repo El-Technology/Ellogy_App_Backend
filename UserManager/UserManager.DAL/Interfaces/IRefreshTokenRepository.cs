@@ -1,11 +1,27 @@
 ﻿using UserManager.DAL.Models;
 
-namespace UserManager.DAL.Interfaces
+namespace UserManager.DAL.Interfaces;
+
+public interface IRefreshTokenRepository
 {
-    public interface IRefreshTokenRepository
-    {
-        public Task AddRefreshTokenAsync(RefreshToken refreshToken);
-        public Task<RefreshToken?> GetRefreshTokenAsync(Guid userId);
-        Task UpdateTokenAsync(RefreshToken refreshToken);
-    }
+    /// <summary>
+    ///     Add refresh token to database
+    /// </summary>
+    /// <param name="refreshToken"></param>
+    /// <returns></returns>
+    public Task AddRefreshTokenAsync(RefreshToken refreshToken);
+
+    /// <summary>
+    ///     Get refresh token for user
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public Task<RefreshToken?> GetRefreshTokenAsync(Guid userId);
+
+    /// <summary>
+    ///     Update refresh token
+    /// </summary>
+    /// <param name="refreshToken"></param>
+    /// <returns></returns>
+    Task UpdateTokenAsync(RefreshToken refreshToken);
 }

@@ -6,6 +6,7 @@ namespace UserManager.Common.Helpers;
 public static class CryptoHelper
 {
     private const int SaltLength = 32;
+
     public static string GenerateSalt()
     {
         using var rng = RandomNumberGenerator.Create();

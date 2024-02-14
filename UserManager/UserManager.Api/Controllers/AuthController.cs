@@ -6,15 +6,25 @@ using UserManager.BLL.Interfaces;
 
 namespace UserManager.Api.Controllers;
 
+/// <summary>
+///     The controller for user authentication.
+/// </summary>
 [ApiController]
 [Route("api/[controller]/")]
 public class AuthController : Controller
 {
+    private readonly ILoginService _loginService;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IRegisterService _registerService;
-    private readonly ILoginService _loginService;
 
-    public AuthController(IRegisterService registerService, ILoginService loginService, IRefreshTokenService refreshTokenService)
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="AuthController" /> class.
+    /// </summary>
+    /// <param name="registerService"></param>
+    /// <param name="loginService"></param>
+    /// <param name="refreshTokenService"></param>
+    public AuthController(IRegisterService registerService, ILoginService loginService,
+        IRefreshTokenService refreshTokenService)
     {
         _registerService = registerService;
         _loginService = loginService;
@@ -22,11 +32,13 @@ public class AuthController : Controller
     }
 
     /// <summary>
-    /// Registers a new user. Returns HTTP 404 if user already exist. 
+    ///     Registers a new user. Returns HTTP 404 if user already exist.
     /// </summary>
     /// <param name="userRegister">The user registration data.</param>
-    /// <returns><see cref="StatusCodes.Status200OK"/> or
-    /// <br/><see cref="StatusCodes.Status404NotFound"/> or <see cref="StatusCodes.Status500InternalServerError"/></returns>
+    /// <returns>
+    ///     <see cref="StatusCodes.Status200OK" /> or
+    ///     <br /><see cref="StatusCodes.Status404NotFound" /> or <see cref="StatusCodes.Status500InternalServerError" />
+    /// </returns>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
@@ -38,6 +50,13 @@ public class AuthController : Controller
         return Ok();
     }
 
+    /// <summary>
+    ///     Activates user account.
+    /// </summary>
+    /// <param name="activateUserAccountDto">The activation data.</param>
+    /// <returns><see cref="StatusCodes.Status200OK" /> or <see cref="StatusCodes.Status500InternalServerError" /></returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     [HttpPost]
     [Route("activateUserAccount")]
     public async Task<IActionResult> ActivateUserAccount([FromBody] ActivateUserAccountDto activateUserAccountDto)
@@ -46,6 +65,13 @@ public class AuthController : Controller
         return Ok();
     }
 
+    /// <summary>
+    ///     Sends a verification email to the user.
+    /// </summary>
+    /// <param name="sendVerificationEmailDto">The email of the user to send the verification email to.</param>
+    /// <returns><see cref="StatusCodes.Status200OK" /> or <see cref="StatusCodes.Status500InternalServerError" /></returns>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
     [HttpPost]
     [Route("sentVerificationEmail")]
     public async Task<IActionResult> SendVerificationEmail([FromBody] SendVerificationEmailDto sendVerificationEmailDto)
@@ -55,14 +81,16 @@ public class AuthController : Controller
     }
 
     /// <summary>
-    /// Logs in a user with the provided credentials.
+    ///     Logs in a user with the provided credentials.
     /// </summary>
     /// <param name="loginUser">The login credentials of the user.</param>
-    /// <returns>An object that represent User <see cref="LoginResponseDto"/> with JWT token for future authorization</returns>
+    /// <returns>An object that represent User <see cref="LoginResponseDto" /> with JWT token for future authorization</returns>
     /// <remarks>
-    /// This method attempts to log in a user by verifying the provided credentials against the user database. If the login is successful,
-    /// a JSON Web Token (JWT) is generated for the user and stored in an HTTP-only secure cookie. The user's JWT can be used for subsequent
-    /// authenticated requests.
+    ///     This method attempts to log in a user by verifying the provided credentials against the user database. If the login
+    ///     is successful,
+    ///     a JSON Web Token (JWT) is generated for the user and stored in an HTTP-only secure cookie. The user's JWT can be
+    ///     used for subsequent
+    ///     authenticated requests.
     /// </remarks>
     [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -77,13 +105,14 @@ public class AuthController : Controller
     }
 
     /// <summary>
-    /// Refresh jwt token if expires time has ended.
+    ///     Refresh jwt token if expires time has ended.
     /// </summary>
     /// <param name="refreshRequestDto">Contains jwt and refresh tokens.</param>
-    /// <returns>Returns <see cref="string"/> with new JWT token for future authorization</returns>
+    /// <returns>Returns <see cref="string" /> with new JWT token for future authorization</returns>
     /// <remarks>
-    /// The method checks the validity of the jwt and refresh tokens and, if they are valid, updates the JWT and returns it.
-    /// Each token has an expiration date, but also has 5 extra minutes after expiration before it can no longer be used.
+    ///     The method checks the validity of the jwt and refresh tokens and, if they are valid, updates the JWT and returns
+    ///     it.
+    ///     Each token has an expiration date, but also has 5 extra minutes after expiration before it can no longer be used.
     /// </remarks>
     [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]

@@ -8,6 +8,9 @@ using UserManager.Common.Options;
 
 namespace UserManager.Api.Controllers;
 
+/// <summary>
+///     The controller for user profile operations.
+/// </summary>
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/[controller]")]
 [ApiController]
@@ -15,6 +18,10 @@ public class ProfileController : ControllerBase
 {
     private readonly IUserProfileService _userProfileService;
 
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="ProfileController" /> class.
+    /// </summary>
+    /// <param name="userProfileService"></param>
     public ProfileController(IUserProfileService userProfileService)
     {
         _userProfileService = userProfileService;
@@ -34,6 +41,11 @@ public class ProfileController : ControllerBase
         return userId;
     }
 
+    /// <summary>
+    ///     Deletes the user profile.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
     [HttpDelete]
     [Route("deleteUser")]
     public async Task<IActionResult> DeleteUserProfile(Guid userId)
@@ -42,6 +54,12 @@ public class ProfileController : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>
+    ///     Updates the user profile.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="userProfileDto"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("updateUserProfile")]
     public async Task<IActionResult> UpdateUserProfile(Guid userId, [FromBody] UserProfileDto userProfileDto)
@@ -50,6 +68,12 @@ public class ProfileController : ControllerBase
         return Ok(response);
     }
 
+    /// <summary>
+    ///     Changes the user password.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="changePasswordDto"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("changeUserPassword")]
     public async Task<IActionResult> ChangeUserPassword(Guid userId, [FromBody] ChangePasswordDto changePasswordDto)
@@ -59,6 +83,12 @@ public class ProfileController : ControllerBase
         return Ok(response);
     }
 
+
+    /// <summary>
+    ///     Uploads the user avatar.
+    /// </summary>
+    /// <param name="uploadAvatar"></param>
+    /// <returns></returns>
     [HttpPost]
     [Route("uploadAvatar")]
     public async Task<IActionResult> UploadAvatar(UploadAvatar uploadAvatar)
@@ -67,6 +97,11 @@ public class ProfileController : ControllerBase
         return Ok(response);
     }
 
+
+    /// <summary>
+    ///     Gets the user profile.
+    /// </summary>
+    /// <returns></returns>
     [HttpGet]
     [Route("getUserProfile")]
     public async Task<IActionResult> GetUserProfile()

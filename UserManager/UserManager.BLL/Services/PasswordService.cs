@@ -9,28 +9,45 @@ using UserManager.DAL.Models;
 
 namespace UserManager.BLL.Services;
 
+/// <summary>
+///     Service for password operations
+/// </summary>
 public class PasswordService : IPasswordService
 {
-    private readonly TimeSpan _tokenTtl = TimeSpan.FromDays(1);
-    private readonly IUserRepository _userRepository;
+    private const string PasswordResetUrlTemplate = "{0}?id={1}&token={2}";
+    private const string ResetPasswordPattern = "{{{resetPasswordLink}}}";
     private readonly IForgotPasswordRepository _forgotPasswordRepository;
-    private readonly INotificationQueueService _notificationQueueService;
 
     private readonly NotificationModel _notificationModel = new()
     {
         Type = NotificationTypeEnum.ResetPassword,
         Way = NotificationWayEnum.Email
     };
-    private const string PasswordResetUrlTemplate = "{0}?id={1}&token={2}";
-    private const string ResetPasswordPattern = "{{{resetPasswordLink}}}";
 
-    public PasswordService(IUserRepository userRepository, IForgotPasswordRepository forgotPasswordRepository, INotificationQueueService notificationQueueService)
+    private readonly INotificationQueueService _notificationQueueService;
+    private readonly TimeSpan _tokenTtl = TimeSpan.FromDays(1);
+    private readonly IUserRepository _userRepository;
+
+    /// <summary>
+    ///     Constructor
+    /// </summary>
+    /// <param name="userRepository"></param>
+    /// <param name="forgotPasswordRepository"></param>
+    /// <param name="notificationQueueService"></param>
+    public PasswordService(IUserRepository userRepository, IForgotPasswordRepository forgotPasswordRepository,
+        INotificationQueueService notificationQueueService)
     {
         _userRepository = userRepository;
         _forgotPasswordRepository = forgotPasswordRepository;
         _notificationQueueService = notificationQueueService;
     }
 
+    /// <summary>
+    ///     Initiates the Forgot Password process.
+    /// </summary>
+    /// <param name="forgotPasswordDto"></param>
+    /// <returns></returns>
+    /// <exception cref="UserNotFoundException"></exception>
     public async Task ForgotPasswordAsync(ForgotPasswordDto forgotPasswordDto)
     {
         if (!await _userRepository.CheckEmailIsExistAsync(forgotPasswordDto.Email))
@@ -48,11 +65,18 @@ public class PasswordService : IPasswordService
 
 
         _notificationModel.Consumer = user.Email;
-        _notificationModel.MetaData = new() { { ResetPasswordPattern, resetPasswordUrl } };
+        _notificationModel.MetaData = new Dictionary<string, string> { { ResetPasswordPattern, resetPasswordUrl } };
 
         await _notificationQueueService.SendNotificationAsync(_notificationModel);
     }
 
+    /// <summary>
+    ///     Resets the user's password.
+    /// </summary>
+    /// <param name="resetPasswordDto"></param>
+    /// <returns></returns>
+    /// <exception cref="PasswordResetFailedException"></exception>
+    /// <exception cref="UserNotFoundException"></exception>
     public async Task ResetPasswordAsync(ResetPasswordDto resetPasswordDto)
     {
         resetPasswordDto.Token = HttpUtility.UrlDecode(resetPasswordDto.Token);
@@ -60,7 +84,8 @@ public class PasswordService : IPasswordService
         if (!await _forgotPasswordRepository.ValidateResetRequestAsync(resetPasswordDto.Id, resetPasswordDto.Token))
             throw new PasswordResetFailedException();
 
-        var user = await _userRepository.GetUserByForgetPasswordIdAsync(resetPasswordDto.Id) ?? throw new UserNotFoundException();
+        var user = await _userRepository.GetUserByForgetPasswordIdAsync(resetPasswordDto.Id) ??
+                   throw new UserNotFoundException();
 
         var newSalt = CryptoHelper.GenerateSalt();
         var hashedNewPassword = CryptoHelper.GetHash(resetPasswordDto.Password, newSalt);
