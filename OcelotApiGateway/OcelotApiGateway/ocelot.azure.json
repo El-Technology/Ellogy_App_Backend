@@ -866,6 +866,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/dev/CheckOut/downgradeSubscription",
+      "UpstreamHttpMethod": [ "GET" ],
+      "DownstreamPathTemplate": "/api/CheckOut/downgradeSubscription",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5021
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/CheckOut/cancelSubscription",
       "UpstreamHttpMethod": [ "GET" ],
       "DownstreamPathTemplate": "/api/CheckOut/cancelSubscription",
