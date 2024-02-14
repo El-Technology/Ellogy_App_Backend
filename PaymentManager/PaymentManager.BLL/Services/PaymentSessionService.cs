@@ -180,9 +180,13 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
         var getActiveSubscription = await _paymentCustomerService.GetActiveSubscriptionAsync(userId)
                                     ?? throw new Exception("You don`t have active subscription");
 
-        var newPriceInformation = await GetPriceService().GetAsync(newPriceId);
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new ArgumentNullException(nameof(userId));
 
-        if (newPriceInformation.UnitAmountDecimal / Constants.PriceInCents >= getActiveSubscription.Price)
+        var newPriceInformation = await GetPriceService().GetAsync(newPriceId);
+        var newPriceDecimal = newPriceInformation.UnitAmountDecimal / Constants.PriceInCents;
+
+        if (newPriceDecimal >= getActiveSubscription.Price)
             throw new Exception("You can`t downgrade on a subscription with the same or a higher price");
 
         var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
@@ -200,8 +204,10 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
             }
         });
 
-        await _subscriptionRepository.UpdateSubscriptionIsCanceledAsync(subscription.Id,
-            subscription.CancelAtPeriodEnd);
+        getActiveSubscription.Price = newPriceDecimal;
+        getActiveSubscription.IsCanceled = true;
+
+        await _subscriptionRepository.UpdateSubscriptionAsync(getActiveSubscription, user.AccountPlan);
     }
 
     private async Task IfUserAbleToUsePaymentAsync(User user, bool isFreeSubscription = false)

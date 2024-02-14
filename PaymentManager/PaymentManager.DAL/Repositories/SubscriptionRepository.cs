@@ -11,6 +11,7 @@ namespace PaymentManager.DAL.Repositories;
 /// </summary>
 public class SubscriptionRepository : ISubscriptionRepository
 {
+    private const decimal DEFAULT_PRICE = 0;
     private readonly PaymentContext _context;
     private readonly IUserRepository _userRepository;
 
@@ -29,7 +30,7 @@ public class SubscriptionRepository : ISubscriptionRepository
         await _userRepository.UpdateAccountPlanAsync(subscription.UserId, accountPlan);
     }
 
-    /// <inheritdoc cref="ISubscriptionRepository.UpdateSubscriptionAsync(Subscription, AccountPlan)" />
+    /// <inheritdoc cref="ISubscriptionRepository.UpdateSubscriptionAsync(Subscription, AccountPlan?)" />
     public async Task UpdateSubscriptionAsync(Subscription subscription, AccountPlan? accountPlan)
     {
         var updatedRows = await _context.Subscriptions
@@ -54,7 +55,8 @@ public class SubscriptionRepository : ISubscriptionRepository
         await _context.Subscriptions
             .Where(a => a.SubscriptionStripeId.Equals(stripeId))
             .ExecuteUpdateAsync(a => a
-                .SetProperty(a => a.IsCanceled, a => isCanceled));
+                .SetProperty(a => a.IsCanceled, a => isCanceled)
+                .SetProperty(a => a.Price, a => DEFAULT_PRICE));
     }
 
     /// <inheritdoc cref="ISubscriptionRepository.GetActiveSubscriptionAsync(Guid)" />
