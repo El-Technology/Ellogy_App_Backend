@@ -94,12 +94,11 @@ public class DocumentService : IDocumentService
             _mapper.Map<PaginationResponseDto<DocumentResponseWithOwner>>(
                 await _documentRepository.GetAllUserDocumentsAsync(userId, paginationRequest));
 
-        var users = await _userRepository.GetUsersByIds(documentResponse.Data.Select(a => a.UserId).ToList(),
-            paginationRequest);
+        var users = await _userRepository.GetUsersByIdsAsync(documentResponse.Data.Select(a => a.UserId).ToList());
 
         foreach (var document in documentResponse.Data)
         {
-            var user = users.Data.FirstOrDefault(a => a.Id == document.UserId);
+            var user = users.FirstOrDefault(a => a.Id == document.UserId);
             document.Email = user.Email;
             document.FirstName = user.FirstName;
             document.LastName = user.LastName;
@@ -245,7 +244,7 @@ public class DocumentService : IDocumentService
         var users = await _documentSharingRepository.GetAllSharedUsersAsync(document.Id);
 
         return _mapper.Map<PaginationResponseDto<UserDto>>(
-            await _userRepository.GetUsersByIds(users, paginationRequest));
+            await _userRepository.GetUsersByIdsWithPaginationAsync(users, paginationRequest));
     }
 
     private string ReturnUrlWithPermission(Guid userId, string fileName, int minutesForExpire,

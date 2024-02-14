@@ -43,5 +43,8 @@ public interface IUserRepository
     /// <param name="userIds">List of user IDs</param>
     /// <param name="paginationRequest">Pagination request object</param>
     /// <returns>Task representing the asynchronous operation, returning a list of users</returns>
-    Task<PaginationResponseDto<User>> GetUsersByIds(List<Guid> userIds, PaginationRequestDto paginationRequest);
+    Task<PaginationResponseDto<User>> GetUsersByIdsWithPaginationAsync(List<Guid> userIds,
+        PaginationRequestDto paginationRequest);
+
+    Task<List<User>> GetUsersByIdsAsync(List<Guid> userIds);
 }

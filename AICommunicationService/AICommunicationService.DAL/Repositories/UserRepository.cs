@@ -48,12 +48,20 @@ public class UserRepository : IUserRepository
             .ToListAsync();
     }
 
-    /// <inheritdoc cref="IUserRepository.GetUsersByIds(List{Guid}, PaginationRequestDto)" />
-    public async Task<PaginationResponseDto<User>> GetUsersByIds(List<Guid> userIds,
+    /// <inheritdoc cref="IUserRepository.GetUsersByIdsWithPaginationAsync" />
+    public async Task<PaginationResponseDto<User>> GetUsersByIdsWithPaginationAsync(List<Guid> userIds,
         PaginationRequestDto paginationRequest)
     {
         return await _context.Users
             .Where(u => userIds.Contains(u.Id))
             .GetUsersPaginatedResult(paginationRequest);
+    }
+
+    /// <inheritdoc cref="IUserRepository.GetUsersByIdsAsync" />
+    public async Task<List<User>> GetUsersByIdsAsync(List<Guid> userIds)
+    {
+        return await _context.Users
+            .Where(u => userIds.Contains(u.Id))
+            .ToListAsync();
     }
 }
