@@ -57,7 +57,6 @@ public class PaymentHub : Hub
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         ListOfConnections.Remove(Context.ConnectionId);
-        await Clients.All.SendAsync("Disconnected", Context.ConnectionId); //for testing, will be removed
         await base.OnDisconnectedAsync(exception);
     }
 }
