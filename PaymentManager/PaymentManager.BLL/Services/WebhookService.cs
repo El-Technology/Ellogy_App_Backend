@@ -271,21 +271,7 @@ public class WebhookService : StripeBaseService, IWebhookService
         if (!connections.Any())
             return;
 
-        await _hubContext.Clients
-            .Client(PaymentHub
-                .CheckIfUserIdExistAndReturnConnections(Guid.Parse("90f60910-37fe-4a75-a9a7-9b140a229ca1")).First()
-                .Key) // test
-            .SendAsync(methodName, "To single");
-
         foreach (var connection in connections)
-        {
-            await _hubContext.Clients
-                .Client(PaymentHub
-                    .CheckIfUserIdExistAndReturnConnections(Guid.Parse("90f60910-37fe-4a75-a9a7-9b140a229ca1")).First()
-                    .Key) // test
-                .SendAsync(methodName, "To multi");
-
             await _hubContext.Clients.Client(connection.Key).SendAsync(methodName, message);
-        }
     }
 }
