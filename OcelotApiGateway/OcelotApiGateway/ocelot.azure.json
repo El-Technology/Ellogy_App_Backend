@@ -506,6 +506,30 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/dev/Profile/changeUserEmail",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Profile/changeUserEmail",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Profile/verifyUserEmail",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/Profile/verifyUserEmail",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5281
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/Profile/changeUserPassword",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Profile/changeUserPassword",
