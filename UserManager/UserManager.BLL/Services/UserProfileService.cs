@@ -1,6 +1,8 @@
-﻿using AutoMapper;
+﻿using System.Web;
+using AutoMapper;
 using Azure.Storage.Blobs;
 using UserManager.BLL.Dtos.ProfileDto;
+using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Exceptions;
 using UserManager.BLL.Helpers;
 using UserManager.BLL.Interfaces;
@@ -19,6 +21,7 @@ public class UserProfileService : IUserProfileService
 {
     private readonly BlobServiceClient _blobServiceClient;
     private readonly IMapper _mapper;
+    private readonly IRegisterService _registerService;
     private readonly IUserRepository _userRepository;
 
     /// <summary>
@@ -27,11 +30,14 @@ public class UserProfileService : IUserProfileService
     /// <param name="userRepository"></param>
     /// <param name="mapper"></param>
     /// <param name="blobServiceClient"></param>
-    public UserProfileService(IUserRepository userRepository, IMapper mapper, BlobServiceClient blobServiceClient)
+    /// <param name="registerService"></param>
+    public UserProfileService(IUserRepository userRepository, IMapper mapper, BlobServiceClient blobServiceClient,
+        IRegisterService registerService)
     {
         _blobServiceClient = blobServiceClient;
         _mapper = mapper;
         _userRepository = userRepository;
+        _registerService = registerService;
     }
 
     /// <inheritdoc cref="IUserProfileService.UpdateUserProfileAsync(Guid, UserProfileDto, Guid)" />
@@ -101,6 +107,39 @@ public class UserProfileService : IUserProfileService
         userProfileDto.Jwt = JwtHelper.GenerateJwt(user);
 
         return userProfileDto;
+    }
+
+    /// <inheritdoc cref="IUserProfileService.ChangeUserEmailAsync(Guid, SendVerificationEmailDto)" />
+    public async Task ChangeUserEmailAsync(Guid userId, SendVerificationEmailDto sendVerificationEmailDto)
+    {
+        var user = await GetUserByIdAsync(userId)
+                   ?? throw new UserNotFoundException($"User with id => {userId} was not found");
+
+        user.VerifyToken = CryptoHelper.GenerateToken();
+        await _userRepository.UpdateUserAsync(user);
+
+        user.Email = sendVerificationEmailDto.UserEmail;
+
+        await _registerService.SendVerificationEmailAsync(sendVerificationEmailDto, user);
+    }
+
+    /// <inheritdoc cref="IUserProfileService.VerifyUserEmailAsync(Guid, ActivateUserAccountDto)" />
+    public async Task VerifyUserEmailAsync(Guid userId, ActivateUserAccountDto activateUser)
+    {
+        activateUser.Token = HttpUtility.UrlDecode(activateUser.Token);
+
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new UserNotFoundException();
+
+        if (user.VerifyToken is null)
+            throw new Exception("Verify token was not found");
+
+        if (CryptoHelper.GetHash(user.VerifyToken) != activateUser.Token)
+            throw new Exception("Wrong activate token");
+
+        user.Email = activateUser.UserEmail;
+
+        await _userRepository.UpdateUserAsync(user);
     }
 
     /// <summary>

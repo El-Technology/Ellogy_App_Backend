@@ -62,27 +62,6 @@ public class RegisterService : IRegisterService
         await _userRepository.AddUserAsync(user);
     }
 
-    /// <inheritdoc cref="IRegisterService.SendVerificationEmailAsync" />
-    public async Task SendVerificationEmailAsync(SendVerificationEmailDto sendVerificationEmailDto)
-    {
-        var user = await _userRepository.GetUserByEmailAsync(sendVerificationEmailDto.UserEmail)
-                   ?? throw new UserNotFoundException();
-
-        if (user.VerifyToken is null)
-            throw new Exception("Verify token was not found");
-
-        var hashToken = CryptoHelper.GetHash(user.VerifyToken);
-
-        var verifyEmailUrl = string.Format(VerifyEmailTemplate, sendVerificationEmailDto.RedirectLink,
-            HttpUtility.UrlEncode(sendVerificationEmailDto.UserEmail), HttpUtility.UrlEncode(hashToken));
-
-        _notificationModel.Consumer = user.Email;
-        _notificationModel.MetaData = new Dictionary<string, string>
-            { { FirstName, user.FirstName }, { VerifyEmailAddressLink, verifyEmailUrl } };
-
-        await _notificationQueueService.SendNotificationAsync(_notificationModel);
-    }
-
     /// <inheritdoc cref="IRegisterService.ActivateUserAccountAsync" />
     public async Task ActivateUserAccountAsync(ActivateUserAccountDto activateUser)
     {
@@ -101,5 +80,27 @@ public class RegisterService : IRegisterService
 
         await _userRepository.UpdateUserAsync(user);
         await _paymentRepository.CreateWalletForNewUserAsync(user.Id);
+    }
+
+    /// <inheritdoc cref="IRegisterService.SendVerificationEmailAsync" />
+    public async Task SendVerificationEmailAsync(SendVerificationEmailDto sendVerificationEmailDto,
+        User? changeEmailUser = null)
+    {
+        var user = changeEmailUser ?? await _userRepository.GetUserByEmailAsync(sendVerificationEmailDto.UserEmail) ??
+            throw new UserNotFoundException();
+
+        if (user.VerifyToken is null)
+            throw new Exception("Verify token was not found");
+
+        var hashToken = CryptoHelper.GetHash(user.VerifyToken);
+
+        var verifyEmailUrl = string.Format(VerifyEmailTemplate, sendVerificationEmailDto.RedirectLink,
+            HttpUtility.UrlEncode(sendVerificationEmailDto.UserEmail), HttpUtility.UrlEncode(hashToken));
+
+        _notificationModel.Consumer = user.Email;
+        _notificationModel.MetaData = new Dictionary<string, string>
+            { { FirstName, user.FirstName }, { VerifyEmailAddressLink, verifyEmailUrl } };
+
+        await _notificationQueueService.SendNotificationAsync(_notificationModel);
     }
 }

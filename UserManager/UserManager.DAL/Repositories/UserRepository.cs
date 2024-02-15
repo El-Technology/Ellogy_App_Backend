@@ -40,7 +40,7 @@ public class UserRepository : IUserRepository
         return _context.Users.FindAsync(id);
     }
 
-    /// <inheritdoc cref="IUserRepository.GetUserByVerifyTokenAsync" />
+    /// <inheritdoc cref="IUserRepository.GetUserByForgetPasswordIdAsync" />
     public async Task<User?> GetUserByForgetPasswordIdAsync(Guid id)
     {
         var userId = (await _context.ForgotPasswords.FindAsync(id))?.UserId;

@@ -13,11 +13,6 @@ public class UserProfileDto
     public string LastName { get; set; }
 
     /// <summary>
-    ///     The email address of the user.
-    /// </summary>
-    public string Email { get; set; }
-
-    /// <summary>
     ///     The phone number of the user.
     /// </summary>
     public string? PhoneNumber { get; set; }

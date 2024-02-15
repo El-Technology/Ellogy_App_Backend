@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserManager.BLL.Dtos.ProfileDto;
+using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Interfaces;
 using UserManager.Common.Models.AvatarImage;
 using UserManager.Common.Options;
@@ -66,6 +67,32 @@ public class ProfileController : ControllerBase
     {
         var response = await _userProfileService.UpdateUserProfileAsync(userId, userProfileDto, GetUserIdFromToken());
         return Ok(response);
+    }
+
+    /// <summary>
+    ///     Changes the user email (sends email).
+    /// </summary>
+    /// <param name="sendVerificationEmailDto"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("changeUserEmail")]
+    public async Task<IActionResult> ChangeUserEmail([FromBody] SendVerificationEmailDto sendVerificationEmailDto)
+    {
+        await _userProfileService.ChangeUserEmailAsync(GetUserIdFromToken(), sendVerificationEmailDto);
+        return Ok();
+    }
+
+    /// <summary>
+    ///     Verifies the user email.
+    /// </summary>
+    /// <param name="activateUserAccountDto"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("verifyUserEmail")]
+    public async Task<IActionResult> VerifyUserEmail([FromBody] ActivateUserAccountDto activateUserAccountDto)
+    {
+        await _userProfileService.VerifyUserEmailAsync(GetUserIdFromToken(), activateUserAccountDto);
+        return Ok();
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 ﻿using UserManager.BLL.Dtos.RegisterDtos;
+using UserManager.DAL.Models;
 
 namespace UserManager.BLL.Interfaces;
 
@@ -22,6 +23,7 @@ public interface IRegisterService
     ///     Sends verification email.
     /// </summary>
     /// <param name="sendVerificationEmailDto"></param>
+    /// <param name="changeEmailUser"></param>
     /// <returns></returns>
-    Task SendVerificationEmailAsync(SendVerificationEmailDto sendVerificationEmailDto);
+    Task SendVerificationEmailAsync(SendVerificationEmailDto sendVerificationEmailDto, User? changeEmailUser = null);
 }
