@@ -1,4 +1,6 @@
-﻿namespace PaymentManager.DAL.Models;
+﻿using PaymentManager.DAL.Enums;
+
+namespace PaymentManager.DAL.Models;
 
 public class Subscription
 {
@@ -11,4 +13,5 @@ public class Subscription
     public DateTime EndDate { get; set; }
     public bool IsActive { get; set; }
     public bool IsCanceled { get; set; } = false;
+    public SubscriptionStatusEnum SubscriptionStatus { get; set; }
 }

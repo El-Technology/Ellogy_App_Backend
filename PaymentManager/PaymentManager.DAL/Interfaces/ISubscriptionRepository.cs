@@ -38,4 +38,6 @@ public interface ISubscriptionRepository
     /// <param name="isCanceled">Indicates whether the subscription is canceled</param>
     /// <returns>Task representing the asynchronous operation</returns>
     Task UpdateSubscriptionIsCanceledAsync(string stripeId, bool isCanceled);
+
+    Task UpdateSubscriptionStatusAsync(string stripeId, SubscriptionStatusEnum status);
 }

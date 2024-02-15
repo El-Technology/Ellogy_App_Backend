@@ -16,5 +16,6 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
         builder.Property(x => x.IsActive);
         builder.Property(x => x.SubscriptionStripeId);
         builder.Property(x => x.IsCanceled);
+        builder.Property(x => x.SubscriptionStatus);
     }
 }

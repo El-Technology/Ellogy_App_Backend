@@ -146,6 +146,9 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
             {
                 CancelAtPeriodEnd = true
             });
+
+        await _subscriptionRepository.UpdateSubscriptionStatusAsync(customerData.Subscriptions.First().Id,
+            SubscriptionStatusEnum.PendingCancellation);
     }
 
     public async Task UpgradeSubscriptionAsync(Guid userId, string newPriceId)
@@ -176,6 +179,9 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
                 new() { Price = newPriceId }
             }
         });
+
+        await _subscriptionRepository.UpdateSubscriptionStatusAsync(subscription.Id,
+            SubscriptionStatusEnum.PendingUpgrade);
     }
 
     public async Task DowngradeSubscriptionAsync(Guid userId, string newPriceId)
@@ -214,6 +220,9 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
         getActiveSubscription.IsCanceled = true;
 
         await _subscriptionRepository.UpdateSubscriptionAsync(getActiveSubscription, user.AccountPlan);
+
+        await _subscriptionRepository.UpdateSubscriptionStatusAsync(subscription.Id,
+            SubscriptionStatusEnum.PendingDowngrade);
     }
 
     private async Task IfUserAbleToUsePaymentAsync(User user, bool isFreeSubscription = false)

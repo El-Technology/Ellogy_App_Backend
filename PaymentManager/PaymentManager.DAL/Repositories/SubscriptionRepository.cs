@@ -65,4 +65,12 @@ public class SubscriptionRepository : ISubscriptionRepository
         return await _context.Subscriptions
             .FirstOrDefaultAsync(a => a.UserId == userId && a.IsActive == true);
     }
+
+    /// <inheritdoc cref="ISubscriptionRepository.UpdateSubscriptionStatusAsync" />
+    public async Task UpdateSubscriptionStatusAsync(string stripeId, SubscriptionStatusEnum status)
+    {
+        await _context.Subscriptions
+            .Where(a => a.SubscriptionStripeId.Equals(stripeId))
+            .ExecuteUpdateAsync(a => a.SetProperty(a => a.SubscriptionStatus, a => status));
+    }
 }

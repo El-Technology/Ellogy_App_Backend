@@ -103,6 +103,9 @@ public class WebhookService : StripeBaseService, IWebhookService
             await _subscriptionRepository.UpdateSubscriptionIsCanceledAsync(subscription.Id,
                 subscription.CancelAtPeriodEnd);
             await SendEventResultAsync(userId, EventResultConstants.SubscriptionCanceled, EventResultConstants.Success);
+
+            await _subscriptionRepository.UpdateSubscriptionStatusAsync(subscription.Id,
+                SubscriptionStatusEnum.PendingCancellation);
         }
     }
 
@@ -184,6 +187,9 @@ public class WebhookService : StripeBaseService, IWebhookService
             AmountOfPoints = default,
             UpdatedBallance = false
         });
+
+        await _subscriptionRepository.UpdateSubscriptionStatusAsync(invoice.SubscriptionId,
+            SubscriptionStatusEnum.PaymentFailed);
     }
 
     public async Task InvoiceSucceededHandleAsync(Invoice invoice)
@@ -225,6 +231,8 @@ public class WebhookService : StripeBaseService, IWebhookService
             UpdatedBallance = true
         });
 
+        await _subscriptionRepository.UpdateSubscriptionStatusAsync(invoice.SubscriptionId,
+            SubscriptionStatusEnum.WithoutChanges);
         await SendEventResultAsync(userId, EventResultConstants.PaymentSuccess, EventResultConstants.Success);
     }
 
