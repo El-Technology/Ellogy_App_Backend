@@ -28,7 +28,7 @@ public class PaymentHub : Hub
     }
 
     /// <summary>
-    ///     This method checks if the user id exists and returns the connections
+    ///     This method checks if the user id exists and returns the connections specific to the user
     /// </summary>
     /// <param name="userId"></param>
     /// <returns></returns>
