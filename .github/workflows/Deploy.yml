@@ -18,10 +18,6 @@ env:
   SSH_KEY: ${{ secrets.SSH_KEY }}
   ENVNAME: ${{ vars.ENVNAME }} 
 
-defaults:
-  run:
-    permissions: write-all
-
 jobs:
   changes:
     runs-on: ubuntu-latest
@@ -54,6 +50,8 @@ jobs:
                 - '.github/**'
   
   build_payment_manager:
+    permissions: write-all
+
     env:
       MICROSERVICE_NAME: 'payment_manager'
       PROJECT_PATH: './PaymentManager/'
@@ -84,6 +82,8 @@ jobs:
           Token: ${{ secrets.GITHUB_TOKEN }}
 
   build_ai_communication_service:
+    permissions: write-all
+
     env:
       MICROSERVICE_NAME: 'ai_communication_service'
       PROJECT_PATH: './AICommunicationService/'
@@ -125,6 +125,8 @@ jobs:
           Token: ${{ secrets.GITHUB_TOKEN }}
 
   build_user_manager:
+    permissions: write-all
+
     env:
       MICROSERVICE_NAME: 'user_manager'
       PROJECT_PATH: './UserManager/'
@@ -155,6 +157,8 @@ jobs:
           Token: ${{ secrets.GITHUB_TOKEN }}
 
   build_ticket_manager:
+    permissions: write-all
+
     env:
       MICROSERVICE_NAME: 'ticket_manager'
       PROJECT_PATH: './TicketsManager/'
