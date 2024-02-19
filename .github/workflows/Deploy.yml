@@ -18,6 +18,10 @@ env:
   SSH_KEY: ${{ secrets.SSH_KEY }}
   ENVNAME: ${{ vars.ENVNAME }} 
 
+defaults:
+  run:
+    permissions: write-all
+
 jobs:
   changes:
     runs-on: ubuntu-latest
