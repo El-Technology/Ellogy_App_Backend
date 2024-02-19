@@ -70,7 +70,7 @@ public class WebhookService : StripeBaseService, IWebhookService
     {
         var payment = await _paymentRepository.GetPaymentAsync(session.Id);
 
-        if (payment?.Status == "expired")
+        if (payment is not { Status: not "expired" })
             return;
 
         if (session.Status != "expired")
