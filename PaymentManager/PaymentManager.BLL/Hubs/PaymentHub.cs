@@ -13,7 +13,7 @@ namespace PaymentManager.BLL.Hubs;
 public class PaymentHub : Hub
 {
     /// <summary>
-    ///     This dictionary contains the list of connections
+    ///     This dictionary contains the list of connections with user id
     /// </summary>
     public static readonly Dictionary<string, Guid> ListOfConnections = new();
 
