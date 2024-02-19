@@ -38,7 +38,7 @@ public class PaymentHub : Hub
     }
 
     /// <summary>
-    ///     This method is called when a client is connected
+    ///     This method is called when a client is connected and removes the connection id from the list of connections
     /// </summary>
     /// <returns></returns>
     public override async Task OnConnectedAsync()
