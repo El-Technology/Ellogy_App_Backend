@@ -18,4 +18,9 @@ public class GetUserProfileDto : UserProfileDto
     ///     The JWT token for the user.
     /// </summary>
     public string? Jwt { get; set; }
+
+    /// <summary>
+    ///     The email address of the user.
+    /// </summary>
+    public string Email { get; set; } = string.Empty;
 }
