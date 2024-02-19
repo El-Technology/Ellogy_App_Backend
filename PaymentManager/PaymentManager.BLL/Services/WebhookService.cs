@@ -49,25 +49,20 @@ public class WebhookService : StripeBaseService, IWebhookService
         if (payment is { UpdatedBallance: true, Mode: Constants.PaymentMode })
             return;
 
-        switch (session.Mode)
-        {
-            case Constants.PaymentMode:
-                await _paymentRepository.UpdatePaymentAsync(new Payment
-                {
-                    PaymentId = session.PaymentIntentId,
-                    AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
-                    Status = session.Status,
-                    UserEmail = session.CustomerEmail,
-                    UserId = payment.UserId,
-                    SessionId = session.Id,
-                    UpdatedBallance = true
-                });
-                await UpdateUserBalanceAsync(payment.UserId, payment.AmountOfPoints);
-                break;
+        if (!session.Mode.Equals(Constants.PaymentMode))
+            return;
 
-            default:
-                throw new Exception("Session confirmation error");
-        }
+        await _paymentRepository.UpdatePaymentAsync(new Payment
+        {
+            PaymentId = session.PaymentIntentId,
+            AmountOfPoints = int.Parse(session.Metadata[MetadataConstants.AmountOfPoint]),
+            Status = session.Status,
+            UserEmail = session.CustomerEmail,
+            UserId = payment.UserId,
+            SessionId = session.Id,
+            UpdatedBallance = true
+        });
+        await UpdateUserBalanceAsync(payment.UserId, payment.AmountOfPoints);
     }
 
     /// <inheritdoc cref="IWebhookService.ExpireSessionAsync(Session)" />
