@@ -8,8 +8,8 @@ public class TicketSummary
     public string Data { get; set; }
     public bool IsPotential { get; set; }
     public SubStageEnum? SubStage { get; set; }
-    public IEnumerable<SummaryScenario>? SummaryScenarios { get; set; }
-    public IEnumerable<SummaryAcceptanceCriteria>? SummaryAcceptanceCriteria { get; set; }
+    public ICollection<SummaryScenario>? SummaryScenarios { get; set; }
+    public ICollection<SummaryAcceptanceCriteria>? SummaryAcceptanceCriteria { get; set; }
 
     public Guid TicketId { get; set; }
     public Ticket Ticket { get; set; }
