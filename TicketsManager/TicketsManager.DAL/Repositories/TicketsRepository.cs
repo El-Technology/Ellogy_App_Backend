@@ -25,7 +25,8 @@ public class TicketsRepository : ITicketsRepository
         return user.UserTickets.GetFinalResult(paginateRequest);
     }
 
-    public async Task<PaginationResponseDto<Ticket>> FindTicketsAsync(Guid userId, SearchTicketsRequestDto searchTicketsRequest)
+    public async Task<PaginationResponseDto<Ticket>> FindTicketsAsync(Guid userId,
+        SearchTicketsRequestDto searchTicketsRequest)
     {
         var user = await _userRepository.GetUserAsync(userId);
 
@@ -45,7 +46,6 @@ public class TicketsRepository : ITicketsRepository
         return _context.Tickets
             .Include(e => e.User)
             .Include(e => e.TicketMessages)
-            .Include(e => e.TicketSummaries)
             .Include(e => e.Notifications)
             .AsTracking()
             .FirstOrDefaultAsync(e => e.Id == id);
@@ -74,16 +74,6 @@ public class TicketsRepository : ITicketsRepository
         foreach (var messageId in messageIds)
             if (!await _context.Messages.AnyAsync(e => e.Id == messageId))
                 throw new Exception($"Message with id {messageId} was not found, we can`t update it.");
-
-        var summaryIds = ticket.TicketSummaries.Where(e => e.Id != Guid.Empty).Select(e => e.Id).ToList();
-        foreach (var summaryId in summaryIds)
-            if (!await _context.TicketSummaries.AnyAsync(e => e.Id == summaryId))
-                throw new Exception($"Summary with id {summaryId} was not found, we can`t update it.");
-
-        var usecasesIds = ticket.Usecases.Where(e => e.Id != Guid.Empty).Select(e => e.Id).ToList();
-        foreach (var usecaseId in usecasesIds)
-            if (!await _context.Usecases.AnyAsync(e => e.Id == usecaseId))
-                throw new Exception($"Usecase with id {usecaseId} was not found, we can`t update it.");
 
         var notificationIds = ticket.Notifications.Where(e => e.Id != Guid.Empty).Select(e => e.Id).ToList();
         foreach (var notificationId in notificationIds)

@@ -1,7 +1,7 @@
-﻿namespace TicketsManager.BLL.Dtos.TicketSummaryDtos
+﻿namespace TicketsManager.BLL.Dtos.TicketSummaryDtos;
+
+public class TicketSummaryFullDto : TicketSummaryRequestDto
 {
-    public class TicketSummaryFullDto : TicketSummaryRequestDto
-    {
-        public Guid Id { get; set; }
-    }
+    public Guid Id { get; set; }
+    public Guid TicketId { get; set; }
 }

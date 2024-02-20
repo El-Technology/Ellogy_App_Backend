@@ -6,6 +6,14 @@ namespace TicketsManager.DAL.Context;
 
 public class TicketsManagerDbContext : DbContext
 {
+    public TicketsManagerDbContext()
+    {
+    }
+
+    public TicketsManagerDbContext(DbContextOptions<TicketsManagerDbContext> options) : base(options)
+    {
+    }
+
     public DbSet<ActionHistory> ActionHistories { get; set; } = null!;
     public DbSet<Notification> Notifications { get; set; } = null!;
     public DbSet<Usecase> Usecases { get; set; } = null!;
@@ -15,18 +23,12 @@ public class TicketsManagerDbContext : DbContext
     public DbSet<Message> Messages { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<TicketSummary> TicketSummaries { get; set; } = null!;
-
-    public TicketsManagerDbContext() { }
-
-    public TicketsManagerDbContext(DbContextOptions<TicketsManagerDbContext> options) : base(options)
-    { }
+    public DbSet<SummaryScenario> SummaryScenarios { get; set; } = null!;
+    public DbSet<SummaryAcceptanceCriteria> SummaryAcceptanceCriteria { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionString);
-        }
+        if (!optionsBuilder.IsConfigured) optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionString);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

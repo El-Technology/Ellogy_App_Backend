@@ -11,7 +11,8 @@ public static class DiExtension
         return services
             .AddScoped<IActionHistoryService, ActionHistoryService>()
             .AddScoped<IUsecasesService, UsecasesService>()
-            .AddScoped<ITicketsService, TicketsService>();
+            .AddScoped<ITicketsService, TicketsService>()
+            .AddScoped<ITicketSummaryService, TicketSummaryService>();
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)

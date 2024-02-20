@@ -4,8 +4,13 @@ using TicketsManager.DAL.Enums;
 
 namespace TicketsManager.BLL.Dtos.TicketSummaryDtos;
 
-public class TicketSummaryRequestDto
+public class TicketSummaryCreateDto
 {
+    /// <summary>
+    ///     The id of the ticket summary.
+    /// </summary>
+    public Guid TicketId { get; set; }
+
     /// <summary>
     ///     The data of the ticket summary.
     /// </summary>
@@ -24,10 +29,10 @@ public class TicketSummaryRequestDto
     /// <summary>
     ///     The scenarios associated with the ticket summary.
     /// </summary>
-    public IEnumerable<SummaryScenarioDto>? SummaryScenarios { get; set; }
+    public IEnumerable<SummaryScenarioCreateDto>? SummaryScenarios { get; set; }
 
     /// <summary>
     ///     The acceptance criteria associated with the ticket summary.
     /// </summary>
-    public IEnumerable<SummaryAcceptanceCriteriaDto>? SummaryAcceptanceCriteria { get; set; }
+    public IEnumerable<SummaryAcceptanceCriteriaCreateDto>? SummaryAcceptanceCriteria { get; set; }
 }

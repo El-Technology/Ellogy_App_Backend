@@ -127,6 +127,54 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("Notifications", (string)null);
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.SummaryAcceptanceCriteria", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TicketSummaryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketSummaryId");
+
+                    b.ToTable("SummaryAcceptanceCriteria", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.SummaryScenario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TicketSummaryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketSummaryId");
+
+                    b.ToTable("SummaryScenario", (string)null);
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
@@ -302,6 +350,28 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Ticket");
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.SummaryAcceptanceCriteria", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.TicketSummary", "TicketSummary")
+                        .WithMany("SummaryAcceptanceCriteria")
+                        .HasForeignKey("TicketSummaryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TicketSummary");
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.SummaryScenario", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.TicketSummary", "TicketSummary")
+                        .WithMany("SummaryScenarios")
+                        .HasForeignKey("TicketSummaryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TicketSummary");
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
                 {
                     b.HasOne("TicketsManager.DAL.Models.User", "User")
@@ -366,6 +436,13 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("TicketSummaries");
 
                     b.Navigation("Usecases");
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
+                {
+                    b.Navigation("SummaryAcceptanceCriteria");
+
+                    b.Navigation("SummaryScenarios");
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.Usecase", b =>
