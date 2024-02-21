@@ -328,6 +328,108 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.TestCase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ExpectedResult")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PreConditions")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TestCaseId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TestData")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TestSteps")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserStoryTestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserStoryTestId");
+
+                    b.ToTable("TestCase", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.TestPlan", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Objective")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Resources")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RiskManagement")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Schedule")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Scope")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TestEnvironment")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserStoryTestId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserStoryTestId")
+                        .IsUnique();
+
+                    b.ToTable("TestPlan", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TestScenarios")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TicketSummaryId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketSummaryId")
+                        .IsUnique();
+
+                    b.ToTable("UserStoryTest", (string)null);
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Message", b =>
                 {
                     b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
@@ -427,6 +529,39 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Ticket");
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.TestCase", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", "UserStoryTest")
+                        .WithMany("TestCases")
+                        .HasForeignKey("UserStoryTestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserStoryTest");
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.TestPlan", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", "UserStoryTest")
+                        .WithOne("TestPlan")
+                        .HasForeignKey("TicketsManager.DAL.Models.UserStoryTests.TestPlan", "UserStoryTestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserStoryTest");
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.TicketSummary", "TicketSummary")
+                        .WithOne("UserStoryTest")
+                        .HasForeignKey("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", "TicketSummaryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TicketSummary");
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
                 {
                     b.Navigation("Notifications");
@@ -443,6 +578,8 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("SummaryAcceptanceCriteria");
 
                     b.Navigation("SummaryScenarios");
+
+                    b.Navigation("UserStoryTest");
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.Usecase", b =>
@@ -455,6 +592,13 @@ namespace TicketsManager.DAL.Migrations
             modelBuilder.Entity("TicketsManager.DAL.Models.User", b =>
                 {
                     b.Navigation("UserTickets");
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", b =>
+                {
+                    b.Navigation("TestCases");
+
+                    b.Navigation("TestPlan");
                 });
 #pragma warning restore 612, 618
         }

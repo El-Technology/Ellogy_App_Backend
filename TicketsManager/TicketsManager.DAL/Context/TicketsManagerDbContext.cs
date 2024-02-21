@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketsManager.Common;
 using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.UserStoryTests;
 
 namespace TicketsManager.DAL.Context;
 
@@ -14,6 +15,9 @@ public class TicketsManagerDbContext : DbContext
     {
     }
 
+    public DbSet<UserStoryTest> UserStoryTests { get; set; } = null!;
+    public DbSet<TestCase> TestCases { get; set; } = null!;
+    public DbSet<TestPlan> TestPlans { get; set; } = null!;
     public DbSet<ActionHistory> ActionHistories { get; set; } = null!;
     public DbSet<Notification> Notifications { get; set; } = null!;
     public DbSet<Usecase> Usecases { get; set; } = null!;

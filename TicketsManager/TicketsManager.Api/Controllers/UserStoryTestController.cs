@@ -1,0 +1,73 @@
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using TicketsManager.BLL.Dtos.UserStoryTestDtos;
+using TicketsManager.BLL.Dtos.UserStoryTestDtos.GetDtos;
+using TicketsManager.BLL.Interfaces;
+
+namespace TicketsManager.Api.Controllers;
+
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Route("api/[controller]")]
+[ApiController]
+public class UserStoryTestController : ControllerBase
+{
+    private readonly IUserStoryTestService _userStoryTestService;
+
+    public UserStoryTestController(IUserStoryTestService userStoryTestService)
+    {
+        _userStoryTestService = userStoryTestService;
+    }
+
+    /// <summary>
+    ///     Controller for creating user story tests
+    /// </summary>
+    /// <param name="userStoryTest"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("createUserStoryTests")]
+    public async Task<IActionResult> AddUserStoryTestAsync([FromBody] List<CreateUserStoryTestDto> userStoryTest)
+    {
+        await _userStoryTestService.AddUserStoryTestAsync(userStoryTest);
+        return Ok();
+    }
+
+    /// <summary>
+    ///     Controller for getting user story tests
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("getUserStoryTests")]
+    public async Task<IActionResult> GetUserStoryTestsAsync([FromQuery] Guid ticketId)
+    {
+        var userStoryTests = await _userStoryTestService.GetUserStoryTestsAsync(ticketId);
+        return Ok(userStoryTests);
+    }
+
+    /// <summary>
+    ///     Controller for updating user story tests
+    /// </summary>
+    /// <param name="userStoryTest"></param>
+    /// <returns></returns>
+    [HttpPut]
+    [Route("updateUserStoryTests")]
+    public async Task<IActionResult> UpdateUserStoryTestAsync([FromBody] List<GetUserStoryDto> userStoryTest)
+    {
+        await _userStoryTestService.UpdateUserStoryTestAsync(userStoryTest);
+        return Ok();
+    }
+
+    /// <summary>
+    ///     Controller for deleting user story tests
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <returns></returns>
+    [HttpDelete]
+    [Route("deleteUserStoryTests")]
+    public async Task<IActionResult> DeleteUserStoryTestAsync([FromQuery] Guid ticketId)
+    {
+        await _userStoryTestService.DeleteUserStoryTestAsync(ticketId);
+        return Ok();
+    }
+}

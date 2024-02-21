@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.UserStoryTests;
 
 namespace TicketsManager.DAL.Context.Configurations;
 
@@ -28,5 +29,9 @@ public class SummaryConfiguration : IEntityTypeConfiguration<TicketSummary>
         builder.HasMany(t => t.SummaryAcceptanceCriteria)
             .WithOne(sc => sc.TicketSummary)
             .HasForeignKey(k => k.TicketSummaryId);
+
+        builder.HasOne(t => t.UserStoryTest)
+            .WithOne(t => t.TicketSummary)
+            .HasForeignKey<UserStoryTest>(t => t.TicketSummaryId);
     }
 }
