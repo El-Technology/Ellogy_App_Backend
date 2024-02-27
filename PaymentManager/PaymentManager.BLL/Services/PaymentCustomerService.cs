@@ -54,8 +54,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
         var user = await _userRepository.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
-        if (string.IsNullOrEmpty(user.StripeCustomerId))
-            throw new Exception("Customer is not created");
+        ArgumentNullException.ThrowIfNull(user.StripeCustomerId, nameof(user.StripeCustomerId));
 
         await GetCustomerService().UpdateAsync(user.StripeCustomerId, new CustomerUpdateOptions
         {
@@ -71,8 +70,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
         var user = await _userRepository.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
-        if (user.StripeCustomerId is null)
-            throw new Exception("Customer is not created");
+        ArgumentNullException.ThrowIfNull(user.StripeCustomerId, nameof(user.StripeCustomerId));
 
         var sessionOptions = new SessionCreateOptions
         {
@@ -99,8 +97,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
         var user = await _userRepository.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
-        if (string.IsNullOrEmpty(user.StripeCustomerId))
-            throw new Exception("Customer is not created");
+        ArgumentNullException.ThrowIfNull(user.StripeCustomerId, nameof(user.StripeCustomerId));
 
         var allMethods = await GetPaymentMethodService().ListAsync(new PaymentMethodListOptions
         {
@@ -123,6 +120,8 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     {
         var user = await _userRepository.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
+
+        ArgumentNullException.ThrowIfNull(user.StripeCustomerId, nameof(user.StripeCustomerId));
 
         await GetCustomerService().UpdateAsync(user.StripeCustomerId, new CustomerUpdateOptions
         {
@@ -155,6 +154,8 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
         var user = await _userRepository.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
+        ArgumentNullException.ThrowIfNull(user.StripeCustomerId, nameof(user.StripeCustomerId));
+
         var paymentsList = await GetPaymentIntentService().ListAsync(new PaymentIntentListOptions
         {
             Customer = user.StripeCustomerId,
@@ -165,7 +166,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
         });
 
         return new StripePaginationResponseDto<IEnumerable<PaymentObject>>
-            { HasMore = paymentsList.HasMore, Data = _mapper.Map<List<PaymentObject>>(paymentsList) };
+        { HasMore = paymentsList.HasMore, Data = _mapper.Map<List<PaymentObject>>(paymentsList) };
     }
 
 
@@ -178,6 +179,9 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     /// <inheritdoc cref="IPaymentCustomerService.UpgradeSubscriptionPreviewAsync(Guid, string)" />
     public async Task<decimal> UpgradeSubscriptionPreviewAsync(Guid userId, string newPriceId)
     {
+        var user = await _userRepository.GetUserByIdAsync(userId)
+           ?? throw new Exception("User was not found");
+
         var getActiveSubscription = await GetActiveSubscriptionAsync(userId)
                                     ?? throw new Exception("You don`t have active subscription");
 
@@ -185,9 +189,6 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
 
         if (newPriceInformation.UnitAmountDecimal / Constants.PriceInCents <= getActiveSubscription.Price)
             throw new Exception("You can`t upgrade on a subscription with the same or a lower price");
-
-        var user = await _userRepository.GetUserByIdAsync(userId)
-                   ?? throw new Exception("User was not found");
 
         var subscription = await GetSubscriptionService().GetAsync(getActiveSubscription.SubscriptionStripeId);
 

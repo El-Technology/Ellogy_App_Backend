@@ -6,7 +6,7 @@ namespace PaymentManager.BLL.Services;
 /// <summary>
 ///     Base service for retrieving Stripe services.
 /// </summary>
-public class StripeBaseService
+public abstract class StripeBaseService
 {
     private Lazy<CustomerService>? _customerService;
     private Lazy<InvoiceService>? _invoiceService;
@@ -17,49 +17,49 @@ public class StripeBaseService
     private Lazy<SessionService>? _sessionService;
     private Lazy<SubscriptionService>? _subscriptionService;
 
-    protected PriceService GetPriceService()
+    protected virtual PriceService GetPriceService()
     {
         _priceService ??= new Lazy<PriceService>(() => new PriceService());
         return _priceService.Value;
     }
 
-    protected InvoiceService GetInvoiceService()
+    protected virtual InvoiceService GetInvoiceService()
     {
         _invoiceService ??= new Lazy<InvoiceService>(() => new InvoiceService());
         return _invoiceService.Value;
     }
 
-    protected CustomerService GetCustomerService()
+    protected virtual CustomerService GetCustomerService()
     {
         _customerService ??= new Lazy<CustomerService>(() => new CustomerService());
         return _customerService.Value;
     }
 
-    protected PaymentMethodService GetPaymentMethodService()
+    protected virtual PaymentMethodService GetPaymentMethodService()
     {
         _paymentMethodService ??= new Lazy<PaymentMethodService>(() => new PaymentMethodService());
         return _paymentMethodService.Value;
     }
 
-    protected SubscriptionService GetSubscriptionService()
+    protected virtual SubscriptionService GetSubscriptionService()
     {
         _subscriptionService ??= new Lazy<SubscriptionService>(() => new SubscriptionService());
         return _subscriptionService.Value;
     }
 
-    protected PaymentIntentService GetPaymentIntentService()
+    protected virtual PaymentIntentService GetPaymentIntentService()
     {
         _paymentIntentService ??= new Lazy<PaymentIntentService>(() => new PaymentIntentService());
         return _paymentIntentService.Value;
     }
 
-    protected ProductService GetProductService()
+    protected virtual ProductService GetProductService()
     {
         _productService ??= new Lazy<ProductService>(() => new ProductService());
         return _productService.Value;
     }
 
-    protected SessionService GetSessionService()
+    protected virtual SessionService GetSessionService()
     {
         _sessionService ??= new Lazy<SessionService>(() => new SessionService());
         return _sessionService.Value;

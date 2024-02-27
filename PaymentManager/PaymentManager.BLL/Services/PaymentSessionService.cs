@@ -14,7 +14,7 @@ namespace PaymentManager.BLL.Services;
 /// </summary>
 public class PaymentSessionService : StripeBaseService, IPaymentSessionService
 {
-    private const int AmountOfItems = 1;
+    private const int AMOUNT_OF_ITEMS = 1;
     private readonly IPaymentCustomerService _paymentCustomerService;
     private readonly IPaymentRepository _paymentRepository;
     private readonly IProductCatalogService _productCatalogService;
@@ -60,7 +60,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
                         UnitAmountDecimal = streamRequest.AmountOfPoints * Constants.OneTokenPrice *
                                             Constants.PriceInCents
                     },
-                    Quantity = AmountOfItems
+                    Quantity = AMOUNT_OF_ITEMS
                 }
             },
             PaymentIntentData = new SessionPaymentIntentDataOptions
