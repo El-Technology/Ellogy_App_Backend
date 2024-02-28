@@ -31,5 +31,12 @@ public interface IUserStoryTestRepository
     /// </summary>
     /// <param name="ticketId"></param>
     /// <returns></returns>
-    Task DeleteUserStoryTestAsync(Guid ticketId);
+    Task DeleteUserStoryTestByTicketIdAsync(Guid ticketId);
+
+    /// <summary>
+    ///    Method deletes TestCases by list of TestCaseIds
+    /// </summary>
+    /// <param name="listOfTestCaseIds"></param>
+    /// <returns></returns>
+    Task DeleteTestCasesByIds(List<Guid> listOfTestCaseIds);
 }

@@ -48,9 +48,15 @@ public class UserStoryTestRepository : IUserStoryTestRepository
         await _context.SaveChangesAsync();
     }
 
-    /// <inheritdoc cref="IUserStoryTestRepository.DeleteUserStoryTestAsync" />
-    public async Task DeleteUserStoryTestAsync(Guid ticketId)
+    /// <inheritdoc cref="IUserStoryTestRepository.DeleteUserStoryTestByTicketIdAsync" />
+    public async Task DeleteUserStoryTestByTicketIdAsync(Guid ticketId)
     {
         await _context.UserStoryTests.Where(a => a.TicketSummary!.TicketId == ticketId).ExecuteDeleteAsync();
+    }
+
+    /// <inheritdoc cref="IUserStoryTestRepository.DeleteTestCasesByIds" />
+    public async Task DeleteTestCasesByIds(List<Guid> listOfTestCaseIds)
+    {
+        await _context.TestCases.Where(tc => listOfTestCaseIds.Contains(tc.Id)).ExecuteDeleteAsync();
     }
 }

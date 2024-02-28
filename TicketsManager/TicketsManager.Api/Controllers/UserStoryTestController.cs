@@ -70,4 +70,17 @@ public class UserStoryTestController : ControllerBase
         await _userStoryTestService.DeleteUserStoryTestAsync(ticketId);
         return Ok();
     }
+
+    /// <summary>
+    ///    Controller for deleting test cases
+    /// </summary>
+    /// <param name="listOfTestCaseIds"></param>
+    /// <returns></returns>
+    [HttpDelete]
+    [Route("deleteTestCases")]
+    public async Task<IActionResult> DeleteTestCasesByIds([FromBody] List<Guid> listOfTestCaseIds)
+    {
+        await _userStoryTestService.DeleteTestCasesByIds(listOfTestCaseIds);
+        return Ok();
+    }
 }

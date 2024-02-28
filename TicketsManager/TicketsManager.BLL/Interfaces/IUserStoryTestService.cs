@@ -32,4 +32,5 @@ public interface IUserStoryTestService
     /// <param name="ticketId"></param>
     /// <returns></returns>
     Task DeleteUserStoryTestAsync(Guid ticketId);
+    Task DeleteTestCasesByIds(List<Guid> listOfTestCaseIds);
 }
