@@ -710,6 +710,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/dev/UserStoryTest/deleteTestCases",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/api/UserStoryTest/deleteTestCases",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 5041
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/Usecases/create",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Usecases/create",
