@@ -193,8 +193,8 @@ public class PaymentSessionServiceTest : StripeBaseServiceForTests
     {
         // Arrange
         var user = _fixture.Create<User>();
-        var subscriptionId = "subscriptionId";
-        var productId = "productId";
+        var subscriptionId = _fixture.Create<string>();
+        var productId = _fixture.Create<string>();
         var productName = $"{AccountPlan.Basic}/otherLanguageTranslate";
 
         _userRepository.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id)))
