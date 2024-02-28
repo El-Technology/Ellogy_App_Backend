@@ -64,7 +64,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
                 }
             },
             PaymentIntentData = new SessionPaymentIntentDataOptions
-                { Description = $"{streamRequest.AmountOfPoints} - points" },
+            { Description = $"{streamRequest.AmountOfPoints} - points" },
             Mode = Constants.PaymentMode,
             Customer = string.IsNullOrEmpty(user.StripeCustomerId) ? null : user.StripeCustomerId,
             CustomerEmail = string.IsNullOrEmpty(user.StripeCustomerId) ? user.Email : null,
@@ -124,6 +124,8 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
         var user = await _userRepository.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
+        ArgumentNullException.ThrowIfNull(user.StripeCustomerId, "You have to create a customer billing record");
+
         var customerData = await GetCustomerService().GetAsync(user.StripeCustomerId, new CustomerGetOptions
         {
             Expand = new List<string> { "subscriptions" }
@@ -136,9 +138,8 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
                            ?? throw new Exception("Taking productId error");
 
         var productModel = await _productCatalogService.GetProductAsync(getProductId);
-        var productName = productModel.Name[..productModel.Name.IndexOf("/", StringComparison.Ordinal)];
 
-        if (productName.Equals(AccountPlan.Free.ToString()))
+        if (productModel.Name.Contains(AccountPlan.Free.ToString()))
             throw new Exception("You can`t cancel Free subscription");
 
         await GetSubscriptionService().UpdateAsync(customerData.Subscriptions.FirstOrDefault()?.Id,
