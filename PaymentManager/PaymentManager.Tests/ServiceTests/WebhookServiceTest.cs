@@ -257,7 +257,9 @@ public class WebhookServiceTest : StripeBaseServiceForTests
         var userId = _fixture.Create<Guid>();
         var invoice = new Invoice()
         {
-            SubscriptionId = _fixture.Create<string>()
+            SubscriptionId = _fixture.Create<string>(),
+            PeriodEnd = DateTime.UtcNow,
+            WebhooksDeliveredAt = DateTime.UtcNow.AddDays(1)
         };
 
         var freeProduct = new ProductModel()
@@ -288,12 +290,6 @@ public class WebhookServiceTest : StripeBaseServiceForTests
             }
         };
         var newSubscription = new Subscription();
-
-        _subscriptionRepository.Setup(x => x.GetActiveSubscriptionAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(new DAL.Models.Subscription()
-            {
-                EndDate = DateTime.UtcNow.AddDays(-3)
-            });
 
         _webhookService.Protected().Setup<SubscriptionService>(GET_SUBSCRIPTION_SERVICE)
             .Returns(_subscriptionService.Object);
@@ -353,7 +349,9 @@ public class WebhookServiceTest : StripeBaseServiceForTests
                         }
                     }
                 }
-            }
+            },
+            PeriodEnd = DateTime.UtcNow.AddDays(3),
+            WebhooksDeliveredAt = DateTime.UtcNow
         };
 
         var freeProduct = new ProductModel()
@@ -385,12 +383,6 @@ public class WebhookServiceTest : StripeBaseServiceForTests
             }
         };
         var newSubscription = new Subscription();
-
-        _subscriptionRepository.Setup(x => x.GetActiveSubscriptionAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(new DAL.Models.Subscription()
-            {
-                EndDate = DateTime.UtcNow.AddDays(3)
-            });
 
         _webhookService.Protected().Setup<SubscriptionService>(GET_SUBSCRIPTION_SERVICE)
             .Returns(_subscriptionService.Object);

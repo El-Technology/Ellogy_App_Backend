@@ -137,9 +137,8 @@ public class WebhookService : StripeBaseService, IWebhookService
 
         var subscription = await GetSubscriptionService().GetAsync(invoice.SubscriptionId);
         var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
-        var getActiveSubscription = await _subscriptionRepository.GetActiveSubscriptionAsync(userId);
 
-        if (getActiveSubscription is null || getActiveSubscription.EndDate < DateTime.UtcNow)
+        if (invoice.PeriodEnd < invoice.WebhooksDeliveredAt)
         {
             var freeProduct = await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString());
             var newSubscription = await UpdateSubscriptionPaymentFailCaseAsync(subscription, freeProduct.PriceId);
