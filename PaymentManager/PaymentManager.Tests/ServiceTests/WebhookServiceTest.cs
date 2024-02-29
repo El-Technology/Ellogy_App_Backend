@@ -289,6 +289,12 @@ public class WebhookServiceTest : StripeBaseServiceForTests
         };
         var newSubscription = new Subscription();
 
+        _subscriptionRepository.Setup(x => x.GetActiveSubscriptionAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(new DAL.Models.Subscription()
+            {
+                EndDate = DateTime.UtcNow.AddDays(-3)
+            });
+
         _webhookService.Protected().Setup<SubscriptionService>(GET_SUBSCRIPTION_SERVICE)
             .Returns(_subscriptionService.Object);
 
@@ -334,7 +340,20 @@ public class WebhookServiceTest : StripeBaseServiceForTests
         var userId = _fixture.Create<Guid>();
         var invoice = new Invoice()
         {
-            SubscriptionId = _fixture.Create<string>()
+            SubscriptionId = _fixture.Create<string>(),
+            Lines = new StripeList<InvoiceLineItem>()
+            {
+                Data = new List<InvoiceLineItem>()
+                {
+                    new InvoiceLineItem()
+                    {
+                        Price = new Price()
+                        {
+                            Id = _fixture.Create<string>()
+                        }
+                    }
+                }
+            }
         };
 
         var freeProduct = new ProductModel()
@@ -366,6 +385,12 @@ public class WebhookServiceTest : StripeBaseServiceForTests
             }
         };
         var newSubscription = new Subscription();
+
+        _subscriptionRepository.Setup(x => x.GetActiveSubscriptionAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(new DAL.Models.Subscription()
+            {
+                EndDate = DateTime.UtcNow.AddDays(3)
+            });
 
         _webhookService.Protected().Setup<SubscriptionService>(GET_SUBSCRIPTION_SERVICE)
             .Returns(_subscriptionService.Object);
@@ -399,7 +424,7 @@ public class WebhookServiceTest : StripeBaseServiceForTests
         _productCatalogService.Verify(x => x.GetProductByNameAsync(It.Is<string>(a =>
             a.Equals(AccountPlan.Free.ToString()))), Times.Never);
         _subscriptionService.Verify(x => x.UpdateAsync(It.IsAny<string>(), It.IsAny<SubscriptionUpdateOptions>(),
-            null, default), Times.Never);
+            null, default), Times.Once);
         _invoiceService.Verify(x => x.VoidInvoiceAsync(It.IsAny<string>(), null, null, default), Times.Once);
         _paymentRepository.Verify(x => x.CreatePaymentAsync(It.IsAny<Payment>()), Times.Once);
         _subscriptionRepository.Verify(x => x.UpdateSubscriptionStatusAsync(It.IsAny<string>(),
