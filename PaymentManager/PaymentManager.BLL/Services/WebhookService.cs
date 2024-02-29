@@ -43,13 +43,10 @@ public class WebhookService : StripeBaseService, IWebhookService
     {
         var payment = await _paymentRepository.GetPaymentAsync(session.Id);
 
-        if (payment?.Mode is null)
-            return;
+        ArgumentNullException.ThrowIfNull(payment, nameof(payment));
+        ArgumentNullException.ThrowIfNull(payment.Mode, nameof(payment.Mode));
 
-        if (payment is { UpdatedBallance: true, Mode: Constants.PaymentMode })
-            return;
-
-        if (!session.Mode.Equals(Constants.PaymentMode))
+        if (payment.UpdatedBallance || !session.Mode.Equals(Constants.PaymentMode))
             return;
 
         await _paymentRepository.UpdatePaymentAsync(new Payment
@@ -70,10 +67,9 @@ public class WebhookService : StripeBaseService, IWebhookService
     {
         var payment = await _paymentRepository.GetPaymentAsync(session.Id);
 
-        if (payment is not { Status: not "expired" })
-            return;
+        if (payment is not { Status: not Constants.ExpiredStatus }) return;
 
-        if (session.Status != "expired")
+        if (session.Status != Constants.ExpiredStatus)
             await GetSessionService().ExpireAsync(session.Id);
 
         await _paymentRepository.UpdatePaymentAsync(new Payment
@@ -91,17 +87,17 @@ public class WebhookService : StripeBaseService, IWebhookService
     /// <inheritdoc cref="IWebhookService.UpdateSubscriptionAsync(Subscription)" />
     public async Task UpdateSubscriptionAsync(Subscription subscription)
     {
-        if (subscription.CancelAtPeriodEnd)
-        {
-            var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
+        if (!subscription.CancelAtPeriodEnd) return;
 
-            await _subscriptionRepository.UpdateSubscriptionIsCanceledAsync(subscription.Id,
-                subscription.CancelAtPeriodEnd);
-            await SendEventResultAsync(userId, EventResultConstants.SubscriptionCanceled, EventResultConstants.Success);
+        var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
 
-            await _subscriptionRepository.UpdateSubscriptionStatusAsync(subscription.Id,
-                SubscriptionStatusEnum.PendingCancellation);
-        }
+        await _subscriptionRepository.UpdateSubscriptionIsCanceledAsync(subscription.Id,
+            subscription.CancelAtPeriodEnd);
+
+        await SendEventResultAsync(userId, EventResultConstants.SubscriptionCanceled, EventResultConstants.Success);
+
+        await _subscriptionRepository.UpdateSubscriptionStatusAsync(subscription.Id,
+            SubscriptionStatusEnum.PendingCancellation);
     }
 
     /// <inheritdoc cref="IWebhookService.DeleteSubscriptionAsync(Subscription)" />
@@ -137,37 +133,40 @@ public class WebhookService : StripeBaseService, IWebhookService
     /// <inheritdoc cref="IWebhookService.InvoiceFailedHandleAsync(Invoice)" />
     public async Task InvoiceFailedHandleAsync(Invoice invoice)
     {
-        if (invoice.SubscriptionId is null)
-            return;
+        if (invoice.SubscriptionId is null) return;
 
         var subscription = await GetSubscriptionService().GetAsync(invoice.SubscriptionId);
-        var freeProduct = await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString());
-
-        var newSubscription = await GetSubscriptionService().UpdateAsync(subscription.Id, new SubscriptionUpdateOptions
-        {
-            ProrationBehavior = "none",
-            Items = new List<SubscriptionItemOptions>
-            {
-                new() { Id = subscription.Items.Data.First().Id, Deleted = true },
-                new() { Price = freeProduct.PriceId }
-            }
-        });
-
-        await GetInvoiceService().VoidInvoiceAsync(invoice.Id);
 
         var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
 
-        await _subscriptionRepository.UpdateSubscriptionAsync(new DAL.Models.Subscription
+        if (subscription.CurrentPeriodEnd < DateTime.UtcNow)
         {
-            Name = freeProduct.Name,
-            Price = freeProduct.Price,
-            SubscriptionStripeId = newSubscription.Id,
-            StartDate = newSubscription.CurrentPeriodStart,
-            EndDate = newSubscription.CurrentPeriodEnd,
-            IsActive = true,
-            UserId = userId,
-            IsCanceled = newSubscription.CancelAtPeriodEnd
-        }, AccountPlan.Free);
+            var freeProduct = await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString());
+
+            var newSubscription = await GetSubscriptionService().UpdateAsync(subscription.Id, new SubscriptionUpdateOptions
+            {
+                ProrationBehavior = "none",
+                Items = new List<SubscriptionItemOptions>
+                {
+                    new() { Id = subscription.Items.Data.First().Id, Deleted = true },
+                    new() { Price = freeProduct.PriceId }
+                }
+            });
+
+            await _subscriptionRepository.UpdateSubscriptionAsync(new DAL.Models.Subscription
+            {
+                Name = freeProduct.Name,
+                Price = freeProduct.Price,
+                SubscriptionStripeId = newSubscription.Id,
+                StartDate = newSubscription.CurrentPeriodStart,
+                EndDate = newSubscription.CurrentPeriodEnd,
+                IsActive = true,
+                UserId = userId,
+                IsCanceled = newSubscription.CancelAtPeriodEnd
+            }, AccountPlan.Free);
+        }
+
+        await GetInvoiceService().VoidInvoiceAsync(invoice.Id);
 
         await SendEventResultAsync(userId, EventResultConstants.PaymentSuccess, EventResultConstants.Error);
 
@@ -176,7 +175,7 @@ public class WebhookService : StripeBaseService, IWebhookService
             Id = Guid.NewGuid(),
             InvoiceId = subscription.LatestInvoiceId,
             Mode = "subscription payment",
-            ProductName = $"Changed to {freeProduct}",
+            ProductName = $"Changed",
             UserId = userId,
             Status = "failed",
             AmountOfPoints = default,

@@ -5,6 +5,7 @@ public static class Constants
     public const string PaymentMode = "payment";
     public const string SubscriptionMode = "subscription";
     public const string SetupMode = "setup";
+    public const string ExpiredStatus = "expired";
 
     public static int NewWalletBalance = 0;
     public static decimal PriceInCents = 100;
