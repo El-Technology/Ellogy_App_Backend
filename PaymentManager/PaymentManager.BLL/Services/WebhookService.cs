@@ -236,37 +236,6 @@ public class WebhookService : StripeBaseService, IWebhookService
         await _userRepository.UpdateTotalPurchasedTokensAsync(userId, amountOfPoints);
     }
 
-    private async Task SetDefaultSubscriptionAsync(string customerId, string userId)
-    {
-        var product = (await GetProductService().SearchAsync(new ProductSearchOptions
-        {
-            Query = $"active:'true' AND name~'{AccountPlan.Free}'"
-        })).Data.FirstOrDefault() ?? throw new Exception("Taking product for free subscription failed");
-
-        var createdSubscription = await GetSubscriptionService().CreateAsync(new SubscriptionCreateOptions
-        {
-            Customer = customerId,
-            Items = new List<SubscriptionItemOptions> { new() { Price = product.DefaultPriceId } },
-            Metadata = new Dictionary<string, string>
-            {
-                { MetadataConstants.AccountPlan, AccountPlan.Free.ToString() },
-                { MetadataConstants.UserId, userId },
-                { MetadataConstants.ProductName, product.Name }
-            }
-        });
-
-        await _subscriptionRepository.CreateSubscriptionAsync(new DAL.Models.Subscription
-        {
-            EndDate = createdSubscription.CurrentPeriodEnd,
-            Id = Guid.NewGuid(),
-            IsActive = true,
-            IsCanceled = false,
-            StartDate = createdSubscription.CurrentPeriodStart,
-            SubscriptionStripeId = createdSubscription.Id,
-            UserId = Guid.Parse(userId)
-        }, AccountPlan.Free);
-    }
-
     private async Task SendEventResultAsync(Guid userId, string methodName, string message)
     {
         var connections = PaymentHub.CheckIfUserIdExistAndReturnConnections(userId);
