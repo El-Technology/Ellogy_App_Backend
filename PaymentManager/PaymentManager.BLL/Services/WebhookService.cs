@@ -136,22 +136,12 @@ public class WebhookService : StripeBaseService, IWebhookService
         if (invoice.SubscriptionId is null) return;
 
         var subscription = await GetSubscriptionService().GetAsync(invoice.SubscriptionId);
-
         var userId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]);
 
         if (subscription.CurrentPeriodEnd < DateTime.UtcNow)
         {
             var freeProduct = await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString());
-
-            var newSubscription = await GetSubscriptionService().UpdateAsync(subscription.Id, new SubscriptionUpdateOptions
-            {
-                ProrationBehavior = "none",
-                Items = new List<SubscriptionItemOptions>
-                {
-                    new() { Id = subscription.Items.Data.First().Id, Deleted = true },
-                    new() { Price = freeProduct.PriceId }
-                }
-            });
+            var newSubscription = await UpdateSubscriptionPaymentFailCaseAsync(subscription, freeProduct.PriceId);
 
             await _subscriptionRepository.UpdateSubscriptionAsync(new DAL.Models.Subscription
             {
@@ -165,9 +155,10 @@ public class WebhookService : StripeBaseService, IWebhookService
                 IsCanceled = newSubscription.CancelAtPeriodEnd
             }, AccountPlan.Free);
         }
+        else
+            await UpdateSubscriptionPaymentFailCaseAsync(subscription, invoice.Lines.Data.FirstOrDefault()?.Price.Id);
 
         await GetInvoiceService().VoidInvoiceAsync(invoice.Id);
-
         await SendEventResultAsync(userId, EventResultConstants.PaymentSuccess, EventResultConstants.Error);
 
         await _paymentRepository.CreatePaymentAsync(new Payment
@@ -244,5 +235,22 @@ public class WebhookService : StripeBaseService, IWebhookService
 
         foreach (var connection in connections)
             await _hubContext.Clients.Client(connection.Key).SendAsync(methodName, message);
+    }
+
+    private async Task<Subscription> UpdateSubscriptionPaymentFailCaseAsync(Subscription subscription, string? priceId)
+    {
+        ArgumentNullException.ThrowIfNull(priceId, nameof(priceId));
+
+        var updatedSubscription = await GetSubscriptionService().UpdateAsync(subscription.Id, new SubscriptionUpdateOptions
+        {
+            ProrationBehavior = "none",
+            Items = new List<SubscriptionItemOptions>
+                {
+                    new() { Id = subscription.Items.Data.First().Id, Deleted = true },
+                    new() { Price = priceId }
+                }
+        });
+
+        return updatedSubscription;
     }
 }
