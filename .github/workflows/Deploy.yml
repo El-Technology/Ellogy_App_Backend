@@ -75,7 +75,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
 
     needs: changes
-    if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' && (startsWith(env.BRANCH_NAME, 'refs/heads/master')) }}
+    if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' && (startsWith(github.ref, 'refs/heads/master')) }}
 
     runs-on: ubuntu-latest
     steps:
