@@ -2,7 +2,7 @@ name: Build and push microservices
 on:
   push:
     branches:
-      - develop
+      - master
     paths:
       - TicketsManager/**
       - UserManager/**
