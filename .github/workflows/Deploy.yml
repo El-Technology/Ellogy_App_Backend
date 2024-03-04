@@ -13,7 +13,7 @@ on:
       - '!UserManager/NotificationService/**'
       
 env:
-  SSH_HOST: ${{ secrets.SSH_HOST_PRE_RELEASE }}
+  SSH_HOST: ${{ secrets.SSH_HOST }}
   SSH_USER: ${{ vars.REMOTE_USER }}
   SSH_KEY: ${{ secrets.SSH_KEY }}
   ENVNAME: ${{ vars.ENVNAME }}
@@ -21,8 +21,6 @@ env:
 
 jobs:
   changes:
-    environment: 
-      name: development
     runs-on: ubuntu-latest
 
     outputs:
@@ -33,13 +31,6 @@ jobs:
       Workflow: ${{ steps.changes.outputs.Workflow }}
       
     steps:
-      - name: Step 1 - Echo out a GitHub Actions Secret to the logs
-        run: |
-          echo "The GitHub Action Secret will be masked:  "
-          echo ${{ secrets.TEST }}
-          echo "Trick to echo GitHub Actions Secret:  "
-          echo ${{secrets.TEST}} | sed 's/./& /g'
-
       - name: Get Code
         uses: actions/checkout@v4
      
@@ -236,7 +227,7 @@ jobs:
         chmod 600 ~/.ssh/github-actions-key
         cat >>~/.ssh/config <<END
         Host VM
-          HostName $SSH_HOST
+          HostName ${{ secrets.SSH_HOST }}
           User $SSH_USER
           IdentityFile ~/.ssh/github-actions-key
           StrictHostKeyChecking no
@@ -258,14 +249,14 @@ jobs:
         
         SECRET_KEY: ${{ secrets.SECRET_KEY }}
         WEBHOOK_KEY: ${{ secrets.WEBHOOK_KEY }}
-        CONNECTIONSTRING_VECTOR: ${{ secrets.CONNECTIONSTRING_TEST_VECTOR }}
-        CONNECTIONSTRING_PAYMENT: ${{ secrets.CONNECTIONSTRING_TEST_PAYMENT }}
+        CONNECTIONSTRING_VECTOR: ${{ secrets.CONNECTIONSTRING_VECTOR }}
+        CONNECTIONSTRING_PAYMENT: ${{ secrets.CONNECTIONSTRING_PAYMENT }}
         AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT }}
         ADMIN_JWT_SECRET_KEY: ${{ secrets.ADMIN_JWT_SECRET_KEY }}
         AZURE_SERVICE_BUS_CONNECTION_STRING: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING }}
         BLOB_STORAGE_CONNECTION_STRING: ${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}
         OPEN_AI_KEY: ${{secrets.OPEN_AI_KEY}}
-        CONNECTION_STRING: ${{secrets.CONNECTIONSTRING_TEST}}
+        CONNECTION_STRING: ${{secrets.CONNECTIONSTRING}}
         JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY }}
       run: |
         ssh VM bash -s <<EOF
