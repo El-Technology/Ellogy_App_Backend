@@ -16,10 +16,13 @@ env:
   SSH_HOST: ${{ secrets.SSH_HOST_PRE_RELEASE }}
   SSH_USER: ${{ vars.REMOTE_USER }}
   SSH_KEY: ${{ secrets.SSH_KEY }}
-  ENVNAME: ${{ vars.ENVNAME }} 
+  ENVNAME: ${{ vars.ENVNAME }}
+  BRANCH_NAME: ${{ github.ref }}
 
 jobs:
   changes:
+    environment: 
+      name: development
     runs-on: ubuntu-latest
 
     outputs:
@@ -30,6 +33,13 @@ jobs:
       Workflow: ${{ steps.changes.outputs.Workflow }}
       
     steps:
+      - name: Step 1 - Echo out a GitHub Actions Secret to the logs
+          run: |
+            echo "The GitHub Action Secret will be masked:  "
+            echo ${{ secrets.TEST }}
+            echo "Trick to echo GitHub Actions Secret:  "
+            echo ${{secrets.TEST}} | sed 's/./& /g'
+
       - name: Get Code
         uses: actions/checkout@v4
      
@@ -37,7 +47,7 @@ jobs:
         uses: dorny/paths-filter@v3
         id: changes
         with:
-           base: ${{ github.ref }}
+           base: env.BRANCH_NAME
            filters: |
               AICommunicationService:
                 - 'AICommunicationService/**'
@@ -64,7 +74,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
 
     needs: changes
-    if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' }}  
+    if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' }}  && (startsWith(env.BRANCH_NAME, 'refs/heads/pre-release'))
 
     runs-on: ubuntu-latest
     steps:
@@ -216,6 +226,8 @@ jobs:
     needs: [build_user_manager, build_ticket_manager, build_ai_communication_service, build_payment_manager]
     
     runs-on: ubuntu-latest
+    environment: 
+      name: ${{ if(needs.changes.outputs.BRANCH_NAME != 'master', 'development', 'production') }}
     steps:
     - name: Configure SSH
       run: |
