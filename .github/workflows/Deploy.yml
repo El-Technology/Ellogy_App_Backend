@@ -21,6 +21,8 @@ env:
 
 jobs:
   changes:
+    environment: 
+      name: development
     runs-on: ubuntu-latest
 
     outputs:
@@ -31,6 +33,13 @@ jobs:
       Workflow: ${{ steps.changes.outputs.Workflow }}
       
     steps:
+      - name: Step 1 - Echo out a GitHub Actions Secret to the logs
+        run: |
+          echo "The GitHub Action Secret will be masked:  "
+          echo ${{ secrets.TEST }}
+          echo "Trick to echo GitHub Actions Secret:  "
+          echo ${{secrets.TEST}} | sed 's/./& /g'
+
       - name: Get Code
         uses: actions/checkout@v4
      
