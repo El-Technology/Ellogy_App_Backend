@@ -58,6 +58,182 @@ Just for PlantUML we don`t need to use ```/swagger/index.html```
 
 Recent updates include transitioning to Azure OpenAI models, utilizing GPT-4, creating a custom communication library, implementing functional communication, and enabling streaming of AI responses.
 
+
+Communication
+------------------------------------------------------------------------------------------
+<details>
+ <summary><code>[POST]</code> <code><b>...</b></code> <code>/api/Communication/getSignalRStreamResponse</code></summary>
+   
+#### Endpoint for retrieving AI response as streaming using SignalR.
+##### Parameters (body)
+
+| Attribute                | Type     | Required | Description           |
+|--------------------------|----------|----------|-----------------------|
+| `aiModelEnum`            | int      | Yes      | An integer representing the type of AI model being used. |
+| `templateName`           | string    | Yes      | The name of the template being used. |
+| `userInput`              | string    | Yes      | The user input that will be processed by the AI model. |
+| `temperature`            | int      | No       | An optional integer that can be used to control the temperature of the AI model. |
+| `useRAG`                 | bool     | Yes      | A boolean value indicating whether to use RAG (Retrieval Augmented Generation) capabilities. |
+| `fileName`               | string    | No       | An optional string representing the name of the file to be processed. |
+| `connectionId`           | string    | No       | An optional string that can be used to identify the connection. |
+| `signalMethodName`       | string    | No       | An optional string representing the name of the signal method to be used. |
+
+
+##### Responses
+
+| http code     | content-type                      | response                                                            |
+|---------------|-----------------------------------|---------------------------------------------------------------------|
+| `200`         | `application/json`        | `Success`                                                           |
+
+
+</details>
+
+<details>
+ <summary><code>[POST]</code> <code><b>...</b></code> <code>/api/Communication/getChatResponse</code></summary>
+   
+#### Endpoint for retrieving AI response as string.
+##### Parameters (body)
+
+| Attribute                | Type     | Required | Description           |
+|--------------------------|----------|----------|-----------------------|
+| `aiModelEnum`            | int      | Yes      | An integer representing the type of AI model being used. |
+| `templateName`           | string    | Yes      | The name of the template being used. |
+| `userInput`              | string    | Yes      | The user input that will be processed by the AI model. |
+| `temperature`            | int      | No       | An optional integer that can be used to control the temperature of the AI model. |
+| `useRAG`                 | bool     | Yes      | A boolean value indicating whether to use RAG (Retrieval Augmented Generation) capabilities. |
+| `fileName`               | string    | No       | An optional string representing the name of the file to be processed. |
+
+
+##### Responses
+
+| http code     | content-type                      | response                                                            |
+|---------------|-----------------------------------|---------------------------------------------------------------------|
+| `200`         | `application/json`        | `Success`                                                           |
+
+
+</details>
+
+<details>
+ <summary><code>[POST]</code> <code><b>...</b></code> <code>/api/Communication/chatWithFunctions</code></summary>
+
+#### Endpoint for retrieving AI response by Json Example.
+##### Parameters (body)
+
+| Attribute                | Type     | Required | Description           |
+|--------------------------|----------|----------|-----------------------|
+| `aiModelEnum`            | int      | Yes      | An integer representing the type of AI model being used. |
+| `templateName`           | string    | Yes      | The name of the template being used. |
+| `userInput`              | string    | Yes      | The user input that will be processed by the AI model. |
+| `temperature`            | int      | No       | An optional integer that can be used to control the temperature of the AI model. |
+| `useRAG`                 | bool     | Yes      | A boolean value indicating whether to use RAG (Retrieval Augmented Generation) capabilities. |
+| `fileName`               | string    | No       | An optional string representing the name of the file to be processed. |
+
+
+##### Responses
+
+| http code     | content-type                      | response                                                            |
+|---------------|-----------------------------------|---------------------------------------------------------------------|
+| `200`         | `application/json`        | `Success`                                                           |
+
+
+</details>
+
+
+Prompt
+------------------------------------------------------------------------------------------
+<details>
+ <summary><code>[GET]</code> <code><b>...</b></code> <code>/api/Prompt/getAllPrompts</code></summary>
+   
+#### Endpoint for retrieving AI response as streaming using SignalR.
+##### Parameters empty
+
+
+##### Responses
+
+| http code     | content-type                      | response                                                            |
+|---------------|-----------------------------------|---------------------------------------------------------------------|
+| `200`         | `application/json`        | `Success`                                                           |
+
+
+</details>
+
+<details>
+ <summary><code>[POST]</code> <code><b>...</b></code> <code>/api/Prompt/createPrompt</code></summary>
+   
+#### Endpoint for retrieving AI response by Json Example.
+##### Parameters (body)
+
+| Attribute                | Type     | Required | Description           |
+|--------------------------|----------|----------|-----------------------|
+| `templateName`            | string    | Yes      | The name of the template being used to generate the response. |
+| `functions`               | string    | No       | A string representing the functions used in the template. |
+| `description`             | string    | No       | A string describing the purpose of the model. |
+| `input`                   | string    | Yes      | The user's input string. |
+| `value`                   | string    | Yes      | The generated value by the model. |
+
+
+##### Responses
+
+| http code     | content-type                      | response                                                            |
+|---------------|-----------------------------------|---------------------------------------------------------------------|
+| `200`         | `application/json`        | `Success`                                                           |
+
+
+</details>
+
+<details>
+ <summary><code>[PUT]</code> <code><b>...</b></code> <code>/api/Prompt/updatePrompt</code></summary>
+   
+#### Updates an existing prompt with the provided data.
+
+##### Parameters (query) 
+| Attribute                | Type     | Required | Description           |
+|--------------------------|----------|----------|-----------------------|
+| `templateName`            | string    | Yes      | The name of the template being used to generate the response. |
+
+##### Parameters (body)
+
+| Attribute                | Type     | Required | Description           |
+|--------------------------|----------|----------|-----------------------|
+| `functions`               | string    | No       | A string representing the functions used in the template. |
+| `description`             | string    | No       | A string describing the purpose of the model. |
+| `input`                   | string    | Yes      | The user's input string. |
+| `value`                   | string    | Yes      | The generated value by the model. |
+
+
+##### Responses
+
+| http code     | content-type                      | response                                                            |
+|---------------|-----------------------------------|---------------------------------------------------------------------|
+| `200`         | `application/json`        | `Success`                                                           |
+
+
+</details>
+
+<details>
+ <summary><code>[DELETE]</code> <code><b>...</b></code> <code>/api/Prompt/deletePrompt</code></summary>
+   
+#### Updates an existing prompt with the provided data.
+
+##### Parameters (query) 
+| Attribute                | Type     | Required | Description           |
+|--------------------------|----------|----------|-----------------------|
+| `promptName`            | string    | Yes      | The name of the template being used to generate the response. |
+
+##### Responses
+
+| http code     | content-type                      | response                                                            |
+|---------------|-----------------------------------|---------------------------------------------------------------------|
+| `200`         | `application/json`        | `Success`                                                           |
+
+</details>
+
+
+RAG
+------------------------------------------------------------------------------------------
+
+
+
 ### <a name="database"></a>1.4 Database
 
 PostgreSQL single server hosts the database, providing access via connection strings for data management, backups, and edits.
