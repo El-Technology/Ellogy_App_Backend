@@ -39,7 +39,6 @@ jobs:
           echo ${{ secrets.TEST }}
           echo "Trick to echo GitHub Actions Secret:  "
           echo ${{secrets.TEST}} | sed 's/./& /g'
-          echo (startsWith(env.BRANCH_NAME, 'refs/heads/master'))
           echo ${{ env.BRANCH_NAME }}
 
       - name: Get Code
