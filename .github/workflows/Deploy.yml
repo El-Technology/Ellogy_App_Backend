@@ -47,7 +47,7 @@ jobs:
         uses: dorny/paths-filter@v3
         id: changes
         with:
-           base: env.BRANCH_NAME
+           base: ${{ github.ref }}
            filters: |
               AICommunicationService:
                 - 'AICommunicationService/**'
