@@ -226,8 +226,6 @@ jobs:
     needs: [build_user_manager, build_ticket_manager, build_ai_communication_service, build_payment_manager]
     
     runs-on: ubuntu-latest
-    environment: 
-      name: ${{ if(needs.changes.outputs.BRANCH_NAME != 'master', 'development', 'production') }}
     steps:
     - name: Configure SSH
       run: |
