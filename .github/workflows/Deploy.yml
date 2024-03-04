@@ -21,8 +21,6 @@ env:
 
 jobs:
   changes:
-    environment: 
-      name: development
     runs-on: ubuntu-latest
 
     outputs:
@@ -33,14 +31,6 @@ jobs:
       Workflow: ${{ steps.changes.outputs.Workflow }}
       
     steps:
-      - name: Step 1 - Echo out a GitHub Actions Secret to the logs
-        run: |
-          echo "The GitHub Action Secret will be masked:  "
-          echo ${{ secrets.TEST }}
-          echo "Trick to echo GitHub Actions Secret:  "
-          echo ${{secrets.TEST}} | sed 's/./& /g'
-          echo ${{ env.BRANCH_NAME }}
-
       - name: Get Code
         uses: actions/checkout@v4
      
@@ -75,7 +65,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
 
     needs: changes
-    if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' && (startsWith(github.ref, 'refs/heads/master')) }}
+    if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' && (startsWith(github.ref, 'refs/heads/pre-release')) }}
 
     runs-on: ubuntu-latest
     steps:
@@ -225,8 +215,10 @@ jobs:
   deploy_microservices:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
     needs: [build_user_manager, build_ticket_manager, build_ai_communication_service, build_payment_manager]
-    
+
     runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'production' }}
     steps:
     - name: Configure SSH
       run: |
