@@ -46,7 +46,6 @@ All five services are running on different ports:
 2) `5041` - TicketsManager
 3) `53053` – AICommunication
 4) `8080` – PlantUML
-5) `5157` - AdminPanel
    
 The same virtual machine IP address is used for all of them.
 For example.
@@ -126,8 +125,8 @@ Git Actions can include steps to build Docker images, pushing them to a containe
 ### <a name="deployment-to-azure"></a>2.4 Deployment to Azure
 
 Depending on the service's nature, there are two deployment paths:
-1)	For some services, the Docker containers are deployed to Azure's Kubernetes Service (AKS) or Azure App Service, enabling scalable and managed deployments.
-2)	For other services, the built code is directly deployed to Azure through Git, using services like Azure Web Apps or Azure Functions.
+1)	For some services, the built code is directly deployed to Azure through Git, using services like Azure Web Apps or Azure Functions.
+2)	For other services, the CI/CD pipeline packs application instances into containers first and then uploads them to a virtual machine running on Azure, managed by Azure infrastructure.
 
 
 ### <a name="git-secrets-importance"></a>2.5 Git Secrets Importance
