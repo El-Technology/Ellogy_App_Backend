@@ -39,14 +39,24 @@
 <img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/pre-release/images/Azure%20architecture.vpd.png">
 The entire backend of the application is hosted on Azure. Here's a breakdown of key services:
 
-### <a name="api-gateway"></a>1.1 API Gateway
+### <a name="api-gateway"></a><ins>1.1 API Gateway</ins>
+
+
 
 API Gateway, hosted on Azure and utilizing "Ocelot," simplifies communication with microservices. It handles routing, aggregation, load balancing, authentication, caching, and more.
 Also, the gateway has its own domain `backend.ellogy.ai`, which means that all incoming requests are sent to the domain and automatically forwarded to the necessary services and methods,
-for example, instead of `http://20.21.124.185:5281/api/auth/login`, you only need to send a request to `backend.ellogy.ai/gateway/auth/login`,
+for example, instead of
+```
+http://20.21.124.185:5281/api/auth/login
+``` 
+you only need to send a request to
+```
+backend.ellogy.ai/gateway/auth/login
+```
+
 which greatly simplifies the work of front-end developers when they do not need to know on which port a particular service is running.
 
-### <a name="virtual-machine"></a>1.2 Virtual Machine
+### <a name="virtual-machine"></a><ins>1.2 Virtual Machine</ins>
 
 The Virtual Machine runs multiple services independently. It uses Ubuntu 22.04.2 LTS and allows access via Git Bash. Services are accessed on different ports and documented via Swagger.
 
@@ -63,16 +73,20 @@ The same virtual machine IP address is used for all of them.
 
 Prod mahine IP
 
-`http://20.21.124.185:5281/swagger/index.html`
+```
+http://20.21.124.185:5281/swagger/index.html
+```
 
 Dev mahine IP
 
-`http://20.21.129.55:5281/swagger/index.html`
+```
+http://20.21.129.55:5281/swagger/index.html
+```
 
-Just for PlantUML we don`t need to use ```/swagger/index.html```
+Just for PlantUML we dont need to use `/swagger/index.html`
 
 
-### <a name="ai-communication-service"></a>1.3.1 AI Communication Service 
+### <a name="ai-communication-service"></a><ins>1.3.1 AI Communication Service</ins>
 <img src="https://img.shields.io/badge/ChatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white">
 AICommunication service is a software component that allows applications to interact with large language models (LLMs) and exchange information. It acts as the central communication hub, handling all the logic behind interacting with LLMs and using the retrieved information.
 
@@ -473,7 +487,7 @@ permission for using the document
 </details>
 </details>
 
-### <a name="user-manager-service"></a>1.3.2 User Manager Service
+### <a name="user-manager-service"></a><ins>1.3.2 User Manager Service</ins>
 
 This is a general term used for a service responsible for managing user accounts within a system. Its functionalities typically include:
 
@@ -838,7 +852,7 @@ Report
 
 </details>
 
-### <a name="tickets-manager-service"></a>1.3.3 Tickets Manager Service
+### <a name="tickets-manager-service"></a><ins>1.3.3 Tickets Manager Service</ins>
 
 The Tickets Manager Service is a component that stores all user interactions with AI, including requests, responses, generated information, diagrams, and more. It acts as a central repository for all AI-related communication, providing a comprehensive view of user activity and facilitating efficient information management.
 
@@ -1528,7 +1542,7 @@ UserStoryTest
 </details>
 </details>
 
-### <a name="payment-manager-service"></a>1.3.4 Payment Manager Service
+### <a name="payment-manager-service"></a><ins>1.3.4 Payment Manager Service</ins>
 
 The Payment Manager Service is a component that enables in-app purchases. It facilitates two types of purchases:
 
@@ -1805,7 +1819,7 @@ Webhook
 </details>
 
 
-### <a name="database"></a>1.4 Database
+### <a name="database"></a><ins>1.4 Database</ins>
 PostgreSQL Flexible Server with Multiple Databases
 Here's an expanded description of the information you provided:
 
@@ -1838,13 +1852,13 @@ Data Management:
 <img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/pre-release/images/vectorDatabase.png">
 </details>
 
-### <a name="blob-storage"></a>1.5 Blob Storage
+### <a name="blob-storage"></a><ins>1.5 Blob Storage</ins>
 
 Blob Storage temporarily stores files for NotificationService and Azure Functions, categorized into templates and images.
 
 Also, have private and public folders for storing user avatars and files which used with RAG functionality.
 
-### <a name="message-bus"></a>1.6 Message Bus
+### <a name="message-bus"></a><ins>1.6 Message Bus</ins>
 
 Azure Message Bus, often called Azure Service Bus, is a cloud-based messaging service provided by Microsoft Azure. It facilitates communication and integration
 between various components of distributed applications, allowing them to exchange data reliably and asynchronously. One of the key features of Azure Service Bus is its
@@ -1862,7 +1876,7 @@ In our case, when sending messages between services, they contain only basic inf
 done in order not to overload the message with heavy information and to optimize performance.
 
 
-### <a name="email-communication"></a>1.7 Email Communication
+### <a name="email-communication"></a><ins>1.7 Email Communication</ins>
 
 For email communication specifically, Azure Communication Services enables you to send transactional and marketing emails directly from your application using REST APIs or SDKs. 
 This can be particularly useful for scenarios where you need to send notifications, updates, or other types of messages to users via email. Some key points about email communication in Azure Communication Services include:
@@ -1875,7 +1889,7 @@ This can be particularly useful for scenarios where you need to send notificatio
 7) Integration with Other Communication Channels: Azure Communication Services goes beyond email and also provides capabilities for other communication channels like SMS, voice, and chat. This enables you to create unified and consistent communication experiences across different channels.
 
 
-### <a name="azure-function"></a>1.8 Azure Function
+### <a name="azure-function"></a><ins>1.8 Azure Function</ins>
 
 This is the main service that combines all the separate functionality of Blob Storage, MessageBus, and Email Communication into a single entity. 
 This is an event listener. When a new message appears in the message bus queue, the openwork function immediately retrieves it, reads it, and 
@@ -1887,39 +1901,41 @@ decides what needs to be done with it next, which files need to be uploaded to f
 
 GitHub orchestrates the entire code deployment workflow, ensuring efficient and controlled software delivery.
 
-### <a name="version-control"></a>2.1 Version Control
+### <a name="version-control"></a><ins>2.1 Version Control</ins>
 
 GitHub hosts all source code, allowing collaboration, tracking changes, and maintaining version history via Git.
 
-### <a name="git-actions"></a>2.2 Git Actions
+### <a name="git-actions"></a><ins>2.2 Git Actions</ins>
 
 Git Actions for Continuous Integration (CI): Git Actions are employed to automate various tasks whenever new code is pushed or changes are made to the repository. This includes running tests, code quality checks, and creating build artifacts.
 
-### <a name="docker-containerization"></a>2.3 Docker Containerization
+### <a name="docker-containerization"></a><ins>2.3 Docker Containerization</ins>
+
+<img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white">
 
 For some services, the code is packaged into Docker containers. Docker allows you to encapsulate the application and its dependencies, ensuring consistency across different environments.
 Git Actions can include steps to build Docker images, pushing them to a container registry like Docker Hub or Azure Container Registry.
 
-### <a name="deployment-to-azure"></a>2.4 Deployment to Azure
+### <a name="deployment-to-azure"></a><ins>2.4 Deployment to Azure</ins>
 
 Depending on the service's nature, there are two deployment paths:
 1)	For some services, the built code is directly deployed to Azure through Git, using services like Azure Web Apps or Azure Functions.
 2)	For other services, the CI/CD pipeline packs application instances into containers first and then uploads them to a virtual machine running on Azure, managed by Azure infrastructure.
 
 
-### <a name="git-secrets-importance"></a>2.5 Git Secrets Importance
+### <a name="git-secrets-importance"></a><ins>2.5 Git Secrets Importance</ins>
 
 Git secrets are sensitive pieces of information such as API keys, passwords, or access tokens required for the application to function.
 Managing secrets securely is vital to prevent unauthorized access to sensitive data. Git Actions can interact with Git secrets to access
 these credentials securely during the build or deployment process. Leaking secrets can lead to security breaches, data leaks, or unauthorized access to resources.
 
-### <a name="summary-about-git"></a>2.6 Summary about Git
+### <a name="summary-about-git"></a><ins>2.6 Summary about Git</ins>
 
 In summary, the entire code pipeline starts with versioned code maintained on GitHub. Git Actions automate processes like testing, building Docker images,
 and deploying to Azure services. Docker containers offer consistent deployment across environments, and Git secrets ensure that sensitive information is
 managed securely. This comprehensive approach streamlines development, enhances code quality, and ensures robust deployment to Azure services.
 
-### <a name="unit-tests"></a>2.7 Unit Tests
+### <a name="unit-tests"></a><ins>2.7 Unit Tests</ins>
 
 We covered most of the unit's services with tests but with an approach similar to integration tests, where we created a test environment through which we ran all the functionality.
 In the unit tests section, tests are placed through the deploy settings. Before we start downloading and deploying the code, tests of the service we plan to update are
@@ -1930,7 +1946,7 @@ This is done to prevent human error when someone forgets to run tests after maki
 
 ## <a name="additional-information"></a>3. Additional Information
 
-### <a name="azure-templates"></a>3.1 Azure Templates
+### <a name="azure-templates"></a><ins>3.1 Azure Templates</ins>
 
 Azure Templates, also known as Azure Resource Manager (ARM) templates, are a powerful way to define and deploy your Azure infrastructure as code. They allow you to define the resources, configurations, and dependencies for your application or solution in a declarative JSON format. With ARM templates, you can automate the provisioning and management of your Azure resources, ensuring consistency, repeatability, and scalability.
 Key features and concepts of Azure Templates include:
@@ -1958,17 +1974,17 @@ Key features and concepts of Azure Templates include:
 Overall, Azure Templates empower you to automate the provisioning and management of your Azure resources, resulting in consistent and repeatable deployments. They are a fundamental tool for implementing Infrastructure as Code practices and are well-suited for managing complex and scalable applications in the cloud.
 
 
-### <a name="obtaining-a-template"></a>3.2 Obtaining a Template
+### <a name="obtaining-a-template"></a><ins>3.2 Obtaining a Template</ins>
 
 To obtain a template, navigate to the resource group, scroll to the bottom, and export the template.
 
-### <a name="how-to-use-the-template"></a>3.3 How to Use the Template
+### <a name="how-to-use-the-template"></a><ins>3.3 How to Use the Template</ins>
 
 1. Go to the resource group.
 2. Click **Export template** and then **Deploy**.
 3. Edit the template if necessary and follow Azure's deployment instructions.
 
-### <a name="openai-functions"></a>3.4 OpenAI Functions
+### <a name="openai-functions"></a><ins>3.4 OpenAI Functions</ins>
 
 A new endpoint for communicating with artificial intelligence has been added that supports the use of the feature. What is it?
 This is the ability to write code. It will set the response format in JSON. That is, we can say what structure to follow and it will always be so.
