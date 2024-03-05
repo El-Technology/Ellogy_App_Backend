@@ -990,7 +990,7 @@ Tickets
   |--------------------|----------|----------|--------------------------------------------|
   | ticket  | object   | Yes      |    |
 
-  ```
+  ```json
   {
   "title": "string",
   "description": "string",
@@ -1068,7 +1068,7 @@ Tickets
   |--------------------|----------|----------|--------------------------------------------|
   | ticket  | object   | Yes      |    |
 
-  ```
+  ```json
   {
   "title": "string",
   "description": "string",
@@ -1163,7 +1163,7 @@ TicketSummary
   |--------------------|----------|----------|--------------------------------------------|
   | ticketSummary  | object   | Yes      |    |
 
-  ```
+  ```json
   [
   {
     "ticketId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -1204,7 +1204,7 @@ TicketSummary
   |--------------------|----------|----------|--------------------------------------------|
   | ticketSummary  | object   | Yes      |    |
 
-  ```
+  ```json
   [
   {
     "data": "string",
@@ -1271,7 +1271,7 @@ Usecases
   |--------------------|----------|----------|--------------------------------------------|
   | usecases  | object   | Yes      |    |
 
-  ```
+  ```json
   [
   {
     "usecase": {
@@ -1313,7 +1313,7 @@ Usecases
   |--------------------|----------|----------|--------------------------------------------|
   | getObject  | object   | Yes      |    |
 
-  ```
+  ```json
   {
   "paginationRequest": {
     "currentPageNumber": 0,
@@ -1347,7 +1347,7 @@ Usecases
   |--------------------|----------|----------|--------------------------------------------|
   | updateObject  | object   | Yes      |    |
 
-  ```
+  ```json
     {
       "title": "string",
       "description": "string",
@@ -1408,7 +1408,7 @@ UserStoryTest
   |--------------------|----------|----------|--------------------------------------------|
   | userStoryTest  | object   | Yes      |    |
 
-  ```
+  ```json
   [
   {
     "ticketSummaryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -1469,7 +1469,7 @@ UserStoryTest
   |--------------------|----------|----------|--------------------------------------------|
   | userStoryTest  | object   | Yes      |    |
 
-  ```
+  ```json
   [
   {
     "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -1964,7 +1964,7 @@ This is done to prevent human error when someone forgets to run tests after maki
 A new endpoint for communicating with artificial intelligence has been added that supports the use of the feature. What is it?
 This is the ability to write code. It will set the response format in JSON. That is, we can say what structure to follow and it will always be so.
 To do this, you need to add a value to the template stored in the database in the function field, for example: 
-```
+```json
 [
   {
     "name": "Json",
