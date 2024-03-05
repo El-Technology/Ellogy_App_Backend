@@ -1,5 +1,8 @@
-# Back-end Documentation
+# Back-end Documentation  <img src="https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white">   <img src="https://img.shields.io/badge/microsoft%20azure-0089D6?style=for-the-badge&logo=microsoft-azure&logoColor=white">
 
+<details>
+	<summary>Content table</summary>
+	
 ## [1. Azure Architecture](#azure-architecture)
    - [1.1 API Gateway](#api-gateway)
    - [1.2 Virtual Machine](#virtual-machine)
@@ -28,6 +31,8 @@
    - [3.3 How to Use the Template](#how-to-use-the-template)
    - [3.4 OpenAI Functions](#openai-functions)
 
+</details>
+
 ---
 
 ## <a name="azure-architecture"></a>1. Azure Architecture
@@ -44,6 +49,9 @@ which greatly simplifies the work of front-end developers when they do not need 
 ### <a name="virtual-machine"></a>1.2 Virtual Machine
 
 The Virtual Machine runs multiple services independently. It uses Ubuntu 22.04.2 LTS and allows access via Git Bash. Services are accessed on different ports and documented via Swagger.
+
+<img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white">
+
 All five services are running on different ports:
 1) `5281` - UserManager
 2) `5041` - TicketsManager
@@ -64,9 +72,16 @@ Dev mahine IP
 Just for PlantUML we don`t need to use ```/swagger/index.html```
 
 
-### <a name="ai-communication-service"></a>1.3.1 AI Communication Service
+### <a name="ai-communication-service"></a>1.3.1 AI Communication Service 
+<img src="https://img.shields.io/badge/ChatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white">
+AICommunication service is a software component that allows applications to interact with large language models (LLMs) and exchange information. It acts as the central communication hub, handling all the logic behind interacting with LLMs and using the retrieved information.
 
-Recent updates include transitioning to Azure OpenAI models, utilizing GPT-4, creating a custom communication library, implementing functional communication, and enabling streaming of AI responses.
+Here's a breakdown of its functionalities:
+
+- Communication with LLMs: AICommunication service can send queries and receive responses from LLMs, facilitating the exchange of information.
+- Document processing: The service can potentially process and extract information from its own documents, further enriching its knowledge base and enhancing its capabilities.
+
+In essence, AICommunication service acts as a bridge between applications and LLMs, enabling them to communicate and leverage the power of LLMs for various purposes.
 
 <details>
    <summary><code>Endpoints</code></summary>
@@ -459,6 +474,14 @@ permission for using the document
 </details>
 
 ### <a name="user-manager-service"></a>1.3.2 User Manager Service
+
+This is a general term used for a service responsible for managing user accounts within a system. Its functionalities typically include:
+
+- User creation and deletion: Adding and removing users from the system.
+- User authentication: Verifying user credentials (e.g., username and password) during login attempts.
+- User information management: Maintaining user profiles, including details like name, email, preferences, etc.
+- Authorization: Controlling access to different functionalities or resources within the system based on user roles and permissions.
+
 <details>
 	 <summary><code>Endpoints</code></summary>
 
@@ -816,6 +839,16 @@ Report
 </details>
 
 ### <a name="tickets-manager-service"></a>1.3.3 Tickets Manager Service
+
+The Tickets Manager Service is a component that stores all user interactions with AI, including requests, responses, generated information, diagrams, and more. It acts as a central repository for all AI-related communication, providing a comprehensive view of user activity and facilitating efficient information management.
+
+Key features:
+
+- Centralized storage: The service stores all AI-related data in a single location, making it easy to access and manage.
+- Comprehensive history: It maintains a complete record of all user interactions with AI, providing valuable insights into user behavior and preferences.
+- Efficient information retrieval: The service offers quick and easy access to specific information, such as past requests, responses, and generated content.
+- Enhanced collaboration: It facilitates collaboration between users and AI systems by providing a shared space for communication and information exchange.
+
 <details>
 	 <summary><code>Endpoints</code></summary>
 
@@ -1496,6 +1529,23 @@ UserStoryTest
 </details>
 
 ### <a name="payment-manager-service"></a>1.3.4 Payment Manager Service
+
+The Payment Manager Service is a component that enables in-app purchases. It facilitates two types of purchases:
+
+1. One-time purchases: These involve the purchase of tokens that users can use to access the app's features.
+
+2. Subscriptions: These provide users with a monthly allocation of tokens and unlock additional features within the app.
+
+<img src="https://img.shields.io/badge/G%20pay-2875E3?style=for-the-badge&logo=googlepay&logoColor=white">   <img src="https://img.shields.io/badge/apple%20pay-007AFF?style=for-the-badge&logo=apple%20pay&logoColor=white">
+<img src="https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white">   <img src="https://img.shields.io/badge/Stripe-626CD9?style=for-the-badge&logo=Stripe&logoColor=white">
+
+Key features:
+
+- Secure payment processing: The service uses secure payment gateways to process payments safely and reliably.
+- Flexible payment options: It supports various payment methods, such as credit cards, debit cards, and PayPal, to accommodate user preferences.
+- Subscription management: The service allows users to easily manage their subscriptions, including viewing their subscription history, canceling subscriptions, and updating payment information.
+- Fraud prevention: The service employs fraud prevention measures to protect users from fraudulent transactions.
+
 <details>
 	 <summary><code>Endpoints</code></summary>
 
@@ -1756,20 +1806,35 @@ Webhook
 
 
 ### <a name="database"></a>1.4 Database
+PostgreSQL Flexible Server with Multiple Databases
+Here's an expanded description of the information you provided:
 
-PostgreSQL flexible server hosts the database, providing access via connection strings for data management, backups, and edits.
+Service: PostgreSQL Flexible Server on Azure: https://azure.microsoft.com/
 
-At one service we have 3 databases:
+<img src="https://img.shields.io/badge/microsoft%20azure-0089D6?style=for-the-badge&logo=microsoft-azure&logoColor=white">   <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white">
+
+Purpose: Hosts and manages relational databases.
+
+Benefits:
+
+- Scalability: Easily scale storage and computing resources based on your needs.
+- High availability: Provides options for ensuring continuous database operation even during failures.
+- Security: Offers built-in security features to protect your data.
+- Cost-effectiveness: Pay only for the resources you use.
+- Connection Strings: Secure strings are used to connect applications to the databases on the server. These strings typically include information like server address, port, database name, username, and password.
+
+Data Management:
+
 <details>
-	<summary><code> 1) ellogy (main) </code></summary>
+	<summary><code>Main Database (ellogy)</code> : stores the core application data used for regular operations.</summary>
 <img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/pre-release/images/ellogyDatabase.png">
 </details>
 <details>
-	<summary><code> 2) payment </code></summary>
+	<summary><code>Payment Database</code> : stores payment-related information such as transactions, user payment methods, and potentially financial data (ensures secure storage and access controls for such data).</summary>
 <img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/pre-release/images/paymentDatabase.png">
 </details>
 <details>
-	<summary><code> 3) vector </code></summary>
+	<summary><code>Vector Database</code> : Machine learning models or other vector-based data structures for communicating with AI models using your data that are stored in files.</summary>
 <img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/pre-release/images/vectorDatabase.png">
 </details>
 
@@ -1777,14 +1842,16 @@ At one service we have 3 databases:
 
 Blob Storage temporarily stores files for NotificationService and Azure Functions, categorized into templates and images.
 
+Also, have private and public folders for storing user avatars and files which used with RAG functionality.
+
 ### <a name="message-bus"></a>1.6 Message Bus
 
-Azure Message Bus, often referred to as Azure Service Bus, is a cloud-based messaging service provided by Microsoft Azure. It facilitates communication and integration
+Azure Message Bus, often called Azure Service Bus, is a cloud-based messaging service provided by Microsoft Azure. It facilitates communication and integration
 between various components of distributed applications, allowing them to exchange data reliably and asynchronously. One of the key features of Azure Service Bus is its
 support for messaging patterns like publish-subscribe, request-response, and queuing.
 
 1) Sending Messages: In your service that needs to send notifications (the sender), you will use the Azure Service Bus SDK to send messages to the NotificationQueue.
-The sender will serialize the notification data into a message and send it to the queue. This can be triggered by certain events, actions, or on a schedule.
+The sender will serialize the notification data into a message and send it to the queue. Certain events, actions, or on a schedule can trigger this.
 2) Receiving Messages: In the receiving service (the consumer), you'll use the same SDK to read messages from the NotificationQueue. This service will be constantly
 listening to the queue for new messages. When a message arrives, it can process the notification or take any other appropriate action.
 4) Message Structure: Messages sent through the queue can be structured in various ways. Typically, they consist of a message body that holds the data you want to share between services.
@@ -1816,7 +1883,7 @@ decides what needs to be done with it next, which files need to be uploaded to f
 
 ---
 
-## <a name="github-structure"></a>2. GitHub Structure
+## <a name="github-structure"></a>2. GitHub Structure   <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white">
 
 GitHub orchestrates the entire code deployment workflow, ensuring efficient and controlled software delivery.
 
