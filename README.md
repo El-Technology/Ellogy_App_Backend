@@ -1757,7 +1757,21 @@ Webhook
 
 ### <a name="database"></a>1.4 Database
 
-PostgreSQL single server hosts the database, providing access via connection strings for data management, backups, and edits.
+PostgreSQL flexible server hosts the database, providing access via connection strings for data management, backups, and edits.
+
+At one service we have 3 databases:
+<details>
+	<summary><code> 1) ellogy (main) </code></summary>
+<img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/pre-release/images/ellogyDatabase.png">
+</details>
+<details>
+	<summary><code> 2) payment </code></summary>
+<img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/pre-release/images/paymentDatabase.png">
+</details>
+<details>
+	<summary><code> 3) vector </code></summary>
+<img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/pre-release/images/vectorDatabase.png">
+</details>
 
 ### <a name="blob-storage"></a>1.5 Blob Storage
 
