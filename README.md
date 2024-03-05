@@ -58,7 +58,9 @@ Just for PlantUML we don`t need to use ```/swagger/index.html```
 
 Recent updates include transitioning to Azure OpenAI models, utilizing GPT-4, creating a custom communication library, implementing functional communication, and enabling streaming of AI responses.
 
-
+<details>
+   <summary><code>Endpoints</code></summary>
+   
 Communication
 ------------------------------------------------------------------------------------------
 <details>
@@ -231,8 +233,218 @@ Prompt
 
 RAG
 ------------------------------------------------------------------------------------------
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code>/api/RAG/uploadDocumentUrl</code></summary>
+
+  #### Endpoint for retrieving document upload URL.
+
+  This method returns the URL for uploading a document.
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | fileName           | string   | Yes      | The name of the file to be uploaded.       |
+
+  ##### Responses
+
+  | http code  | content-type                               | Description                                           |
+  |-----------|-----------------------------------------------|-------------------------------------------------------|
+  | `200`      | `application/json`                           | Success. The response body contains the URL for uploading the document. |
+
+</details>
+
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/RAG/getDocumentUrl</b></code></summary>
+
+  #### Endpoint for retrieving document download URL.
+
+  This method returns the url for downloading the document.
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | fileName           | string   | Yes      | The name of the file to download.        |
+  | ownerld            | string   | Yes      | The owner ID of the document.             |
+
+  ##### Responses
+
+  | http code  | content-type                               | Description                                           |
+  |-----------|-----------------------------------------------|-------------------------------------------------------|
+  | `200`      | `application/json`                           | Success. The response body contains the URL for downloading the document. |
+
+</details>
+
+<details>
+  <summary><code>[DELETE]</code> <code><b>...</b></code> <code><b>/api/RAG/deleteDocument</b></code></summary>
+
+  #### Endpoint for deleting a document.
+
+  This method deletes the document from the storage.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | fileName           | string   | Yes      | The name of the file to delete.           |
+
+  ##### Responses
+
+  | http code | content-type | Description               |
+  |-----------|--------------|----------------------------|
+  | `200`     | `text/plain`  | Success                   |
+
+</details>
+
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/RAG/getUserDocuments</b></code></summary>
+
+  #### Endpoint for retrieving a list of the user's documents.
+
+  This method returns a list of the user's documents based on pagination parameters.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | currentPageNumber  | integer   | Yes      | The current page number of the results.     |
+  | recordsPerPage     | integer   | Yes      | The number of records per page to return. |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. The response body contains an array of objects, each 
 
 
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/RAG/verifyDocumentUpload</b></code></summary>
+
+  This method verifies if the document was uploaded
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | fileName           | string   | Yes      | The name of the file to verify.           |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. 
+
+
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/RAG/embedDocument</b></code></summary>
+
+  This method embeds the document in the vector database
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | fileName           | string   | Yes      | The name of the file to embed.           |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. 
+
+
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/RAG/findUser</b></code></summary>
+
+  This method finds the user by email prefix
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | emailPrefix           | string   | Yes      | The prefix of an email           |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. 
+
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/RAG/givePermission</b></code></summary>
+
+  This method gives permission for using the document
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | receiverId  | guid   | Yes      | The id of user.     |
+  | documentName     | string   | Yes      | The name of file. |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. 
+
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/RAG/removePermission</b></code></summary>
+
+  This method removes
+permission for using the document
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | receiverId  | guid   | Yes      | The id of user.     |
+  | documentName     | string   | Yes      | The name of file. |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. 
+
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/RAG/getAllUsersWithPermission</b></code></summary>
+
+  This method removes
+permission for using the document
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | fileName  | string   | Yes      | The name of file.     |
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | currentPageNumber  | integer   | Yes      | The current page number of the results.     |
+  | recordsPerPage     | integer   | Yes      | The number of records per page to return. |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. 
+
+
+</details>
+</details>
 
 ### <a name="database"></a>1.4 Database
 
