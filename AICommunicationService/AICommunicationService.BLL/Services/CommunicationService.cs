@@ -1,14 +1,15 @@
-﻿using System.Text;
-using AICommunicationService.BLL.Constants;
+﻿using AICommunicationService.BLL.Constants;
 using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.DAL.Interfaces;
 using Microsoft.AspNetCore.SignalR;
+using System.Text;
 using Encoding = Tiktoken.Encoding;
 
 namespace AICommunicationService.BLL.Services;
@@ -197,12 +198,15 @@ public class CommunicationService : ICommunicationService
 
     private async Task<string?> GetRAGContextAsync(Guid userId, CreateConversationRequest createConversationRequest)
     {
-        string? context = null;
+        if (createConversationRequest is not { UseRAG: true, FileName: not null })
+            return null;
 
-        if (createConversationRequest is { UseRAG: true, FileName: not null })
-            context = await _documentService.GetTheClosesContextAsync(userId, createConversationRequest.UserInput,
-                createConversationRequest.FileName);
+        var getPrompt = await _aIPromptRepository.GetPromptByTemplateNameAsync(RagConstants.RAG_CONTEXT)
+                        ?? throw new Exception("Prompt was not found");
 
-        return context;
+        var ragContext = await _documentService.GetTheClosesContextAsync(userId, createConversationRequest.UserInput,
+            createConversationRequest.FileName);
+
+        return $"{getPrompt.Value} {ragContext}";
     }
 }
