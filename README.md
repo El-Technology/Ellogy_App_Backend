@@ -1,4 +1,6 @@
-# Back-end Documentation  <img src="https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white">   <img src="https://img.shields.io/badge/microsoft%20azure-0089D6?style=for-the-badge&logo=microsoft-azure&logoColor=white">
+# Back-end Documentation  
+<a href="https://learn.microsoft.com/en-us/dotnet/welcome"><img src="https://img.shields.io/badge/.NET-512BD4?style=for-the-badge&logo=dotnet&logoColor=white"></a>
+<a href="https://azure.microsoft.com/en-us/"><img src="https://img.shields.io/badge/microsoft%20azure-0089D6?style=for-the-badge&logo=microsoft-azure&logoColor=white"></a>
 
 <details>
 	<summary>Content table</summary>
@@ -59,7 +61,7 @@ which greatly simplifies the work of front-end developers when they do not need 
 
 The Virtual Machine runs multiple services independently. It uses Ubuntu 22.04.2 LTS and allows access via Git Bash. Services are accessed on different ports and documented via Swagger.
 
-<img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white">
+<a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white"></a>
 
 All five services are running on different ports:
 1) `5281` - UserManager
@@ -86,7 +88,8 @@ Just for PlantUML we dont need to use `/swagger/index.html`
 
 
 ### <a name="ai-communication-service"></a><ins>1.3.1 AI Communication Service</ins>
-<img src="https://img.shields.io/badge/ChatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white">
+<a href="https://openai.com/chatgpt"><img src="https://img.shields.io/badge/ChatGPT-74aa9c?style=for-the-badge&logo=openai&logoColor=white"></a>
+
 AICommunication service is a software component that allows applications to interact with large language models (LLMs) and exchange information. It acts as the central communication hub, handling all the logic behind interacting with LLMs and using the retrieved information.
 
 Here's a breakdown of its functionalities:
@@ -1549,8 +1552,10 @@ The Payment Manager Service is a component that enables in-app purchases. It fac
 
 2. Subscriptions: These provide users with a monthly allocation of tokens and unlock additional features within the app.
 
-<img src="https://img.shields.io/badge/G%20pay-2875E3?style=for-the-badge&logo=googlepay&logoColor=white">   <img src="https://img.shields.io/badge/apple%20pay-007AFF?style=for-the-badge&logo=apple%20pay&logoColor=white">
-<img src="https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white">   <img src="https://img.shields.io/badge/Stripe-626CD9?style=for-the-badge&logo=Stripe&logoColor=white">
+<a href="https://pay.google.com/intl/us/about/"><img src="https://img.shields.io/badge/G%20pay-2875E3?style=for-the-badge&logo=googlepay&logoColor=white"></a>
+<a href="https://www.apple.com/apple-pay/"><img src="https://img.shields.io/badge/apple%20pay-007AFF?style=for-the-badge&logo=apple%20pay&logoColor=white"></a>
+<a href="https://www.paypal.com/va/home"><img src="https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white"></a>
+<a href="https://stripe.com/"><img src="https://img.shields.io/badge/Stripe-626CD9?style=for-the-badge&logo=Stripe&logoColor=white"></a>
 
 Key features:
 
@@ -1824,7 +1829,8 @@ Here's an expanded description of the information you provided:
 
 Service: PostgreSQL Flexible Server on Azure: https://azure.microsoft.com/
 
-<img src="https://img.shields.io/badge/microsoft%20azure-0089D6?style=for-the-badge&logo=microsoft-azure&logoColor=white">   <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white">
+<a href="https://azure.microsoft.com/en-us/"><img src="https://img.shields.io/badge/microsoft%20azure-0089D6?style=for-the-badge&logo=microsoft-azure&logoColor=white"></a>
+<a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white"></a>
 
 Purpose: Hosts and manages relational databases.
 
@@ -1896,7 +1902,7 @@ decides what needs to be done with it next, which files need to be uploaded to f
 
 ---
 
-## <a name="github-structure"></a>2. GitHub Structure   <img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white">
+## <a name="github-structure"></a>2. GitHub Structure   <a href="https://github.com/"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a>
 
 GitHub orchestrates the entire code deployment workflow, ensuring efficient and controlled software delivery.
 
@@ -1912,7 +1918,7 @@ Git Actions for Continuous Integration (CI): Git Actions are employed to automat
 
 ### <a name="docker-containerization"></a><ins>2.3 Docker Containerization</ins>
 
-<img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white">
+<a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-2CA5E0?style=for-the-badge&logo=docker&logoColor=white"></a>
 
 <img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/pre-release/images/packages.png">
 
