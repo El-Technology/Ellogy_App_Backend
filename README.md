@@ -3,7 +3,10 @@
 ## [1. Azure Architecture](#azure-architecture)
    - [1.1 API Gateway](#api-gateway)
    - [1.2 Virtual Machine](#virtual-machine)
-   - [1.3 AI Communication Service](#ai-communication-service)
+   - [1.3.1 AI Communication Service](#ai-communication-service)
+   - [1.3.2 User Manager Service](#user-manager-service)
+   - [1.3.3 Tickets Manager Service](#tickets-manager-service)
+   - [1.3.4 Payment Manager Service](#payment-manager-service)
    - [1.4 Database](#database)
    - [1.5 Blob Storage](#blob-storage)
    - [1.6 Message Bus](#message-bus)
@@ -54,15 +57,17 @@ For example.
 Just for PlantUML we don`t need to use ```/swagger/index.html```
 
 
-### <a name="ai-communication-service"></a>1.3 AI Communication Service
+### <a name="ai-communication-service"></a>1.3.1 AI Communication Service
 
 Recent updates include transitioning to Azure OpenAI models, utilizing GPT-4, creating a custom communication library, implementing functional communication, and enabling streaming of AI responses.
 
 <details>
    <summary><code>Endpoints</code></summary>
+
    
 Communication
 ------------------------------------------------------------------------------------------
+
 <details>
  <summary><code>[POST]</code> <code><b>...</b></code> <code>/api/Communication/getSignalRStreamResponse</code></summary>
    
@@ -445,6 +450,635 @@ permission for using the document
 
 </details>
 </details>
+
+### <a name="user-manager-service"></a>1.3.2 User Manager Service
+<details>
+	 <summary><code>Endpoints</code></summary>
+
+
+Auth
+------------------------------------------------------------------------------------------
+
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Auth/register</b></code></summary>
+
+  Registers a new user. Returns HTTP 404 if user already exist.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | firstName  | string   | Yes      |    |
+  | lastName  | string   | Yes      |    |
+  | email  | string   | Yes      |    |
+  | phoneNumber  | string   | No      |    |
+  | password  | string   | Yes      |    |
+  | organization  | string   | No      |    |
+  | department  | string   | No      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+  | `404`     | `application/json` | Not Found. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Auth/login</b></code></summary>
+
+  Logs in a user. Returns HTTP 404 if user does not exist.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | email  | string   | Yes      |    |
+  | password  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+  | `404`     | `application/json` | Not Found. |
+  | `500`     | `application/json` | Server Error. |
+  | `400`     | `application/json` | Bad Request. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Auth/activateUserAccount</b></code></summary>
+
+  Activates user account.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | token  | string   | Yes      |    |
+  | userEmail  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+  | `500`     | `application/json` | Server Error. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Auth/sentVerificationEmail</b></code></summary>
+
+  Sends a verification email to the user.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | redirectLink  | string   | Yes      |    |
+  | userEmail  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+  | `500`     | `application/json` | Server Error. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Auth/refreshJwtToken</b></code></summary>
+
+  Refresh jwt token if expires time has ended.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | jwt  | string   | Yes      |    |
+  | refreshToken  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+  | `500`     | `application/json` | Server Error. |
+
+</details>
+
+
+Password
+------------------------------------------------------------------------------------------
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Password/forgotPassword</b></code></summary>
+
+  Initiates the Forgot Password process.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | email  | string   | Yes      |    |
+  | redirectUrl  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+  | `500`     | `application/json` | Server Error. |
+  | `404`     | `application/json` | Not Found. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Password/resetPassword</b></code></summary>
+
+  Resets the user's password.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | id  | guid   | Yes      |    |
+  | token  | string   | Yes      |    |
+  | password  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+  | `500`     | `application/json` | Server Error. |
+  | `404`     | `application/json` | Not Found. |
+
+</details>
+
+Profile
+------------------------------------------------------------------------------------------
+<details>
+  <summary><code>[DELETE]</code> <code><b>...</b></code> <code><b>/api/Profile/deleteUser</b></code></summary>
+
+  Deletes the user profile.
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | userId  | guid   | Yes      |    |
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Profile/updateUserProfile</b></code></summary>
+
+  Updates the user profile.
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | userId  | guid   | Yes      |    |
+
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | firstName  | string   | No      |    |
+  | lastName  | string   | No      |    |
+  | phoneNumber  | string   | No      |    |
+  | organization  | string   | No      |    |
+  | department  | string   | No      |    |
+  | avatarLink  | string   | No      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Profile/changeUserEmail</b></code></summary>
+
+  Changes the user email (sends email).
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | redirectLink  | string   | Yes      |    |
+  | userEmail  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Profile/verifyUserEmail</b></code></summary>
+
+  Verifies the user email.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | token  | string   | Yes      |    |
+  | userEmail  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Profile/changeUserPassword</b></code></summary>
+
+  Changes the user password.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | oldPassword  | string   | Yes      |    |
+  | newPassword  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Profile/changeUserPassword</b></code></summary>
+
+  Changes the user password.
+
+   ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | userId  | guid   | Yes      |    |
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | oldPassword  | string   | Yes      |    |
+  | newPassword  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Profile/uploadAvatar</b></code></summary>
+
+  Uploads the user avatar.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | userId  | guid   | Yes      |    |
+  | base64Avatar  | string   | Yes      |    |
+  | imageExtension  | int   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/Profile/getUserProfile</b></code></summary>
+
+  Gets the user profile.
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+
+Report
+------------------------------------------------------------------------------------------
+
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Report/sendReport</b></code></summary>
+
+  Endpoint for sending a report asynchronously.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | receiverEmail  | string   | Yes      |    |
+  | userEmail  | string   | Yes      |    |
+  | userText  | string   | Yes      |    |
+  | option  | string   | Yes      |    |
+  | category  | string   | Yes      |    |
+  | base64JpgFiles  | string array   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+
+</details>
+
+### <a name="tickets-manager-service"></a>1.3.3 Tickets Manager Service
+<details>
+	 <summary><code>Endpoints</code></summary>
+
+ActionHistory
+------------------------------------------------------------------------------------------
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/ActionHistory/createActionHistory</b></code></summary>
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketId  | guid   | Yes      |    |
+  | actionHistoryEnum  | int   | Yes      |    |
+  | ticketCurrentStepEnum  | int   | Yes      |    |
+  | userEmail  | string   | Yes      |    |
+  | oldValue  | string   | Yes      |    |
+  | newValue  | string  | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/ActionHistory/getActionHistory</b></code></summary>
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketId  | guid   | Yes      |    |
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketCurrentStepEnum  | int   | Yes      |    |
+  | pagination  | object   | Yes      |    |
+  | currentPageNumber  | int   | Yes      |    |
+  | recordsPerPage  | int  | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+
+Tickets
+------------------------------------------------------------------------------------------
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Tickets/tickets/{userId}</b></code></summary>
+
+  Retrieves all tickets associated with the specified user
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | userId  | guid   | Yes      |    |
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | currentPageNumber  | int   | Yes      |    |
+  | recordsPerPage  | int   | Yes      |    |
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Tickets/search/{userId}</b></code></summary>
+
+  Get all tickets by user and search criteria, which checks if tickets title contains some string
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | userId  | guid   | Yes      |    |
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketTitle  | string   | Yes      |    |
+  | pagination  | object   | Yes      |    |
+  | currentPageNumber  | int   | Yes      |    |
+  | recordsPerPage  | int   | Yes      |    |
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Tickets/{userId}</b></code></summary>
+
+  Creates a new ticket for the specified user.
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | userId  | guid   | Yes      |    |
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticket  | object   | Yes      |    |
+
+  ```
+  {
+  "title": "string",
+  "description": "string",
+  "context": "string",
+  "createdDate": "2024-03-05T09:08:48.617Z",
+  "status": 0,
+  "currentStep": 0,
+  "bannersJson": "string",
+  "messages": [
+    {
+      "sender": "string",
+      "content": "string",
+      "sendTime": "2024-03-05T09:08:48.617Z",
+      "action": {
+        "state": 0,
+        "type": 0
+      },
+      "stage": 0,
+      "subStage": 0
+    }
+  ],
+  "notifications": [
+    {
+      "title": "string",
+      "description": "string",
+      "sms": true,
+      "email": true,
+      "push": true
+    }
+  ]
+}
+```
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[DELETE]</code> <code><b>...</b></code> <code><b>/api/Tickets/{id}</b></code></summary>
+
+  Deletes a ticket.
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | id  | guid   | Yes      |    |
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[PUT]</code> <code><b>...</b></code> <code><b>/api/Tickets/{id}</b></code></summary>
+
+  Updates a ticket.
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | id  | guid   | Yes      |    |
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticket  | object   | Yes      |    |
+
+  ```
+  {
+  "title": "string",
+  "description": "string",
+  "context": "string",
+  "createdDate": "2024-03-05T09:08:48.617Z",
+  "status": 0,
+  "currentStep": 0,
+  "bannersJson": "string",
+  "messages": [
+    {
+      "sender": "string",
+      "content": "string",
+      "sendTime": "2024-03-05T09:08:48.617Z",
+      "action": {
+        "state": 0,
+        "type": 0
+      },
+      "stage": 0,
+      "subStage": 0
+    }
+  ],
+  "notifications": [
+    {
+      "title": "string",
+      "description": "string",
+      "sms": true,
+      "email": true,
+      "push": true
+    }
+  ]
+}
+```
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Tickets/generateDoc</b></code></summary>
+
+  ##### Parameters (body)
+
+  An array of base64-encoded data to be included in the DOC.
+    ```
+    [
+      "string"
+    ]
+    ```
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+
+
+</details>
+
+
 
 ### <a name="database"></a>1.4 Database
 
