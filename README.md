@@ -52,10 +52,13 @@ All five services are running on different ports:
 5) `5021` - PaymentManager
    
 The same virtual machine IP address is used for all of them.
+
 Prod mahine IP
+
 `http://20.21.124.185:5281/swagger/index.html`
 
 Dev mahine IP
+
 `http://20.21.129.55:5281/swagger/index.html`
 
 Just for PlantUML we don`t need to use ```/swagger/index.html```
