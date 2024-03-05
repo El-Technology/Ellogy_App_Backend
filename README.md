@@ -1075,9 +1075,677 @@ Tickets
 
 </details>
 
+TicketSummary
+------------------------------------------------------------------------------------------
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/TicketSummary/getTicketSummariesByTicketId</b></code></summary>
+
+  Get all ticket summaries by ticket id
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketId  | guid   | Yes      |    |
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/TicketSummary/createTicketSummaries</b></code></summary>
+
+  Create ticket summaries
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketSummary  | object   | Yes      |    |
+
+  ```
+  [
+  {
+    "ticketId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "data": "string",
+    "isPotential": true,
+    "subStage": 0,
+    "summaryScenarios": [
+      {
+        "title": "string",
+        "description": "string"
+      }
+    ],
+    "summaryAcceptanceCriteria": [
+      {
+        "title": "string",
+        "description": "string"
+      }
+    ]
+  }
+]
+  ```
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[PUT]</code> <code><b>...</b></code> <code><b>/api/TicketSummary/updateTicketSummaries</b></code></summary>
+
+  Updates ticket summaries
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketSummary  | object   | Yes      |    |
+
+  ```
+  [
+  {
+    "data": "string",
+    "isPotential": true,
+    "subStage": 0,
+    "summaryScenarios": [
+      {
+        "title": "string",
+        "description": "string",
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      }
+    ],
+    "summaryAcceptanceCriteria": [
+      {
+        "title": "string",
+        "description": "string",
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      }
+    ],
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "ticketId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  }
+]
+  ```
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[DELETE]</code> <code><b>...</b></code> <code><b>/api/TicketSummary/deleteTicketSummaries</b></code></summary>
+
+  Delete ticket summaries by ticket id
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketId  | guid   | Yes      |    |
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
 
 </details>
 
+Usecases
+------------------------------------------------------------------------------------------
+
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Usecases/create</b></code></summary>
+
+  Endpoint to create diagrams and tables in use cases.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | usecases  | object   | Yes      |    |
+
+  ```
+  [
+  {
+    "usecase": {
+      "title": "string",
+      "description": "string",
+      "tables": [
+        {
+          "table": "string"
+        }
+      ],
+      "diagrams": [
+        {
+          "title": "string",
+          "description": "string",
+          "pictureLink": "string"
+        }
+      ]
+    },
+    "ticketId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  }
+]
+  ```
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Usecases/get</b></code></summary>
+
+  Endpoint to get diagrams and tables in use cases.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | getObject  | object   | Yes      |    |
+
+  ```
+  {
+  "paginationRequest": {
+    "currentPageNumber": 0,
+    "recordsPerPage": 0
+  },
+  "ticketId": "string guid"
+}
+  ```
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[PUT]</code> <code><b>...</b></code> <code><b>/api/Usecases/update</b></code></summary>
+
+  Endpoint to update diagrams and tables in use cases.
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | usecaseId  | guid   | Yes      |    |
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | updateObject  | object   | Yes      |    |
+
+  ```
+    {
+      "title": "string",
+      "description": "string",
+      "diagrams": [
+        {
+          "title": "string",
+          "description": "string",
+          "pictureLink": "string",
+          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        }
+      ],
+      "tables": [
+        {
+          "table": "string",
+          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        }
+      ]
+    }
+  ```
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+<details>
+  <summary><code>[DELETE]</code> <code><b>...</b></code> <code><b>/api/Usecases/delete</b></code></summary>
+
+  Endpoint to deletes diagrams and tables in use cases.
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketId  | guid   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+
+</details>
+
+UserStoryTest
+------------------------------------------------------------------------------------------
+
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/UserStoryTest/createUserStoryTest</b></code></summary>
+
+  Endpoint to create user story tests.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | userStoryTest  | object   | Yes      |    |
+
+  ```
+  [
+  {
+    "ticketSummaryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "testScenarios": "string",
+    "testCases": [
+      {
+        "testCaseId": "string",
+        "description": "string",
+        "preConditions": "string",
+        "testSteps": "string",
+        "testData": "string",
+        "expectedResult": "string"
+      }
+    ],
+    "testPlan": {
+      "objective": "string",
+      "scope": "string",
+      "resources": "string",
+      "schedule": "string",
+      "testEnvironment": "string",
+      "riskManagement": "string"
+    }
+  }
+  ]
+  ```
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/UserStoryTest/getUserStoryTests</b></code></summary>
+
+  Endpoint to get user story tests.
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketId  | object   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[PUT]</code> <code><b>...</b></code> <code><b>/api/UserStoryTest/updateUserStoryTests</b></code></summary>
+
+  Endpoint to create user story tests.
+
+  ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | userStoryTest  | object   | Yes      |    |
+
+  ```
+  [
+  {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "testScenarios": "string",
+    "testCases": [
+      {
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "testCaseId": "string",
+        "description": "string",
+        "preConditions": "string",
+        "testSteps": "string",
+        "testData": "string",
+        "expectedResult": "string"
+      }
+    ],
+    "testPlan": {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "objective": "string",
+      "scope": "string",
+      "resources": "string",
+      "schedule": "string",
+      "testEnvironment": "string",
+      "riskManagement": "string"
+    },
+    "ticketSummaryData": "string",
+    "ticketSummaryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  }
+  ]
+  ```
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[DELETE]</code> <code><b>...</b></code> <code><b>/api/UserStoryTest/deleteUserStoryTests</b></code></summary>
+
+  Endpoint to deletes user story tests.
+
+  ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | ticketId  | guid   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[DELETE]</code> <code><b>...</b></code> <code><b>/api/UserStoryTest/deleteUserStoryCases</b></code></summary>
+
+  Endpoint to deletes user story cases.
+
+  ##### Parameters (body)
+  
+  ```
+  [
+    "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+  ]
+  ```
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+</details>
+
+### <a name="payment-manager-service"></a>1.3.4 Payment Manager Service
+<details>
+	 <summary><code>Endpoints</code></summary>
+
+CheckOut
+------------------------------------------------------------------------------------------
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/CheckOut/getUserBalance</b></code></summary>
+
+  Retrieves user balance.
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/CheckOut/createPayment</b></code></summary>
+
+  Sends request to create one time payment.
+
+   ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | connectionId  | string   | Yes      |    |
+  | signalMethodName  | string   | Yes      |    |
+  | successUrl  | string   | Yes      |    |
+  | cancelUrl  | string   | Yes      |    |
+  | amountOfPoints  | int   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/CheckOut/createFreeSubscription</b></code></summary>
+
+  Sends request to create new subscription.
+
+   ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | connectionId  | string   | Yes      |    |
+  | signalMethodName  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/CheckOut/upgradeSubscription</b></code></summary>
+
+   ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | newPriceId  | string   | Yes      |    |
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/CheckOut/downgradeSubscription</b></code></summary>
+
+   ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | newPriceId  | string   | Yes      |    |
+
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/CheckOut/cancelSubscription</b></code></summary>
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+
+Customer
+------------------------------------------------------------------------------------------
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/Customer/createCustomer</b></code></summary>
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/Customer/updateCustomerData</b></code></summary>
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Customer/addCustomerPaymentMethod</b></code></summary>
+
+   ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | connectionId  | string   | Yes      |    |
+  | signalMethodName  | string   | Yes      |    |
+  | successUrl  | string   | Yes      |    |
+  | cancelUrl  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Customer/getAllPaymentMethods</b></code></summary>
+
+   ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | recordsPerPage  | int   | Yes      |    |
+  | startAfter  | string   | Yes      |    |
+  | endBefore  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/Customer/setDefaultPaymentMethod</b></code></summary>
+
+   ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | paymentMethodId  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Customer/getCustomerPayments</b></code></summary>
+
+   ##### Parameters (body)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | recordsPerPage  | int   | Yes      |    |
+  | startAfter  | string   | Yes      |    |
+  | endBefore  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/Customer/getActiveSubscription</b></code></summary>
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/Customer/updateSubscriptionPreview</b></code></summary>
+
+   ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | newPriceId  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[GET]</code> <code><b>...</b></code> <code><b>/api/Customer/detachPaymentMethod</b></code></summary>
+
+   ##### Parameters (query)
+
+  | Attribute          | Type     | Required | Description                               |
+  |--------------------|----------|----------|--------------------------------------------|
+  | paymentMethodId  | string   | Yes      |    |
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+<details>
+  <summary><code>[DELETE]</code> <code><b>...</b></code> <code><b>/api/Customer/deleteCustomer</b></code></summary>
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+
+Product
+------------------------------------------------------------------------------------------
+<details>
+  <summary><code>[DELETE]</code> <code><b>...</b></code> <code><b>/api/Product/getProducts</b></code></summary>
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+
+Webhook
+------------------------------------------------------------------------------------------
+<details>
+  <summary><code>[POST]</code> <code><b>...</b></code> <code><b>/api/Webhook</b></code></summary>
+
+  ##### Responses
+
+  | http code | content-type | Description |
+  |-----------|--------------|-------------|
+  | `200`     | `application/json` | Success. |
+</details>
+</details>
 
 
 ### <a name="database"></a>1.4 Database
