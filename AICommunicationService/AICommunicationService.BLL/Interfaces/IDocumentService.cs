@@ -72,7 +72,7 @@ public interface IDocumentService
     /// <param name="userId"></param>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    Task<string> ReadPdf(Guid userId, string fileName);
+    Task<string> ReadPdfAsync(Guid userId, string fileName);
 
     /// <summary>
     ///     This method is used for finding user by email prefix

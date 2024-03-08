@@ -1,6 +1,4 @@
-﻿using System.Data.Common;
-using System.Text;
-using AICommunicationService.BLL.Dtos;
+﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
 using AICommunicationService.Common.Dtos;
@@ -13,6 +11,8 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
 using LangChain.TextSplitters;
 using Pgvector;
+using System.Data.Common;
+using System.Text;
 using UglyToad.PdfPig;
 
 namespace AICommunicationService.BLL.Services;
@@ -121,7 +121,7 @@ public class DocumentService : IDocumentService
 
         try
         {
-            var documentContext = await ReadPdf(userId, fileName);
+            var documentContext = await ReadPdfAsync(userId, fileName);
 
             var splitText = SplitText(documentContext);
             var embeddings = new List<Embedding>();
@@ -162,8 +162,8 @@ public class DocumentService : IDocumentService
         return documentWithOwner;
     }
 
-    /// <inheritdoc cref="IDocumentService.ReadPdf" />
-    public async Task<string> ReadPdf(Guid userId, string fileName)
+    /// <inheritdoc cref="IDocumentService.ReadPdfAsync" />
+    public async Task<string> ReadPdfAsync(Guid userId, string fileName)
     {
         var httpClient = new HttpClient();
         var response = await httpClient.GetAsync(GetFileUrl(userId, fileName));
