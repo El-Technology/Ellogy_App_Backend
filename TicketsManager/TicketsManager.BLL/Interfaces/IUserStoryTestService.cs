@@ -24,7 +24,7 @@ public interface IUserStoryTestService
     /// </summary>
     /// <param name="userStoryTest"></param>
     /// <returns></returns>
-    Task UpdateUserStoryTestAsync(List<GetUserStoryDto> userStoryTest);
+    Task UpdateUserStoryTestAsync(List<UpdateUserStoryTestDto> userStoryTest);
 
     /// <summary>
     ///     Delete user story test

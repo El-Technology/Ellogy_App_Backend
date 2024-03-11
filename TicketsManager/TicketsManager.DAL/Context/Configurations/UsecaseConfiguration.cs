@@ -21,5 +21,8 @@ public class UsecaseConfiguration : IEntityTypeConfiguration<Usecase>
         builder.HasOne(a => a.UserStoryTest)
             .WithOne(a => a.Usecase)
             .HasForeignKey<UserStoryTest>(a => a.UsecaseId);
+
+        builder.HasMany(a => a.TicketSummaries)
+            .WithMany(a => a.Usecases);
     }
 }

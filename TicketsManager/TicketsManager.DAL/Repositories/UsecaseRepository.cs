@@ -24,7 +24,7 @@ public class UsecaseRepository : IUsecaseRepository
     /// <inheritdoc cref="IUsecaseRepository.CreateUsecasesAsync(List{Usecase})" />
     public async Task CreateUsecasesAsync(List<Usecase> usecases)
     {
-        await _context.AddRangeAsync(usecases);
+        await _context.Usecases.AddRangeAsync(usecases);
         await _context.SaveChangesAsync();
     }
 
@@ -42,6 +42,7 @@ public class UsecaseRepository : IUsecaseRepository
             .Take(paginationRequest.RecordsPerPage)
             .Include(a => a.Tables)
             .Include(a => a.Diagrams)
+            .Include(a => a.TicketSummaries)
             .ToListAsync();
 
         var response = new PaginationResponseDto<Usecase>

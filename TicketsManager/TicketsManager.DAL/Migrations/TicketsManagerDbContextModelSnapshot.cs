@@ -22,6 +22,21 @@ namespace TicketsManager.DAL.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("TicketSummaryUsecase", b =>
+                {
+                    b.Property<Guid>("TicketSummariesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("UsecasesId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("TicketSummariesId", "UsecasesId");
+
+                    b.HasIndex("UsecasesId");
+
+                    b.ToTable("TicketSummaryUsecase");
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.ActionHistory", b =>
                 {
                     b.Property<Guid>("Id")
@@ -434,6 +449,21 @@ namespace TicketsManager.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("UserStoryTest", (string)null);
+                });
+
+            modelBuilder.Entity("TicketSummaryUsecase", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.TicketSummary", null)
+                        .WithMany()
+                        .HasForeignKey("TicketSummariesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TicketsManager.DAL.Models.Usecase", null)
+                        .WithMany()
+                        .HasForeignKey("UsecasesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.Message", b =>

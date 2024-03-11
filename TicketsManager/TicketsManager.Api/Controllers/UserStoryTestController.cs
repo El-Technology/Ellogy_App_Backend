@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos;
-using TicketsManager.BLL.Dtos.UserStoryTestDtos.GetDtos;
 using TicketsManager.BLL.Interfaces;
 
 namespace TicketsManager.Api.Controllers;
@@ -52,7 +51,7 @@ public class UserStoryTestController : ControllerBase
     /// <returns></returns>
     [HttpPut]
     [Route("updateUserStoryTests")]
-    public async Task<IActionResult> UpdateUserStoryTestAsync([FromBody] List<GetUserStoryDto> userStoryTest)
+    public async Task<IActionResult> UpdateUserStoryTestAsync([FromBody] List<UpdateUserStoryTestDto> userStoryTest)
     {
         await _userStoryTestService.UpdateUserStoryTestAsync(userStoryTest);
         return Ok();

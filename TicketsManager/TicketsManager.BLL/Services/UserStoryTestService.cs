@@ -35,7 +35,7 @@ public class UserStoryTestService : IUserStoryTestService
     }
 
     /// <inheritdoc cref="IUserStoryTestService.UpdateUserStoryTestAsync" />
-    public async Task UpdateUserStoryTestAsync(List<GetUserStoryDto> userStoryTest)
+    public async Task UpdateUserStoryTestAsync(List<UpdateUserStoryTestDto> userStoryTest)
     {
         var mappedUserStoryTest = _mapper.Map<List<UserStoryTest>>(userStoryTest);
         await _userStoryTestRepository.UpdateUserStoryTestAsync(mappedUserStoryTest);
@@ -46,7 +46,7 @@ public class UserStoryTestService : IUserStoryTestService
     {
         await _userStoryTestRepository.DeleteUserStoryTestByTicketIdAsync(ticketId);
     }
-    
+
     /// <inheritdoc cref="IUserStoryTestService.DeleteTestCasesByIds" />
     public async Task DeleteTestCasesByIds(List<Guid> listOfTestCaseIds)
     {

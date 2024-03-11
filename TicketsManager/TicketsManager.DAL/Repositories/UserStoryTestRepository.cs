@@ -37,7 +37,9 @@ public class UserStoryTestRepository : IUserStoryTestRepository
                 TestCases = a.TestCases,
                 TestPlan = a.TestPlan,
                 TicketSummaryData = a.TicketSummary!.Data,
-                TicketSummaryId = a.TicketSummaryId
+                TicketSummaryId = a.TicketSummaryId,
+                UsecaseId = a.UsecaseId,
+                UsecaseTitle = a.Usecase!.Title
             });
     }
 

@@ -1,7 +1,7 @@
-﻿namespace TicketsManager.BLL.Dtos.TicketUsecaseDtos.FullDtos
+﻿namespace TicketsManager.BLL.Dtos.TicketUsecaseDtos.FullDtos;
+
+public class UsecaseFullDto : UsecaseDataFullDto
 {
-    public class UsecaseFullDto : UsecaseDataFullDto
-    {
-        public Guid Id { get; set; }
-    }
+    public Guid Id { get; set; }
+    public List<Guid>? TicketSummaryIds { get; set; }
 }

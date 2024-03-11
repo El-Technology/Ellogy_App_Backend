@@ -1,8 +1,8 @@
-﻿namespace TicketsManager.BLL.Dtos.TicketUsecaseDtos.UsecasesDtos
+﻿namespace TicketsManager.BLL.Dtos.TicketUsecaseDtos.UsecasesDtos;
+
+public class CreateUsecasesDto
 {
-    public class CreateUsecasesDto
-    {
-        public UsecaseDto Usecase { get; set; }
-        public Guid TicketId { get; set; }
-    }
+    public UsecaseDto Usecase { get; set; }
+    public Guid TicketId { get; set; }
+    public List<Guid>? TicketSummaryIds { get; set; }
 }

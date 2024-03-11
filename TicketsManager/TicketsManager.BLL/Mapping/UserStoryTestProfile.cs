@@ -43,12 +43,14 @@ public class UserStoryTestProfile : Profile
         CreateMap<GetUserStoryDto, UserStoryTest>()
             .ForMember(dest => dest.TicketSummary, opt =>
                 opt.Ignore());
-        //.ForMember(dest => dest.TicketSummaryId, opt =>
-        //    opt.Ignore());
 
         CreateMap<TestCase, GetTestCaseDto>()
             .ReverseMap();
         CreateMap<TestPlan, GetTestPlanDto>()
             .ReverseMap();
+
+        CreateMap<UpdateUserStoryTestDto, UserStoryTest>()
+            .ForMember(dest => dest.TicketSummary, opt =>
+                opt.Ignore());
     }
 }
