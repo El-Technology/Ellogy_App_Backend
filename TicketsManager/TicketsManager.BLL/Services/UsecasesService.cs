@@ -11,14 +11,12 @@ namespace TicketsManager.BLL.Services;
 
 public class UsecasesService : IUsecasesService
 {
-    private readonly ITicketSummaryRepository _ticketSummaryRepository;
     private readonly IUsecaseRepository _usecaseRepository;
     private readonly IMapper _mapper;
-    public UsecasesService(IUsecaseRepository usecaseRepository, IMapper mapper, ITicketSummaryRepository ticketSummaryRepository)
+    public UsecasesService(IUsecaseRepository usecaseRepository, IMapper mapper)
     {
         _usecaseRepository = usecaseRepository;
         _mapper = mapper;
-        _ticketSummaryRepository = ticketSummaryRepository;
     }
 
     private void ValidateUserPermission(Guid inputUserId, Guid userIdFromToken)
@@ -41,7 +39,7 @@ public class UsecasesService : IUsecasesService
         {
             if (usecase.TicketSummaryIds != null)
             {
-                var ticketSummaries = await _ticketSummaryRepository.GetTicketSummariesByIdsAsync(usecase.TicketSummaryIds).ToListAsync();
+                var ticketSummaries = await _usecaseRepository.GetTicketSummariesByIdsAsync(usecase.TicketSummaryIds).ToListAsync();
                 usecases.Where(a => a.TicketSummaries != null).FirstOrDefault()!.TicketSummaries = ticketSummaries;
             }
         }

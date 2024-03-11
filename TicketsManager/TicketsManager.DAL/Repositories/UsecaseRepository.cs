@@ -15,6 +15,10 @@ public class UsecaseRepository : IUsecaseRepository
     {
         _context = context;
     }
+    public IQueryable<TicketSummary> GetTicketSummariesByIdsAsync(List<Guid> ticketSummaryIds)
+    {
+        return _context.TicketSummaries.Where(a => ticketSummaryIds.Contains(a.Id));
+    }
 
     public async Task<Guid> GetUserIdByTicketIdAsync(Guid ticketId)
     {

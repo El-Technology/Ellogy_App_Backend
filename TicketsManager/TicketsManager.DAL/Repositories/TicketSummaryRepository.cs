@@ -14,11 +14,6 @@ public class TicketSummaryRepository : ITicketSummaryRepository
         _context = context;
     }
 
-    public IQueryable<TicketSummary> GetTicketSummariesByIdsAsync(List<Guid> ticketSummaryIds)
-    {
-        return _context.TicketSummaries.Where(a => ticketSummaryIds.Contains(a.Id));
-    }
-
     /// <inheritdoc cref="ITicketSummaryRepository.CreateTicketSummariesAsync" />
     public async Task CreateTicketSummariesAsync(List<TicketSummary> ticketSummaries)
     {
