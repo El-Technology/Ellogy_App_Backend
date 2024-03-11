@@ -7,6 +7,9 @@ public class UserStoryTest
     public ICollection<TestCase>? TestCases { get; set; }
     public TestPlan? TestPlan { get; set; }
 
+    public Usecase? Usecase { get; set; }
+    public Guid? UsecaseId { get; set; }
+
     public TicketSummary? TicketSummary { get; set; }
     public Guid TicketSummaryId { get; set; }
 }
