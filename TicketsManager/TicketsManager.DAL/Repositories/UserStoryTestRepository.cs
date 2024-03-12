@@ -28,6 +28,7 @@ public class UserStoryTestRepository : IUserStoryTestRepository
         return _context.UserStoryTests
             .Include(a => a.TestCases)
             .Include(a => a.TestPlan)
+            .Where(a => a.Usecase!.TicketId == ticketId)
             .Select(a => new ReturnUserStoryTestModel
             {
                 Id = a.Id,
