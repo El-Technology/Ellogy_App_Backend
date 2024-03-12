@@ -6,8 +6,6 @@ public class GetUserStoryDto
     public string TestScenarios { get; set; } = string.Empty;
     public IEnumerable<GetTestCaseDto>? TestCases { get; set; }
     public GetTestPlanDto? TestPlan { get; set; }
-    public string TicketSummaryData { get; set; } = string.Empty;
-    public Guid TicketSummaryId { get; set; }
     public Guid? UsecaseId { get; set; }
     public string? UsecaseTitle { get; set; }
 }

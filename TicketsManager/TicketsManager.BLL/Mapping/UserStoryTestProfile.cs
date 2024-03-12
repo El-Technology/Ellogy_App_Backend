@@ -12,9 +12,7 @@ public class UserStoryTestProfile : Profile
     {
         CreateMap<CreateUserStoryTestDto, UserStoryTest>()
             .ForMember(dest => dest.Id, opt =>
-                opt.MapFrom(new GuidValueResolver()))
-            .ForMember(dest => dest.TicketSummary, opt =>
-                opt.Ignore());
+                opt.MapFrom(new GuidValueResolver()));
 
         CreateMap<CreateTestCaseDto, TestCase>()
             .ForMember(dest => dest.Id, opt =>
@@ -32,25 +30,17 @@ public class UserStoryTestProfile : Profile
             .ForMember(dest => dest.UserStoryTestId, opt =>
                 opt.Ignore());
 
-        CreateMap<ReturnUserStoryTestModel, GetUserStoryDto>()
-            .ForMember(dest => dest.TicketSummaryData, opt =>
-                opt.MapFrom(t => t.TicketSummaryData));
+        CreateMap<ReturnUserStoryTestModel, GetUserStoryDto>();
 
-        CreateMap<UserStoryTest, GetUserStoryDto>()
-            .ForMember(dest => dest.TicketSummaryData, opt =>
-                opt.MapFrom(t => t.TicketSummary!.Data));
+        CreateMap<UserStoryTest, GetUserStoryDto>();
 
-        CreateMap<GetUserStoryDto, UserStoryTest>()
-            .ForMember(dest => dest.TicketSummary, opt =>
-                opt.Ignore());
+        CreateMap<GetUserStoryDto, UserStoryTest>();
 
         CreateMap<TestCase, GetTestCaseDto>()
             .ReverseMap();
         CreateMap<TestPlan, GetTestPlanDto>()
             .ReverseMap();
 
-        CreateMap<UpdateUserStoryTestDto, UserStoryTest>()
-            .ForMember(dest => dest.TicketSummary, opt =>
-                opt.Ignore());
+        CreateMap<UpdateUserStoryTestDto, UserStoryTest>();
     }
 }

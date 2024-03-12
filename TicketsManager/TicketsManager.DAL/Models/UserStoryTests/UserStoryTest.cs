@@ -9,7 +9,4 @@ public class UserStoryTest
 
     public Usecase? Usecase { get; set; }
     public Guid? UsecaseId { get; set; }
-
-    public TicketSummary? TicketSummary { get; set; }
-    public Guid TicketSummaryId { get; set; }
 }

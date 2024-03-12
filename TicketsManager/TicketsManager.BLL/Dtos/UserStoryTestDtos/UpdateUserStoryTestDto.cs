@@ -7,6 +7,5 @@ public class UpdateUserStoryTestDto
     public string TestScenarios { get; set; } = string.Empty;
     public IEnumerable<GetTestCaseDto>? TestCases { get; set; }
     public GetTestPlanDto? TestPlan { get; set; }
-    public Guid TicketSummaryId { get; set; }
     public Guid? UsecaseId { get; set; }
 }

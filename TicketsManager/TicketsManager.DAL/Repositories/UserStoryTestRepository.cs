@@ -28,16 +28,12 @@ public class UserStoryTestRepository : IUserStoryTestRepository
         return _context.UserStoryTests
             .Include(a => a.TestCases)
             .Include(a => a.TestPlan)
-            .Include(a => a.TicketSummary)
-            .Where(a => a.TicketSummary!.TicketId == ticketId)
             .Select(a => new ReturnUserStoryTestModel
             {
                 Id = a.Id,
                 TestScenarios = a.TestScenarios,
                 TestCases = a.TestCases,
                 TestPlan = a.TestPlan,
-                TicketSummaryData = a.TicketSummary!.Data,
-                TicketSummaryId = a.TicketSummaryId,
                 UsecaseId = a.UsecaseId,
                 UsecaseTitle = a.Usecase!.Title
             });
@@ -53,7 +49,7 @@ public class UserStoryTestRepository : IUserStoryTestRepository
     /// <inheritdoc cref="IUserStoryTestRepository.DeleteUserStoryTestByTicketIdAsync" />
     public async Task DeleteUserStoryTestByTicketIdAsync(Guid ticketId)
     {
-        await _context.UserStoryTests.Where(a => a.TicketSummary!.TicketId == ticketId).ExecuteDeleteAsync();
+        await _context.UserStoryTests.Where(a => a.Usecase!.TicketId == ticketId).ExecuteDeleteAsync();
     }
 
     /// <inheritdoc cref="IUserStoryTestRepository.DeleteTestCasesByIds" />

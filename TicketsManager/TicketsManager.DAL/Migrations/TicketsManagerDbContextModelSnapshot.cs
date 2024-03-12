@@ -434,16 +434,10 @@ namespace TicketsManager.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TicketSummaryId")
-                        .HasColumnType("uuid");
-
                     b.Property<Guid?>("UsecaseId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TicketSummaryId")
-                        .IsUnique();
 
                     b.HasIndex("UsecaseId")
                         .IsUnique();
@@ -589,17 +583,9 @@ namespace TicketsManager.DAL.Migrations
 
             modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.TicketSummary", "TicketSummary")
-                        .WithOne("UserStoryTest")
-                        .HasForeignKey("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", "TicketSummaryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("TicketsManager.DAL.Models.Usecase", "Usecase")
                         .WithOne("UserStoryTest")
                         .HasForeignKey("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", "UsecaseId");
-
-                    b.Navigation("TicketSummary");
 
                     b.Navigation("Usecase");
                 });
@@ -620,8 +606,6 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("SummaryAcceptanceCriteria");
 
                     b.Navigation("SummaryScenarios");
-
-                    b.Navigation("UserStoryTest");
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.Usecase", b =>
