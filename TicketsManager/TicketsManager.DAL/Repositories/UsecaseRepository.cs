@@ -28,6 +28,7 @@ public class UsecaseRepository : IUsecaseRepository
     /// <inheritdoc cref="IUsecaseRepository.CreateUsecasesAsync(List{Usecase})" />
     public async Task CreateUsecasesAsync(List<Usecase> usecases)
     {
+        _context.TicketSummaries.AttachRange(usecases.SelectMany(a => a.TicketSummaries));
         await _context.Usecases.AddRangeAsync(usecases);
         await _context.SaveChangesAsync();
     }

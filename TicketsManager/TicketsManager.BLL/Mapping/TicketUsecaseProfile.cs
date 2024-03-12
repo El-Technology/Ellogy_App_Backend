@@ -102,11 +102,6 @@ public class TicketUsecaseProfile : Profile
         if (ticketSummaryIds is null)
             return Enumerable.Empty<TicketSummary>().ToList();
 
-        var ticketSummaries = new List<TicketSummary>();
-
-        foreach (var ticketSummaryId in ticketSummaryIds)
-            ticketSummaries.Add(new TicketSummary { Id = ticketSummaryId, Data = string.Empty });
-
-        return ticketSummaries;
+        return ticketSummaryIds.Select(id => new TicketSummary { Id = id }).ToList();
     }
 }

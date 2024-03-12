@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using TicketsManager.BLL.Dtos.TicketUsecaseDtos.FullDtos;
 using TicketsManager.BLL.Dtos.TicketUsecaseDtos.UsecasesDtos;
 using TicketsManager.BLL.Interfaces;
@@ -34,15 +33,6 @@ public class UsecasesService : IUsecasesService
         }
 
         var usecases = _mapper.Map<List<Usecase>>(createUsecasesDto);
-
-        foreach (var usecase in createUsecasesDto)
-        {
-            if (usecase.TicketSummaryIds != null)
-            {
-                var ticketSummaries = await _usecaseRepository.GetTicketSummariesByIdsAsync(usecase.TicketSummaryIds).ToListAsync();
-                usecases.Where(a => a.TicketSummaries != null).FirstOrDefault()!.TicketSummaries = ticketSummaries;
-            }
-        }
 
         await _usecaseRepository.CreateUsecasesAsync(usecases);
         return new CreateUsecasesResponseDto { Usecases = _mapper.Map<List<UsecaseFullDto>>(usecases) };
