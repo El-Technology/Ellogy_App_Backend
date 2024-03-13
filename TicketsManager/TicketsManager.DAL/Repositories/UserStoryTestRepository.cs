@@ -15,20 +15,11 @@ public class UserStoryTestRepository : IUserStoryTestRepository
         _context = context;
     }
 
-    /// <inheritdoc cref="IUserStoryTestRepository.AddUserStoryTestAsync" />
-    public async Task AddUserStoryTestAsync(List<UserStoryTest> userStoryTests)
-    {
-        await _context.UserStoryTests.AddRangeAsync(userStoryTests);
-        await _context.SaveChangesAsync();
-    }
-
-    /// <inheritdoc cref="IUserStoryTestRepository.GetUserStoryTests" />
-    public IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(Guid ticketId)
+    private IQueryable<ReturnUserStoryTestModel> GetUserStoryTestsQuery()
     {
         return _context.UserStoryTests
             .Include(a => a.TestCases)
             .Include(a => a.TestPlan)
-            .Where(a => a.Usecase!.TicketId == ticketId)
             .Select(a => new ReturnUserStoryTestModel
             {
                 Id = a.Id,
@@ -38,6 +29,29 @@ public class UserStoryTestRepository : IUserStoryTestRepository
                 UsecaseId = a.UsecaseId,
                 UsecaseTitle = a.Usecase!.Title
             });
+    }
+
+    /// <inheritdoc cref="IUserStoryTestRepository.AddUserStoryTestAsync" />
+    public async Task AddUserStoryTestAsync(List<UserStoryTest> userStoryTests)
+    {
+        await _context.UserStoryTests.AddRangeAsync(userStoryTests);
+        await _context.SaveChangesAsync();
+    }
+
+    /// <inheritdoc cref="IUserStoryTestRepository.GetUserStoryTests" />
+    public IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(List<UserStoryTest> userStoryTests)
+    {
+        return GetUserStoryTestsQuery()
+            .Where(a => userStoryTests
+                .Select(ust => ust.UsecaseId)
+                .Contains(a.UsecaseId));
+    }
+
+    /// <inheritdoc cref="IUserStoryTestRepository.GetUserStoryTests" />
+    public IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(Guid ticketId)
+    {
+        return GetUserStoryTestsQuery()
+            .Where(a => a.Usecase!.TicketId == ticketId);
     }
 
     /// <inheritdoc cref="IUserStoryTestRepository.UpdateUserStoryTestAsync" />

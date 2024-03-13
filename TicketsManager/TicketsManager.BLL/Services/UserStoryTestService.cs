@@ -20,10 +20,14 @@ public class UserStoryTestService : IUserStoryTestService
     }
 
     /// <inheritdoc cref="IUserStoryTestService.AddUserStoryTestAsync" />
-    public async Task AddUserStoryTestAsync(List<CreateUserStoryTestDto> userStoryTest)
+    public async Task<List<GetUserStoryDto>> AddUserStoryTestAsync(List<CreateUserStoryTestDto> userStoryTest)
     {
         var mappedUserStoryTest = _mapper.Map<List<UserStoryTest>>(userStoryTest);
         await _userStoryTestRepository.AddUserStoryTestAsync(mappedUserStoryTest);
+
+        return _mapper.Map<List<GetUserStoryDto>>(await _userStoryTestRepository
+            .GetUserStoryTests(mappedUserStoryTest)
+            .ToListAsync());
     }
 
 

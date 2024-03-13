@@ -10,7 +10,7 @@ public interface IUserStoryTestService
     /// </summary>
     /// <param name="userStoryTest"></param>
     /// <returns></returns>
-    Task AddUserStoryTestAsync(List<CreateUserStoryTestDto> userStoryTest);
+    Task<List<GetUserStoryDto>> AddUserStoryTestAsync(List<CreateUserStoryTestDto> userStoryTest);
 
     /// <summary>
     ///     Get user story tests

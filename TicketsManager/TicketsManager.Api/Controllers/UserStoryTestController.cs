@@ -27,8 +27,7 @@ public class UserStoryTestController : ControllerBase
     [Route("createUserStoryTests")]
     public async Task<IActionResult> AddUserStoryTestAsync([FromBody] List<CreateUserStoryTestDto> userStoryTest)
     {
-        await _userStoryTestService.AddUserStoryTestAsync(userStoryTest);
-        return Ok();
+        return Ok(await _userStoryTestService.AddUserStoryTestAsync(userStoryTest));
     }
 
     /// <summary>

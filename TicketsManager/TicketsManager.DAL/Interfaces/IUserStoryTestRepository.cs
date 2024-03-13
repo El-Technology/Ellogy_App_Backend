@@ -39,4 +39,11 @@ public interface IUserStoryTestRepository
     /// <param name="listOfTestCaseIds"></param>
     /// <returns></returns>
     Task DeleteTestCasesByIds(List<Guid> listOfTestCaseIds);
+
+    /// <summary>
+    ///    Method returns UserStoryTest by list of UserStoryTest
+    /// </summary>
+    /// <param name="userStoryTests"></param>
+    /// <returns></returns>
+    IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(List<UserStoryTest> userStoryTests);
 }
