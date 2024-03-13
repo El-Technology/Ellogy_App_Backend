@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Dtos;
 using TicketsManager.DAL.Interfaces;
@@ -22,15 +23,13 @@ public class UserStoryTestRepository : IUserStoryTestRepository
         await _context.SaveChangesAsync();
     }
 
-    /// <inheritdoc cref="IUserStoryTestRepository.GetUserStoryTests" />
-    public IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(List<UserStoryTest> userStoryTests)
+    private IQueryable<ReturnUserStoryTestModel> GetUserStoryTestQueryWithFilter(
+        Expression<Func<UserStoryTest, bool>> filterExpression)
     {
         return _context.UserStoryTests
         .Include(a => a.TestCases)
         .Include(a => a.TestPlan)
-        .Where(a => userStoryTests
-            .Select(ust => ust.UsecaseId)
-            .Contains(a.UsecaseId))
+        .Where(filterExpression)
         .Select(a => new ReturnUserStoryTestModel
         {
             Id = a.Id,
@@ -43,21 +42,17 @@ public class UserStoryTestRepository : IUserStoryTestRepository
     }
 
     /// <inheritdoc cref="IUserStoryTestRepository.GetUserStoryTests" />
+    public IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(List<UserStoryTest> userStoryTests)
+    {
+        return GetUserStoryTestQueryWithFilter(a => userStoryTests
+            .Select(ust => ust.UsecaseId)
+            .Contains(a.UsecaseId));
+    }
+
+    /// <inheritdoc cref="IUserStoryTestRepository.GetUserStoryTests" />
     public IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(Guid ticketId)
     {
-        return _context.UserStoryTests
-            .Include(a => a.TestCases)
-            .Include(a => a.TestPlan)
-            .Where(a => a.Usecase!.TicketId == ticketId)
-            .Select(a => new ReturnUserStoryTestModel
-            {
-                Id = a.Id,
-                TestScenarios = a.TestScenarios,
-                TestCases = a.TestCases,
-                TestPlan = a.TestPlan,
-                UsecaseId = a.UsecaseId,
-                UsecaseTitle = a.Usecase!.Title
-            });
+        return GetUserStoryTestQueryWithFilter(a => a.Usecase!.TicketId == ticketId);
     }
 
     /// <inheritdoc cref="IUserStoryTestRepository.UpdateUserStoryTestAsync" />
