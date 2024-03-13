@@ -15,22 +15,6 @@ public class UserStoryTestRepository : IUserStoryTestRepository
         _context = context;
     }
 
-    private IQueryable<ReturnUserStoryTestModel> GetUserStoryTestsQuery()
-    {
-        return _context.UserStoryTests
-            .Include(a => a.TestCases)
-            .Include(a => a.TestPlan)
-            .Select(a => new ReturnUserStoryTestModel
-            {
-                Id = a.Id,
-                TestScenarios = a.TestScenarios,
-                TestCases = a.TestCases,
-                TestPlan = a.TestPlan,
-                UsecaseId = a.UsecaseId,
-                UsecaseTitle = a.Usecase!.Title
-            });
-    }
-
     /// <inheritdoc cref="IUserStoryTestRepository.AddUserStoryTestAsync" />
     public async Task AddUserStoryTestAsync(List<UserStoryTest> userStoryTests)
     {
@@ -41,17 +25,39 @@ public class UserStoryTestRepository : IUserStoryTestRepository
     /// <inheritdoc cref="IUserStoryTestRepository.GetUserStoryTests" />
     public IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(List<UserStoryTest> userStoryTests)
     {
-        return GetUserStoryTestsQuery()
-            .Where(a => userStoryTests
-                .Select(ust => ust.UsecaseId)
-                .Contains(a.UsecaseId));
+        return _context.UserStoryTests
+        .Include(a => a.TestCases)
+        .Include(a => a.TestPlan)
+        .Where(a => userStoryTests
+            .Select(ust => ust.UsecaseId)
+            .Contains(a.UsecaseId))
+        .Select(a => new ReturnUserStoryTestModel
+        {
+            Id = a.Id,
+            TestScenarios = a.TestScenarios,
+            TestCases = a.TestCases,
+            TestPlan = a.TestPlan,
+            UsecaseId = a.UsecaseId,
+            UsecaseTitle = a.Usecase!.Title
+        });
     }
 
     /// <inheritdoc cref="IUserStoryTestRepository.GetUserStoryTests" />
     public IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(Guid ticketId)
     {
-        return GetUserStoryTestsQuery()
-            .Where(a => a.Usecase!.TicketId == ticketId);
+        return _context.UserStoryTests
+            .Include(a => a.TestCases)
+            .Include(a => a.TestPlan)
+            .Where(a => a.Usecase!.TicketId == ticketId)
+            .Select(a => new ReturnUserStoryTestModel
+            {
+                Id = a.Id,
+                TestScenarios = a.TestScenarios,
+                TestCases = a.TestCases,
+                TestPlan = a.TestPlan,
+                UsecaseId = a.UsecaseId,
+                UsecaseTitle = a.Usecase!.Title
+            });
     }
 
     /// <inheritdoc cref="IUserStoryTestRepository.UpdateUserStoryTestAsync" />

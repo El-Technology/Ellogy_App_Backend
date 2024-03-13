@@ -23,19 +23,26 @@ public class UserStoryTestService : IUserStoryTestService
     public async Task<List<GetUserStoryDto>> AddUserStoryTestAsync(List<CreateUserStoryTestDto> userStoryTest)
     {
         var mappedUserStoryTest = _mapper.Map<List<UserStoryTest>>(userStoryTest);
+
+        if (await _userStoryTestRepository.GetUserStoryTests(mappedUserStoryTest).AnyAsync())
+            throw new Exception("User story test already exists");
+
         await _userStoryTestRepository.AddUserStoryTestAsync(mappedUserStoryTest);
 
-        return _mapper.Map<List<GetUserStoryDto>>(await _userStoryTestRepository
-            .GetUserStoryTests(mappedUserStoryTest)
-            .ToListAsync());
+        return _mapper.Map<List<GetUserStoryDto>>(
+            await _userStoryTestRepository
+                .GetUserStoryTests(mappedUserStoryTest)
+                .ToListAsync());
     }
 
 
     /// <inheritdoc cref="IUserStoryTestService.GetUserStoryTestsAsync" />
     public async Task<List<GetUserStoryDto>> GetUserStoryTestsAsync(Guid ticketId)
     {
-        return _mapper.Map<List<GetUserStoryDto>>(await _userStoryTestRepository.GetUserStoryTests(ticketId)
-            .ToListAsync());
+        return _mapper.Map<List<GetUserStoryDto>>(
+            await _userStoryTestRepository
+                .GetUserStoryTests(ticketId)
+                .ToListAsync());
     }
 
     /// <inheritdoc cref="IUserStoryTestService.UpdateUserStoryTestAsync" />
