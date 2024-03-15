@@ -2,7 +2,7 @@ name: Build and push microservices
 on:
   push:
     branches:
-      - master
+      - master-updated-architecture-config
     paths:
       - TicketsManager/**
       - UserManager/**
