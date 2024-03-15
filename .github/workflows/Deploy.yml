@@ -183,7 +183,7 @@ jobs:
     
     runs-on: ubuntu-latest
     environment: 
-      name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'production' }}
+      name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'test-env' }}
     steps:
     - name: Configure SSH
       run: |
