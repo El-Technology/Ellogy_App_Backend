@@ -182,6 +182,8 @@ jobs:
     needs: [build_user_manager, build_ticket_manager, build_ai_communication_service]
     
     runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'production' }}
     steps:
     - name: Configure SSH
       run: |
