@@ -256,7 +256,7 @@ jobs:
         AZURE_SERVICE_BUS_CONNECTION_STRING: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING }}
         BLOB_STORAGE_CONNECTION_STRING: ${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}
         OPEN_AI_KEY: ${{secrets.OPEN_AI_KEY}}
-        CONNECTION_STRING: ${{secrets.CONNECTIONSTRING}}
+        CONNECTION_STRING: ${{secrets.CONNECTION_STRING}}
         JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY }}
       run: |
         ssh VM bash -s <<EOF
