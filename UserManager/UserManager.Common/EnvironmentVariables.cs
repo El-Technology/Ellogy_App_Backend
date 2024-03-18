@@ -1,9 +1,9 @@
-﻿using UserManager.Common.Exceptions;
-
-namespace UserManager.Common;
+﻿namespace UserManager.Common;
 
 public static class EnvironmentVariables
 {
+    private const string DbReplacePattern = "{{{databaseName}}}";
+
     public static string AzureServiceBusConnectionString
     {
         get
@@ -16,7 +16,7 @@ public static class EnvironmentVariables
     {
         get
         {
-            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING")?.Replace(DbReplacePattern, "UserManager");
             return variable is null ? variable = "default_CONNECTION_STRING" : variable;
         }
     }
