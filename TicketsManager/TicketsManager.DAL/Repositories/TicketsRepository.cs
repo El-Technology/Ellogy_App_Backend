@@ -48,7 +48,6 @@ public class TicketsRepository : ITicketsRepository
     public Task<Ticket?> GetTicketByIdAsync(Guid id)
     {
         return _context.Tickets
-            .Include(e => e.User)
             .Include(e => e.TicketMessages)
             .Include(e => e.TicketSummaries)
             .Include(e => e.Notifications)
@@ -56,10 +55,11 @@ public class TicketsRepository : ITicketsRepository
             .FirstOrDefaultAsync(e => e.Id == id);
     }
 
-    public async Task DeleteTicketAsync(Ticket ticket)
+    public async Task DeleteTicketAsync(Guid ticketId)
     {
-        _context.Tickets.Remove(ticket);
-        await _context.SaveChangesAsync();
+        await _context.Tickets
+            .Where(a => a.Id == ticketId)
+            .ExecuteDeleteAsync();
     }
 
     public async Task UpdateTicketAsync(Ticket ticket)

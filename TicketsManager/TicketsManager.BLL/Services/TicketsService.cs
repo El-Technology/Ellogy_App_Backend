@@ -102,14 +102,14 @@ public class TicketsService : ITicketsService
     }
 
     /// <inheritdoc cref="ITicketsService.DeleteTicketAsync(Guid, Guid)"/>
-    public async Task DeleteTicketAsync(Guid id, Guid userIdFromToken)
+    public async Task DeleteTicketAsync(Guid ticketId, Guid userIdFromToken)
     {
-        var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
-                     ?? throw new TicketNotFoundException(id);
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
+                     ?? throw new TicketNotFoundException(ticketId);
 
         ValidateUserPermission(ticket.UserId, userIdFromToken);
 
-        await _ticketsRepository.DeleteTicketAsync(ticket);
+        await _ticketsRepository.DeleteTicketAsync(ticketId);
     }
 
     /// <inheritdoc cref="ITicketsService.UpdateTicketAsync(Guid, TicketUpdateRequestDto, Guid)"/>
@@ -127,8 +127,8 @@ public class TicketsService : ITicketsService
         return _mapper.Map<TicketResponseDto>(mappedTicket);
     }
 
-    ///<inheritdoc cref="ITicketsService.DownloadAsDocAsync(string[])"/>
-    public async Task<byte[]> DownloadAsDocAsync(string[] base64Data)
+    ///<inheritdoc cref="ITicketsService.DownloadAsDoc(string[])"/>
+    public byte[] DownloadAsDoc(string[] base64Data)
     {
         using var memoryStream = new MemoryStream();
         using (var package = WordprocessingDocument.Create(memoryStream,

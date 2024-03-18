@@ -57,5 +57,5 @@ public interface ITicketsService
     /// </summary>
     /// <param name="base64Data">An array of base64-encoded data to be included in the DOC.</param>
     /// <returns>Returns the downloaded DOC document as a byte array.</returns>
-    Task<byte[]> DownloadAsDocAsync(string[] base64Data);
+    byte[] DownloadAsDoc(string[] base64Data);
 }

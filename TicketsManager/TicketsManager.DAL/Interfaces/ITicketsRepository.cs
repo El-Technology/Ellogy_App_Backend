@@ -11,7 +11,7 @@ public interface ITicketsRepository
     public Task CreateTicketAsync(Ticket ticket);
     public Task<Ticket?> GetTicketByIdAsync(Guid id);
     public Task UpdateTicketAsync(Ticket ticket);
-    public Task DeleteTicketAsync(Ticket ticket);
+    public Task DeleteTicketAsync(Guid ticketId);
     public Task<bool> CheckIfTicketExistAsync(Guid id);
     Task CheckTicketUpdateIds(Ticket ticket);
 }
