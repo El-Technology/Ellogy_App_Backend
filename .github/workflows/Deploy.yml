@@ -60,7 +60,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
       
     needs: changes
-    if: ${{ needs.changes.outputs.AICommunicationService == 'true'}}
+    if: ${{ needs.changes.outputs.AICommunicationService == 'true' || needs.changes.outputs.Workflow == 'true' }}
     
     runs-on: ubuntu-latest
     steps:
@@ -104,7 +104,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
       
     needs: changes
-    if: ${{ needs.changes.outputs.UserManager == 'true'}}
+    if: ${{ needs.changes.outputs.UserManager == 'true' || needs.changes.outputs.Workflow == 'true' }}
     
     runs-on: ubuntu-latest
     steps:
@@ -148,7 +148,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
       
     needs: changes
-    if: ${{ needs.changes.outputs.TicketsManager == 'true'}}   
+    if: ${{ needs.changes.outputs.TicketsManager == 'true' || needs.changes.outputs.Workflow == 'true' }}   
     
     runs-on: ubuntu-latest
     steps:
@@ -217,8 +217,6 @@ jobs:
       run: |
         ssh VM bash -s <<EOF
         sudo su
-          
-        sudo snap install yq
 
         docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
 
@@ -232,11 +230,9 @@ jobs:
         export SERVICE_NAME3=$SERVICE_NAME3
         export SERVICE_IMAGE3=$SERVICE_IMAGE3
 
-        yq e -i ".services.$SERVICE_NAME1.image=\"$SERVICE_IMAGE1\"" docker-compose.yaml
-        yq e -i ".services.$SERVICE_NAME2.image=\"$SERVICE_IMAGE2\"" docker-compose.yaml
-        yq e -i ".services.$SERVICE_NAME3.image=\"$SERVICE_IMAGE3\"" docker-compose.yaml
-
-        echo "Service image value: \"$SERVICE_IMAGE1\""
+        yq e -i ".services.$SERVICE_NAME1.image=env(SERVICE_IMAGE1)" docker-compose.yaml
+        yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
+        yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
 
         export OPEN_AI_KEY="$OPEN_AI_KEY"
         export CONNECTION_STRING="$CONNECTION_STRING"
