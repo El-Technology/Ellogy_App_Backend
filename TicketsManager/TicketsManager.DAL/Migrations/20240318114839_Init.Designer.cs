@@ -12,8 +12,8 @@ using TicketsManager.DAL.Context;
 namespace TicketsManager.DAL.Migrations
 {
     [DbContext(typeof(TicketsManagerDbContext))]
-    [Migration("20230807092028_UpdateUsecasesModel")]
-    partial class UpdateUsecasesModel
+    [Migration("20240318114839_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -132,8 +132,6 @@ namespace TicketsManager.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Tickets", (string)null);
                 });
 
@@ -160,8 +158,7 @@ namespace TicketsManager.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UsecaseId")
-                        .IsUnique();
+                    b.HasIndex("UsecaseId");
 
                     b.ToTable("TicketDiagrams", (string)null);
                 });
@@ -204,8 +201,7 @@ namespace TicketsManager.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UsecaseId")
-                        .IsUnique();
+                    b.HasIndex("UsecaseId");
 
                     b.ToTable("TicketTables", (string)null);
                 });
@@ -219,22 +215,15 @@ namespace TicketsManager.DAL.Migrations
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("TicketId");
 
                     b.ToTable("Usecases", (string)null);
-                });
-
-            modelBuilder.Entity("TicketsManager.DAL.Models.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("TicketsManager.DAL.Models.Message", b =>
@@ -259,22 +248,11 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Ticket");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
-                {
-                    b.HasOne("TicketsManager.DAL.Models.User", "User")
-                        .WithMany("UserTickets")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("TicketsManager.DAL.Models.TicketDiagram", b =>
                 {
                     b.HasOne("TicketsManager.DAL.Models.Usecase", "Usecase")
-                        .WithOne("Diagram")
-                        .HasForeignKey("TicketsManager.DAL.Models.TicketDiagram", "UsecaseId")
+                        .WithMany("Diagrams")
+                        .HasForeignKey("UsecaseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -295,8 +273,8 @@ namespace TicketsManager.DAL.Migrations
             modelBuilder.Entity("TicketsManager.DAL.Models.TicketTable", b =>
                 {
                     b.HasOne("TicketsManager.DAL.Models.Usecase", "Usecase")
-                        .WithOne("Table")
-                        .HasForeignKey("TicketsManager.DAL.Models.TicketTable", "UsecaseId")
+                        .WithMany("Tables")
+                        .HasForeignKey("UsecaseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -327,16 +305,9 @@ namespace TicketsManager.DAL.Migrations
 
             modelBuilder.Entity("TicketsManager.DAL.Models.Usecase", b =>
                 {
-                    b.Navigation("Diagram")
-                        .IsRequired();
+                    b.Navigation("Diagrams");
 
-                    b.Navigation("Table")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("TicketsManager.DAL.Models.User", b =>
-                {
-                    b.Navigation("UserTickets");
+                    b.Navigation("Tables");
                 });
 #pragma warning restore 612, 618
         }

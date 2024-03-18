@@ -43,6 +43,8 @@ namespace UserManager.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("ForgotPassword", (string)null);
                 });
 
@@ -129,6 +131,17 @@ namespace UserManager.DAL.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
+            modelBuilder.Entity("UserManager.DAL.Models.ForgotPassword", b =>
+                {
+                    b.HasOne("UserManager.DAL.Models.User", "User")
+                        .WithMany("ForgotPasswords")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("UserManager.DAL.Models.RefreshToken", b =>
                 {
                     b.HasOne("UserManager.DAL.Models.User", "User")
@@ -142,6 +155,8 @@ namespace UserManager.DAL.Migrations
 
             modelBuilder.Entity("UserManager.DAL.Models.User", b =>
                 {
+                    b.Navigation("ForgotPasswords");
+
                     b.Navigation("RefreshToken")
                         .IsRequired();
                 });
