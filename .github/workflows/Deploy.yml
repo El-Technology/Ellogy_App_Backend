@@ -60,7 +60,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
       
     needs: changes
-    if: ${{ needs.changes.outputs.AICommunicationService == 'true' || needs.changes.outputs.Workflow == 'true' }}
+    if: ${{ needs.changes.outputs.AICommunicationService == 'true' || needs.changes.outputs.Workflow == 'false' }}
     
     runs-on: ubuntu-latest
     steps:
@@ -104,7 +104,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
       
     needs: changes
-    if: ${{ needs.changes.outputs.UserManager == 'true' || needs.changes.outputs.Workflow == 'true' }}
+    if: ${{ needs.changes.outputs.UserManager == 'true' || needs.changes.outputs.Workflow == 'false' }}
     
     runs-on: ubuntu-latest
     steps:
@@ -148,7 +148,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
       
     needs: changes
-    if: ${{ needs.changes.outputs.TicketsManager == 'true' || needs.changes.outputs.Workflow == 'true' }}   
+    if: ${{ needs.changes.outputs.TicketsManager == 'true' || needs.changes.outputs.Workflow == 'false' }}   
     
     runs-on: ubuntu-latest
     steps:
@@ -235,6 +235,8 @@ jobs:
         yq e -i ".services.$SERVICE_NAME1.image=\"$SERVICE_IMAGE1\"" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME2.image=\"$SERVICE_IMAGE2\"" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME3.image=\"$SERVICE_IMAGE3\"" docker-compose.yaml
+
+        echo "Service image value: \"$SERVICE_IMAGE1\""
 
         export OPEN_AI_KEY="$OPEN_AI_KEY"
         export CONNECTION_STRING="$CONNECTION_STRING"
