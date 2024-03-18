@@ -1,6 +1,6 @@
-﻿using AICommunicationService.DAL.Models;
+﻿using AICommunicationService.Common;
+using AICommunicationService.DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using TicketsManager.Common;
 
 namespace AICommunicationService.DAL.Context
 {

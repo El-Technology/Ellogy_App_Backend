@@ -10,7 +10,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text.Json.Serialization;
-using TicketsManager.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
