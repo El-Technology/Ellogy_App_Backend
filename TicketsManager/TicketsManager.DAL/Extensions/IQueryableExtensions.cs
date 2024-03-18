@@ -6,14 +6,16 @@ namespace TicketsManager.DAL.Extensions;
 
 public static class QueryableExtensions
 {
-    public static PaginationResponseDto<Ticket> GetFinalResult(this IEnumerable<Ticket> tickets, PaginationRequestDto pagination)
+    public static async Task<PaginationResponseDto<Ticket>> GetFinalResultAsync(
+        this IQueryable<Ticket> tickets,
+        PaginationRequestDto pagination)
     {
-        return tickets
+        return await tickets
             .OrderTicketsByDate()
-            .GetPaginatedCollection(pagination);
+            .GetPaginatedCollectionAsync(pagination);
     }
 
-    private static IEnumerable<Ticket> OrderTicketsByDate(this IEnumerable<Ticket> tickets)
+    private static IQueryable<Ticket> OrderTicketsByDate(this IQueryable<Ticket> tickets)
     {
         return tickets.OrderByDescending(e => e.UpdatedDate ?? e.CreatedDate);
     }

@@ -10,28 +10,33 @@ namespace TicketsManager.DAL.Repositories;
 public class TicketsRepository : ITicketsRepository
 {
     private readonly TicketsManagerDbContext _context;
-    private readonly IUserRepository _userRepository;
 
-    public TicketsRepository(TicketsManagerDbContext context, IUserRepository userRepository)
+    public TicketsRepository(TicketsManagerDbContext context)
     {
         _context = context;
-        _userRepository = userRepository;
     }
 
     public async Task<PaginationResponseDto<Ticket>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest)
     {
-        var user = await _userRepository.GetUserAsync(userId);
-
-        return user.UserTickets.GetFinalResult(paginateRequest);
+        return await _context.Tickets
+            .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
+            .Include(e => e.TicketSummaries)
+            .Include(e => e.Notifications)
+            .AsNoTracking()
+            .Where(a => a.UserId == userId)
+            .GetFinalResultAsync(paginateRequest);
     }
 
     public async Task<PaginationResponseDto<Ticket>> FindTicketsAsync(Guid userId, SearchTicketsRequestDto searchTicketsRequest)
     {
-        var user = await _userRepository.GetUserAsync(userId);
-
-        return user.UserTickets
+        return await _context.Tickets
+            .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
+            .Include(e => e.TicketSummaries)
+            .Include(e => e.Notifications)
+            .AsNoTracking()
+            .Where(a => a.UserId == userId)
             .Where(e => e.Title.Contains(searchTicketsRequest.TicketTitle, StringComparison.InvariantCultureIgnoreCase))
-            .GetFinalResult(searchTicketsRequest.Pagination);
+            .GetFinalResultAsync(searchTicketsRequest.Pagination);
     }
 
     public async Task CreateTicketAsync(Ticket ticket)

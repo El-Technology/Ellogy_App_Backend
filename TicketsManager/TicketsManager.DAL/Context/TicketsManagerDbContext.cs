@@ -12,7 +12,6 @@ public class TicketsManagerDbContext : DbContext
     public DbSet<TicketDiagram> TicketDiagrams { get; set; } = null!;
     public DbSet<Ticket> Tickets { get; set; } = null!;
     public DbSet<Message> Messages { get; set; } = null!;
-    public DbSet<User> Users { get; set; } = null!;
     public DbSet<TicketSummary> TicketSummaries { get; set; } = null!;
 
     public TicketsManagerDbContext() { }

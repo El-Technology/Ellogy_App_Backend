@@ -24,10 +24,5 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
         builder.Property(c => c.UpdatedDate);
         builder.Property(c => c.Comment);
         builder.Property(c => c.Context);
-
-        builder.HasOne(e => e.User)
-            .WithMany(e => e.UserTickets)
-            .HasForeignKey(e => e.UserId)
-            .IsRequired();
     }
 }

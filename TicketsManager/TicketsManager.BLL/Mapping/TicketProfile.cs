@@ -18,8 +18,6 @@ public class TicketProfile : Profile
                 opts.Ignore())
             .ForMember(dest => dest.UpdatedDate, opts =>
                 opts.Ignore())
-            .ForMember(dest => dest.User, opts =>
-                opts.Ignore())
             .ForMember(dest => dest.UserId, opts =>
                 opts.Ignore());
 
@@ -34,8 +32,6 @@ public class TicketProfile : Profile
                 opts.Ignore())
             .ForMember(dest => dest.UpdatedDate, opts =>
                 opts.MapFrom(_ => DateTime.UtcNow))
-            .ForMember(dest => dest.User, opts =>
-                opts.Ignore())
             .ForMember(dest => dest.UserId, opts =>
                 opts.Ignore());
 

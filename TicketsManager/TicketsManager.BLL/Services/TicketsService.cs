@@ -18,13 +18,11 @@ public class TicketsService : ITicketsService
 {
     private readonly IMapper _mapper;
     private readonly ITicketsRepository _ticketsRepository;
-    private readonly IUserRepository _userRepository;
 
-    public TicketsService(IMapper mapper, ITicketsRepository ticketsRepository, IUserRepository userRepository)
+    public TicketsService(IMapper mapper, ITicketsRepository ticketsRepository)
     {
         _mapper = mapper;
         _ticketsRepository = ticketsRepository;
-        _userRepository = userRepository;
     }
 
     private void ValidateUserPermission(Guid inputUserId, Guid userIdFromToken)
@@ -40,10 +38,10 @@ public class TicketsService : ITicketsService
         return decodedHtml;
     }
 
-    private Ticket MapCreateTicket(TicketCreateRequestDto createTicketRequest, User user)
+    private Ticket MapCreateTicket(TicketCreateRequestDto createTicketRequest, Guid userId)
     {
         var mappedTicket = _mapper.Map<Ticket>(createTicketRequest);
-        mappedTicket.UserId = user.Id;
+        mappedTicket.UserId = userId;
 
         foreach (var message in mappedTicket.TicketMessages)
             message.TicketId = mappedTicket.Id;
@@ -95,8 +93,7 @@ public class TicketsService : ITicketsService
     {
         ValidateUserPermission(userId, userIdFromToken);
 
-        var user = await _userRepository.GetUserAsync(userId) ?? throw new UserNotFoundException(userId);
-        var mappedTicket = MapCreateTicket(createTicketRequest, user);
+        var mappedTicket = MapCreateTicket(createTicketRequest, userId);
 
         await _ticketsRepository.CreateTicketAsync(mappedTicket);
 
@@ -137,7 +134,7 @@ public class TicketsService : ITicketsService
         using (var package = WordprocessingDocument.Create(memoryStream,
                              WordprocessingDocumentType.Document))
         {
-            MainDocumentPart mainPart = package.MainDocumentPart;
+            var mainPart = package.MainDocumentPart;
             if (mainPart == null)
             {
                 mainPart = package.AddMainDocumentPart();
