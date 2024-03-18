@@ -232,9 +232,9 @@ jobs:
         export SERVICE_NAME3=$SERVICE_NAME3
         export SERVICE_IMAGE3=$SERVICE_IMAGE3
 
-        yq e -i ".services.$SERVICE_NAME1.image=$SERVICE_IMAGE1" docker-compose.yaml
-        yq e -i ".services.$SERVICE_NAME2.image=$SERVICE_IMAGE2" docker-compose.yaml
-        yq e -i ".services.$SERVICE_NAME3.image=$SERVICE_IMAGE3" docker-compose.yaml
+        yq e -i ".services.$SERVICE_NAME1.image=\"$SERVICE_IMAGE1\"" docker-compose.yaml
+        yq e -i ".services.$SERVICE_NAME2.image=\"$SERVICE_IMAGE2\"" docker-compose.yaml
+        yq e -i ".services.$SERVICE_NAME3.image=\"$SERVICE_IMAGE3\"" docker-compose.yaml
 
         export OPEN_AI_KEY="$OPEN_AI_KEY"
         export CONNECTION_STRING="$CONNECTION_STRING"
