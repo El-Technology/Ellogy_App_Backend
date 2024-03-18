@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using System.Text.Json;
 using UserManager.BLL.Interfaces;
-using UserManager.Common;
+using UserManager.Common.Constants;
 using UserManager.Common.Models.NotificationModels;
 
 namespace UserManager.BLL.Services
@@ -17,10 +17,10 @@ namespace UserManager.BLL.Services
 
         public async Task SendNotificationAsync(NotificationModel notificationModel)
         {
-            var busSender = _busClient.CreateSender(NotificationQueueOptions.QueueName);
+            var busSender = _busClient.CreateSender(NotificationQueueConstants.QueueName);
             var message = new ServiceBusMessage(JsonSerializer.Serialize(notificationModel))
             {
-                ContentType = NotificationQueueOptions.MessageContentType
+                ContentType = NotificationQueueConstants.MessageContentType
             };
 
             await busSender.SendMessageAsync(message);

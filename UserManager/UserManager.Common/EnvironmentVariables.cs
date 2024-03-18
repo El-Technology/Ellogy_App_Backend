@@ -1,9 +1,9 @@
-﻿namespace UserManager.Common;
+﻿using UserManager.Common.Constants;
+
+namespace UserManager.Common;
 
 public static class EnvironmentVariables
 {
-    private const string DbReplacePattern = "{{{databaseName}}}";
-
     public static string AzureServiceBusConnectionString
     {
         get
@@ -16,8 +16,12 @@ public static class EnvironmentVariables
     {
         get
         {
-            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING")?.Replace(DbReplacePattern, "UserManager");
-            return variable is null ? variable = "default_CONNECTION_STRING" : variable;
+            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            return variable is null
+                ? variable = "default_CONNECTION_STRING"
+                : variable.Replace(
+                    ConfigConstants.DbReplacePattern,
+                    ConfigHelper.AppSetting(ConfigConstants.DbName));
         }
     }
     public static string JwtSecretKey

@@ -1,17 +1,26 @@
-﻿using AICommunicationService.Common.Exceptions;
+﻿using AICommunicationService.Common.Constants;
+using AICommunicationService.Common.Exceptions;
 
 namespace AICommunicationService.Common;
 
 public static class EnvironmentVariables
 {
-    private const string DbNamePattern = "{{{databaseName}}}";
-
     public static readonly string? OpenAiKey = Environment.GetEnvironmentVariable("OPEN_AI_KEY")
                                                       ?? throw new EnvironmentVariableNotFoundException("OPEN_AI_KEY");
 
     public static readonly string? JwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
                                                   ?? throw new EnvironmentVariableNotFoundException("JWT_SECRET_KEY");
 
-    public static readonly string ConnectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")?.Replace(DbNamePattern, "AICommunication")
-                                            ?? throw new EnvironmentVariableNotFoundException("CONNECTION_STRING");
+    public static string ConnectionString
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            return variable is null
+                ? variable = "default_CONNECTION_STRING"
+                : variable.Replace(
+                    ConfigConstants.DbReplacePattern,
+                    ConfigHelper.AppSetting(ConfigConstants.DbName));
+        }
+    }
 }

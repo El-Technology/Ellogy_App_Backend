@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using NotificationService.Interfaces;
 using System;
 using System.Threading.Tasks;
-using UserManager.Common;
+using UserManager.Common.Constants;
 using UserManager.Common.Models.NotificationModels;
 
 namespace NotificationService
@@ -19,7 +19,7 @@ namespace NotificationService
         }
 
         [FunctionName("SendNotificationFunction")]
-        public async Task Run([ServiceBusTrigger(NotificationQueueOptions.QueueName, Connection = "NOTIFICATION_QUEUE_CONNECTION_STRING")] string myQueueItem, ILogger log)
+        public async Task Run([ServiceBusTrigger(NotificationQueueConstants.QueueName, Connection = "NOTIFICATION_QUEUE_CONNECTION_STRING")] string myQueueItem, ILogger log)
         {
             try
             {
