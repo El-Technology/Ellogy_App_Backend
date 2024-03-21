@@ -5,6 +5,9 @@ namespace AICommunicationService.Common;
 
 public static class EnvironmentVariables
 {
+    public static string AzureOpenAiBaseUrl = Environment.GetEnvironmentVariable("AZURE_OPEN_AI_BASE_URL")
+                                                      ?? throw new EnvironmentVariableNotFoundException("AZURE_OPEN_AI_BASE_URL");
+
     public static readonly string? OpenAiKey = Environment.GetEnvironmentVariable("OPEN_AI_KEY")
                                                       ?? throw new EnvironmentVariableNotFoundException("OPEN_AI_KEY");
 

@@ -209,6 +209,7 @@ jobs:
         SERVICE_NAME3: ${{ needs.build_ticket_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE3: ${{ needs.build_ticket_manager.outputs.MicroserviceImage }}
         
+        AZURE_OPEN_AI_BASE_URL: ${{ secrets.AZURE_OPEN_AI_BASE_URL }}
         AZURE_SERVICE_BUS_CONNECTION_STRING: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING }}
         BLOB_STORAGE_CONNECTION_STRING: ${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}
         OPEN_AI_KEY: ${{secrets.OPEN_AI_KEY}}
@@ -234,6 +235,7 @@ jobs:
         yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
 
+        export AZURE_OPEN_AI_BASE_URL="$AZURE_OPEN_AI_BASE_URL"
         export OPEN_AI_KEY="$OPEN_AI_KEY"
         export CONNECTION_STRING="$CONNECTION_STRING"
         export JWT_SECRET_KEY="$JWT_SECRET_KEY"
