@@ -6,10 +6,10 @@ on:
     paths:
       - OcelotApiGateway/**
       - .github/workflows/DeployGateway.yml
+    environment: 
+      name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'test-env' }}
 
-environment: 
-  name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'test-env' }}
-  
+
 env:
   ENVNAME: ${{ vars.ENVNAME }} 
   AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }} 
