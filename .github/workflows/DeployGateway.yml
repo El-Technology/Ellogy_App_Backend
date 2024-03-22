@@ -6,13 +6,9 @@ on:
     paths:
       - OcelotApiGateway/**
       - .github/workflows/DeployGateway.yml
-    environment: 
-      name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'test-env' }}
-
 
 env:
   ENVNAME: ${{ vars.ENVNAME }} 
-  AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }} 
 
 jobs:
   build_api_gateway:
@@ -49,6 +45,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
 
+    environment: 
+      name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'test-env' }}
+
     needs: build_api_gateway
 
     env:
@@ -66,6 +65,6 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@85270a1854658d167ab239bce43949edb336fa7c
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-name: ${{ vars.AZURE_WEBAPP_NAME }} 
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           images: 'ghcr.io/${{ env.URL }}'
