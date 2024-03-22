@@ -1,79 +1,65 @@
 using Newtonsoft.Json.Linq;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using System.Text;
 
-class Program
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var ocelotConf = Environment.GetEnvironmentVariable("Ocelot_conf") ?? "local";
+var configurationBuilder = new ConfigurationBuilder();
+
+var jsonString = File.ReadAllText($"ocelot.{ocelotConf}.json");
+var updatedJsonString = UpdateHost(jsonString);
+
+configurationBuilder.AddJsonStream(new MemoryStream(Encoding.ASCII.GetBytes(updatedJsonString)));
+
+builder.Services.AddOcelot(configurationBuilder.Build());
+builder.Services.AddCors(options =>
 {
-    static void Main(string[] args)
+    options.AddDefaultPolicy(builder =>
     {
-        var builder = WebApplication.CreateBuilder(args);
+        builder.SetIsOriginAllowed(origin => true)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
-        ConfigureServices(builder.Services);
+var app = builder.Build();
 
-        var app = builder.Build();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-        Configure(app);
+app.UseHttpsRedirection();
+app.MapControllers();
 
-        app.Run();
-    }
+app.UseCors();
+app.UseWebSockets();
+await app.UseOcelot();
 
-    static void ConfigureServices(IServiceCollection services)
+app.Run();
+
+static string UpdateHost(string jsonString)
+{
+    var jsonObject = JObject.Parse(jsonString);
+    var routes = jsonObject["Routes"] as JArray
+        ?? throw new InvalidCastException();
+
+    foreach (var route in routes)
     {
-        services.AddControllers();
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
-        services.AddCors(options =>
-        {
-            options.AddDefaultPolicy(builder =>
-            {
-                builder.SetIsOriginAllowed(origin => true)
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
-        });
-        services.AddOcelot();
-    }
-
-    static void Configure(WebApplication app)
-    {
-        var ocelotConf = Environment.GetEnvironmentVariable("Ocelot_conf") ?? "local";
-        var configurationBuilder = new ConfigurationBuilder();
-
-        var jsonString = File.ReadAllText($"ocelot.{ocelotConf}.json");
-        var updatedJsonString = UpdateHost(jsonString);
-        File.WriteAllText($"ocelot.{ocelotConf}.json", updatedJsonString);
-
-        configurationBuilder.AddJsonFile($"ocelot.{ocelotConf}.json", optional: false, reloadOnChange: true);
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
-
-        app.UseHttpsRedirection();
-        app.UseCors();
-        app.UseWebSockets();
-        app.UseOcelot();
-        app.MapControllers();
-    }
-
-    static string UpdateHost(string jsonString)
-    {
-        var jsonObject = JObject.Parse(jsonString);
-        var routes = jsonObject["Routes"] as JArray
+        var downstreamHostAndPorts = route["DownstreamHostAndPorts"] as JArray
             ?? throw new InvalidCastException();
 
-        foreach (var route in routes)
-        {
-            var downstreamHostAndPorts = route["DownstreamHostAndPorts"] as JArray
-                ?? throw new InvalidCastException();
-
-            foreach (var hostAndPort in downstreamHostAndPorts)
-                hostAndPort["Host"] = Environment.GetEnvironmentVariable("SSH_HOST");
-        }
-
-        return jsonObject.ToString();
+        foreach (var hostAndPort in downstreamHostAndPorts)
+            hostAndPort["Host"] = Environment.GetEnvironmentVariable("SSH_HOST");
     }
+
+    return jsonObject.ToString();
 }
