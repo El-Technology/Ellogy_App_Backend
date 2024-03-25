@@ -2,7 +2,7 @@ name: Build and deploy API Gateway
 on:
   push:
     branches:
-      - develop
+      - master
     paths:
       - OcelotApiGateway/**
       - .github/workflows/DeployGateway.yml
@@ -45,7 +45,9 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-
+    environment: 
+      name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'production' }}
+      
     needs: build_api_gateway
 
     env:
