@@ -1,18 +1,6 @@
 {
   "Routes": [
     {
-      "UpstreamPathTemplate": "/gateway/health",
-      "UpstreamHttpMethod": [ "Get" ],
-      "DownstreamPathTemplate": "/health",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "20.21.124.185",
-          "Port": 5281
-        }
-      ]
-    },
-    {
       "UpstreamPathTemplate": "/gateway/auth/register",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/auth/register",
