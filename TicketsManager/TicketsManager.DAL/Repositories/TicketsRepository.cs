@@ -39,8 +39,7 @@ public class TicketsRepository : ITicketsRepository
             .Include(e => e.Notifications)
             .AsNoTracking()
             .Where(a => a.UserId == userId)
-            .Where(e => e.Title.Contains(searchTicketsRequest.TicketTitle,
-                StringComparison.InvariantCultureIgnoreCase))
+            .Where(e => e.Title.ToLower().Contains(searchTicketsRequest.TicketTitle.ToLower()))
             .GetFinalResultAsync(searchTicketsRequest.Pagination);
     }
 

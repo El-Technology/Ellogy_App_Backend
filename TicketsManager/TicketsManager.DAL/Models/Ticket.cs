@@ -16,6 +16,7 @@ public class Ticket
     public TicketCurrentStepEnum CurrentStep { get; set; }
     public string? BannersJson { get; set; }
 
+    public ICollection<ActionHistory> ActionHistories { get; set; } = new List<ActionHistory>();
     public ICollection<Message> TicketMessages { get; set; } = new List<Message>();
     public ICollection<TicketSummary> TicketSummaries { get; set; } = new List<TicketSummary>();
     public ICollection<Usecase> Usecases { get; set; } = new List<Usecase>();

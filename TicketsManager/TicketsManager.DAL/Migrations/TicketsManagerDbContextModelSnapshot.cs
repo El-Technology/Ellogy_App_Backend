@@ -66,6 +66,8 @@ namespace TicketsManager.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TicketId");
+
                     b.ToTable("ActionHistories", (string)null);
                 });
 
@@ -447,6 +449,17 @@ namespace TicketsManager.DAL.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TicketsManager.DAL.Models.ActionHistory", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                        .WithMany("ActionHistories")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
             modelBuilder.Entity("TicketsManager.DAL.Models.Message", b =>
                 {
                     b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
@@ -568,6 +581,8 @@ namespace TicketsManager.DAL.Migrations
 
             modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
                 {
+                    b.Navigation("ActionHistories");
+
                     b.Navigation("Notifications");
 
                     b.Navigation("TicketMessages");
