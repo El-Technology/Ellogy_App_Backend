@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using UserManager.Common;
 using UserManager.DAL.Models;
 
 namespace UserManager.DAL.Context;
@@ -16,6 +17,7 @@ public class UserManagerDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        if (!optionsBuilder.IsConfigured) optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionString);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
