@@ -35,7 +35,7 @@ public class RefreshTokenService : IRefreshTokenService
         var refreshTokenFromDb = await _refreshTokenRepository.GetRefreshTokenAsync(userId);
         if (refreshTokenFromDb is not null)
         {
-            refreshTokenFromDb.ExpireDate = DateTime.UtcNow + JwtOptions.RefreshTokenLifeTime;
+            refreshTokenFromDb.ExpireDate = DateTime.UtcNow.Add(JwtOptions.RefreshTokenLifeTime);
             await _refreshTokenRepository.UpdateTokenAsync(refreshTokenFromDb);
             return refreshTokenFromDb.Value;
         }
@@ -44,7 +44,7 @@ public class RefreshTokenService : IRefreshTokenService
         var refreshTokenModel = new RefreshToken
         {
             Id = Guid.NewGuid(),
-            ExpireDate = DateTime.UtcNow + JwtOptions.RefreshTokenLifeTime,
+            ExpireDate = DateTime.UtcNow.Add(JwtOptions.RefreshTokenLifeTime),
             IsValid = true,
             UserId = userId,
             Value = refreshToken
@@ -70,9 +70,7 @@ public class RefreshTokenService : IRefreshTokenService
         var user = await _userRepository.GetUserByIdAsync(Guid.Parse(userId))
                    ?? throw new UserNotFoundException(userId);
 
-        var jwt = JwtHelper.GenerateJwt(user);
-
-        return jwt;
+        return JwtHelper.GenerateJwt(user);
     }
 
     private static void ValidateRefreshToken(RefreshToken refreshToken, RefreshTokenRequestDto refreshTokenRequest)

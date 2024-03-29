@@ -1,5 +1,5 @@
 ﻿using Azure.Storage.Blobs;
-using UserManager.BLL.Dtos;
+using UserManager.BLL.Dtos.ReportDto;
 using UserManager.BLL.Exceptions;
 using UserManager.BLL.Interfaces;
 using UserManager.Common.Constants;

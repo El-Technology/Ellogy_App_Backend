@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UserManager.DAL.Enums;
 using UserManager.DAL.Models;
 
-namespace UserManager.DAL.Context.UserContext.Configurations;
+namespace UserManager.DAL.Context.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {

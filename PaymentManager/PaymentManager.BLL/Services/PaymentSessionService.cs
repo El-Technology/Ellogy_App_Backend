@@ -85,7 +85,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     public async Task<int> GetUserBalanceAsync(Guid userId)
     {
         var userWallet = await _paymentRepository.GetUserWalletAsync(userId)
-                         ?? throw new Exception($"We can`t find wallet by userId => {userId}");
+                         ?? await _paymentRepository.CreateUserWalletAsync(userId);
 
         return userWallet.Balance;
     }

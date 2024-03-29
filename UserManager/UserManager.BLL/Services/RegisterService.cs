@@ -1,5 +1,5 @@
-﻿using System.Web;
-using AutoMapper;
+﻿using AutoMapper;
+using System.Web;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Exceptions;
 using UserManager.BLL.Interfaces;
@@ -27,7 +27,6 @@ public class RegisterService : IRegisterService
     };
 
     private readonly INotificationQueueService _notificationQueueService;
-    private readonly IPaymentRepository _paymentRepository;
     private readonly IUserRepository _userRepository;
 
     /// <summary>
@@ -37,12 +36,11 @@ public class RegisterService : IRegisterService
     /// <param name="userRepository"></param>
     /// <param name="paymentRepository"></param>
     /// <param name="notificationQueueService"></param>
-    public RegisterService(IMapper mapper, IUserRepository userRepository, IPaymentRepository paymentRepository,
+    public RegisterService(IMapper mapper, IUserRepository userRepository,
         INotificationQueueService notificationQueueService)
     {
         _mapper = mapper;
         _userRepository = userRepository;
-        _paymentRepository = paymentRepository;
         _notificationQueueService = notificationQueueService;
     }
 
@@ -79,7 +77,6 @@ public class RegisterService : IRegisterService
         user.IsAccountActivated = true;
 
         await _userRepository.UpdateUserAsync(user);
-        await _paymentRepository.CreateWalletForNewUserAsync(user.Id);
     }
 
     /// <inheritdoc cref="IRegisterService.SendVerificationEmailAsync" />

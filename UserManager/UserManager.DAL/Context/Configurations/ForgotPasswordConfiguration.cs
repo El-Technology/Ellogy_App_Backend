@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UserManager.DAL.Models;
 
-namespace UserManager.DAL.Context.UserContext.Configurations;
+namespace UserManager.DAL.Context.Configurations;
 
 public class ForgotPasswordConfiguration : IEntityTypeConfiguration<ForgotPassword>
 {
@@ -18,5 +18,9 @@ public class ForgotPasswordConfiguration : IEntityTypeConfiguration<ForgotPasswo
             .IsRequired();
         builder.Property(c => c.ExpireDate)
             .IsRequired();
+
+        builder.HasOne(c => c.User)
+            .WithMany(c => c.ForgotPasswords)
+            .HasForeignKey(c => c.UserId);
     }
 }

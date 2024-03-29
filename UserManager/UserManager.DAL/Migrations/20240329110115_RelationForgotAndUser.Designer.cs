@@ -7,14 +7,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UserManager.DAL.Context;
 
-
 #nullable disable
 
 namespace UserManager.DAL.Migrations
 {
     [DbContext(typeof(UserManagerDbContext))]
-    [Migration("20240130121141_AddAccountPlanField")]
-    partial class AddAccountPlanField
+    [Migration("20240329110115_RelationForgotAndUser")]
+    partial class RelationForgotAndUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,6 +45,8 @@ namespace UserManager.DAL.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("ForgotPassword", (string)null);
                 });
@@ -83,7 +84,7 @@ namespace UserManager.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("AccountPlan")
+                    b.Property<int?>("AccountPlan")
                         .HasColumnType("integer");
 
                     b.Property<string>("AvatarLink")
@@ -151,21 +152,15 @@ namespace UserManager.DAL.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("UserManager.DAL.Models.Wallet", b =>
+            modelBuilder.Entity("UserManager.DAL.Models.ForgotPassword", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.HasOne("UserManager.DAL.Models.User", "User")
+                        .WithMany("ForgotPasswords")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<int>("Balance")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Wallets", (string)null);
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("UserManager.DAL.Models.RefreshToken", b =>
@@ -181,6 +176,8 @@ namespace UserManager.DAL.Migrations
 
             modelBuilder.Entity("UserManager.DAL.Models.User", b =>
                 {
+                    b.Navigation("ForgotPasswords");
+
                     b.Navigation("RefreshToken")
                         .IsRequired();
                 });

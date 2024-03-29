@@ -1,4 +1,4 @@
-﻿using UserManager.BLL.Dtos;
+﻿using UserManager.BLL.Dtos.ReportDto;
 
 namespace UserManager.BLL.Interfaces
 {

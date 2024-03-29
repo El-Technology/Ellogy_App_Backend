@@ -1,18 +1,17 @@
-using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using UserManager.Api.Middlewares;
 using UserManager.BLL.Extensions;
 using UserManager.Common;
 using UserManager.Common.Options;
-using UserManager.DAL.Context.UserContext;
+using UserManager.DAL.Context;
 using UserManager.DAL.Extensions;
 
 namespace UserManager.Api;
 
-//TODO add health checks
 public static class Program
 {
     public static void Main(string[] args)
@@ -102,8 +101,7 @@ public static class Program
 
         builder.Services.AddHealthChecks();
 
-        builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString,
-            EnvironmentVariables.ConnectionStringPayment);
+        builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
         builder.Services.AddBusinessLayer();
         builder.Services.AddMapping();
     }

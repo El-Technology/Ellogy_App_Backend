@@ -1,4 +1,4 @@
-﻿namespace UserManager.BLL.Dtos
+﻿namespace UserManager.BLL.Dtos.ReportDto
 {
     public class ReportModel
     {

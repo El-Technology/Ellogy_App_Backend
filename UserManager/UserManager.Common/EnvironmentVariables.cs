@@ -1,4 +1,7 @@
-﻿namespace UserManager.Common;
+﻿using UserManager.Common.Constants;
+using UserManager.Common.Helpers;
+
+namespace UserManager.Common;
 
 public static class EnvironmentVariables
 {
@@ -16,16 +19,11 @@ public static class EnvironmentVariables
         get
         {
             var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            return variable ??= "default_CONNECTION_STRING";
-        }
-    }
-
-    public static string ConnectionStringPayment
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("CONNECTIONSTRING_PAYMENT");
-            return variable ??= "default_CONNECTIONSTRING_PAYMENT";
+            return variable is null
+                ? variable = "default_CONNECTION_STRING"
+                : variable.Replace(
+                    ConfigConstants.DbReplacePattern,
+                    ConfigHelper.AppSetting(ConfigConstants.DbName));
         }
     }
 

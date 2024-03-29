@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using UserManager.DAL.Models;
 
-namespace UserManager.DAL.Context.UserContext.Configurations;
+namespace UserManager.DAL.Context.Configurations;
 
 public class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken>
 {
