@@ -24,7 +24,8 @@ public interface ITicketSummaryService
     /// </summary>
     /// <param name="ticketSummaries"></param>
     /// <returns></returns>
-    Task<List<TicketSummaryFullDto>> UpdateTicketSummariesAsync(List<TicketSummaryFullDto> ticketSummaries);
+    Task<List<TicketSummaryFullDto>> UpdateTicketSummariesAsync(
+        List<TicketSummaryFullDto> ticketSummaries);
 
     /// <summary>
     ///     Delete ticket summaries

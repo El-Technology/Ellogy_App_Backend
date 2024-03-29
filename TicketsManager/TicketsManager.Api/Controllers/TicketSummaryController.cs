@@ -34,7 +34,9 @@ public class TicketSummaryController : ControllerBase
     [Route("getTicketSummariesByTicketId")]
     public async Task<IActionResult> GetTicketSummariesByTicketIdAsync([FromQuery] Guid ticketId)
     {
-        var ticketSummaries = await _ticketSummaryService.GetTicketSummariesByTicketIdAsync(ticketId);
+        var ticketSummaries = await _ticketSummaryService
+            .GetTicketSummariesByTicketIdAsync(ticketId);
+
         return Ok(ticketSummaries);
     }
 
@@ -44,7 +46,8 @@ public class TicketSummaryController : ControllerBase
     /// <param name="ticketSummaries"></param>
     /// <returns></returns>
     [HttpPost("createTicketSummaries")]
-    public async Task<IActionResult> CreateTicketSummariesAsync([FromBody] List<TicketSummaryCreateDto> ticketSummaries)
+    public async Task<IActionResult> CreateTicketSummariesAsync(
+        [FromBody] List<TicketSummaryCreateDto> ticketSummaries)
     {
         return Ok(await _ticketSummaryService.CreateTicketSummariesAsync(ticketSummaries));
     }
@@ -55,7 +58,8 @@ public class TicketSummaryController : ControllerBase
     /// <param name="ticketSummaries"></param>
     /// <returns></returns>
     [HttpPut("updateTicketSummaries")]
-    public async Task<IActionResult> UpdateTicketSummariesAsync([FromBody] List<TicketSummaryFullDto> ticketSummaries)
+    public async Task<IActionResult> UpdateTicketSummariesAsync(
+        [FromBody] List<TicketSummaryFullDto> ticketSummaries)
     {
         return Ok(await _ticketSummaryService.UpdateTicketSummariesAsync(ticketSummaries));
     }
@@ -69,6 +73,7 @@ public class TicketSummaryController : ControllerBase
     public async Task<IActionResult> DeleteTicketSummariesAsync([FromQuery] Guid ticketId)
     {
         await _ticketSummaryService.DeleteTicketSummariesAsync(ticketId);
+
         return Ok();
     }
 }

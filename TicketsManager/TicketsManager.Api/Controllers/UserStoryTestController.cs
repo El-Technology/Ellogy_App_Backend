@@ -6,6 +6,9 @@ using TicketsManager.BLL.Interfaces;
 
 namespace TicketsManager.Api.Controllers;
 
+/// <summary>
+///    Controller for UserStoryTest
+/// </summary>
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/[controller]")]
 [ApiController]
@@ -13,6 +16,10 @@ public class UserStoryTestController : ControllerBase
 {
     private readonly IUserStoryTestService _userStoryTestService;
 
+    /// <summary>
+    ///    Constructor for UserStoryTestController
+    /// </summary>
+    /// <param name="userStoryTestService"></param>
     public UserStoryTestController(IUserStoryTestService userStoryTestService)
     {
         _userStoryTestService = userStoryTestService;
@@ -25,7 +32,8 @@ public class UserStoryTestController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Route("createUserStoryTests")]
-    public async Task<IActionResult> AddUserStoryTestAsync([FromBody] List<CreateUserStoryTestDto> userStoryTest)
+    public async Task<IActionResult> AddUserStoryTestAsync(
+        [FromBody] List<CreateUserStoryTestDto> userStoryTest)
     {
         return Ok(await _userStoryTestService.AddUserStoryTestAsync(userStoryTest));
     }
@@ -39,8 +47,7 @@ public class UserStoryTestController : ControllerBase
     [Route("getUserStoryTests")]
     public async Task<IActionResult> GetUserStoryTestsAsync([FromQuery] Guid ticketId)
     {
-        var userStoryTests = await _userStoryTestService.GetUserStoryTestsAsync(ticketId);
-        return Ok(userStoryTests);
+        return Ok(await _userStoryTestService.GetUserStoryTestsAsync(ticketId));
     }
 
     /// <summary>
@@ -50,7 +57,8 @@ public class UserStoryTestController : ControllerBase
     /// <returns></returns>
     [HttpPut]
     [Route("updateUserStoryTests")]
-    public async Task<IActionResult> UpdateUserStoryTestAsync([FromBody] List<UpdateUserStoryTestDto> userStoryTest)
+    public async Task<IActionResult> UpdateUserStoryTestAsync(
+        [FromBody] List<UpdateUserStoryTestDto> userStoryTest)
     {
         await _userStoryTestService.UpdateUserStoryTestAsync(userStoryTest);
         return Ok();

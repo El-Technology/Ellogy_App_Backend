@@ -36,7 +36,8 @@ public class TicketSummaryService : ITicketSummaryService
     }
 
     /// <inheritdoc cref="ITicketSummaryService.UpdateTicketSummariesAsync" />
-    public async Task<List<TicketSummaryFullDto>> UpdateTicketSummariesAsync(List<TicketSummaryFullDto> ticketSummaries)
+    public async Task<List<TicketSummaryFullDto>> UpdateTicketSummariesAsync(
+        List<TicketSummaryFullDto> ticketSummaries)
     {
         var mappedTicketSummaries = _mapper.Map<List<TicketSummary>>(ticketSummaries);
         await _ticketSummaryRepository.UpdateTicketSummariesAsync(mappedTicketSummaries);

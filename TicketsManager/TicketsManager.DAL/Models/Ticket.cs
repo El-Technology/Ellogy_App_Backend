@@ -5,6 +5,7 @@ namespace TicketsManager.DAL.Models;
 public class Ticket
 {
     public Guid Id { get; set; }
+    public Guid UserId { get; set; }
     public string Title { get; set; }
     public string? Description { get; set; }
     public string? Context { get; set; }
@@ -19,7 +20,4 @@ public class Ticket
     public ICollection<TicketSummary> TicketSummaries { get; set; } = new List<TicketSummary>();
     public ICollection<Usecase> Usecases { get; set; } = new List<Usecase>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
-
-    public Guid UserId { get; set; }
-    public User User { get; set; }
 }

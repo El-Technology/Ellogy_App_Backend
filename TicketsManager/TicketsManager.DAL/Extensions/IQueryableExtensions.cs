@@ -6,26 +6,32 @@ namespace TicketsManager.DAL.Extensions;
 
 public static class QueryableExtensions
 {
-    public static PaginationResponseDto<Ticket> GetFinalResult(this IEnumerable<Ticket> tickets, PaginationRequestDto pagination)
+    public static async Task<PaginationResponseDto<Ticket>> GetFinalResultAsync(this IQueryable<Ticket> tickets, PaginationRequestDto pagination)
     {
-        return tickets
+        return await tickets
             .OrderTicketsByDate()
-            .GetPaginatedCollection(pagination);
+            .GetPaginatedCollectionAsync(pagination);
     }
 
-    public static PaginationResponseDto<ActionHistory> GetFinalResult(this IEnumerable<ActionHistory> actionHistories, PaginationRequestDto pagination)
+    public static async Task<PaginationResponseDto<ActionHistory>> GetFinalResultAsync(this IQueryable<ActionHistory> actionHistories, PaginationRequestDto pagination)
     {
-        return actionHistories
+        return await actionHistories
             .OrderHistoryByDate()
-            .GetPaginatedCollection(pagination);
+            .GetPaginatedCollectionAsync(pagination);
     }
 
-    private static IEnumerable<Ticket> OrderTicketsByDate(this IEnumerable<Ticket> tickets)
+    public static async Task<PaginationResponseDto<Usecase>> GetFinalResultAsync(this IQueryable<Usecase> usecases, PaginationRequestDto pagination)
+    {
+        return await usecases
+            .GetPaginatedCollectionAsync(pagination);
+    }
+
+    private static IQueryable<Ticket> OrderTicketsByDate(this IQueryable<Ticket> tickets)
     {
         return tickets.OrderByDescending(e => e.UpdatedDate ?? e.CreatedDate);
     }
 
-    private static IEnumerable<ActionHistory> OrderHistoryByDate(this IEnumerable<ActionHistory> actionHistories)
+    private static IQueryable<ActionHistory> OrderHistoryByDate(this IQueryable<ActionHistory> actionHistories)
     {
         return actionHistories.OrderByDescending(e => e.ActionTime);
     }

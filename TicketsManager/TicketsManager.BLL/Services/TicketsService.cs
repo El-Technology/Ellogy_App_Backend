@@ -20,32 +20,31 @@ public class TicketsService : ITicketsService
 {
     private readonly IMapper _mapper;
     private readonly ITicketsRepository _ticketsRepository;
-    private readonly IUserRepository _userRepository;
 
-    public TicketsService(IMapper mapper, ITicketsRepository ticketsRepository, IUserRepository userRepository)
+    public TicketsService(IMapper mapper, ITicketsRepository ticketsRepository)
     {
         _mapper = mapper;
         _ticketsRepository = ticketsRepository;
-        _userRepository = userRepository;
     }
 
-    private void ValidateUserPermission(Guid inputUserId, Guid userIdFromToken)
+    private static void ValidateUserPermission(Guid inputUserId, Guid userIdFromToken)
     {
         if (inputUserId != userIdFromToken)
             throw new Exception("You don't have permission to access another user data");
     }
 
-    private string ConvertBase64ToString(string base64)
+    private static string ConvertBase64ToString(string base64)
     {
         var htmlBytes = Convert.FromBase64String(base64);
         var decodedHtml = Encoding.UTF8.GetString(htmlBytes);
+
         return decodedHtml;
     }
 
-    private Ticket MapCreateTicket(TicketCreateRequestDto createTicketRequest, User user)
+    private Ticket MapCreateTicket(TicketCreateRequestDto createTicketRequest, Guid userId)
     {
         var mappedTicket = _mapper.Map<Ticket>(createTicketRequest);
-        mappedTicket.UserId = user.Id;
+        mappedTicket.UserId = userId;
 
         foreach (var message in mappedTicket.TicketMessages)
             message.TicketId = mappedTicket.Id;
@@ -59,18 +58,19 @@ public class TicketsService : ITicketsService
         return mappedTicket;
     }
 
-    private void CheckTicketEnums(TicketStatusEnum ticketStatusEnum, TicketCurrentStepEnum ticketCurrentStepEnum)
+    private static void CheckTicketEnums(TicketStatusEnum ticketStatusEnum,
+        TicketCurrentStepEnum ticketCurrentStepEnum)
     {
-        if (!Enum.IsDefined(typeof(TicketStatusEnum), ticketStatusEnum) && !Enum.IsDefined(typeof(TicketCurrentStepEnum), ticketCurrentStepEnum))
+        if (!Enum.IsDefined(typeof(TicketStatusEnum), ticketStatusEnum)
+            && !Enum.IsDefined(typeof(TicketCurrentStepEnum), ticketCurrentStepEnum))
             throw new Exception("Wrong enum");
     }
 
-    private void CheckMessageCreateEnums(List<MessageDto> messages)
+    private static void CheckMessageCreateEnums(List<MessageDto> messages)
     {
         foreach (var message in messages)
         {
-            if (message.Action is null)
-                return;
+            if (message.Action is null) return;
 
             CheckEnumValue(message.Action.State, typeof(MessageActionStateEnum), "Action State");
             CheckEnumValue(message.Action.Type, typeof(MessageActionTypeEnum), "Action Type");
@@ -78,12 +78,11 @@ public class TicketsService : ITicketsService
         }
     }
 
-    private void CheckMessageUpdateEnums(List<MessageResponseDto> messages)
+    private static void CheckMessageUpdateEnums(List<MessageResponseDto> messages)
     {
         foreach (var message in messages)
         {
-            if (message.Action is null)
-                return;
+            if (message.Action is null) return;
 
             CheckEnumValue(message.Action.State, typeof(MessageActionStateEnum), "Action State");
             CheckEnumValue(message.Action.Type, typeof(MessageActionTypeEnum), "Action Type");
@@ -91,7 +90,7 @@ public class TicketsService : ITicketsService
         }
     }
 
-    private void CheckEnumValue<TEnum>(TEnum? enumValue, Type enumType, string propertyName)
+    private static void CheckEnumValue<TEnum>(TEnum? enumValue, Type enumType, string propertyName)
         where TEnum : struct, Enum
     {
         if (enumValue.HasValue && !Enum.IsDefined(enumType, enumValue.Value))
@@ -101,14 +100,14 @@ public class TicketsService : ITicketsService
     }
 
     /// <inheritdoc cref="ITicketsService.GetTicketsAsync(Guid, PaginationRequestDto, Guid)"/>
-    public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest, Guid userIdFromToken)
+    public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(
+        Guid userId, PaginationRequestDto paginateRequest, Guid userIdFromToken)
     {
         ValidateUserPermission(userId, userIdFromToken);
 
         try
         {
             var tickets = await _ticketsRepository.GetTicketsAsync(userId, paginateRequest);
-
             return _mapper.Map<PaginationResponseDto<TicketResponseDto>>(tickets);
         }
         catch (EntityNotFoundException ex)
@@ -118,7 +117,8 @@ public class TicketsService : ITicketsService
     }
 
     /// <inheritdoc cref="ITicketsService.SearchTicketsByNameAsync(Guid, SearchTicketsRequestDto, Guid)"/>
-    public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(Guid userId, SearchTicketsRequestDto searchRequest, Guid userIdFromToken)
+    public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(
+        Guid userId, SearchTicketsRequestDto searchRequest, Guid userIdFromToken)
     {
         ValidateUserPermission(userId, userIdFromToken);
 
@@ -134,39 +134,39 @@ public class TicketsService : ITicketsService
     }
 
     /// <inheritdoc cref="ITicketsService.CreateTicketAsync(TicketCreateRequestDto, Guid, Guid)"/>
-    public async Task<TicketResponseDto> CreateTicketAsync(TicketCreateRequestDto createTicketRequest, Guid userId, Guid userIdFromToken)
+    public async Task<TicketResponseDto> CreateTicketAsync(
+        TicketCreateRequestDto createTicketRequest, Guid userId, Guid userIdFromToken)
     {
         CheckTicketEnums(createTicketRequest.Status, createTicketRequest.CurrentStep);
         CheckMessageCreateEnums(createTicketRequest.Messages);
         ValidateUserPermission(userId, userIdFromToken);
 
-        var user = await _userRepository.GetUserAsync(userId) ?? throw new UserNotFoundException(userId);
-        var mappedTicket = MapCreateTicket(createTicketRequest, user);
-
+        var mappedTicket = MapCreateTicket(createTicketRequest, userId);
         await _ticketsRepository.CreateTicketAsync(mappedTicket);
 
-        var returnTicket = _mapper.Map<TicketResponseDto>(mappedTicket);
-        return returnTicket;
+        return _mapper.Map<TicketResponseDto>(mappedTicket);
     }
 
     /// <inheritdoc cref="ITicketsService.DeleteTicketAsync(Guid, Guid)"/>
-    public async Task DeleteTicketAsync(Guid id, Guid userIdFromToken)
+    public async Task DeleteTicketAsync(Guid ticketId, Guid userIdFromToken)
     {
-        var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
-                     ?? throw new TicketNotFoundException(id);
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
+            ?? throw new TicketNotFoundException(ticketId);
 
         ValidateUserPermission(ticket.UserId, userIdFromToken);
 
-        await _ticketsRepository.DeleteTicketAsync(ticket);
+        await _ticketsRepository.DeleteTicketAsync(ticket.Id);
     }
 
     /// <inheritdoc cref="ITicketsService.UpdateTicketAsync(Guid, TicketUpdateRequestDto, Guid)"/>
-    public async Task<TicketResponseDto> UpdateTicketAsync(Guid id, TicketUpdateRequestDto ticketUpdate, Guid userIdFromToken)
+    public async Task<TicketResponseDto> UpdateTicketAsync(
+        Guid ticketId, TicketUpdateRequestDto ticketUpdate, Guid userIdFromToken)
     {
         CheckTicketEnums(ticketUpdate.Status, ticketUpdate.CurrentStep);
         CheckMessageUpdateEnums(ticketUpdate.Messages);
-        var ticket = await _ticketsRepository.GetTicketByIdAsync(id)
-                     ?? throw new TicketNotFoundException(id);
+
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
+                     ?? throw new TicketNotFoundException(ticketId);
 
         ValidateUserPermission(ticket.UserId, userIdFromToken);
 
@@ -177,29 +177,29 @@ public class TicketsService : ITicketsService
         return _mapper.Map<TicketResponseDto>(mappedTicket);
     }
 
-    ///<inheritdoc cref="ITicketsService.DownloadAsDocAsync(string[])"/>
-    public async Task<byte[]> DownloadAsDocAsync(string[] base64Data)
+    ///<inheritdoc cref="ITicketsService.DownloadAsDoc(string[])"/>
+    public byte[] DownloadAsDoc(string[] base64Data)
     {
         using var memoryStream = new MemoryStream();
-        using (var package = WordprocessingDocument.Create(memoryStream,
-                             WordprocessingDocumentType.Document))
+        using var package = WordprocessingDocument
+            .Create(memoryStream, WordprocessingDocumentType.Document);
+
+        var mainPart = package.MainDocumentPart;
+        if (mainPart == null)
         {
-            MainDocumentPart mainPart = package.MainDocumentPart;
-            if (mainPart == null)
-            {
-                mainPart = package.AddMainDocumentPart();
-                new Document(new Body()).Save(mainPart);
-            }
-            var converter = new HtmlConverter(mainPart);
-
-            foreach (var page in base64Data)
-            {
-                var htmlContent = ConvertBase64ToString(page);
-                converter.ParseHtml(htmlContent);
-            }
-
-            mainPart.Document.Save();
+            mainPart = package.AddMainDocumentPart();
+            new Document(new Body()).Save(mainPart);
         }
+        var converter = new HtmlConverter(mainPart);
+
+        foreach (var page in base64Data)
+        {
+            var htmlContent = ConvertBase64ToString(page);
+            converter.ParseHtml(htmlContent);
+        }
+
+        mainPart.Document.Save();
+
         return memoryStream.ToArray();
     }
 }

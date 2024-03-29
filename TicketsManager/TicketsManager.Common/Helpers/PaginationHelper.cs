@@ -1,16 +1,18 @@
-﻿using TicketsManager.Common.Dtos;
+﻿using Microsoft.EntityFrameworkCore;
+using TicketsManager.Common.Dtos;
 
 namespace TicketsManager.Common.Helpers;
 
 public static class PaginationHelper
 {
-    public static PaginationResponseDto<T> GetPaginatedCollection<T>(this IEnumerable<T> queryable, PaginationRequestDto paginationFilter)
-        where T : class
+    public static async Task<PaginationResponseDto<T>> GetPaginatedCollectionAsync<T>(
+        this IQueryable<T> queryable,
+        PaginationRequestDto paginationFilter) where T : class
     {
-        var entities = queryable
+        var entities = await queryable
             .Skip((paginationFilter.CurrentPageNumber - 1) * paginationFilter.RecordsPerPage)
             .Take(paginationFilter.RecordsPerPage)
-            .ToList();
+            .ToListAsync();
 
         return new()
         {

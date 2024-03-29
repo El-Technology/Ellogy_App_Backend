@@ -65,12 +65,16 @@ public class UserStoryTestRepository : IUserStoryTestRepository
     /// <inheritdoc cref="IUserStoryTestRepository.DeleteUserStoryTestByTicketIdAsync" />
     public async Task DeleteUserStoryTestByTicketIdAsync(Guid ticketId)
     {
-        await _context.UserStoryTests.Where(a => a.Usecase!.TicketId == ticketId).ExecuteDeleteAsync();
+        await _context.UserStoryTests
+            .Where(a => a.Usecase!.TicketId == ticketId)
+            .ExecuteDeleteAsync();
     }
 
     /// <inheritdoc cref="IUserStoryTestRepository.DeleteTestCasesByIds" />
     public async Task DeleteTestCasesByIds(List<Guid> listOfTestCaseIds)
     {
-        await _context.TestCases.Where(tc => listOfTestCaseIds.Contains(tc.Id)).ExecuteDeleteAsync();
+        await _context.TestCases
+            .Where(tc => listOfTestCaseIds.Contains(tc.Id))
+            .ExecuteDeleteAsync();
     }
 }

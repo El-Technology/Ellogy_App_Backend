@@ -10,64 +10,79 @@ namespace TicketsManager.DAL.Repositories;
 public class TicketsRepository : ITicketsRepository
 {
     private readonly TicketsManagerDbContext _context;
-    private readonly IUserRepository _userRepository;
 
-    public TicketsRepository(TicketsManagerDbContext context, IUserRepository userRepository)
+    public TicketsRepository(TicketsManagerDbContext context)
     {
         _context = context;
-        _userRepository = userRepository;
     }
 
-    public async Task<PaginationResponseDto<Ticket>> GetTicketsAsync(Guid userId, PaginationRequestDto paginateRequest)
+    /// <inheritdoc cref="ITicketsRepository.GetTicketsAsync" />
+    public async Task<PaginationResponseDto<Ticket>> GetTicketsAsync(
+        Guid userId, PaginationRequestDto paginateRequest)
     {
-        var user = await _userRepository.GetUserAsync(userId);
-
-        return user.UserTickets.GetFinalResult(paginateRequest);
+        return await _context.Tickets
+            .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
+            .Include(e => e.TicketSummaries)
+            .Include(e => e.Notifications)
+            .AsNoTracking()
+            .Where(a => a.UserId == userId)
+            .GetFinalResultAsync(paginateRequest);
     }
 
+    /// <inheritdoc cref="ITicketsRepository.FindTicketsAsync" />
     public async Task<PaginationResponseDto<Ticket>> FindTicketsAsync(Guid userId,
         SearchTicketsRequestDto searchTicketsRequest)
     {
-        var user = await _userRepository.GetUserAsync(userId);
-
-        return user.UserTickets
-            .Where(e => e.Title.Contains(searchTicketsRequest.TicketTitle, StringComparison.InvariantCultureIgnoreCase))
-            .GetFinalResult(searchTicketsRequest.Pagination);
+        return await _context.Tickets
+            .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
+            .Include(e => e.TicketSummaries)
+            .Include(e => e.Notifications)
+            .AsNoTracking()
+            .Where(a => a.UserId == userId)
+            .Where(e => e.Title.Contains(searchTicketsRequest.TicketTitle,
+                StringComparison.InvariantCultureIgnoreCase))
+            .GetFinalResultAsync(searchTicketsRequest.Pagination);
     }
 
+    /// <inheritdoc cref="ITicketsRepository.CreateTicketAsync" />
     public async Task CreateTicketAsync(Ticket ticket)
     {
         await _context.AddAsync(ticket);
         await _context.SaveChangesAsync();
     }
 
+    /// <inheritdoc cref="ITicketsRepository.GetTicketByIdAsync" />
     public Task<Ticket?> GetTicketByIdAsync(Guid id)
     {
         return _context.Tickets
-            .Include(e => e.User)
             .Include(e => e.TicketMessages)
             .Include(e => e.Notifications)
             .AsTracking()
             .FirstOrDefaultAsync(e => e.Id == id);
     }
 
-    public async Task DeleteTicketAsync(Ticket ticket)
+    /// <inheritdoc cref="ITicketsRepository.DeleteTicketAsync" />
+    public async Task DeleteTicketAsync(Guid ticketId)
     {
-        _context.Tickets.Remove(ticket);
-        await _context.SaveChangesAsync();
+        await _context.Tickets
+            .Where(a => a.Id == ticketId)
+            .ExecuteDeleteAsync();
     }
 
+    /// <inheritdoc cref="ITicketsRepository.UpdateTicketAsync" />
     public async Task UpdateTicketAsync(Ticket ticket)
     {
         _context.Tickets.Update(ticket);
         await _context.SaveChangesAsync();
     }
 
+    /// <inheritdoc cref="ITicketsRepository.CheckIfTicketExistAsync" />
     public Task<bool> CheckIfTicketExistAsync(Guid id)
     {
         return _context.Tickets.AnyAsync(e => e.Id == id);
     }
 
+    /// <inheritdoc cref="ITicketsRepository.CheckTicketUpdateIds" />
     public async Task CheckTicketUpdateIds(Ticket ticket)
     {
         var messageIds = ticket.TicketMessages.Where(e => e.Id != Guid.Empty).Select(e => e.Id).ToList();
