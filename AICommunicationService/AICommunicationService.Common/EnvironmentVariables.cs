@@ -1,4 +1,7 @@
-﻿namespace AICommunicationService.Common;
+﻿using AICommunicationService.Common.Constants;
+using AICommunicationService.Common.Helpers;
+
+namespace AICommunicationService.Common;
 
 public static class EnvironmentVariables
 {
@@ -8,15 +11,23 @@ public static class EnvironmentVariables
     public static readonly string? JwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
         /*?? throw new EnvironmentVariableNotFoundException("JWT_SECRET_KEY")*/;
 
-    public static readonly string ConnectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING")
-        /* ?? throw new EnvironmentVariableNotFoundException("CONNECTION_STRING")*/;
+    public static string ConnectionString
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+            return variable is null
+                ? variable = "default_CONNECTION_STRING"
+                : variable.Replace(
+                    ConfigConstants.DbReplacePattern,
+                    ConfigHelper.AppSetting(ConfigConstants.DbName));
+        }
+    }
 
-    public static readonly string ConnectionStringPayment =
-            Environment.GetEnvironmentVariable("CONNECTIONSTRING_PAYMENT")
-        /*?? throw new EnvironmentVariableNotFoundException("CONNECTIONSTRING_PAYMENT")*/;
+    public static bool EnablePayments = bool.Parse(Environment.GetEnvironmentVariable("ENABLE_PAYMENTS"));
 
-    public static readonly string ConnectionStringVector = Environment.GetEnvironmentVariable("CONNECTIONSTRING_VECTOR")
-        /*  ?? throw new EnvironmentVariableNotFoundException("CONNECTIONSTRING_VECTOR")*/;
+    public static string Host = Environment.GetEnvironmentVariable("SSH_HOST")
+        /*?? throw new EnvironmentVariableNotFoundException("HOST")*/;
 
     public static readonly string BlobStorageConnectionString =
             Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING")

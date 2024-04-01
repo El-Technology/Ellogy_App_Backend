@@ -1,8 +1,9 @@
 ﻿using AICommunicationService.BLL.Constants;
 using AICommunicationService.BLL.Dtos;
-using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.BLL.Services.HttpServices;
+using AICommunicationService.Common;
 using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models;
@@ -24,22 +25,19 @@ public class CommunicationService : ICommunicationService
     private readonly IAzureOpenAiRequestService _customAiService;
     private readonly IDocumentService _documentService;
     private readonly IHubContext<StreamAiHub> _hubContext;
-    private readonly IUserRepository _userRepository;
-    private readonly IWalletRepository _walletRepository;
+    private readonly UserExternalHttpService _userExternalHttpService;
 
     public CommunicationService(IAIPromptRepository aIPromptRepository,
         IHubContext<StreamAiHub> hubContext,
         IAzureOpenAiRequestService azureOpenAiRequestService,
-        IUserRepository userRepository,
-        IWalletRepository walletRepository,
-        IDocumentService documentService)
+        IDocumentService documentService,
+        UserExternalHttpService userExternalHttpService)
     {
-        _userRepository = userRepository;
-        _walletRepository = walletRepository;
         _hubContext = hubContext;
         _aIPromptRepository = aIPromptRepository;
         _customAiService = azureOpenAiRequestService;
         _documentService = documentService;
+        _userExternalHttpService = userExternalHttpService;
     }
 
     /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(Guid, CreateConversationRequest)" />
@@ -57,9 +55,7 @@ public class CommunicationService : ICommunicationService
         };
         var response = await _customAiService.PostAiRequestAsync(request);
 
-        await _userRepository.UpdateUserTotalPointsUsageAsync(userId,
-            response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
-        await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
+        await TakeChargeAsync(userId, response);
 
         return response.Content;
     }
@@ -103,9 +99,7 @@ public class CommunicationService : ICommunicationService
             }
         };
 
-        await _userRepository.UpdateUserTotalPointsUsageAsync(userId,
-            response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
-        await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
+        await TakeChargeAsync(userId, response);
 
         return response.Content;
     }
@@ -128,9 +122,7 @@ public class CommunicationService : ICommunicationService
         };
         var response = await _customAiService.PostAiRequestWithFunctionAsync(request);
 
-        await _userRepository.UpdateUserTotalPointsUsageAsync(userId,
-            response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
-        await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
+        await TakeChargeAsync(userId, response);
 
         return response.Content;
     }
@@ -156,17 +148,30 @@ public class CommunicationService : ICommunicationService
         return amountOfTokens / PaymentConstants.TokensToPointsRelation;
     }
 
+    private async Task TakeChargeAsync(Guid userId, CommunicationResponseModel response)
+    {
+        if (!EnvironmentVariables.EnablePayments)
+            return;
+
+        await _userExternalHttpService.UpdateUserTotalPointsUsageAsync(userId,
+            response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
+        //await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
+    }
+
     private async Task CheckIfUserAllowedToCreateRequest(Guid userId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        if (!EnvironmentVariables.EnablePayments)
+            return;
+
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new Exception("User was not found");
 
         var minBalanceAllowedToUser = (int)-(user.TotalPurchasedPoints * 0.2f);
         if (minBalanceAllowedToUser > 0)
             return;
 
-        if (await _walletRepository.CheckIfUserAllowedToCreateRequest(userId, minBalanceAllowedToUser))
-            throw new BalanceException("You need to replenish your balance in order to perform further requests");
+        //if (await _walletRepository.CheckIfUserAllowedToCreateRequest(userId, minBalanceAllowedToUser))
+        //    throw new BalanceException("You need to replenish your balance in order to perform further requests");
     }
 
     private async Task<string> GetTemplateAsync(string promptName)

@@ -17,6 +17,8 @@ public static class DiExtension
             .AddDbContext<UserManagerDbContext>(c => c.UseNpgsql(connectionString))
             .AddScoped<IRefreshTokenRepository, RefreshTokenRepository>()
             .AddScoped<IUserRepository, UserRepository>()
-            .AddScoped<IForgotPasswordRepository, ForgotPasswordRepository>();
+            .AddScoped<IForgotPasswordRepository, ForgotPasswordRepository>()
+
+            .AddScoped<UserExternalRepository>();
     }
 }

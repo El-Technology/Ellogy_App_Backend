@@ -20,7 +20,6 @@
     <ItemGroup>
       <ProjectReference Include="..\AICommunicationService.Common\AICommunicationService.Common.csproj" />
       <ProjectReference Include="..\AICommunicationService.DAL\AICommunicationService.DAL.csproj" />
-      <ProjectReference Include="..\AICommunicationService.RAG\AICommunicationService.RAG.csproj" />
     </ItemGroup>
 
 </Project>

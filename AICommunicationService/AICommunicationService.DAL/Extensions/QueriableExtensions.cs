@@ -6,11 +6,19 @@ namespace AICommunicationService.DAL.Extensions;
 
 public static class QueryableExtensions
 {
-    public static async Task<PaginationResponseDto<User>> GetUsersPaginatedResult(
-        this IQueryable<User> users,
+    //public static async Task<PaginationResponseDto<User>> GetUsersPaginatedResult(
+    //    this IQueryable<User> users,
+    //    PaginationRequestDto pagination)
+    //{
+    //    return await users
+    //        .GetPaginatedCollection(pagination);
+    //}
+
+    public static async Task<PaginationResponseDto<Document>> GetDocumentsPaginatedResult(
+        this IQueryable<Document> documents,
         PaginationRequestDto pagination)
     {
-        return await users
+        return await documents
             .GetPaginatedCollection(pagination);
     }
 }

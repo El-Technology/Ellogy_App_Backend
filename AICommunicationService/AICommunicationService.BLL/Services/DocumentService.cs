@@ -1,10 +1,10 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.BLL.Services.HttpServices;
 using AICommunicationService.Common;
 using AICommunicationService.Common.Dtos;
 using AICommunicationService.DAL.Interfaces;
-using AICommunicationService.RAG.Interfaces;
-using AICommunicationService.RAG.Models;
+using AICommunicationService.DAL.Models;
 using AutoMapper;
 using Azure.Storage;
 using Azure.Storage.Blobs;
@@ -26,23 +26,24 @@ public class DocumentService : IDocumentService
     private readonly IDocumentSharingRepository _documentSharingRepository;
     private readonly IEmbeddingRepository _embeddingRepository;
     private readonly IMapper _mapper;
-    private readonly IUserRepository _userRepository;
+
+    private readonly UserExternalHttpService _userExternalHttpService;
 
     public DocumentService(BlobServiceClient blobServiceClient,
         IAzureOpenAiRequestService customAiService,
         IEmbeddingRepository embeddingRepository,
         IDocumentRepository documentRepository,
         IMapper mapper,
-        IUserRepository userRepository,
-        IDocumentSharingRepository documentSharingRepository)
+        IDocumentSharingRepository documentSharingRepository,
+        UserExternalHttpService userExternalHttpService)
     {
         _documentSharingRepository = documentSharingRepository;
-        _userRepository = userRepository;
         _mapper = mapper;
         _documentRepository = documentRepository;
         _embeddingRepository = embeddingRepository;
         _customAiService = customAiService;
         _blobServiceClient = blobServiceClient;
+        _userExternalHttpService = userExternalHttpService;
     }
 
     /// <inheritdoc cref="IDocumentService.DeleteFileAsync" />
@@ -94,7 +95,7 @@ public class DocumentService : IDocumentService
             _mapper.Map<PaginationResponseDto<DocumentResponseWithOwner>>(
                 await _documentRepository.GetAllUserDocumentsAsync(userId, paginationRequest));
 
-        var users = await _userRepository.GetUsersByIdsAsync(documentResponse.Data.Select(a => a.UserId).ToList());
+        var users = await _userExternalHttpService.GetUsersByIdsAsync(documentResponse.Data.Select(a => a.UserId).ToList());
 
         foreach (var document in documentResponse.Data)
         {
@@ -151,7 +152,7 @@ public class DocumentService : IDocumentService
 
         var documentWithOwner = _mapper.Map<DocumentResponseWithOwner>(document);
 
-        var user = await _userRepository.GetUserByIdAsync(documentWithOwner.UserId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(documentWithOwner.UserId)
                    ?? throw new Exception("User was not found");
 
         documentWithOwner.Email = user.Email;
@@ -204,7 +205,7 @@ public class DocumentService : IDocumentService
     /// <inheritdoc cref="IDocumentService.FindUserByEmailAsync" />
     public async Task<List<UserDto>> FindUserByEmailAsync(string emailPrefix)
     {
-        return _mapper.Map<List<UserDto>>(await _userRepository.FindUserByEmailAsync(emailPrefix));
+        return await _userExternalHttpService.FindUserByEmailAsync(emailPrefix);
     }
 
     /// <inheritdoc cref="IDocumentService.GivePermissionForUsingDocumentAsync" />
@@ -243,8 +244,7 @@ public class DocumentService : IDocumentService
 
         var users = await _documentSharingRepository.GetAllSharedUsersAsync(document.Id);
 
-        return _mapper.Map<PaginationResponseDto<UserDto>>(
-            await _userRepository.GetUsersByIdsWithPaginationAsync(users, paginationRequest));
+        return await _userExternalHttpService.GetUsersByIdsWithPaginationAsync(users, paginationRequest);
     }
 
     private string ReturnUrlWithPermission(Guid userId, string fileName, int minutesForExpire,

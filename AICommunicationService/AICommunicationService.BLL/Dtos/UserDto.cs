@@ -7,4 +7,5 @@ public class UserDto
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string? AvatarLink { get; set; }
+    public int TotalPurchasedPoints { get; set; }
 }

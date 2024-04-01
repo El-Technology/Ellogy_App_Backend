@@ -1,17 +1,14 @@
-﻿using AICommunicationService.Common.Dtos;
-using AICommunicationService.DAL.Context.AiCommunication;
-using AICommunicationService.DAL.Extensions;
-using AICommunicationService.DAL.Interfaces;
-using AICommunicationService.DAL.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using UserManager.Common.Dtos;
+using UserManager.DAL.Context;
+using UserManager.DAL.Extensions;
+using UserManager.DAL.Models;
 
-namespace AICommunicationService.DAL.Repositories;
-
-public class UserRepository : IUserRepository
+namespace UserManager.DAL.Repositories;
+public class UserExternalRepository
 {
-    private readonly AICommunicationContext _context;
-
-    public UserRepository(AICommunicationContext context)
+    private readonly UserManagerDbContext _context;
+    public UserExternalRepository(UserManagerDbContext context)
     {
         _context = context;
     }

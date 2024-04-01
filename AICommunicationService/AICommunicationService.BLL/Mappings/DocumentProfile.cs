@@ -1,6 +1,6 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.Common.Dtos;
-using AICommunicationService.RAG.Models;
+using AICommunicationService.DAL.Models;
 using AutoMapper;
 
 namespace AICommunicationService.BLL.Mappings;
