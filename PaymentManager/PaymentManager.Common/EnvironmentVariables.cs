@@ -1,4 +1,7 @@
-﻿namespace PaymentManager.Common;
+﻿using PaymentManager.Common.Constants;
+using PaymentManager.Common.Helpers;
+
+namespace PaymentManager.Common;
 
 public static class EnvironmentVariables
 {
@@ -11,21 +14,16 @@ public static class EnvironmentVariables
         }
     }
 
-    public static string ConnectionStringPayment
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("CONNECTIONSTRING_PAYMENT");
-            return variable ?? "default_CONNECTION_STRING";
-        }
-    }
-
     public static string ConnectionString
     {
         get
         {
             var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            return variable ?? "default_CONNECTION_STRING";
+            return variable is null
+                ? variable = "default_CONNECTION_STRING"
+                : variable.Replace(
+                    ConfigConstants.DbReplacePattern,
+                    ConfigHelper.AppSetting(ConfigConstants.DbName));
         }
     }
 

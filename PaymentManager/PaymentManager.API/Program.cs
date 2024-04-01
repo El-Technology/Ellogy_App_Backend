@@ -7,7 +7,7 @@ using PaymentManager.BLL.Extensions;
 using PaymentManager.BLL.Hubs;
 using PaymentManager.Common;
 using PaymentManager.Common.Options;
-using PaymentManager.DAL.Context.PaymentContext;
+using PaymentManager.DAL.Context;
 using PaymentManager.DAL.Extensions;
 using Serilog;
 using Stripe;
@@ -107,7 +107,7 @@ static void AddServices(WebApplicationBuilder builder)
 
     builder.Services.AddBusinessLayer();
     builder.Services.AddMapping();
-    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
+    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
 }
 
 static void MigrateDatabase(IHost app)

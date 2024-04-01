@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PaymentManager.Common.Constants;
-using PaymentManager.DAL.Context.PaymentContext;
+using PaymentManager.DAL.Context;
 using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
 

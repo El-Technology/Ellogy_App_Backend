@@ -2,7 +2,7 @@
 using PaymentManager.Common;
 using PaymentManager.DAL.Models;
 
-namespace PaymentManager.DAL.Context.PaymentContext;
+namespace PaymentManager.DAL.Context;
 
 public class PaymentContext : DbContext
 {
@@ -20,7 +20,7 @@ public class PaymentContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured) optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionStringPayment);
+        if (!optionsBuilder.IsConfigured) optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionString);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

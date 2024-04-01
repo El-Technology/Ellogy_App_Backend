@@ -19,17 +19,14 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     private readonly IPaymentRepository _paymentRepository;
     private readonly IProductCatalogService _productCatalogService;
     private readonly ISubscriptionRepository _subscriptionRepository;
-    private readonly IUserRepository _userRepository;
 
     public PaymentSessionService(IPaymentRepository paymentRepository,
-        IUserRepository userRepository,
         IProductCatalogService productCatalogService,
         IPaymentCustomerService paymentCustomerService,
         ISubscriptionRepository subscriptionRepository)
     {
         _paymentCustomerService = paymentCustomerService;
         _productCatalogService = productCatalogService;
-        _userRepository = userRepository;
         _paymentRepository = paymentRepository;
         _subscriptionRepository = subscriptionRepository;
     }
@@ -226,7 +223,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
             SubscriptionStatusEnum.PendingDowngrade);
     }
 
-    private async Task IfUserAbleToUsePaymentAsync(User user, bool isFreeSubscription = false)
+    private async Task IfUserAbleToUsePaymentAsync(UserDto user, bool isFreeSubscription = false)
     {
         if (string.IsNullOrEmpty(user.StripeCustomerId))
             throw new Exception("You have to create a customer billing record");

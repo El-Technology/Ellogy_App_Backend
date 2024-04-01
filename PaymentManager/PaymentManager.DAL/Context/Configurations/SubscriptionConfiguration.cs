@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PaymentManager.DAL.Models;
 
-namespace PaymentManager.DAL.Context.PaymentContext.Configurations;
+namespace PaymentManager.DAL.Context.Configurations;
 
 public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
 {

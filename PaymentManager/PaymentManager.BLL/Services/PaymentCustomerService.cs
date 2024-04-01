@@ -18,15 +18,12 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
 {
     private readonly IMapper _mapper;
     private readonly ISubscriptionRepository _subscriptionRepository;
-    private readonly IUserRepository _userRepository;
 
-    public PaymentCustomerService(IUserRepository userRepository,
-        ISubscriptionRepository subscriptionRepository,
+    public PaymentCustomerService(ISubscriptionRepository subscriptionRepository,
         IMapper mapper)
     {
         _mapper = mapper;
         _subscriptionRepository = subscriptionRepository;
-        _userRepository = userRepository;
     }
 
     /// <inheritdoc cref="IPaymentCustomerService.CreateCustomerAsync(Guid)" />
