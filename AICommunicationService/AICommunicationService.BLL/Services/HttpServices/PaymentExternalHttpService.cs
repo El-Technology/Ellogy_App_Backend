@@ -1,7 +1,5 @@
-﻿using AICommunicationService.BLL.Dtos;
-using AICommunicationService.BLL.Interfaces.HttpInterfaces;
+﻿using AICommunicationService.BLL.Interfaces.HttpInterfaces;
 using Newtonsoft.Json;
-using System.Text;
 
 namespace AICommunicationService.BLL.Services.HttpServices;
 public class PaymentExternalHttpService : IPaymentExternalHttpService
@@ -12,12 +10,20 @@ public class PaymentExternalHttpService : IPaymentExternalHttpService
         _httpClient = httpClientFactory.CreateClient("PaymentManager");
     }
 
-    public async Task<List<UserDto>> GetUsersByIdsAsync(List<Guid> userIds)
+    public async Task TakeServiceFeeAsync(Guid userId, int feeAmount)
     {
-        var jsonRequest = JsonConvert.SerializeObject(userIds);
-        var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+        var result = await _httpClient.GetAsync($"api/PaymentExternal/take-service-free?userId={userId}&feeAmount={feeAmount}");
 
-        var result = await _httpClient.PostAsync("api/UserExternal/get-users-by-ids", content);
-        return JsonConvert.DeserializeObject<List<UserDto>>(await result.Content.ReadAsStringAsync());
+        if (!result.IsSuccessStatusCode)
+            throw new Exception("Failed to take service fee");
+
+        await Task.CompletedTask;
     }
+
+    public async Task<bool> CheckIfUserAllowedToCreateRequestAsync(Guid userId, int userMinimum)
+    {
+        var result = await _httpClient.GetAsync($"api/PaymentExternal/check-if-user-allowed-to-create-request?userId={userId}&userMinimum={userMinimum}");
+        return JsonConvert.DeserializeObject<bool>(await result.Content.ReadAsStringAsync());
+    }
+
 }

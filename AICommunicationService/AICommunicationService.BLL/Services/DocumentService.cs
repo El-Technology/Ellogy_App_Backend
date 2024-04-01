@@ -1,6 +1,6 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
-using AICommunicationService.BLL.Services.HttpServices;
+using AICommunicationService.BLL.Interfaces.HttpInterfaces;
 using AICommunicationService.Common;
 using AICommunicationService.Common.Dtos;
 using AICommunicationService.DAL.Interfaces;
@@ -26,8 +26,7 @@ public class DocumentService : IDocumentService
     private readonly IDocumentSharingRepository _documentSharingRepository;
     private readonly IEmbeddingRepository _embeddingRepository;
     private readonly IMapper _mapper;
-
-    private readonly UserExternalHttpService _userExternalHttpService;
+    private readonly IUserExternalHttpService _userExternalHttpService;
 
     public DocumentService(BlobServiceClient blobServiceClient,
         IAzureOpenAiRequestService customAiService,
@@ -35,7 +34,7 @@ public class DocumentService : IDocumentService
         IDocumentRepository documentRepository,
         IMapper mapper,
         IDocumentSharingRepository documentSharingRepository,
-        UserExternalHttpService userExternalHttpService)
+        IUserExternalHttpService userExternalHttpService)
     {
         _documentSharingRepository = documentSharingRepository;
         _mapper = mapper;

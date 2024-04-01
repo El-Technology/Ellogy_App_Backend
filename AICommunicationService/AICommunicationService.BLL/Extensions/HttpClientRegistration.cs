@@ -10,9 +10,9 @@ public static class HttpClientRegistration
             client.DefaultRequestHeaders.Add("api-key", EnvironmentVariables.OpenAiKey));
 
         services.AddHttpClient("UserManager", client =>
-            client.BaseAddress = new Uri($"{EnvironmentVariables.Host}:7077"));
+            client.BaseAddress = new Uri($"http://{EnvironmentVariables.Host}:5281"));
 
         services.AddHttpClient("PaymentManager", client =>
-            client.BaseAddress = new Uri($"{EnvironmentVariables.Host}:7077"));
+            client.BaseAddress = new Uri($"http://{EnvironmentVariables.Host}:5021"));
     }
 }

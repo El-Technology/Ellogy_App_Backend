@@ -1,9 +1,9 @@
 ﻿using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
+using PaymentManager.BLL.Services.HttpServices;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
-using PaymentManager.DAL.Models;
 using Stripe;
 using Stripe.Checkout;
 
@@ -19,12 +19,15 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     private readonly IPaymentRepository _paymentRepository;
     private readonly IProductCatalogService _productCatalogService;
     private readonly ISubscriptionRepository _subscriptionRepository;
+    private readonly UserExternalHttpService _userExternalHttpService;
 
     public PaymentSessionService(IPaymentRepository paymentRepository,
         IProductCatalogService productCatalogService,
         IPaymentCustomerService paymentCustomerService,
-        ISubscriptionRepository subscriptionRepository)
+        ISubscriptionRepository subscriptionRepository,
+        UserExternalHttpService userExternalHttpService)
     {
+        _userExternalHttpService = userExternalHttpService;
         _paymentCustomerService = paymentCustomerService;
         _productCatalogService = productCatalogService;
         _paymentRepository = paymentRepository;
@@ -34,7 +37,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     /// <inheritdoc cref="IPaymentSessionService.CreateOneTimePaymentAsync(Guid, CreatePaymentRequest)" />
     public async Task<SessionCreateOptions> CreateOneTimePaymentAsync(Guid userId, CreatePaymentRequest streamRequest)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException($"User with id - {userId} was not found");
 
         await IfUserAbleToUsePaymentAsync(user);
@@ -90,7 +93,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     /// <inheritdoc cref="IPaymentSessionService.CreateFreeSubscriptionAsync(SignalRModel, Guid)" />
     public async Task<SubscriptionCreateOptions> CreateFreeSubscriptionAsync(SignalRModel signalRModel, Guid userId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
         if (user.AccountPlan is not null)
@@ -118,7 +121,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     /// <inheritdoc cref="IPaymentSessionService.CancelSubscriptionAsync(Guid)" />
     public async Task CancelSubscriptionAsync(Guid userId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
         ArgumentNullException.ThrowIfNull(user.StripeCustomerId, "You have to create a customer billing record");
@@ -190,7 +193,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
         if (getActiveSubscription.IsCanceled)
             throw new Exception("You can`t downgrade canceled subscription");
 
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
         var newPriceInformation = await GetPriceService().GetAsync(newPriceId);
@@ -218,6 +221,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
         getActiveSubscription.IsCanceled = true;
 
         await _subscriptionRepository.UpdateSubscriptionAsync(getActiveSubscription, user.AccountPlan);
+        await _userExternalHttpService.UpdateAccountPlanAsync(getActiveSubscription.UserId, user.AccountPlan);
 
         await _subscriptionRepository.UpdateSubscriptionStatusAsync(subscription.Id,
             SubscriptionStatusEnum.PendingDowngrade);

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
+using PaymentManager.BLL.Services.HttpServices;
 using PaymentManager.Common.Constants;
 using PaymentManager.Common.Dtos;
 using PaymentManager.DAL.Interfaces;
@@ -18,10 +19,13 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
 {
     private readonly IMapper _mapper;
     private readonly ISubscriptionRepository _subscriptionRepository;
+    private readonly UserExternalHttpService _userExternalHttpService;
 
     public PaymentCustomerService(ISubscriptionRepository subscriptionRepository,
-        IMapper mapper)
+        IMapper mapper,
+        UserExternalHttpService userExternalHttpService)
     {
+        _userExternalHttpService = userExternalHttpService;
         _mapper = mapper;
         _subscriptionRepository = subscriptionRepository;
     }
@@ -29,7 +33,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     /// <inheritdoc cref="IPaymentCustomerService.CreateCustomerAsync(Guid)" />
     public async Task CreateCustomerAsync(Guid userId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
         if (!string.IsNullOrEmpty(user.StripeCustomerId))
@@ -42,13 +46,13 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
             Metadata = new Dictionary<string, string> { { MetadataConstants.UserId, userId.ToString() } }
         });
 
-        await _userRepository.AddStripeCustomerIdAsync(userId, customerData.Id);
+        await _userExternalHttpService.AddStripeCustomerIdAsync(userId, customerData.Id);
     }
 
     /// <inheritdoc cref="IPaymentCustomerService.UpdateCustomerDataAsync(Guid)" />
     public async Task UpdateCustomerDataAsync(Guid userId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
         ArgumentNullException.ThrowIfNull(user.StripeCustomerId, nameof(user.StripeCustomerId));
@@ -64,7 +68,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     public async Task<SessionCreateOptions> AddCustomerPaymentMethodAsync(Guid userId,
         CreateSessionRequest createSessionRequest)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
         ArgumentNullException.ThrowIfNull(user.StripeCustomerId, nameof(user.StripeCustomerId));
@@ -91,7 +95,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     public async Task<StripePaginationResponseDto<IEnumerable<PaymentMethod>>> RetrieveCustomerPaymentMethodsAsync(
         Guid userId, StripePaginationRequestDto paginationRequestDto)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
         ArgumentNullException.ThrowIfNull(user.StripeCustomerId, nameof(user.StripeCustomerId));
@@ -115,7 +119,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     /// <inheritdoc cref="IPaymentCustomerService.SetDefaultPaymentMethodAsync(Guid, string)" />
     public async Task SetDefaultPaymentMethodAsync(Guid userId, string paymentMethodId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
         ArgumentNullException.ThrowIfNull(user.StripeCustomerId, nameof(user.StripeCustomerId));
@@ -148,7 +152,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     public async Task<StripePaginationResponseDto<IEnumerable<PaymentObject>>> GetCustomerPaymentsAsync(Guid userId,
         StripePaginationRequestDto paginationRequestDto)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
         ArgumentNullException.ThrowIfNull(user.StripeCustomerId, nameof(user.StripeCustomerId));
@@ -176,7 +180,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     /// <inheritdoc cref="IPaymentCustomerService.UpgradeSubscriptionPreviewAsync(Guid, string)" />
     public async Task<decimal> UpgradeSubscriptionPreviewAsync(Guid userId, string newPriceId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
            ?? throw new Exception("User was not found");
 
         var getActiveSubscription = await GetActiveSubscriptionAsync(userId)
@@ -217,10 +221,10 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     /// <inheritdoc cref="IPaymentCustomerService.DeleteCustomerAsync(Guid)" />
     public async Task DeleteCustomerAsync(Guid userId)
     {
-        var user = await _userRepository.GetUserByIdAsync(userId)
+        var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
         await GetCustomerService().DeleteAsync(user.StripeCustomerId);
-        await _userRepository.RemoveStripeCustomerIdAsync(userId);
+        await _userExternalHttpService.RemoveStripeCustomerIdAsync(userId);
     }
 }

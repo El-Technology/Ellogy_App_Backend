@@ -1,4 +1,7 @@
-﻿namespace PaymentManager.Common.Helpers;
+﻿using Microsoft.Extensions.Configuration;
+using PaymentManager.Common.Constants;
+
+namespace PaymentManager.Common.Helpers;
 /// <summary>
 /// ConfigHelper
 /// </summary>

@@ -13,12 +13,10 @@ public class SubscriptionRepository : ISubscriptionRepository
 {
     private const decimal DEFAULT_PRICE = 0;
     private readonly PaymentContext _context;
-    private readonly IUserRepository _userRepository;
 
-    public SubscriptionRepository(IUserRepository userRepository, PaymentContext context)
+    public SubscriptionRepository(PaymentContext context)
     {
         _context = context;
-        _userRepository = userRepository;
     }
 
     /// <inheritdoc cref="ISubscriptionRepository.CreateSubscriptionAsync(Subscription, AccountPlan)" />
@@ -26,8 +24,6 @@ public class SubscriptionRepository : ISubscriptionRepository
     {
         await _context.Subscriptions.AddAsync(subscription);
         await _context.SaveChangesAsync();
-
-        await _userRepository.UpdateAccountPlanAsync(subscription.UserId, accountPlan);
     }
 
     /// <inheritdoc cref="ISubscriptionRepository.UpdateSubscriptionAsync(Subscription, AccountPlan?)" />
@@ -45,8 +41,6 @@ public class SubscriptionRepository : ISubscriptionRepository
 
         if (updatedRows == 0)
             throw new Exception($"{subscription.SubscriptionStripeId} was not found");
-
-        await _userRepository.UpdateAccountPlanAsync(subscription.UserId, accountPlan);
     }
 
     /// <inheritdoc cref="ISubscriptionRepository.UpdateSubscriptionIsCanceledAsync(string, bool)" />

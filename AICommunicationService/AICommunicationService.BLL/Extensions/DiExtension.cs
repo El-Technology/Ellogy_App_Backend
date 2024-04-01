@@ -1,4 +1,5 @@
 ﻿using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.BLL.Interfaces.HttpInterfaces;
 using AICommunicationService.BLL.Services;
 using AICommunicationService.BLL.Services.HttpServices;
 using AICommunicationService.Common;
@@ -18,8 +19,8 @@ public static class DiExtension
             .AddScoped<IDocumentService, DocumentService>()
             .AddScoped<BlobServiceClient>(_ => new(EnvironmentVariables.BlobStorageConnectionString))
 
-            .AddScoped<UserExternalHttpService>()
-            .AddScoped<PaymentExternalHttpService>();
+            .AddScoped<IUserExternalHttpService, UserExternalHttpService>()
+            .AddScoped<IPaymentExternalHttpService, PaymentExternalHttpService>();
     }
     public static IServiceCollection AddMapping(this IServiceCollection services)
     {

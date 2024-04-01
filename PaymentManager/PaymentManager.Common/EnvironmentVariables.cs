@@ -14,6 +14,15 @@ public static class EnvironmentVariables
         }
     }
 
+    public static string Host
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("SSH_HOST");
+            return variable ?? "SSH_HOST";
+        }
+    }
+
     public static string ConnectionString
     {
         get

@@ -1,4 +1,5 @@
 ﻿using UserManager.Common.Dtos;
+using UserManager.DAL.Enums;
 using UserManager.DAL.Models;
 using UserManager.DAL.Repositories;
 
@@ -14,6 +15,7 @@ public class UserExternalService
     public async Task UpdateUserTotalPointsUsageAsync(Guid userId, int usedTokens)
     {
         await _userExternalRepository.UpdateUserTotalPointsUsageAsync(userId, usedTokens);
+        await Task.CompletedTask;
     }
 
     public async Task<int> GetUserTotalPointsUsageAsync(Guid userId)
@@ -40,5 +42,29 @@ public class UserExternalService
                PaginationRequestDto paginationRequest)
     {
         return await _userExternalRepository.GetUsersByIdsWithPaginationAsync(userIds, paginationRequest);
+    }
+
+    public async Task AddStripeCustomerIdAsync(Guid userId, string customerId)
+    {
+        await _userExternalRepository.AddStripeCustomerIdAsync(userId, customerId);
+        await Task.CompletedTask;
+    }
+
+    public async Task RemoveStripeCustomerIdAsync(Guid userId)
+    {
+        await _userExternalRepository.RemoveStripeCustomerIdAsync(userId);
+        await Task.CompletedTask;
+    }
+
+    public async Task UpdateTotalPurchasedTokensAsync(Guid userId, int totalPurchasedTokens)
+    {
+        await _userExternalRepository.UpdateTotalPurchasedTokensAsync(userId, totalPurchasedTokens);
+        await Task.CompletedTask;
+    }
+
+    public async Task UpdateAccountPlanAsync(Guid userId, AccountPlan accountPlan)
+    {
+        await _userExternalRepository.UpdateAccountPlanAsync(userId, accountPlan);
+        await Task.CompletedTask;
     }
 }

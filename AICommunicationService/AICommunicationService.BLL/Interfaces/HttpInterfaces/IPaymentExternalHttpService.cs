@@ -1,7 +1,6 @@
-﻿using AICommunicationService.BLL.Dtos;
-
-namespace AICommunicationService.BLL.Interfaces.HttpInterfaces;
+﻿namespace AICommunicationService.BLL.Interfaces.HttpInterfaces;
 public interface IPaymentExternalHttpService
 {
-    Task<List<UserDto>> GetUsersByIdsAsync(List<Guid> userIds);
+    Task<bool> CheckIfUserAllowedToCreateRequestAsync(Guid userId, int userMinimum);
+    Task TakeServiceFeeAsync(Guid userId, int feeAmount);
 }

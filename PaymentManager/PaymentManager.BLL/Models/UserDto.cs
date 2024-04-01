@@ -1,6 +1,6 @@
 ﻿using PaymentManager.DAL.Enums;
 
-namespace PaymentManager.DAL.Models;
+namespace PaymentManager.BLL.Models;
 
 public class UserDto
 {

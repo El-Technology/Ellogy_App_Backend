@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Services;
+using PaymentManager.BLL.Services.HttpServices;
 using PaymentManager.Common;
 
 namespace PaymentManager.BLL.Extensions;
@@ -22,7 +23,9 @@ public static class DiExtension
             .AddSingleton(_ => new ServiceBusClient(EnvironmentVariables.AzureServiceBusConnectionString))
             .AddScoped<IPaymentCustomerService, PaymentCustomerService>()
             .AddScoped<IProductCatalogService, ProductCatalogService>()
-            .AddScoped<IWebhookService, WebhookService>();
+            .AddScoped<IWebhookService, WebhookService>()
+            .AddScoped<UserExternalHttpService>()
+            .AddScoped<WalletExternalService>();
     }
 
     /// <summary>

@@ -8,6 +8,7 @@ using PaymentManager.BLL.Hubs;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
 using PaymentManager.BLL.Services;
+using PaymentManager.BLL.Services.HttpServices;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
@@ -36,7 +37,6 @@ public class PaymentConsumer : StripeBaseService, IHostedService
         _hubContext = hubContext;
         _busClient = busClient;
         _serviceProvider = serviceProvider;
-
         _processorOptions = new ServiceBusProcessorOptions { PrefetchCount = 25 };
     }
 
@@ -120,11 +120,13 @@ public class PaymentConsumer : StripeBaseService, IHostedService
         await testRepo.CreatePaymentAsync(payment);
     }
 
+
     private async Task CreateFreeSubscriptionDataBaseRecordAsync(Stripe.Subscription subscription)
     {
         await using var scope = _serviceProvider.CreateAsyncScope();
         var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
         var productService = scope.ServiceProvider.GetRequiredService<IProductCatalogService>();
+        var userExternalHttpService = scope.ServiceProvider.GetRequiredService<UserExternalHttpService>();
 
         var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
                            ?? throw new Exception("Taking productId error");
@@ -143,6 +145,7 @@ public class PaymentConsumer : StripeBaseService, IHostedService
             UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
             SubscriptionStripeId = subscription.Id
         }, AccountPlan.Free);
+        await userExternalHttpService.UpdateAccountPlanAsync(Guid.Parse(subscription.Metadata[MetadataConstants.UserId]), AccountPlan.Free);
     }
 
     private async Task<bool> CheckIfFreeSubscriptionWasCreated(Guid userId)

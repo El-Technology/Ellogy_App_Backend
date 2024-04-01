@@ -1,8 +1,9 @@
 ﻿using AICommunicationService.BLL.Constants;
 using AICommunicationService.BLL.Dtos;
+using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
-using AICommunicationService.BLL.Services.HttpServices;
+using AICommunicationService.BLL.Interfaces.HttpInterfaces;
 using AICommunicationService.Common;
 using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Enums;
@@ -25,19 +26,22 @@ public class CommunicationService : ICommunicationService
     private readonly IAzureOpenAiRequestService _customAiService;
     private readonly IDocumentService _documentService;
     private readonly IHubContext<StreamAiHub> _hubContext;
-    private readonly UserExternalHttpService _userExternalHttpService;
+    private readonly IUserExternalHttpService _userExternalHttpService;
+    private readonly IPaymentExternalHttpService _paymentExternalHttpService;
 
     public CommunicationService(IAIPromptRepository aIPromptRepository,
         IHubContext<StreamAiHub> hubContext,
         IAzureOpenAiRequestService azureOpenAiRequestService,
         IDocumentService documentService,
-        UserExternalHttpService userExternalHttpService)
+        IUserExternalHttpService userExternalHttpService,
+        IPaymentExternalHttpService paymentExternalHttpService)
     {
         _hubContext = hubContext;
         _aIPromptRepository = aIPromptRepository;
         _customAiService = azureOpenAiRequestService;
         _documentService = documentService;
         _userExternalHttpService = userExternalHttpService;
+        _paymentExternalHttpService = paymentExternalHttpService;
     }
 
     /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(Guid, CreateConversationRequest)" />
@@ -155,7 +159,7 @@ public class CommunicationService : ICommunicationService
 
         await _userExternalHttpService.UpdateUserTotalPointsUsageAsync(userId,
             response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
-        //await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
+        await _paymentExternalHttpService.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
     }
 
     private async Task CheckIfUserAllowedToCreateRequest(Guid userId)
@@ -170,8 +174,8 @@ public class CommunicationService : ICommunicationService
         if (minBalanceAllowedToUser > 0)
             return;
 
-        //if (await _walletRepository.CheckIfUserAllowedToCreateRequest(userId, minBalanceAllowedToUser))
-        //    throw new BalanceException("You need to replenish your balance in order to perform further requests");
+        if (await _paymentExternalHttpService.CheckIfUserAllowedToCreateRequestAsync(userId, minBalanceAllowedToUser))
+            throw new BalanceException("You need to replenish your balance in order to perform further requests");
     }
 
     private async Task<string> GetTemplateAsync(string promptName)

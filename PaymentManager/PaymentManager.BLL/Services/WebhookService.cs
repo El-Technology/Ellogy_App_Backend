@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using PaymentManager.BLL.Helpers;
 using PaymentManager.BLL.Hubs;
 using PaymentManager.BLL.Interfaces;
+using PaymentManager.BLL.Services.HttpServices;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
@@ -21,20 +22,20 @@ public class WebhookService : StripeBaseService, IWebhookService
     private readonly IPaymentRepository _paymentRepository;
     private readonly IProductCatalogService _productCatalogService;
     private readonly ISubscriptionRepository _subscriptionRepository;
-    private readonly IUserRepository _userRepository;
+    private readonly UserExternalHttpService _userExternalHttpService;
 
     public WebhookService(IPaymentRepository paymentRepository,
-        IUserRepository userRepository,
         ISubscriptionRepository subscriptionRepository,
         ILogger<WebhookService> logger,
         IProductCatalogService productCatalogService,
-        IHubContext<PaymentHub> hubContext)
+        IHubContext<PaymentHub> hubContext,
+        UserExternalHttpService userExternalHttpService)
     {
+        _userExternalHttpService = userExternalHttpService;
         _hubContext = hubContext;
         _productCatalogService = productCatalogService;
         _logger = logger;
         _paymentRepository = paymentRepository;
-        _userRepository = userRepository;
         _subscriptionRepository = subscriptionRepository;
     }
 
@@ -121,6 +122,7 @@ public class WebhookService : StripeBaseService, IWebhookService
             UserId = Guid.Parse(userId),
             IsCanceled = true
         }, null);
+        await _userExternalHttpService.UpdateAccountPlanAsync(Guid.Parse(userId), null);
     }
 
     /// <inheritdoc cref="IWebhookService.CreateCustomerAsync(Customer)" />
@@ -154,6 +156,7 @@ public class WebhookService : StripeBaseService, IWebhookService
                 UserId = userId,
                 IsCanceled = newSubscription.CancelAtPeriodEnd
             }, AccountPlan.Free);
+            await _userExternalHttpService.UpdateAccountPlanAsync(userId, AccountPlan.Free);
         }
         else
             await UpdateSubscriptionPaymentFailCaseAsync(subscription, invoice.Lines.Data.FirstOrDefault()?.Price.Id);
@@ -201,6 +204,7 @@ public class WebhookService : StripeBaseService, IWebhookService
             UserId = userId,
             IsCanceled = subscription.CancelAtPeriodEnd
         }, accountPlanEnum);
+        await _userExternalHttpService.UpdateAccountPlanAsync(userId, accountPlanEnum);
 
         await UpdateUserBalanceAsync(userId, amountOfTokens);
 
@@ -224,7 +228,7 @@ public class WebhookService : StripeBaseService, IWebhookService
     private async Task UpdateUserBalanceAsync(Guid userId, int amountOfPoints)
     {
         await _paymentRepository.UpdateBalanceAsync(userId, amountOfPoints);
-        await _userRepository.UpdateTotalPurchasedTokensAsync(userId, amountOfPoints);
+        await _userExternalHttpService.UpdateTotalPurchasedTokensAsync(userId, amountOfPoints);
     }
 
     private async Task SendEventResultAsync(Guid userId, string methodName, string message)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UserManager.Common.Dtos;
 using UserManager.DAL.Context;
+using UserManager.DAL.Enums;
 using UserManager.DAL.Extensions;
 using UserManager.DAL.Models;
 
@@ -60,5 +61,38 @@ public class UserExternalRepository
         return await _context.Users
             .Where(u => userIds.Contains(u.Id))
             .ToListAsync();
+    }
+
+    /// <inheritdoc cref="IUserRepository.AddStripeCustomerIdAsync(Guid, string)" />
+    public async Task AddStripeCustomerIdAsync(Guid userId, string customerId)
+    {
+        await _context.Users
+            .Where(a => a.Id == userId)
+            .ExecuteUpdateAsync(a => a.SetProperty(a => a.StripeCustomerId, a => customerId));
+    }
+
+    /// <inheritdoc cref="IUserRepository.RemoveStripeCustomerIdAsync(Guid)" />
+    public async Task RemoveStripeCustomerIdAsync(Guid userId)
+    {
+        await _context.Users
+            .Where(a => a.Id == userId)
+            .ExecuteUpdateAsync(a => a
+                .SetProperty(user => user.StripeCustomerId, stringCustomerId => null));
+    }
+
+    /// <inheritdoc cref="IUserRepository.UpdateTotalPurchasedTokensAsync(Guid, int)" />
+    public async Task UpdateTotalPurchasedTokensAsync(Guid userId, int purchasedTokens)
+    {
+        await _context.Users
+            .Where(a => a.Id == userId)
+            .ExecuteUpdateAsync(a =>
+                a.SetProperty(a => a.TotalPurchasedPoints, a => a.TotalPurchasedPoints + purchasedTokens));
+    }
+
+    /// <inheritdoc cref="IUserRepository.UpdateAccountPlanAsync(Guid, AccountPlan?)" />
+    public async Task UpdateAccountPlanAsync(Guid userId, AccountPlan? accountPlan)
+    {
+        await _context.Users.Where(a => a.Id == userId)
+            .ExecuteUpdateAsync(a => a.SetProperty(a => a.AccountPlan, a => accountPlan));
     }
 }

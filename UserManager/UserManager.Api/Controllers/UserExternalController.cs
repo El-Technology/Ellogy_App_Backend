@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UserManager.BLL.Dtos.ExternalDtos;
 using UserManager.BLL.Services;
+using UserManager.DAL.Enums;
 
 namespace UserManager.Api.Controllers;
 [Route("api/[controller]")]
@@ -53,5 +54,33 @@ public class UserExternalController : Controller
     {
         var users = await _userExternalService.GetUsersByIdsWithPaginationAsync(getUsersRequest.UserIds, getUsersRequest.PaginationRequest);
         return Ok(users);
+    }
+
+    [HttpPost("add-stripe-customer-id")]
+    public async Task<IActionResult> AddStripeCustomerIdAsync([FromBody] AddStripeCustomerIdDto addStripeCustomerIdDto)
+    {
+        await _userExternalService.AddStripeCustomerIdAsync(addStripeCustomerIdDto.UserId, addStripeCustomerIdDto.CustomerId);
+        return Ok();
+    }
+
+    [HttpDelete("remove-stripe-customer-id")]
+    public async Task<IActionResult> RemoveStripeCustomerIdAsync([FromQuery] Guid userId)
+    {
+        await _userExternalService.RemoveStripeCustomerIdAsync(userId);
+        return Ok();
+    }
+
+    [HttpGet("update-total-purchased-tokens")]
+    public async Task<IActionResult> UpdateTotalPurchasedTokensAsync([FromQuery] Guid userId, [FromQuery] int totalPurchasedTokens)
+    {
+        await _userExternalService.UpdateTotalPurchasedTokensAsync(userId, totalPurchasedTokens);
+        return Ok();
+    }
+
+    [HttpGet("update-account-plan")]
+    public async Task<IActionResult> UpdateAccountPlanAsync([FromQuery] Guid userId, [FromQuery] AccountPlan accountPlan)
+    {
+        await _userExternalService.UpdateAccountPlanAsync(userId, accountPlan);
+        return Ok();
     }
 }
