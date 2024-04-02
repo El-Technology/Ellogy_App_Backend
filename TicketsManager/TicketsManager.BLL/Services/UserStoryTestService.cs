@@ -59,8 +59,8 @@ public class UserStoryTestService : IUserStoryTestService
         await _userStoryTestRepository.DeleteUserStoryTestByTicketIdAsync(ticketId);
     }
 
-    /// <inheritdoc cref="IUserStoryTestService.DeleteTestCasesByIds" />
-    public async Task DeleteTestCasesByIds(List<Guid> listOfTestCaseIds)
+    /// <inheritdoc cref="IUserStoryTestService.DeleteTestCasesByIdsAsync" />
+    public async Task DeleteTestCasesByIdsAsync(List<Guid> listOfTestCaseIds)
     {
         await _userStoryTestRepository.DeleteTestCasesByIds(listOfTestCaseIds);
     }

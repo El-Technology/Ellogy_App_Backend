@@ -86,7 +86,7 @@ public class UserStoryTestController : ControllerBase
     [Route("deleteTestCases")]
     public async Task<IActionResult> DeleteTestCasesByIds([FromBody] List<Guid> listOfTestCaseIds)
     {
-        await _userStoryTestService.DeleteTestCasesByIds(listOfTestCaseIds);
+        await _userStoryTestService.DeleteTestCasesByIdsAsync(listOfTestCaseIds);
         return Ok();
     }
 }

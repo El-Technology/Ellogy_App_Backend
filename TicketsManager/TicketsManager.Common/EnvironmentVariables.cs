@@ -18,6 +18,14 @@ public static class EnvironmentVariables
         }
     }
 
-    public static readonly string? JwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-                                                  ?? "default_JWT_SECRET_KEY_HAVE_32_S";
+    public static string JwtSecretKey
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+            return variable is null
+                ? variable = "default_JWT_SECRET_KEY_HAVE_32_S"
+                : variable;
+        }
+    }
 }
