@@ -25,6 +25,7 @@ public class TicketConfiguration : IEntityTypeConfiguration<Ticket>
         builder.Property(c => c.Comment);
         builder.Property(c => c.Context);
         builder.Property(c => c.BannersJson);
+        builder.Property(c => c.BusinessImpact);
 
         builder.HasOne(e => e.User)
             .WithMany(e => e.UserTickets)
