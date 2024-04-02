@@ -5,11 +5,12 @@ using NotificationService.Interfaces;
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using UserManager.Common;
 using UserManager.Common.Constants;
 using UserManager.Common.Models.NotificationModels;
 using UserManager.Common.Options;
 
-namespace UserManager.BLL.Services;
+namespace NotificationService.Services;
 
 public class MailService : IMailService
 {
@@ -47,13 +48,13 @@ public class MailService : IMailService
             Html = template
         };
 
-        var emailMessage = new EmailMessage(MailOptions.FromMail, notificationModel.Consumer, emailContent);
+        var emailMessage = new EmailMessage(EnvironmentVariables.MailFrom, notificationModel.Consumer, emailContent);
 
         if (notificationModel.BlobUrls is not null)
         {
-            for (int i = 0; i < notificationModel.BlobUrls.Count; i++)
+            for (var i = 0; i < notificationModel.BlobUrls.Count; i++)
             {
-                string fileName = notificationModel.BlobUrls[i];
+                var fileName = notificationModel.BlobUrls[i];
                 emailMessage.Attachments.Add(new EmailAttachment(
                     $"scr{i}.jpg",
                     MediaTypeNames.Image.Jpeg,

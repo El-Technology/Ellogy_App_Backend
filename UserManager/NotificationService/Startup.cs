@@ -4,7 +4,6 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using NotificationService.Interfaces;
 using NotificationService.Services;
-using UserManager.BLL.Services;
 using UserManager.Common;
 
 [assembly: FunctionsStartup(typeof(NotificationService.Startup))]
