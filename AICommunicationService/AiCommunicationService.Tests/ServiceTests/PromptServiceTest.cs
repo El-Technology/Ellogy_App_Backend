@@ -1,145 +1,123 @@
-﻿//using AICommunicationService.BLL.Dtos;
-//using AICommunicationService.BLL.Services;
-//using AICommunicationService.DAL.Context;
-//using AICommunicationService.DAL.Models;
-//using AICommunicationService.DAL.Repositories;
-//using AutoFixture;
-//using AutoMapper;
-//using Microsoft.EntityFrameworkCore;
+﻿using AICommunicationService.BLL.Dtos;
+using AICommunicationService.BLL.Services;
+using AICommunicationService.DAL.Interfaces;
+using AICommunicationService.DAL.Models;
+using AutoFixture;
+using AutoMapper;
+using Moq;
 
-//namespace AiCommunicationService.Tests.ServiceTests
-//{
-//    [TestFixture]
-//    public class PromptServiceTest
-//    {
-//        private IMapper _mapper;
-//        private Fixture _fixture;
-//        private AICommunicationContext _context;
+namespace AiCommunicationService.Tests.ServiceTests;
 
-//        [SetUp]
-//        public void Setup()
-//        {
-//            _fixture = new Fixture();
-//            _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+[TestFixture]
+public class PromptServiceTest
+{
+    private IMapper _mapper;
+    private Fixture _fixture;
+    private Mock<IAIPromptRepository> _promptRepositoryMock;
+    private PromptService _promptService;
 
-//            var options = new DbContextOptionsBuilder<AICommunicationContext>()
-//                .UseInMemoryDatabase(databaseName: "InMemoryDb")
-//                .Options;
+    [SetUp]
+    public void Setup()
+    {
+        _fixture = new Fixture();
+        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
-//            _context = new AICommunicationContext(options);
+        _promptRepositoryMock = new Mock<IAIPromptRepository>();
+        _promptService = new PromptService(_promptRepositoryMock.Object);
 
-//            var mapperConfig = new MapperConfiguration(cfg =>
-//            {
-//                cfg.CreateMap<AIPrompt, AIPrompt>();
-//            });
+        var mapperConfig = new MapperConfiguration(cfg =>
+        {
+            cfg.CreateMap<AIPrompt, AIPrompt>();
+        });
 
-//            _mapper = mapperConfig.CreateMapper();
-//        }
+        _mapper = mapperConfig.CreateMapper();
+    }
 
-//        [TearDown]
-//        public async Task TearDown()
-//        {
-//            await _context.DisposeAsync();
-//        }
+    [Test]
+    public async Task AddPromptAsync_AddsNewPromptToDb()
+    {
+        var createPromptDto = _fixture.Create<CreatePromptDto>();
+        var result = await _promptService.AddPromptAsync(createPromptDto);
 
-//        [Test]
-//        public async Task AddPromptAsync_AddsNewPromptToDb()
-//        {
-//            var promptRepository = new AIPromptRepository(_context);
-//            var promptService = new PromptService(promptRepository);
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.Not.Null);
+            Assert.That(createPromptDto, Is.EqualTo(result));
+        });
+    }
 
-//            var createPromptDto = _fixture.Create<CreatePromptDto>();
-//            var result = await promptService.AddPromptAsync(createPromptDto);
+    [Test]
+    public async Task UpdatePromptAsync_UpdatesExistingPrompt()
+    {
+        // Arrange
+        var createPromptDto = _fixture.Create<CreatePromptDto>();
+        var result = await _promptService.AddPromptAsync(createPromptDto);
 
-//            Assert.Multiple(() =>
-//            {
-//                Assert.That(result, Is.Not.Null);
-//                Assert.That(createPromptDto, Is.EqualTo(result));
-//            });
-//        }
+        var saveResult = _mapper.Map<AIPrompt>(result);
 
-//        [Test]
-//        public async Task UpdatePromptAsync_UpdatesExistingPrompt()
-//        {
-//            var promptRepository = new AIPromptRepository(_context);
-//            var promptService = new PromptService(promptRepository);
+        var updatePromptDto = new UpdatePrompt
+        {
+            Description = "New description",
+            Functions = "New function",
+            Input = "New Input",
+            Value = "New Value"
+        };
 
-//            //Add prompt
-//            var createPromptDto = _fixture.Create<CreatePromptDto>();
-//            var result = await promptService.AddPromptAsync(createPromptDto);
+        _promptRepositoryMock.Setup(x => x.GetPromptByTemplateNameAsync(result.TemplateName))
+            .ReturnsAsync(result);
 
-//            var saveResult = _mapper.Map<AIPrompt>(result);
+        // Act
+        var updatedPrompt = await _promptService.UpdatePromptAsync(updatePromptDto, result.TemplateName);
 
-//            //Update prompt
-//            var updatePromptDto = new UpdatePrompt
-//            {
-//                Description = "New description",
-//                Functions = "New function",
-//                Input = "New Input",
-//                Value = "New Value"
-//            };
-//            var updatedPrompt = await promptService.UpdatePromptAsync(updatePromptDto, result.TemplateName);
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(updatedPrompt, Is.Not.Null);
+            Assert.That(updatedPrompt, Is.Not.EqualTo(saveResult));
+        });
+    }
 
-//            Assert.Multiple(() =>
-//            {
-//                Assert.That(updatedPrompt, Is.Not.Null);
-//                Assert.That(updatedPrompt, Is.Not.EqualTo(saveResult));
-//            });
-//        }
+    [Test]
+    public async Task GetAllPromptsAsync_ReturnsAllPrompts()
+    {
+        // Arrange
+        var createPromptsDto = _fixture.CreateMany<CreatePromptDto>(5);
+        var expectedPrompts = _mapper.Map<List<AIPrompt>>(createPromptsDto);
 
-//        [Test]
-//        public async Task GetAllPromptsAsync_ReturnsAllPrompts()
-//        {
-//            await ClearDatabase();
-//            var promptRepository = new AIPromptRepository(_context);
-//            var promptService = new PromptService(promptRepository);
+        _promptRepositoryMock.Setup(x => x.GetAllPromptsAsync())
+            .ReturnsAsync(expectedPrompts);
 
-//            //Add prompts
-//            var createPromptsDto = _fixture.CreateMany<CreatePromptDto>(5);
-//            foreach (var prompt in createPromptsDto)
-//            {
-//                await promptService.AddPromptAsync(prompt);
-//            }
+        // Act
+        var result = await _promptService.GetAllPromptsAsync();
 
-//            var result = await promptService.GetAllPromptsAsync();
+        // Assert
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Has.Count.EqualTo(5));
+        });
+    }
 
-//            Assert.Multiple(() =>
-//            {
-//                Assert.That(result, Is.Not.Null);
-//                Assert.That(result, Has.Count.EqualTo(5));
-//            });
-//        }
+    [Test]
+    public async Task DeletePromptAsync_DeletesPrompt()
+    {
+        // Arrange
+        var createPromptsDto = _fixture.CreateMany<CreatePromptDto>(5);
+        var promptToDelete = createPromptsDto.First();
 
-//        [Test]
-//        public async Task DeletePromptAsync_DeletesPrompt()
-//        {
-//            await ClearDatabase();
-//            var promptRepository = new AIPromptRepository(_context);
-//            var promptService = new PromptService(promptRepository);
+        _promptRepositoryMock.Setup(x => x.GetPromptByTemplateNameAsync(promptToDelete.TemplateName))
+            .ReturnsAsync(_mapper.Map<AIPrompt>(promptToDelete));
 
-//            //Add prompts
-//            var createPromptsDto = _fixture.CreateMany<CreatePromptDto>(5);
-//            foreach (var prompt in createPromptsDto)
-//            {
-//                await promptService.AddPromptAsync(prompt);
-//            }
+        _promptRepositoryMock.Setup(x => x.DeletePromptAsync(promptToDelete))
+            .Returns(Task.CompletedTask);
 
-//            await promptService.DeletePromptAsync(createPromptsDto.First().TemplateName);
+        // Act
+        await _promptService.DeletePromptAsync(promptToDelete.TemplateName);
 
-//            var result = await promptService.GetAllPromptsAsync();
+        var result = await _promptService.GetAllPromptsAsync();
 
-//            Assert.Multiple(() =>
-//            {
-//                Assert.That(result, Is.Not.Null);
-//                Assert.That(result, Has.Count.EqualTo(4));
-//            });
-//        }
-
-//        private async Task ClearDatabase()
-//        {
-//            var prompts = await _context.AIPrompts.ToListAsync();
-//            _context.AIPrompts.RemoveRange(prompts);
-//            await _context.SaveChangesAsync();
-//        }
-//    }
-//}
+        _promptRepositoryMock.Verify(x => x.GetAllPromptsAsync(), Times.Once);
+        _promptRepositoryMock.Verify(x => x.GetPromptByTemplateNameAsync(It.IsAny<string>()), Times.Once);
+        _promptRepositoryMock.Verify(x => x.DeletePromptAsync(It.IsAny<AIPrompt>()), Times.Once);
+    }
+}

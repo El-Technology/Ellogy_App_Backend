@@ -19,21 +19,31 @@ public class UserExternalHttpService : IUserExternalHttpService
         var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
         var result = await _httpClient.PostAsync("api/UserExternal/get-users-by-ids", content);
-        return JsonConvert.DeserializeObject<List<UserDto>>(await result.Content.ReadAsStringAsync());
+
+        var response = JsonConvert.DeserializeObject<List<UserDto>>(await result.Content.ReadAsStringAsync())
+            ?? throw new Exception("Error while getting users by ids");
+
+        return response;
     }
 
     public async Task<UserDto> GetUserByIdAsync(Guid userId)
     {
         var result = await _httpClient.GetAsync($"api/UserExternal/get-user-by-id?userId={userId}");
 
-        return JsonConvert.DeserializeObject<UserDto>(await result.Content.ReadAsStringAsync());
+        var response = JsonConvert.DeserializeObject<UserDto>(await result.Content.ReadAsStringAsync())
+            ?? throw new Exception("Error while getting user by id");
+
+        return response;
     }
 
     public async Task<List<UserDto>> FindUserByEmailAsync(string email)
     {
         var result = await _httpClient.GetAsync($"api/UserExternal/find-user-by-email?emailPrefix={email}");
 
-        return JsonConvert.DeserializeObject<List<UserDto>>(await result.Content.ReadAsStringAsync());
+        var response = JsonConvert.DeserializeObject<List<UserDto>>(await result.Content.ReadAsStringAsync())
+            ?? throw new Exception("Error while finding user by email");
+
+        return response;
     }
 
     public async Task<PaginationResponseDto<UserDto>> GetUsersByIdsWithPaginationAsync(List<Guid> userIds, PaginationRequestDto paginationRequest)
@@ -48,7 +58,11 @@ public class UserExternalHttpService : IUserExternalHttpService
         var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
         var result = await _httpClient.PostAsync("api/UserExternal/get-users-by-ids-with-pagination", content);
-        return JsonConvert.DeserializeObject<PaginationResponseDto<UserDto>>(await result.Content.ReadAsStringAsync());
+
+        var response = JsonConvert.DeserializeObject<PaginationResponseDto<UserDto>>(await result.Content.ReadAsStringAsync())
+            ?? throw new Exception("Error while getting users by ids with pagination");
+
+        return response;
     }
 
     public async Task UpdateUserTotalPointsUsageAsync(Guid userId, int usedTokens)

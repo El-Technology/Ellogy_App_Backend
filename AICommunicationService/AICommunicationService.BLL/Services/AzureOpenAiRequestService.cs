@@ -54,6 +54,8 @@ public class AzureOpenAiRequestService : IAzureOpenAiRequestService
                 };
                 break;
             case AiRequestType.Functions:
+                ArgumentNullException.ThrowIfNull(request.Functions, "Function is not provided");
+
                 var functions = JsonConvert.DeserializeObject<List<FunctionDefinition>>(request.Functions);
                 requestData = new
                 {
@@ -179,8 +181,12 @@ public class AzureOpenAiRequestService : IAzureOpenAiRequestService
 
         var response = await _httpClient.PostAsync(AzureAiConstants.EmbeddingUrl, content);
 
-        var resultAsObject = JsonConvert.DeserializeObject<EmbeddingResponseModel>(await response.Content.ReadAsStringAsync());
+        var resultAsObject = JsonConvert.DeserializeObject<EmbeddingResponseModel>(await response.Content.ReadAsStringAsync())
+            ?? throw new Exception("Error while parsing the object");
 
-        return resultAsObject.data.FirstOrDefault().embedding;
+        var data = resultAsObject.data.FirstOrDefault()
+            ?? throw new Exception("Error while getting the data");
+
+        return data.embedding;
     }
 }

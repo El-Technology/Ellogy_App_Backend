@@ -99,6 +99,9 @@ public class DocumentService : IDocumentService
         foreach (var document in documentResponse.Data)
         {
             var user = users.FirstOrDefault(a => a.Id == document.UserId);
+
+            ArgumentNullException.ThrowIfNull(user, "User was not found");
+
             document.Email = user.Email;
             document.FirstName = user.FirstName;
             document.LastName = user.LastName;

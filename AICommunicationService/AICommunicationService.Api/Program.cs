@@ -100,16 +100,6 @@ static void AddServices(WebApplicationBuilder builder)
     });
 
     builder.Services.RegisterHttpClients();
-
-    //builder.Services.AddHttpClient("AzureAiRequest",
-    //    client => { client.DefaultRequestHeaders.Add("api-key", EnvironmentVariables.OpenAiKey); });
-
-    //builder.Services.AddHttpClient("UserManager",
-    //    client => { client.BaseAddress = new Uri($"{EnvironmentVariables.Host}:7077"); });
-
-    //builder.Services.AddHttpClient("PaymentManager",
-    //    client => { client.BaseAddress = new Uri($"{EnvironmentVariables.Host}:2222"); });
-
     builder.Services.AddHealthChecks();
     builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
     builder.Services.AddBusinessLayer();
@@ -125,7 +115,6 @@ static void AddMiddleware(WebApplication app)
     }
 
     app.UseCors();
-
     app.UseWebSockets();
 
     app.UseHttpsRedirection();

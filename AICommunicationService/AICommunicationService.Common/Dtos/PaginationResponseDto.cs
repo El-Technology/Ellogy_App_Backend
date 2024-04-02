@@ -29,5 +29,5 @@ public class PaginationResponseDto<T>
     /// <summary>
     ///     An expectable collection of records in response
     /// </summary>
-    public List<T> Data { get; set; }
+    public List<T> Data { get; set; } = new List<T>();
 }

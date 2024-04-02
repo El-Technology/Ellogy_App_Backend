@@ -5,11 +5,27 @@ namespace AICommunicationService.Common;
 
 public static class EnvironmentVariables
 {
-    public static readonly string? OpenAiKey = Environment.GetEnvironmentVariable("OPEN_AI_KEY")
-        /*?? throw new EnvironmentVariableNotFoundException("OPEN_AI_KEY")*/;
+    public static string OpenAiKey
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
+            return variable is null
+                ? variable = "default_OPEN_AI_KEY"
+                : variable;
+        }
+    }
 
-    public static readonly string? JwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-        /*?? throw new EnvironmentVariableNotFoundException("JWT_SECRET_KEY")*/;
+    public static string JwtSecretKey
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+            return variable is null
+                ? variable = "default_JWT_SECRET_KEY_HAVE_32_S"
+                : variable;
+        }
+    }
 
     public static string ConnectionString
     {
@@ -24,12 +40,36 @@ public static class EnvironmentVariables
         }
     }
 
-    public static bool EnablePayments = bool.Parse(Environment.GetEnvironmentVariable("ENABLE_PAYMENTS"));
+    public static bool EnablePayments
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("ENABLE_PAYMENTS");
+            return variable is null
+                ? false
+                : bool.Parse(variable);
+        }
+    }
 
-    public static string Host = Environment.GetEnvironmentVariable("SSH_HOST")
-        /*?? throw new EnvironmentVariableNotFoundException("HOST")*/;
+    public static string Host
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("SSH_HOST");
+            return variable is null
+                ? variable = "default_host"
+                : variable;
+        }
+    }
 
-    public static readonly string BlobStorageConnectionString =
-            Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING")
-        /* ?? throw new EnvironmentVariableNotFoundException("BLOB_STORAGE_CONNECTION_STRING")*/;
+    public static string BlobStorageConnectionString
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING");
+            return variable is null
+                ? variable = "default_BLOB_STORAGE_CONNECTION_STRING"
+                : variable;
+        }
+    }
 }

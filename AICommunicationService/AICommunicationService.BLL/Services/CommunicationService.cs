@@ -45,7 +45,7 @@ public class CommunicationService : ICommunicationService
     }
 
     /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(Guid, CreateConversationRequest)" />
-    public async Task<string?> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest)
+    public async Task<string> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest)
     {
         await CheckIfUserAllowedToCreateRequest(userId);
 
@@ -61,7 +61,7 @@ public class CommunicationService : ICommunicationService
 
         await TakeChargeAsync(userId, response);
 
-        return response.Content;
+        return response.Content ??= string.Empty;
     }
 
     /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(Guid, StreamRequest)" />
@@ -105,11 +105,11 @@ public class CommunicationService : ICommunicationService
 
         await TakeChargeAsync(userId, response);
 
-        return response.Content;
+        return response.Content ??= string.Empty;
     }
 
     /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(Guid, CreateConversationRequest)" />
-    public async Task<string?> ChatRequestWithFunctionAsync(Guid userId,
+    public async Task<string> ChatRequestWithFunctionAsync(Guid userId,
         CreateConversationRequest createConversationRequest)
     {
         await CheckIfUserAllowedToCreateRequest(userId);
@@ -128,7 +128,7 @@ public class CommunicationService : ICommunicationService
 
         await TakeChargeAsync(userId, response);
 
-        return response.Content;
+        return response.Content ??= string.Empty;
     }
 
     private int Tokenizer(AiModelEnum aiModelEnum, string text)
@@ -156,6 +156,8 @@ public class CommunicationService : ICommunicationService
     {
         if (!EnvironmentVariables.EnablePayments)
             return;
+
+        ArgumentNullException.ThrowIfNull(response.Usage, "Usage is null");
 
         await _userExternalHttpService.UpdateUserTotalPointsUsageAsync(userId,
             response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
