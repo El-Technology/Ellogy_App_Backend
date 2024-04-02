@@ -2,19 +2,24 @@ name: Build and deploy .NET Core Function App to Azure functions app
 on:
   push:
     branches:
-      - develop
+      - master-updated-architecture-config
     paths:
       - UserManager/NotificationService/**
       - .github/workflows/DeployAzureFunction.yml
 env:
-  AZURE_FUNCTIONAPP_NAME: EllogyNotificationService
+  AZURE_FUNCTIONAPP_NAME: EllogyNotificationService-4064
   AZURE_FUNCTIONAPP_PACKAGE_PATH: publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 6.0.x
   WORKING_DIRECTORY: UserManager/NotificationService
 jobs:
   build-and-deploy:
+    permissions:
+      contents: read
+      packages: write
     runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'test-env' }}
     steps:
     - name: Get Code
       uses: actions/checkout@v3
