@@ -53,4 +53,9 @@ public class TicketCreateRequestDto
     ///     The notifications of the ticket without ids
     /// </summary>
     public List<NotificationDto> Notifications { get; set; }
+
+    /// <summary>
+    ///    The business impact of the ticket.
+    /// </summary>
+    public string? BusinessImpact { get; set; }
 }

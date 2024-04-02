@@ -53,4 +53,9 @@ public class TicketUpdateRequestDto
     ///     The notifications of the ticket with ids
     /// </summary>
     public List<NotificationFullDto> Notifications { get; set; }
+
+    /// <summary>
+    ///    The business impact of the ticket.
+    /// </summary>
+    public string? BusinessImpact { get; set; }
 }

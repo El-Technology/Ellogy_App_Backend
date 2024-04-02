@@ -201,6 +201,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Property<string>("BannersJson")
                         .HasColumnType("text");
 
+                    b.Property<string>("BusinessImpact")
+                        .HasColumnType("text");
+
                     b.Property<string>("Comment")
                         .HasColumnType("text");
 

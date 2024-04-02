@@ -15,6 +15,7 @@ public class Ticket
     public TicketStatusEnum Status { get; set; }
     public TicketCurrentStepEnum CurrentStep { get; set; }
     public string? BannersJson { get; set; }
+    public string? BusinessImpact { get; set; }
 
     public ICollection<ActionHistory> ActionHistories { get; set; } = new List<ActionHistory>();
     public ICollection<Message> TicketMessages { get; set; } = new List<Message>();
