@@ -1,13 +1,14 @@
-﻿using UserManager.Common.Dtos;
+﻿using UserManager.BLL.Interfaces;
+using UserManager.Common.Dtos;
 using UserManager.DAL.Enums;
+using UserManager.DAL.Interfaces;
 using UserManager.DAL.Models;
-using UserManager.DAL.Repositories;
 
 namespace UserManager.BLL.Services;
-public class UserExternalService
+public class UserExternalService : IUserExternalService
 {
-    private readonly UserExternalRepository _userExternalRepository;
-    public UserExternalService(UserExternalRepository userExternalRepository)
+    private readonly IUserExternalRepository _userExternalRepository;
+    public UserExternalService(IUserExternalRepository userExternalRepository)
     {
         _userExternalRepository = userExternalRepository;
     }

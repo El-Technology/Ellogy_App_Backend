@@ -1,71 +1,86 @@
 ﻿using AutoFixture;
 using Azure;
-using Azure.Messaging.ServiceBus;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Moq;
-using System.Text;
-using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Dtos.ReportDto;
+using UserManager.BLL.Interfaces;
 using UserManager.BLL.Services;
-using UserManager.DAL.Repositories;
+using UserManager.Common.Constants;
+using UserManager.Common.Models.NotificationModels;
+using UserManager.DAL.Interfaces;
+using UserManager.DAL.Models;
 
 namespace UserManager.Tests.ServiceTests;
 
 [TestFixture]
-public class ReportServiceTest : BaseClassForServices
+public class ReportServiceTest
 {
+    private Mock<BlobServiceClient> _blobServiceClient;
+    private Mock<INotificationQueueService> _notificationQueueService;
+    private Mock<IUserRepository> _userRepository;
+    private ReportService _reportService;
+    private Fixture _fixture;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _fixture = new Fixture();
+        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _blobServiceClient = new Mock<BlobServiceClient>();
+        _notificationQueueService = new Mock<INotificationQueueService>();
+        _userRepository = new Mock<IUserRepository>();
+        _reportService = new ReportService(
+            _userRepository.Object, _notificationQueueService.Object, _blobServiceClient.Object);
+    }
+
+    private static byte[] GenerateRandomImage()
+    {
+        var random = new Random();
+        var buffer = new byte[1024];
+        random.NextBytes(buffer);
+
+        return buffer;
+    }
 
     [Test]
-    public async Task SendReportAsync_SendMessageToEmail()
+    public async Task SendReportAsync_ShouldSendReportToQueue()
     {
-        var userRepository = new UserRepository(_userManagerDbContext);
-        //var registerService = new RegisterService(_mapper, userRepository);
-        var serviceBusClientMock = new Mock<ServiceBusClient>();
-        var serviceBusSenderMock = new Mock<ServiceBusSender>();
-        var blobServiceClientMock = new Mock<BlobServiceClient>();
-        var containerClientMock = new Mock<BlobContainerClient>();
-        var blobContentInfoMock = new Mock<BlobContentInfo>();
-        var blobClientMock = new Mock<BlobClient>();
-        var responseMock = new Mock<Response>();
-
-        //Send message service
-        serviceBusClientMock.Setup(x => x.CreateSender(It.IsAny<string>())).Returns(serviceBusSenderMock.Object);
-        var notificationQueueService = new NotificationQueueService(serviceBusClientMock.Object);
-
-        //Service for uploading files to storage
-        blobClientMock.Setup(x => x.UploadAsync(It.IsAny<Stream>(), true, default))
-            .ReturnsAsync(Response.FromValue(blobContentInfoMock.Object, responseMock.Object));
-        containerClientMock.Setup(x => x.GetBlobClient(It.IsAny<string>())).Returns(blobClientMock.Object);
-        blobServiceClientMock.Setup(client => client.GetBlobContainerClient(It.IsAny<string>())).Returns(containerClientMock.Object);
-
-        //Report service
-        var reportService = new ReportService(userRepository, notificationQueueService, blobServiceClientMock.Object);
-
-        //Creating new user
-        var user = _fixture.Create<UserRegisterRequestDto>();
-        //await registerService.RegisterUserAsync(user);
-
-        //Creating report model
-        var bytesForBase64 = Encoding.UTF8.GetBytes(_fixture.Create<string>());
-        var base64String = Convert.ToBase64String(bytesForBase64);
-        var reportModel = new ReportModel
+        // Arrange
+        var reportModel = _fixture.Create<ReportModel>();
+        reportModel.Base64JpgFiles = new List<string>
         {
-            Base64JpgFiles = new List<string> { base64String },
-            Category = "someCategory",
-            Option = "someOption",
-            ReceiverEmail = _fixture.Create<string>(),
-            UserEmail = user.Email,
-            UserText = "someUserInput"
+            Convert.ToBase64String(GenerateRandomImage()),
+            Convert.ToBase64String(GenerateRandomImage())
         };
+        var user = _fixture.Create<User>();
+        var _notificationModel = _fixture.Create<NotificationModel>();
+        var blobContentInfo = BlobsModelFactory.BlobContentInfo(default, default, default, default, default);
 
-        //Send report
-        await reportService.SendReportAsync(reportModel);
+        var containerClientMock = new Mock<BlobContainerClient>();
+        var blobClientMock = new Mock<BlobClient>();
+        var memoryStreamMock = new Mock<MemoryStream>();
 
-        // Check if message was sent
-        serviceBusSenderMock.Verify(sender => sender.SendMessageAsync(It.IsAny<ServiceBusMessage>(), CancellationToken.None), Times.Once);
+        _userRepository.Setup(x => x.CheckEmailIsExistAsync(reportModel.UserEmail))
+            .ReturnsAsync(true);
+        _userRepository.Setup(x => x.GetUserByEmailAsync(reportModel.UserEmail))
+            .ReturnsAsync(user);
+        _blobServiceClient.Setup(x => x.GetBlobContainerClient(BlobContainerConstants.ImagesContainer))
+            .Returns(containerClientMock.Object);
+        containerClientMock.Setup(x => x.GetBlobClient(It.IsAny<string>()))
+            .Returns(blobClientMock.Object);
+        blobClientMock.Setup(x => x.UploadAsync(memoryStreamMock.Object, true, CancellationToken.None))
+            .ReturnsAsync(Response.FromValue(blobContentInfo, default!));
 
-        // Check upload to Blob Storage
-        blobClientMock.Verify(x => x.UploadAsync(It.IsAny<Stream>(), true, default), Times.Once);
+        // Act
+        await _reportService.SendReportAsync(reportModel);
+
+        // Assert
+        _userRepository.Verify(x => x.CheckEmailIsExistAsync(reportModel.UserEmail), Times.Once);
+        _userRepository.Verify(x => x.GetUserByEmailAsync(reportModel.UserEmail), Times.Once);
+        _blobServiceClient.Verify(x => x.GetBlobContainerClient(BlobContainerConstants.ImagesContainer), Times.Once);
+        containerClientMock.Verify(x => x.GetBlobClient(It.IsAny<string>()), Times.Exactly(reportModel.Base64JpgFiles.Count));
+        blobClientMock.Verify(x => x.UploadAsync(It.IsAny<Stream>(), true, It.IsAny<CancellationToken>()),
+            Times.Exactly(reportModel.Base64JpgFiles.Count));
     }
 }

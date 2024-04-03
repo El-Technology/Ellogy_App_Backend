@@ -3,10 +3,11 @@ using UserManager.Common.Dtos;
 using UserManager.DAL.Context;
 using UserManager.DAL.Enums;
 using UserManager.DAL.Extensions;
+using UserManager.DAL.Interfaces;
 using UserManager.DAL.Models;
 
 namespace UserManager.DAL.Repositories;
-public class UserExternalRepository
+public class UserExternalRepository : IUserExternalRepository
 {
     private readonly UserManagerDbContext _context;
     public UserExternalRepository(UserManagerDbContext context)

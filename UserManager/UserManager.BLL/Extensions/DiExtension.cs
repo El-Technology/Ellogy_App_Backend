@@ -22,7 +22,7 @@ public static class DiExtension
             .AddScoped<IPasswordService, PasswordService>()
             .AddScoped<ServiceBusClient>(_ => new(EnvironmentVariables.AzureServiceBusConnectionString))
 
-            .AddScoped<UserExternalService>();
+            .AddScoped<IUserExternalService, UserExternalService>();
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)

@@ -1,36 +1,40 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using AutoFixture;
+using Azure.Messaging.ServiceBus;
 using Moq;
 using UserManager.BLL.Services;
+using UserManager.Common;
 using UserManager.Common.Models.NotificationModels;
 
-namespace UserManager.Tests.ServiceTests
+namespace UserManager.Tests.ServiceTests;
+
+[TestFixture]
+public class NotificationQueueServiceTest
 {
-    [TestFixture]
-    public class NotificationQueueServiceTest
+    private Mock<ServiceBusClient> _busClientMock;
+    private NotificationQueueService _notificationQueueService;
+    private Fixture _fixture = new();
+
+    [SetUp]
+    public void SetUp()
     {
-        [Test]
-        public async Task SendNotificationAsync_SendsMessageToServiceBus()
-        {
-            var serviceBusClientMock = new Mock<ServiceBusClient>();
-            var serviceBusSenderMock = new Mock<ServiceBusSender>();
+        _fixture = new Fixture();
+        _busClientMock = new Mock<ServiceBusClient>();
+        _notificationQueueService = new NotificationQueueService(_busClientMock.Object);
+    }
 
-            //Bus configuration
-            serviceBusClientMock.Setup(x => x.CreateSender(It.IsAny<string>())).Returns(serviceBusSenderMock.Object);
+    [Test]
+    public async Task SendNotificationAsync_ShouldSendNotificationToQueue()
+    {
+        // Arrange
+        var notificationModel = _fixture.Create<NotificationModel>();
 
-            var notificationQueueService = new NotificationQueueService(serviceBusClientMock.Object);
+        var busSenderMock = new Mock<ServiceBusSender>();
+        _busClientMock.Setup(x => x.CreateSender(NotificationQueueOptions.QueueName)).Returns(busSenderMock.Object);
 
-            //Try to send notification
-            var notificationModel = new NotificationModel
-            {
-                BlobUrls = new List<string> { "someUrl" },
-                Consumer = "someConsumer",
-                MetaData = new Dictionary<string, string> { { "PatternForReplace", "Value" } },
-                Type = NotificationTypeEnum.ResetPassword,
-                Way = NotificationWayEnum.Email
-            };
-            await notificationQueueService.SendNotificationAsync(notificationModel);
+        // Act
+        await _notificationQueueService.SendNotificationAsync(notificationModel);
 
-            serviceBusSenderMock.Verify(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), CancellationToken.None), Times.Once);
-        }
+        // Assert
+        busSenderMock.Verify(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), CancellationToken.None), Times.Once);
     }
 }

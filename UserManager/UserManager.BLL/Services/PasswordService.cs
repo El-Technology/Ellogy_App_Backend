@@ -16,7 +16,7 @@ public class PasswordService : IPasswordService
 {
     private const string PasswordResetUrlTemplate = "{0}?id={1}&token={2}";
     private const string ResetPasswordPattern = "{{{resetPasswordLink}}}";
-    private readonly IForgotPasswordRepository _forgotPasswordRepository;
+    private readonly TimeSpan _tokenTtl = TimeSpan.FromDays(1);
 
     private readonly NotificationModel _notificationModel = new()
     {
@@ -24,8 +24,8 @@ public class PasswordService : IPasswordService
         Way = NotificationWayEnum.Email
     };
 
+    private readonly IForgotPasswordRepository _forgotPasswordRepository;
     private readonly INotificationQueueService _notificationQueueService;
-    private readonly TimeSpan _tokenTtl = TimeSpan.FromDays(1);
     private readonly IUserRepository _userRepository;
 
     /// <summary>

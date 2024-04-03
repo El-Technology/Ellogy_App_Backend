@@ -19,6 +19,6 @@ public static class DiExtension
             .AddScoped<IUserRepository, UserRepository>()
             .AddScoped<IForgotPasswordRepository, ForgotPasswordRepository>()
 
-            .AddScoped<UserExternalRepository>();
+            .AddScoped<IUserExternalRepository, UserExternalRepository>();
     }
 }

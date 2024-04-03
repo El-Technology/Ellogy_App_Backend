@@ -1,140 +1,96 @@
 ﻿using AutoFixture;
-using Azure.Messaging.ServiceBus;
 using Moq;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using UserManager.BLL.Dtos.LoginDtos;
+using System.Web;
 using UserManager.BLL.Dtos.PasswordDtos;
-using UserManager.BLL.Dtos.RegisterDtos;
+using UserManager.BLL.Exceptions;
+using UserManager.BLL.Interfaces;
 using UserManager.BLL.Services;
 using UserManager.Common.Models.NotificationModels;
-using UserManager.DAL.Repositories;
+using UserManager.DAL.Interfaces;
+using UserManager.DAL.Models;
 
 namespace UserManager.Tests.ServiceTests;
 
 [TestFixture]
-public class PasswordServiceTest : BaseClassForServices
+public class PasswordServiceTest
 {
+    private Mock<IForgotPasswordRepository> _forgotPasswordRepository;
+    private Mock<INotificationQueueService> _notificationQueueService;
+    private Mock<IUserRepository> _userRepository;
+    private PasswordService _passwordService;
+    private Fixture _fixture = new();
 
-    [Test]
-    public async Task ForgotPasswordAsync_SendsEmailToUser()
+    [SetUp]
+    public void SetUp()
     {
-        var userRepository = new UserRepository(_userManagerDbContext);
-        var forgotPasswordRepository = new ForgotPasswordRepository(_userManagerDbContext);
-
-        //Create mocks for service bus client and sender
-        var serviceBusClientMock = new Mock<ServiceBusClient>();
-        var serviceBusSenderMock = new Mock<ServiceBusSender>();
-        serviceBusClientMock.Setup(x => x.CreateSender(It.IsAny<string>())).Returns(serviceBusSenderMock.Object);
-        var notificationQueueService = new NotificationQueueService(serviceBusClientMock.Object);
-
-        //Register new user
-        var user = await RegisterNewUserAsync(userRepository);
-
-        //Input fields for recover the password
-        var forgotPasswordDto = new ForgotPasswordDto
-        {
-            Email = user.Email,
-            RedirectUrl = "someRedirectUrl"
-        };
-
-        var passwordService = new PasswordService(userRepository, forgotPasswordRepository, notificationQueueService);
-        await passwordService.ForgotPasswordAsync(forgotPasswordDto);
-
-        //Verify if message was sent one times
-        serviceBusSenderMock.Verify(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), CancellationToken.None), Times.Once);
+        _fixture = new Fixture();
+        _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+        _forgotPasswordRepository = new Mock<IForgotPasswordRepository>();
+        _notificationQueueService = new Mock<INotificationQueueService>();
+        _userRepository = new Mock<IUserRepository>();
+        _passwordService = new PasswordService(
+            _userRepository.Object, _forgotPasswordRepository.Object, _notificationQueueService.Object);
     }
 
     [Test]
-    public async Task ResetPasswordAsync_LoginWithNewPassword()
+    public void ForgotPasswordAsync_ShouldThrowUserNotFoundException_WhenUserNotFound()
     {
-        var sentMessage = new ServiceBusMessage();
-        var userRepository = new UserRepository(_userManagerDbContext);
-        var forgotPasswordRepository = new ForgotPasswordRepository(_userManagerDbContext);
+        // Arrange
+        var forgotPasswordDto = _fixture.Create<ForgotPasswordDto>();
+        _userRepository.Setup(x => x.CheckEmailIsExistAsync(forgotPasswordDto.Email)).ReturnsAsync(false);
 
-        //Register new user
-        var user = await RegisterNewUserAsync(userRepository);
-
-        //Create notification service queue
-        var serviceBusClientMock = new Mock<ServiceBusClient>();
-        var serviceBusSenderMock = new Mock<ServiceBusSender>();
-        serviceBusSenderMock
-            .Setup(x => x.SendMessageAsync(It.IsAny<ServiceBusMessage>(), CancellationToken.None))
-            .Callback<ServiceBusMessage, CancellationToken>((message, cancellationToken) =>
-            {
-                sentMessage = message;
-            })
-            .Returns(Task.CompletedTask); //Writes sent message in variable
-        serviceBusClientMock.Setup(x => x.CreateSender(It.IsAny<string>())).Returns(serviceBusSenderMock.Object);
-        var notificationQueueService = new NotificationQueueService(serviceBusClientMock.Object);
-
-        //Send recover the message
-        var forgotPasswordDto = new ForgotPasswordDto
-        {
-            Email = user.Email,
-            RedirectUrl = "someRedirectUrl"
-        };
-        var passwordService = new PasswordService(userRepository, forgotPasswordRepository, notificationQueueService);
-        await passwordService.ForgotPasswordAsync(forgotPasswordDto);
-
-        //Reset password
-        var newPassword = "NewPassword";
-        var resetPasswordDto = GetResetPasswordDto(sentMessage.Body, newPassword);
-        await passwordService.ResetPasswordAsync(resetPasswordDto);
-
-        //Try to login with new password
-        var actualResponse = await TryToLoginAsync(userRepository, user.Email, newPassword);
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(actualResponse.Jwt, Is.Not.Null);
-            Assert.That(actualResponse.RefreshToken, Is.Not.Null);
-            Assert.That(actualResponse.Email, Is.EqualTo(user.Email));
-        });
+        // Act and Assert
+        Assert.ThrowsAsync<UserNotFoundException>(async () => await _passwordService.ForgotPasswordAsync(forgotPasswordDto));
     }
 
-    private async Task<UserRegisterRequestDto> RegisterNewUserAsync(UserRepository userRepository)
+    [Test]
+    public async Task ForgotPasswordAsync_ShouldAddForgotPasswordEntry_WhenUserFound()
     {
-        //var registerService = new RegisterService(_mapper, userRepository);
-        var user = _fixture.Create<UserRegisterRequestDto>();
-        //await registerService.RegisterUserAsync(user);
-        return user;
+        // Arrange
+        var forgotPasswordDto = _fixture.Create<ForgotPasswordDto>();
+        var user = _fixture.Create<User>();
+        _userRepository.Setup(x => x.CheckEmailIsExistAsync(forgotPasswordDto.Email)).ReturnsAsync(true);
+        _userRepository.Setup(x => x.GetUserByEmailAsync(forgotPasswordDto.Email)).ReturnsAsync(user);
+
+        // Act
+        await _passwordService.ForgotPasswordAsync(forgotPasswordDto);
+
+        // Assert
+        _forgotPasswordRepository.Verify(x => x.AddForgotTokenAsync(It.IsAny<ForgotPassword>()), Times.Once);
     }
 
-    private ResetPasswordDto GetResetPasswordDto(BinaryData message, string newPassword)
+    [Test]
+    public async Task ForgotPasswordAsync_ShouldSendNotification_WhenUserFound()
     {
-        var messageBodyString = Encoding.UTF8.GetString(message);
-        var objectMessageBody = JsonSerializer.Deserialize<NotificationModel>(messageBodyString);
-        var token = objectMessageBody?.MetaData.FirstOrDefault().Value;
+        // Arrange
+        var forgotPasswordDto = _fixture.Create<ForgotPasswordDto>();
+        var user = _fixture.Create<User>();
+        _userRepository.Setup(x => x.CheckEmailIsExistAsync(forgotPasswordDto.Email)).ReturnsAsync(true);
+        _userRepository.Setup(x => x.GetUserByEmailAsync(forgotPasswordDto.Email)).ReturnsAsync(user);
 
-        var regex = new Regex(@"\bid=([a-fA-F0-9-]+)&token=([a-fA-F0-9]+)\b");
-        var match = regex.Match(token);
+        // Act
+        await _passwordService.ForgotPasswordAsync(forgotPasswordDto);
 
-        //Reset input fields
-        var resetPasswordDto = new ResetPasswordDto
-        {
-            Id = Guid.Parse(match.Groups[1].Value),
-            Password = newPassword,
-            Token = match.Groups[2].Value
-        };
-
-        return resetPasswordDto;
+        // Assert
+        _notificationQueueService.Verify(x => x.SendNotificationAsync(It.IsAny<NotificationModel>()), Times.Once);
     }
 
-    private async Task<LoginResponseDto> TryToLoginAsync(UserRepository userRepository, string email, string newPassword)
+    [Test]
+    public async Task ResetPasswordAsync_ShouldResetPassword_WhenValidResetRequest()
     {
-        var refreshTokenRepository = new RefreshTokenRepository(_userManagerDbContext);
-        var refreshTokenService = new RefreshTokenService(refreshTokenRepository, userRepository);
-        var loginService = new LoginService(userRepository, _mapper, refreshTokenService);
+        // Arrange
+        var resetPasswordDto = _fixture.Create<ResetPasswordDto>();
+        var user = _fixture.Create<User>();
 
-        //Login input fields
-        var loginRequestDto = new LoginRequestDto
-        {
-            Email = email,
-            Password = newPassword
-        };
+        resetPasswordDto.Token = HttpUtility.UrlEncode(resetPasswordDto.Token);
+        _forgotPasswordRepository.Setup(x => x.ValidateResetRequestAsync(resetPasswordDto.Id, resetPasswordDto.Token)).ReturnsAsync(true);
+        _userRepository.Setup(x => x.GetUserByForgetPasswordIdAsync(resetPasswordDto.Id)).ReturnsAsync(user);
 
-        return await loginService.LoginUserAsync(loginRequestDto);
+        // Act
+        await _passwordService.ResetPasswordAsync(resetPasswordDto);
+
+        // Assert
+        _userRepository.Verify(x => x.UpdateUserAsync(user), Times.Once);
+        _forgotPasswordRepository.Verify(x => x.InvalidateTokenAsync(resetPasswordDto.Id), Times.Once);
     }
 }
