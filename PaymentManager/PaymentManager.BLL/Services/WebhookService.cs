@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using PaymentManager.BLL.Helpers;
 using PaymentManager.BLL.Hubs;
 using PaymentManager.BLL.Interfaces;
-using PaymentManager.BLL.Services.HttpServices;
+using PaymentManager.BLL.Interfaces.IHttpServices;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
@@ -22,14 +22,14 @@ public class WebhookService : StripeBaseService, IWebhookService
     private readonly IPaymentRepository _paymentRepository;
     private readonly IProductCatalogService _productCatalogService;
     private readonly ISubscriptionRepository _subscriptionRepository;
-    private readonly UserExternalHttpService _userExternalHttpService;
+    private readonly IUserExternalHttpService _userExternalHttpService;
 
     public WebhookService(IPaymentRepository paymentRepository,
         ISubscriptionRepository subscriptionRepository,
         ILogger<WebhookService> logger,
         IProductCatalogService productCatalogService,
         IHubContext<PaymentHub> hubContext,
-        UserExternalHttpService userExternalHttpService)
+        IUserExternalHttpService userExternalHttpService)
     {
         _userExternalHttpService = userExternalHttpService;
         _hubContext = hubContext;

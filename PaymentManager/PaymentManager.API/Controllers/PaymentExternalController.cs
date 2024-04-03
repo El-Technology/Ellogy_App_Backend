@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PaymentManager.BLL.Services;
+using PaymentManager.BLL.Interfaces;
 
 namespace PaymentManager.API.Controllers;
 
@@ -7,8 +7,8 @@ namespace PaymentManager.API.Controllers;
 [ApiController]
 public class PaymentExternalController : Controller
 {
-    private readonly WalletExternalService _walletExternalService;
-    public PaymentExternalController(WalletExternalService walletExternalService)
+    private readonly IWalletExternalService _walletExternalService;
+    public PaymentExternalController(IWalletExternalService walletExternalService)
     {
         _walletExternalService = walletExternalService;
     }

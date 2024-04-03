@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PaymentManager.DAL.Context;
+using PaymentManager.DAL.Interfaces;
 
 namespace PaymentManager.DAL.Repositories;
-public class WalletExternalRepository
+public class WalletExternalRepository : IWalletExternalRepository
 {
     private readonly PaymentContext _context;
     public WalletExternalRepository(PaymentContext context)

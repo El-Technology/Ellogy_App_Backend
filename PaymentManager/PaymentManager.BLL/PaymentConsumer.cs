@@ -6,9 +6,9 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using PaymentManager.BLL.Hubs;
 using PaymentManager.BLL.Interfaces;
+using PaymentManager.BLL.Interfaces.IHttpServices;
 using PaymentManager.BLL.Models;
 using PaymentManager.BLL.Services;
-using PaymentManager.BLL.Services.HttpServices;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
@@ -126,7 +126,7 @@ public class PaymentConsumer : StripeBaseService, IHostedService
         await using var scope = _serviceProvider.CreateAsyncScope();
         var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
         var productService = scope.ServiceProvider.GetRequiredService<IProductCatalogService>();
-        var userExternalHttpService = scope.ServiceProvider.GetRequiredService<UserExternalHttpService>();
+        var userExternalHttpService = scope.ServiceProvider.GetRequiredService<IUserExternalHttpService>();
 
         var getProductId = subscription.Items.Data.FirstOrDefault()?.Plan.ProductId
                            ?? throw new Exception("Taking productId error");

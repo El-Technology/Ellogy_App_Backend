@@ -1,6 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
 using PaymentManager.BLL.Interfaces;
+using PaymentManager.BLL.Interfaces.IHttpServices;
 using PaymentManager.BLL.Services;
 using PaymentManager.BLL.Services.HttpServices;
 using PaymentManager.Common;
@@ -24,8 +25,8 @@ public static class DiExtension
             .AddScoped<IPaymentCustomerService, PaymentCustomerService>()
             .AddScoped<IProductCatalogService, ProductCatalogService>()
             .AddScoped<IWebhookService, WebhookService>()
-            .AddScoped<UserExternalHttpService>()
-            .AddScoped<WalletExternalService>();
+            .AddScoped<IUserExternalHttpService, UserExternalHttpService>()
+            .AddScoped<IWalletExternalService, WalletExternalService>();
     }
 
     /// <summary>

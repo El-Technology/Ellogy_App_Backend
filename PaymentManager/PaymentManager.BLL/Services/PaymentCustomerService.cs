@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using PaymentManager.BLL.Interfaces;
+using PaymentManager.BLL.Interfaces.IHttpServices;
 using PaymentManager.BLL.Models;
-using PaymentManager.BLL.Services.HttpServices;
 using PaymentManager.Common.Constants;
 using PaymentManager.Common.Dtos;
 using PaymentManager.DAL.Interfaces;
@@ -19,11 +19,11 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
 {
     private readonly IMapper _mapper;
     private readonly ISubscriptionRepository _subscriptionRepository;
-    private readonly UserExternalHttpService _userExternalHttpService;
+    private readonly IUserExternalHttpService _userExternalHttpService;
 
     public PaymentCustomerService(ISubscriptionRepository subscriptionRepository,
         IMapper mapper,
-        UserExternalHttpService userExternalHttpService)
+        IUserExternalHttpService userExternalHttpService)
     {
         _userExternalHttpService = userExternalHttpService;
         _mapper = mapper;

@@ -1,10 +1,11 @@
-﻿using PaymentManager.DAL.Repositories;
+﻿using PaymentManager.BLL.Interfaces;
+using PaymentManager.DAL.Interfaces;
 
 namespace PaymentManager.BLL.Services;
-public class WalletExternalService
+public class WalletExternalService : IWalletExternalService
 {
-    private readonly WalletExternalRepository _walletExternalRepository;
-    public WalletExternalService(WalletExternalRepository walletExternalRepository)
+    private readonly IWalletExternalRepository _walletExternalRepository;
+    public WalletExternalService(IWalletExternalRepository walletExternalRepository)
     {
         _walletExternalRepository = walletExternalRepository;
     }

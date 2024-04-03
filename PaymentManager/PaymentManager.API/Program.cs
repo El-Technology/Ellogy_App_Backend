@@ -129,7 +129,6 @@ static void AddMiddleware(WebApplication app)
     }
 
     app.UseCors();
-
     app.UseWebSockets();
 
     app.UseHttpsRedirection();

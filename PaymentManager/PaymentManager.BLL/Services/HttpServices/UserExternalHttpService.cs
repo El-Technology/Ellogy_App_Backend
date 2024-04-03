@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
+using PaymentManager.BLL.Interfaces.IHttpServices;
 using PaymentManager.BLL.Models;
 using PaymentManager.DAL.Enums;
 using System.Text;
 
 namespace PaymentManager.BLL.Services.HttpServices;
-public class UserExternalHttpService
+public class UserExternalHttpService : IUserExternalHttpService
 {
     private readonly HttpClient _httpClient;
     public UserExternalHttpService(IHttpClientFactory httpClientFactory)

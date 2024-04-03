@@ -14,6 +14,6 @@ public static class DiExtensions
             .AddDbContext<PaymentContext>(c => c.UseNpgsql(connectionString))
             .AddScoped<IPaymentRepository, PaymentRepository>()
             .AddScoped<ISubscriptionRepository, SubscriptionRepository>()
-            .AddScoped<WalletExternalRepository>();
+            .AddScoped<IWalletExternalRepository, WalletExternalRepository>();
     }
 }

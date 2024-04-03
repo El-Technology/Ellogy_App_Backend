@@ -1,6 +1,6 @@
 ﻿using PaymentManager.BLL.Interfaces;
+using PaymentManager.BLL.Interfaces.IHttpServices;
 using PaymentManager.BLL.Models;
-using PaymentManager.BLL.Services.HttpServices;
 using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
@@ -19,13 +19,14 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     private readonly IPaymentRepository _paymentRepository;
     private readonly IProductCatalogService _productCatalogService;
     private readonly ISubscriptionRepository _subscriptionRepository;
-    private readonly UserExternalHttpService _userExternalHttpService;
+    private readonly IUserExternalHttpService _userExternalHttpService;
 
-    public PaymentSessionService(IPaymentRepository paymentRepository,
+    public PaymentSessionService(
+        IPaymentRepository paymentRepository,
         IProductCatalogService productCatalogService,
         IPaymentCustomerService paymentCustomerService,
         ISubscriptionRepository subscriptionRepository,
-        UserExternalHttpService userExternalHttpService)
+        IUserExternalHttpService userExternalHttpService)
     {
         _userExternalHttpService = userExternalHttpService;
         _paymentCustomerService = paymentCustomerService;
