@@ -5,6 +5,7 @@ using NotificationService.Interfaces;
 using System.Collections.Generic;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using UserManager.Common;
 using UserManager.Common.Constants;
 using UserManager.Common.Models.NotificationModels;
 using UserManager.Common.Options;
@@ -47,7 +48,7 @@ public class MailService : IMailService
             Html = template
         };
 
-        var emailMessage = new EmailMessage(MailOptions.FromMail, notificationModel.Consumer, emailContent);
+        var emailMessage = new EmailMessage(EnvironmentVariables.MailFrom, notificationModel.Consumer, emailContent);
 
         if (notificationModel.BlobUrls is not null)
         {

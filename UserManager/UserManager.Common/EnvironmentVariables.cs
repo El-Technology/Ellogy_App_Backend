@@ -53,4 +53,13 @@ public static class EnvironmentVariables
             return variable ??= "default_BLOB_STORAGE_CONNECTION_STRING";
         }
     }
+
+    public static string MailFrom
+    {
+        get
+        {
+            var variable = Environment.GetEnvironmentVariable("MAIL_FROM");
+            return variable is null ? variable = "MAIL_FROM" : variable;
+        }
+    }
 }
