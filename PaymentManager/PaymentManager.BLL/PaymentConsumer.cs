@@ -24,6 +24,7 @@ namespace PaymentManager.BLL;
 /// </summary>
 public class PaymentConsumer : StripeBaseService, IHostedService
 {
+    private const int ProcessingLimit = 25;
     private readonly ServiceBusClient _busClient;
     private readonly IHubContext<PaymentHub> _hubContext;
     private readonly ILogger<PaymentConsumer> _logger;
@@ -37,7 +38,7 @@ public class PaymentConsumer : StripeBaseService, IHostedService
         _hubContext = hubContext;
         _busClient = busClient;
         _serviceProvider = serviceProvider;
-        _processorOptions = new ServiceBusProcessorOptions { PrefetchCount = 25 };
+        _processorOptions = new ServiceBusProcessorOptions { PrefetchCount = ProcessingLimit };
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -119,7 +120,6 @@ public class PaymentConsumer : StripeBaseService, IHostedService
 
         await testRepo.CreatePaymentAsync(payment);
     }
-
 
     private async Task CreateFreeSubscriptionDataBaseRecordAsync(Stripe.Subscription subscription)
     {
