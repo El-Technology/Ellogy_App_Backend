@@ -2,6 +2,6 @@
 
 public class CreateSessionRequest : SignalRModel
 {
-    public string SuccessUrl { get; set; } = null!;
-    public string CancelUrl { get; set; } = null!;
+    public string SuccessUrl { get; set; } = string.Empty;
+    public string CancelUrl { get; set; } = string.Empty;
 }

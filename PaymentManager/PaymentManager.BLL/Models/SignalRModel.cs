@@ -2,6 +2,6 @@
 
 public class SignalRModel
 {
-    public string ConnectionId { get; set; } = null!;
-    public string SignalMethodName { get; set; } = null!;
+    public string ConnectionId { get; set; } = string.Empty;
+    public string SignalMethodName { get; set; } = string.Empty;
 }
