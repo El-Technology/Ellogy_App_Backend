@@ -41,6 +41,7 @@ public class UserExternalHttpService : IUserExternalHttpService
     public async Task RemoveStripeCustomerIdAsync(Guid userId)
     {
         var result = await _httpClient.DeleteAsync($"api/UserExternal/remove-stripe-customer-id?userId={userId}");
+
         if (!result.IsSuccessStatusCode)
             throw new Exception("Error while adding stripe customer id");
 
@@ -49,7 +50,9 @@ public class UserExternalHttpService : IUserExternalHttpService
 
     public async Task UpdateTotalPurchasedTokensAsync(Guid userId, int totalPurchasedTokens)
     {
-        var result = await _httpClient.GetAsync($"api/UserExternal/update-total-purchased-tokens?userId={userId}&totalPurchasedTokens={totalPurchasedTokens}");
+        var result = await _httpClient.GetAsync(
+            $"api/UserExternal/update-total-purchased-tokens?userId={userId}&totalPurchasedTokens={totalPurchasedTokens}");
+
         if (!result.IsSuccessStatusCode)
             throw new Exception("Error while adding stripe customer id");
 
@@ -58,7 +61,9 @@ public class UserExternalHttpService : IUserExternalHttpService
 
     public async Task UpdateAccountPlanAsync(Guid userId, AccountPlan? accountPlan)
     {
-        var result = await _httpClient.GetAsync($"api/UserExternal/update-account-plan?userId={userId}&accountPlan={accountPlan}");
+        var result = await _httpClient.GetAsync(
+            $"api/UserExternal/update-account-plan?userId={userId}&accountPlan={accountPlan}");
+
         if (!result.IsSuccessStatusCode)
             throw new Exception("Error while updating account plan");
 
