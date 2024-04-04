@@ -7,7 +7,6 @@ using PaymentManager.Common.Dtos;
 using PaymentManager.DAL.Interfaces;
 using Stripe;
 using Stripe.Checkout;
-using PaymentMethod = PaymentManager.BLL.Models.PaymentMethod;
 using Subscription = PaymentManager.DAL.Models.Subscription;
 
 namespace PaymentManager.BLL.Services;
@@ -92,7 +91,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     }
 
     /// <inheritdoc cref="IPaymentCustomerService.RetrieveCustomerPaymentMethodsAsync(Guid, StripePaginationRequestDto)" />
-    public async Task<StripePaginationResponseDto<IEnumerable<PaymentMethod>>> RetrieveCustomerPaymentMethodsAsync(
+    public async Task<StripePaginationResponseDto<IEnumerable<PaymentMethodDto>>> RetrieveCustomerPaymentMethodsAsync(
         Guid userId, StripePaginationRequestDto paginationRequestDto)
     {
         var user = await _userExternalHttpService.GetUserByIdAsync(userId)
@@ -109,10 +108,10 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
             EndingBefore = paginationRequestDto.EndBefore
         });
 
-        return new StripePaginationResponseDto<IEnumerable<PaymentMethod>>
+        return new StripePaginationResponseDto<IEnumerable<PaymentMethodDto>>
         {
             HasMore = allMethods.HasMore,
-            Data = _mapper.Map<List<PaymentMethod>>(allMethods)
+            Data = _mapper.Map<List<PaymentMethodDto>>(allMethods)
         };
     }
 

@@ -61,7 +61,7 @@ public interface IPaymentCustomerService
     /// <param name="userId">User ID</param>
     /// <param name="paginationRequestDto"></param>
     /// <returns>An asynchronous enumerable collection of customer payment methods</returns>
-    Task<StripePaginationResponseDto<IEnumerable<PaymentMethod>>> RetrieveCustomerPaymentMethodsAsync(Guid userId,
+    Task<StripePaginationResponseDto<IEnumerable<PaymentMethodDto>>> RetrieveCustomerPaymentMethodsAsync(Guid userId,
         StripePaginationRequestDto paginationRequestDto);
 
     /// <summary>

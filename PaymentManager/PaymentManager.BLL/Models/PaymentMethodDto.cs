@@ -1,6 +1,6 @@
 ﻿namespace PaymentManager.BLL.Models;
 
-public class PaymentMethod
+public class PaymentMethodDto
 {
     public string? Type { get; set; }
     public string? Id { get; set; }

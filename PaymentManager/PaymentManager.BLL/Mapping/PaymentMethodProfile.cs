@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PaymentManager.BLL.Models;
 using Stripe;
 
 namespace PaymentManager.BLL.Mapping;
@@ -7,7 +8,7 @@ public class PaymentMethodProfile : Profile
 {
     public PaymentMethodProfile()
     {
-        CreateMap<PaymentMethod, Models.PaymentMethod>()
+        CreateMap<PaymentMethod, PaymentMethodDto>()
             .ForMember(dest => dest.Type, opt =>
                 opt.MapFrom(src => src.Type))
             .ForMember(dest => dest.Id, opt =>
