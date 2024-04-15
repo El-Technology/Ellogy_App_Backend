@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using PaymentManager.Common.Constants;
-using PaymentManager.Common.Options;
+using PaymentManager.Common.Helpers;
+using System.Collections.Concurrent;
 
 namespace PaymentManager.BLL.Hubs;
 
@@ -15,7 +16,7 @@ public class PaymentHub : Hub
     /// <summary>
     ///     This dictionary contains the list of connections with user id
     /// </summary>
-    public static readonly Dictionary<string, Guid> ListOfConnections = new();
+    public static readonly ConcurrentDictionary<string, Guid> ListOfConnections = new();
 
     /// <summary>
     ///     This method checks if the connection id exists
@@ -43,9 +44,14 @@ public class PaymentHub : Hub
     /// <returns></returns>
     public override async Task OnConnectedAsync()
     {
-        var userId = Context.GetHttpContext()?.User.FindFirst(JwtOptions.UserIdClaimName)?.Value
-                     ?? throw new Exception("UserId was not found");
-        ListOfConnections.Add(Context.ConnectionId, Guid.Parse(userId));
+        var httpContext = Context.GetHttpContext()
+            ?? throw new Exception("HttpContext is null");
+
+        var userId = TokenParseHelper.GetUserId(httpContext.User);
+
+        if (!ListOfConnections.TryAdd(Context.ConnectionId, userId))
+            throw new Exception($"Error while adding connection {Context.ConnectionId} for user {userId}");
+
         await Clients.Client(Context.ConnectionId).SendAsync(Constants.OnConnectedMethod, Context.ConnectionId);
     }
 
@@ -56,7 +62,9 @@ public class PaymentHub : Hub
     /// <returns></returns>
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        ListOfConnections.Remove(Context.ConnectionId);
+        if (!ListOfConnections.TryRemove(Context.ConnectionId, out var userId))
+            throw new Exception($"Error while removing connection {Context.ConnectionId} for user {userId}");
+
         await base.OnDisconnectedAsync(exception);
     }
 }
