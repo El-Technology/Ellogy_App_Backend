@@ -5,7 +5,7 @@ using PaymentManager.BLL;
 using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Models;
 using PaymentManager.Common.Dtos;
-using PaymentManager.Common.Options;
+using PaymentManager.Common.Helpers;
 
 namespace PaymentManager.API.Controllers;
 
@@ -28,14 +28,8 @@ public class CustomerController : Controller
     /// </summary>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private Guid GetUserIdFromToken()
-    {
-        var status = Guid.TryParse(User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out var userId);
-        if (!status)
-            throw new Exception("Taking user id error, try again later");
-
-        return userId;
-    }
+    private Guid GetUserIdFromToken() =>
+        TokenParseHelper.GetUserId(User);
 
     /// <summary>
     ///     This method creates a customer in stripe portal
