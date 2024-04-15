@@ -1,12 +1,13 @@
 ﻿using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
 using AICommunicationService.Common.Enums;
+using AICommunicationService.Common.Helpers;
 using AICommunicationService.Common.Models.AIRequest;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AICommunicationService.Api.Controllers;
+namespace AICommunicationService.Controllers;
 
 /// <summary>
 ///     This controller provides endpoints for communication with Chat GPT using various templates and methods.
@@ -45,14 +46,8 @@ public class CommunicationController : ControllerBase
     /// </summary>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private Guid GetUserIdFromToken()
-    {
-        var status = Guid.TryParse(User.FindFirst(JwtOptions.USER_ID_CLAIM_NAME)?.Value, out var userId);
-        if (!status)
-            throw new Exception("Taking user id error, try again later");
-
-        return userId;
-    }
+    private Guid GetUserIdFromToken() =>
+        TokenParseHelper.GetUserId(User);
 
     /// <summary>
     ///     Endpoint for retrieving AI response as streaming using SignalR.

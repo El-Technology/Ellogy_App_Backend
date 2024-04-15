@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using TicketsManager.BLL.Dtos.TicketDtos;
 using TicketsManager.BLL.Interfaces;
-using TicketsManager.Common;
 using TicketsManager.Common.Dtos;
+using TicketsManager.Common.Helpers;
 
 namespace TicketsManager.Api.Controllers;
 
@@ -33,16 +33,8 @@ public class TicketsController : Controller
     /// </summary>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private Guid GetUserIdFromToken()
-    {
-        var status = Guid.TryParse(
-            User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out var userId);
-
-        if (!status)
-            throw new Exception("Taking user id error, try again later");
-
-        return userId;
-    }
+    private Guid GetUserIdFromToken() =>
+        TokenParseHelper.GetUserId(User);
 
     /// <summary>
     /// Retrieves all tickets associated with the specified user.

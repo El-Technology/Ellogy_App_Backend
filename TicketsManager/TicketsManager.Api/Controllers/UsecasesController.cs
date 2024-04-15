@@ -5,7 +5,7 @@ using TicketsManager.BLL.Dtos.TicketUsecaseDtos.FullDtos;
 using TicketsManager.BLL.Dtos.TicketUsecaseDtos.UsecasesDtos;
 
 using TicketsManager.BLL.Interfaces;
-using TicketsManager.Common;
+using TicketsManager.Common.Helpers;
 
 namespace TicketsManager.Api.Controllers;
 
@@ -28,16 +28,8 @@ public class UsecasesController : ControllerBase
     /// </summary>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private Guid GetUserIdFromToken()
-    {
-        var status = Guid.TryParse(
-            User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out var userId);
-
-        if (!status)
-            throw new Exception("Taking user id error, try again later");
-
-        return userId;
-    }
+    private Guid GetUserIdFromToken() =>
+        TokenParseHelper.GetUserId(User);
 
     /// <summary>
     /// Endpoint to create diagrams and tables in use cases.

@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using UserManager.BLL.Dtos.ProfileDto;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Interfaces;
+using UserManager.Common.Helpers;
 using UserManager.Common.Models.AvatarImage;
-using UserManager.Common.Options;
 
 namespace UserManager.Api.Controllers;
 
@@ -33,14 +33,8 @@ public class ProfileController : ControllerBase
     /// </summary>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private Guid GetUserIdFromToken()
-    {
-        var status = Guid.TryParse(User.FindFirst(JwtOptions.UserIdClaimName)?.Value, out var userId);
-        if (!status)
-            throw new Exception("Taking user id error, try again later");
-
-        return userId;
-    }
+    private Guid GetUserIdFromToken() =>
+        TokenParseHelper.GetUserId(User);
 
     /// <summary>
     ///     Deletes the user profile.

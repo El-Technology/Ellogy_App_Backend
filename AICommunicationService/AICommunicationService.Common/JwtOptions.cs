@@ -1,12 +1,12 @@
-﻿using System.Text;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace AICommunicationService.Common;
 
 public static class JwtOptions
 {
     public const string ACCOUNT_PLAN = "AccountPlan";
-    public const string USER_ID_CLAIM_NAME = "userId";
+    public const string UserIdClaimName = "userId";
     public const string ISSUER = "https://ellogy.usermanager";
 
     private static readonly string? Key = EnvironmentVariables.JwtSecretKey;

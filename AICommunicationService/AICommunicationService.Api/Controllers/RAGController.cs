@@ -1,8 +1,8 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
-using AICommunicationService.Common;
 using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Dtos;
+using AICommunicationService.Common.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,14 +27,8 @@ public class RAGController : Controller
     /// </summary>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    private Guid GetUserIdFromToken()
-    {
-        var status = Guid.TryParse(User.FindFirst(JwtOptions.USER_ID_CLAIM_NAME)?.Value, out var userId);
-        if (!status)
-            throw new Exception("Taking user id error, try again later");
-
-        return userId;
-    }
+    private Guid GetUserIdFromToken() =>
+        TokenParseHelper.GetUserId(User);
 
     /// <summary>
     ///     This method returns the url for uploading the document
