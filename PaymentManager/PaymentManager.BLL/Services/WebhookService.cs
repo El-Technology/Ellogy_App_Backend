@@ -237,8 +237,7 @@ public class WebhookService : StripeBaseService, IWebhookService
         if (!connections.Any())
             return;
 
-        foreach (var connection in connections)
-            await _hubContext.Clients.Client(connection.Key).SendAsync(methodName, message);
+        await _hubContext.Clients.Clients(connections.Select(x => x.Key)).SendAsync(methodName, message);
     }
 
     private async Task<Subscription> UpdateSubscriptionPaymentFailCaseAsync(Subscription subscription, string? priceId)
