@@ -321,6 +321,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uuid");
 
@@ -432,6 +435,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TestScenarios")
                         .IsRequired()
@@ -588,7 +594,8 @@ namespace TicketsManager.DAL.Migrations
                 {
                     b.HasOne("TicketsManager.DAL.Models.Usecase", "Usecase")
                         .WithOne("UserStoryTest")
-                        .HasForeignKey("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", "UsecaseId");
+                        .HasForeignKey("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", "UsecaseId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Usecase");
                 });

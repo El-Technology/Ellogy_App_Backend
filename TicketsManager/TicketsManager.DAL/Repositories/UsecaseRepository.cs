@@ -15,6 +15,16 @@ public class UsecaseRepository : IUsecaseRepository
     {
         _context = context;
     }
+
+    public async Task<int> GetLastOrderForUsecaseByTicketIdAsync(Guid ticketId)
+    {
+        return await _context.Usecases
+            .Where(a => a.TicketId == ticketId)
+            .Select(a => a.Order)
+            .DefaultIfEmpty()
+            .MaxAsync();
+    }
+
     public IQueryable<TicketSummary> GetTicketSummariesByIdsAsync(List<Guid> ticketSummaryIds)
     {
         return _context.TicketSummaries.Where(a => ticketSummaryIds.Contains(a.Id));
@@ -39,10 +49,12 @@ public class UsecaseRepository : IUsecaseRepository
     {
         var numberOfItemsToSkip = (paginationRequest.CurrentPageNumber - PAGINATION_STARTS_FROM_ONE) *
                                   paginationRequest.RecordsPerPage;
+
         var totalRecords = _context.Usecases.Count(a => a.TicketId == ticketId);
 
         var usecases = await _context.Usecases
             .Where(a => a.TicketId == ticketId)
+            .OrderBy(a => a.Order)
             .Skip(numberOfItemsToSkip)
             .Take(paginationRequest.RecordsPerPage)
             .Include(a => a.Tables)

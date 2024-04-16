@@ -34,6 +34,14 @@ public class UsecasesService : IUsecasesService
 
         var usecases = _mapper.Map<List<Usecase>>(createUsecasesDto);
 
+        foreach (var usecaseGroup in usecases.GroupBy(u => u.TicketId))
+        {
+            var lastOrder = await _usecaseRepository.GetLastOrderForUsecaseByTicketIdAsync(usecaseGroup.Key);
+
+            foreach (var usecase in usecaseGroup)
+                usecase.Order = ++lastOrder;
+        }
+
         await _usecaseRepository.CreateUsecasesAsync(usecases);
         return new CreateUsecasesResponseDto { Usecases = _mapper.Map<List<UsecaseFullDto>>(usecases) };
     }

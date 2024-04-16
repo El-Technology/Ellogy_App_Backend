@@ -13,6 +13,7 @@ public class UsecaseConfiguration : IEntityTypeConfiguration<Usecase>
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Title);
         builder.Property(t => t.Description);
+        builder.Property(t => t.Order);
 
         builder.HasOne(a => a.Ticket)
             .WithMany(a => a.Usecases)
@@ -20,7 +21,8 @@ public class UsecaseConfiguration : IEntityTypeConfiguration<Usecase>
 
         builder.HasOne(a => a.UserStoryTest)
             .WithOne(a => a.Usecase)
-            .HasForeignKey<UserStoryTest>(a => a.UsecaseId);
+            .HasForeignKey<UserStoryTest>(a => a.UsecaseId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(a => a.TicketSummaries)
             .WithMany(a => a.Usecases);
