@@ -3,7 +3,6 @@ using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
-using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
@@ -198,10 +197,10 @@ public class CommunicationService : ICommunicationService
 
     private async Task<string?> GetRAGContextAsync(Guid userId, CreateConversationRequest createConversationRequest)
     {
-        if (createConversationRequest is not { UseRAG: true, FileName: not null })
+        if (createConversationRequest is not { UseRAG: true, FileName: not null, RagTemplate: not null })
             return null;
 
-        var getPrompt = await _aIPromptRepository.GetPromptByTemplateNameAsync(RagConstants.RAG_CONTEXT)
+        var getPrompt = await _aIPromptRepository.GetPromptByTemplateNameAsync(createConversationRequest.RagTemplate)
                         ?? throw new Exception("Prompt was not found");
 
         var ragContext = await _documentService.GetTheClosesContextAsync(userId, createConversationRequest.UserInput,
