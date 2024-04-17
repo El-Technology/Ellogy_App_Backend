@@ -28,14 +28,14 @@ public class EmbeddingRepository : IEmbeddingRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<Embedding?> GetTheClosestEmbeddingAsync(Guid userId, string fileName, float[] searchRequest)
+    public async Task<List<Embedding>> GetTheClosestEmbeddingAsync(Guid userId, string fileName, float[] searchRequest)
     {
         return await _context.Embeddings
             .Where(a => a.Document.Name.Equals(fileName) && (a.Document.UserId == userId || a.Document.DocumentSharing
                 .Where(a => a.Document.Name.Equals(fileName)).Any(a => a.UserId == userId)))
             .OrderBy(a => a.Vector!.L2Distance(new Vector(searchRequest)))
-            .Take(1)
-            .FirstOrDefaultAsync();
+            .Take(3)
+            .ToListAsync();
     }
 
     public async Task<bool> CheckIfEmbeddingAlreadyExistAsync(Guid userId, string fileName)

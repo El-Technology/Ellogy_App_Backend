@@ -198,7 +198,10 @@ public class DocumentService : IDocumentService
         var embedding = await _customAiService.GetEmbeddingAsync(searchRequest);
         var searchResult = await _embeddingRepository.GetTheClosestEmbeddingAsync(userId, fileName, embedding);
 
-        return searchResult?.Text ?? string.Empty;
+        var stringBuilder = new StringBuilder();
+        foreach (var result in searchResult) stringBuilder.AppendLine(result.Text);
+
+        return stringBuilder.ToString();
     }
 
     /// <inheritdoc cref="IDocumentService.FindUserByEmailAsync" />
@@ -278,7 +281,7 @@ public class DocumentService : IDocumentService
 
     private List<string> SplitText(string text)
     {
-        var textSplitter = new RecursiveCharacterTextSplitter(chunkSize: 4000, chunkOverlap: 50);
+        var textSplitter = new RecursiveCharacterTextSplitter(chunkSize: 1500, chunkOverlap: 100);
         return textSplitter.SplitText(text);
     }
 
