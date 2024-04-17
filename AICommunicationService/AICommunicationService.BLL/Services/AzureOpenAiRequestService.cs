@@ -6,6 +6,7 @@ using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
 using Newtonsoft.Json;
+using System.Collections;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -21,28 +22,34 @@ public class AzureOpenAiRequestService : IAzureOpenAiRequestService
         _httpClient = httpClientFactory.CreateClient("AzureAiRequest");
     }
 
-    private List<object> GetMessages(string systemMessage, string userInput, string? context = null)
+    private List<object> GetMessages(MessageRequest request)
     {
-        var inputContext = context ?? string.Empty;
-
-        return new List<object>
+        var messages = new List<object>()
         {
-            new
-            {
-                role = "system",
-                content = $"{systemMessage}\n{inputContext}"
-            },
-            new
-            {
-                role = "user",
-                content = userInput
-            }
+             new { role = "system", content = request.Template }
         };
+
+        if (!string.IsNullOrEmpty(request.Context))
+            messages.Add(new { role = "system", content = request.Context });
+
+        if (request.ConversationHistory is not null)
+            foreach (DictionaryEntry s in request.ConversationHistory)
+            {
+                messages.AddRange(new List<object>
+                {
+                    new { role = "user", content = s.Key.ToString() },
+                    new { role = "assistant", content = s.Value?.ToString() }
+                });
+            }
+
+        messages.Add(new { role = "user", content = request.UserInput });
+
+        return messages;
     }
 
     private StringContent PostAiRequestGetContent(MessageRequest request, AiRequestType requestType)
     {
-        var messages = GetMessages(request.Template, request.UserInput, request.Context);
+        var messages = GetMessages(request);
         object requestData;
         switch (requestType)
         {

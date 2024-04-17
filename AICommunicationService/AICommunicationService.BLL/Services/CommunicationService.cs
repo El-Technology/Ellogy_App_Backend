@@ -49,6 +49,7 @@ public class CommunicationService : ICommunicationService
         var request = new MessageRequest
         {
             Context = await GetRAGContextAsync(userId, createConversationRequest),
+            ConversationHistory = createConversationRequest.ConversationHistory,
             Temperature = createConversationRequest.Temperature,
             Template = await GetTemplateAsync(createConversationRequest.TemplateName),
             Url = GetAiModelLink(createConversationRequest.AiModelEnum),
@@ -75,6 +76,7 @@ public class CommunicationService : ICommunicationService
         {
             Context = await GetRAGContextAsync(userId, streamRequest),
             Temperature = streamRequest.Temperature,
+            ConversationHistory = streamRequest.ConversationHistory,
             Template = await GetTemplateAsync(streamRequest.TemplateName),
             Url = GetAiModelLink(streamRequest.AiModelEnum),
             UserInput = streamRequest.UserInput
@@ -120,6 +122,7 @@ public class CommunicationService : ICommunicationService
             Context = await GetRAGContextAsync(userId, createConversationRequest),
             Functions = await GetFunctionsAsync(createConversationRequest.TemplateName) ??
                         throw new Exception("Functions is null, change method or update the prompt"),
+            ConversationHistory = createConversationRequest.ConversationHistory,
             Temperature = createConversationRequest.Temperature,
             Template = await GetTemplateAsync(createConversationRequest.TemplateName),
             Url = GetAiModelLink(createConversationRequest.AiModelEnum),

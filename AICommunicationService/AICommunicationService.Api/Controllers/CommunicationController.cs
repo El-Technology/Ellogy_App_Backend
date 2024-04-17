@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AICommunicationService.Api.Controllers;
+namespace AICommunicationService.Controllers;
 
 /// <summary>
 ///     This controller provides endpoints for communication with Chat GPT using various templates and methods.
