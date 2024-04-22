@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using Moq.Protected;
 using AICommunicationService.BLL.Dtos;
+using AICommunicationService.Common.Models.GptResponseModel;
 
 namespace AiCommunicationService.Tests.ServiceTests
 {

@@ -4,8 +4,8 @@ using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Enums;
-using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
+using AICommunicationService.Common.Models.GptResponseModel;
 using AICommunicationService.DAL.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using System.Text;
@@ -25,14 +25,17 @@ public class CommunicationService : ICommunicationService
     private readonly IHubContext<StreamAiHub> _hubContext;
     private readonly IUserRepository _userRepository;
     private readonly IWalletRepository _walletRepository;
+    private readonly IGroqAiRequestService _groqAiRequestService;
 
     public CommunicationService(IAIPromptRepository aIPromptRepository,
         IHubContext<StreamAiHub> hubContext,
         IAzureOpenAiRequestService azureOpenAiRequestService,
         IUserRepository userRepository,
         IWalletRepository walletRepository,
-        IDocumentService documentService)
+        IDocumentService documentService,
+        IGroqAiRequestService groqAiRequestService)
     {
+        _groqAiRequestService = groqAiRequestService;
         _userRepository = userRepository;
         _walletRepository = walletRepository;
         _hubContext = hubContext;
@@ -42,45 +45,40 @@ public class CommunicationService : ICommunicationService
     }
 
     /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(Guid, CreateConversationRequest)" />
-    public async Task<string?> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest)
+    public async Task<string> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest)
     {
-        await CheckIfUserAllowedToCreateRequest(userId);
+        var request = await CreateMessageRequestAsync(userId, createConversationRequest, AiRequestType.Default);
 
-        var request = new MessageRequest
+        var response = (int)createConversationRequest.AiModelEnum switch
         {
-            Context = await GetRAGContextAsync(userId, createConversationRequest),
-            ConversationHistory = createConversationRequest.ConversationHistory,
-            Temperature = createConversationRequest.Temperature,
-            Template = await GetTemplateAsync(createConversationRequest.TemplateName),
-            Url = GetAiModelLink(createConversationRequest.AiModelEnum),
-            UserInput = createConversationRequest.UserInput
+            >= 4 => await _groqAiRequestService.PostAiRequestAsync(request, AiRequestType.Default, createConversationRequest.AiModelEnum),
+            _ => await _customAiService.PostAiRequestAsync(request)
         };
-        var response = await _customAiService.PostAiRequestAsync(request);
 
-        await _userRepository.UpdateUserTotalPointsUsageAsync(userId,
-            response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
-        await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
+        return await ProcessResultAsync(userId, response);
+    }
 
-        return response.Content;
+    /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(Guid, CreateConversationRequest)" />
+    public async Task<string> ChatRequestWithFunctionAsync(Guid userId, CreateConversationRequest createConversationRequest)
+    {
+        var request = await CreateMessageRequestAsync(userId, createConversationRequest, AiRequestType.Functions);
+
+        var response = (int)createConversationRequest.AiModelEnum switch
+        {
+            >= 4 => await _groqAiRequestService.PostAiRequestAsync(request, AiRequestType.Functions, createConversationRequest.AiModelEnum),
+            _ => await _customAiService.PostAiRequestWithFunctionAsync(request)
+        };
+
+        return await ProcessResultAsync(userId, response);
     }
 
     /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(Guid, StreamRequest)" />
     public async Task<string> StreamSignalRConversationAsync(Guid userId, StreamRequest streamRequest)
     {
-        await CheckIfUserAllowedToCreateRequest(userId);
-
         if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
             throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
 
-        var request = new MessageRequest
-        {
-            Context = await GetRAGContextAsync(userId, streamRequest),
-            Temperature = streamRequest.Temperature,
-            ConversationHistory = streamRequest.ConversationHistory,
-            Template = await GetTemplateAsync(streamRequest.TemplateName),
-            Url = GetAiModelLink(streamRequest.AiModelEnum),
-            UserInput = streamRequest.UserInput
-        };
+        var request = await CreateMessageRequestAsync(userId, streamRequest, AiRequestType.Streaming);
 
         var stringBuilder = new StringBuilder();
         await _customAiService.PostAiRequestAsStreamAsync(request, async response =>
@@ -104,48 +102,48 @@ public class CommunicationService : ICommunicationService
             }
         };
 
-        await _userRepository.UpdateUserTotalPointsUsageAsync(userId,
-            response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
-        await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
-
-        return response.Content;
+        return await ProcessResultAsync(userId, response);
     }
 
-    /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(Guid, CreateConversationRequest)" />
-    public async Task<string?> ChatRequestWithFunctionAsync(Guid userId,
-        CreateConversationRequest createConversationRequest)
+    private async Task<MessageRequest> CreateMessageRequestAsync(
+        Guid userId, CreateConversationRequest createConversationRequest, AiRequestType requestType)
     {
         await CheckIfUserAllowedToCreateRequest(userId);
 
-        var request = new MessageRequest
+        return new MessageRequest
         {
             Context = await GetRAGContextAsync(userId, createConversationRequest),
-            Functions = await GetFunctionsAsync(createConversationRequest.TemplateName) ??
-                        throw new Exception("Functions is null, change method or update the prompt"),
+            Functions = (requestType == AiRequestType.Functions)
+                    ? await GetFunctionsAsync(createConversationRequest.TemplateName, createConversationRequest.AiModelEnum)
+                    : null,
             ConversationHistory = createConversationRequest.ConversationHistory,
             Temperature = createConversationRequest.Temperature,
             Template = await GetTemplateAsync(createConversationRequest.TemplateName),
-            Url = GetAiModelLink(createConversationRequest.AiModelEnum),
+            Url = GetAzureOpenAiRequestLink(createConversationRequest.AiModelEnum),
             UserInput = createConversationRequest.UserInput
         };
-        var response = await _customAiService.PostAiRequestWithFunctionAsync(request);
+    }
+
+    private async Task<string> ProcessResultAsync(Guid userId, CommunicationResponseModel response)
+    {
+        var totalTokens = response.Usage?.TotalTokens;
 
         await _userRepository.UpdateUserTotalPointsUsageAsync(userId,
-            response.Usage.TotalTokens / PaymentConstants.TokensToPointsRelation);
-        await _walletRepository.TakeServiceFeeAsync(userId, TokensToPointsConverter(response.Usage.TotalTokens));
+            TokensToPointsConverter(totalTokens));
 
-        return response.Content;
+        await _walletRepository.TakeServiceFeeAsync(userId,
+            TokensToPointsConverter(totalTokens));
+
+        return response.Content ?? string.Empty;
     }
 
     private int Tokenizer(AiModelEnum aiModelEnum, string text)
     {
-        var model = string.Empty;
-
-        if (aiModelEnum == AiModelEnum.Turbo)
-            model = "gpt-3.5-turbo";
-
-        if (aiModelEnum is AiModelEnum.Four or AiModelEnum.FourTurbo or AiModelEnum.Four32k)
-            model = "gpt-4";
+        var model = aiModelEnum switch
+        {
+            AiModelEnum.Turbo => "gpt-3.5-turbo",
+            _ => "gpt-4"
+        };
 
         var encoding = Encoding.ForModel(model);
         var tokens = encoding.CountTokens(text);
@@ -153,10 +151,8 @@ public class CommunicationService : ICommunicationService
         return tokens;
     }
 
-    private int TokensToPointsConverter(int amountOfTokens)
-    {
-        return amountOfTokens / PaymentConstants.TokensToPointsRelation;
-    }
+    private int TokensToPointsConverter(int? amountOfTokens) =>
+        amountOfTokens ?? 0 / PaymentConstants.TokensToPointsRelation;
 
     private async Task CheckIfUserAllowedToCreateRequest(Guid userId)
     {
@@ -175,18 +171,29 @@ public class CommunicationService : ICommunicationService
     {
         var getPrompt = await _aIPromptRepository.GetPromptByTemplateNameAsync(promptName)
                         ?? throw new Exception("Prompt was not found");
+
         return getPrompt.Value;
     }
 
-    private async Task<string?> GetFunctionsAsync(string promptName)
+    private async Task<string?> GetFunctionsAsync(string promptName, AiModelEnum aiModelEnum)
     {
         var getPrompt = await _aIPromptRepository.GetPromptByTemplateNameAsync(promptName)
                         ?? throw new Exception("Prompt was not found");
-        return getPrompt.Functions;
+
+        var response = (int)aiModelEnum switch
+        {
+            >= 4 => getPrompt.JsonSample,
+            _ => getPrompt.Functions
+        };
+
+        return response;
     }
 
-    private string GetAiModelLink(AiModelEnum aiModelEnum)
+    private string GetAzureOpenAiRequestLink(AiModelEnum aiModelEnum)
     {
+        if ((int)aiModelEnum >= 4)
+            return string.Empty;
+
         var deploymentName = aiModelEnum switch
         {
             AiModelEnum.Turbo => AzureAiConstants.TurboModel,

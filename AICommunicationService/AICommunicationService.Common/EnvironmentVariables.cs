@@ -2,6 +2,9 @@
 
 public static class EnvironmentVariables
 {
+    public static readonly string? GroqKey = Environment.GetEnvironmentVariable("GROQ_KEY")
+    /*?? throw new EnvironmentVariableNotFoundException("OPEN_AI_KEY")*/;
+
     public static readonly string? OpenAiKey = Environment.GetEnvironmentVariable("OPEN_AI_KEY")
         /*?? throw new EnvironmentVariableNotFoundException("OPEN_AI_KEY")*/;
 

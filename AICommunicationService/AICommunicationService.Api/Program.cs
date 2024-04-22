@@ -1,6 +1,3 @@
-using System.Reflection;
-using System.Text.Json.Serialization;
-using AICommunicationService.Api.Middlewares;
 using AICommunicationService.BLL.Extensions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.Common;
@@ -8,12 +5,15 @@ using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.DAL.Context.AiCommunication;
 using AICommunicationService.DAL.Extensions;
+using AICommunicationService.Middlewares;
 using AICommunicationService.RAG.Context.Vector;
 using AICommunicationService.RAG.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,6 +104,9 @@ static void AddServices(WebApplicationBuilder builder)
 
     builder.Services.AddHttpClient("AzureAiRequest",
         client => { client.DefaultRequestHeaders.Add("api-key", EnvironmentVariables.OpenAiKey); });
+
+    builder.Services.AddHttpClient("GroqAiRequest",
+        client => { client.DefaultRequestHeaders.Add("Authorization", $"Bearer {EnvironmentVariables.GroqKey}"); });
 
     builder.Services.AddHealthChecks();
     builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);

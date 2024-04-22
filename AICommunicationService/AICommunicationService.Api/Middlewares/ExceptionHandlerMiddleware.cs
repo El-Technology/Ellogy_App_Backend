@@ -1,7 +1,7 @@
 ﻿using AICommunicationService.BLL.Exceptions;
 using System.Net;
 
-namespace AICommunicationService.Api.Middlewares;
+namespace AICommunicationService.Middlewares;
 
 public class ExceptionHandlerMiddleware
 {
@@ -32,6 +32,10 @@ public class ExceptionHandlerMiddleware
         catch (GptModelException ex)
         {
             await HandleExceptionAsync(context, ex.Message, HttpStatusCode.BadRequest, ex.Message);
+        }
+        catch (ToManyRequestsException ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.TooManyRequests, ex.Message);
         }
         catch (Exception ex)
         {

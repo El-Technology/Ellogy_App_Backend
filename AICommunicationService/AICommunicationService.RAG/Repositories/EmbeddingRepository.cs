@@ -34,7 +34,7 @@ public class EmbeddingRepository : IEmbeddingRepository
             .Where(a => a.Document.Name.Equals(fileName) && (a.Document.UserId == userId || a.Document.DocumentSharing
                 .Where(a => a.Document.Name.Equals(fileName)).Any(a => a.UserId == userId)))
             .OrderBy(a => a.Vector!.L2Distance(new Vector(searchRequest)))
-            .Take(3)
+            .Take(2)
             .ToListAsync();
     }
 

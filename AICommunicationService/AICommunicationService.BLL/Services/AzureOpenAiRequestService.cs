@@ -5,46 +5,21 @@ using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
+using AICommunicationService.Common.Models.GptResponseModel;
 using Newtonsoft.Json;
-using System.Collections;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 
 namespace AICommunicationService.BLL.Services;
 
-public class AzureOpenAiRequestService : IAzureOpenAiRequestService
+public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiRequestService
 {
     private readonly HttpClient _httpClient;
 
     public AzureOpenAiRequestService(IHttpClientFactory httpClientFactory)
     {
         _httpClient = httpClientFactory.CreateClient("AzureAiRequest");
-    }
-
-    private List<object> GetMessages(MessageRequest request)
-    {
-        var messages = new List<object>()
-        {
-             new { role = "system", content = request.Template }
-        };
-
-        if (!string.IsNullOrEmpty(request.Context))
-            messages.Add(new { role = "system", content = request.Context });
-
-        if (request.ConversationHistory is not null)
-            foreach (DictionaryEntry s in request.ConversationHistory)
-            {
-                messages.AddRange(new List<object>
-                {
-                    new { role = "user", content = s.Key.ToString() },
-                    new { role = "assistant", content = s.Value?.ToString() }
-                });
-            }
-
-        messages.Add(new { role = "user", content = request.UserInput });
-
-        return messages;
     }
 
     private StringContent PostAiRequestGetContent(MessageRequest request, AiRequestType requestType)
@@ -93,10 +68,9 @@ public class AzureOpenAiRequestService : IAzureOpenAiRequestService
         throw new GptModelException($"Model error, try to replace with another one\nRequest return message: {message}");
     }
 
-    /// <inheritdoc cref="IAzureOpenAiRequestService.PostAiRequestWithFunctionAsync(MessageRequest)"/>
-    public async Task<CommunicationResponseModel> PostAiRequestWithFunctionAsync(MessageRequest request)
+    private async Task<AiResponseModel?> SendRequestAsync(MessageRequest request, AiRequestType requestType)
     {
-        var content = PostAiRequestGetContent(request, AiRequestType.Functions);
+        var content = PostAiRequestGetContent(request, requestType);
 
         var result = await _httpClient.PostAsync(request.Url, content);
 
@@ -106,7 +80,13 @@ public class AzureOpenAiRequestService : IAzureOpenAiRequestService
             ThrowGptException(exceptionResponse?.Error?.Message);
         }
 
-        var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
+        return JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
+    }
+
+    /// <inheritdoc cref="IAzureOpenAiRequestService.PostAiRequestWithFunctionAsync(MessageRequest)"/>
+    public async Task<CommunicationResponseModel> PostAiRequestWithFunctionAsync(MessageRequest request)
+    {
+        var resultAsObject = await SendRequestAsync(request, AiRequestType.Functions);
 
         var communicationModel = new CommunicationResponseModel
         {
@@ -120,17 +100,7 @@ public class AzureOpenAiRequestService : IAzureOpenAiRequestService
     /// <inheritdoc cref="IAzureOpenAiRequestService.PostAiRequestAsync(MessageRequest)"/>
     public async Task<CommunicationResponseModel> PostAiRequestAsync(MessageRequest request)
     {
-        var content = PostAiRequestGetContent(request, AiRequestType.Default);
-
-        var result = await _httpClient.PostAsync(request.Url, content);
-
-        if (result.StatusCode == HttpStatusCode.BadRequest)
-        {
-            var exceptionResponse = await result.Content.ReadFromJsonAsync<ModelError>();
-            ThrowGptException(exceptionResponse?.Error?.Message);
-        }
-
-        var resultAsObject = JsonConvert.DeserializeObject<AiResponseModel>(await result.Content.ReadAsStringAsync());
+        var resultAsObject = await SendRequestAsync(request, AiRequestType.Default);
 
         var communicationModel = new CommunicationResponseModel
         {
