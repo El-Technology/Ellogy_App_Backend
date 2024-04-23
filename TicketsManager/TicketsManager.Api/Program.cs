@@ -12,7 +12,7 @@ using TicketsManager.DAL.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-AddServices(builder);
+await AddServicesAsync(builder);
 
 var app = builder.Build();
 
@@ -23,7 +23,7 @@ MigrateDatabase(app);
 
 app.Run();
 
-static void AddServices(WebApplicationBuilder builder)
+static async Task AddServicesAsync(WebApplicationBuilder builder)
 {
     builder.Services.AddCors(options =>
     {
@@ -38,7 +38,7 @@ static void AddServices(WebApplicationBuilder builder)
 
     builder.Services.AddAuthorization();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
+        .AddJwtBearer(async options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
@@ -46,7 +46,7 @@ static void AddServices(WebApplicationBuilder builder)
                 ValidIssuer = JwtOptions.Issuer,
                 ValidateAudience = false,
                 ValidateLifetime = true,
-                IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(),
+                IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(await EnvironmentVariables.JwtSecretKey),
                 ValidateIssuerSigningKey = true,
             };
         });
@@ -90,7 +90,7 @@ static void AddServices(WebApplicationBuilder builder)
 
     builder.Services.AddHealthChecks();
 
-    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
+    builder.Services.AddDataLayer(await EnvironmentVariables.ConnectionString);
     builder.Services.AddBusinessLayer();
     builder.Services.AddMapping();
 }

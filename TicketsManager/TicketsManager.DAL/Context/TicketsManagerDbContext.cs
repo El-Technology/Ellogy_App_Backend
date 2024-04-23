@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TicketsManager.Common;
 using TicketsManager.DAL.Models;
 using TicketsManager.DAL.Models.UserStoryTests;
 
@@ -32,7 +31,7 @@ public class TicketsManagerDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured) optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionString);
+        if (!optionsBuilder.IsConfigured) optionsBuilder.UseNpgsql();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
