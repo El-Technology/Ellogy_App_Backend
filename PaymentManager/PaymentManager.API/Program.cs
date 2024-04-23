@@ -24,9 +24,9 @@ builder.Logging.ClearProviders();
 builder.Logging.AddSerilog();
 builder.Host.UseSerilog(logger);
 
-AddServices(builder);
+await AddServicesAsync(builder);
 
-StripeConfiguration.ApiKey = EnvironmentVariables.SecretKey;
+StripeConfiguration.ApiKey = await EnvironmentVariables.SecretKey;
 
 var app = builder.Build();
 
@@ -39,7 +39,7 @@ app.MapControllers();
 
 app.Run();
 
-static void AddServices(WebApplicationBuilder builder)
+static async Task AddServicesAsync(WebApplicationBuilder builder)
 {
     builder.Services.AddCors(options =>
     {
@@ -55,7 +55,7 @@ static void AddServices(WebApplicationBuilder builder)
     builder.Services.AddSignalR();
     builder.Services.AddAuthorization();
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
+        .AddJwtBearer(async options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
@@ -63,7 +63,8 @@ static void AddServices(WebApplicationBuilder builder)
                 ValidIssuer = JwtOptions.Issuer,
                 ValidateAudience = false,
                 ValidateLifetime = true,
-                IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(),
+                IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(
+                    await EnvironmentVariables.JwtSecretKey),
                 ValidateIssuerSigningKey = true
             };
         });
@@ -105,9 +106,11 @@ static void AddServices(WebApplicationBuilder builder)
         });
     });
 
-    builder.Services.AddBusinessLayer();
+    builder.Services.AddBusinessLayer(await EnvironmentVariables.AzureServiceBusConnectionStringPayment);
     builder.Services.AddMapping();
-    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
+    builder.Services.AddDataLayer(
+        await EnvironmentVariables.ConnectionString,
+        await EnvironmentVariables.ConnectionStringPayment);
 }
 
 static void MigrateDatabase(IHost app)
