@@ -44,7 +44,8 @@ public class LoginService : ILoginService
             await _paymentRepository.CreateWalletForNewUserAsync(user.Id);
 
         var loginedUser = _mapper.Map<LoginResponseDto>(user);
-        loginedUser.Jwt = JwtHelper.GenerateJwt(user);
+        loginedUser.Jwt = await JwtHelper.GenerateJwtAsync(user);
+
         loginedUser.RefreshToken = await _refreshTokenService.GetRefreshTokenAsync(user.Id);
 
         return loginedUser;

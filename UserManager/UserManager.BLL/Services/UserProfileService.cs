@@ -1,6 +1,6 @@
-﻿using System.Web;
-using AutoMapper;
+﻿using AutoMapper;
 using Azure.Storage.Blobs;
+using System.Web;
 using UserManager.BLL.Dtos.ProfileDto;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Exceptions;
@@ -104,7 +104,7 @@ public class UserProfileService : IUserProfileService
         var user = await GetUserByIdAsync(userId);
         var userProfileDto = _mapper.Map<GetUserProfileDto>(user);
 
-        userProfileDto.Jwt = JwtHelper.GenerateJwt(user);
+        userProfileDto.Jwt = await JwtHelper.GenerateJwtAsync(user);
 
         return userProfileDto;
     }

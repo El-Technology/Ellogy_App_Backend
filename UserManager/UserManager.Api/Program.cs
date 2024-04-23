@@ -1,8 +1,8 @@
-using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using UserManager.Api.Middlewares;
 using UserManager.BLL.Extensions;
 using UserManager.Common;
@@ -15,11 +15,11 @@ namespace UserManager.Api;
 //TODO add health checks
 public static class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        AddServices(builder);
+        await AddServicesAsync(builder);
 
         var app = builder.Build();
 
@@ -31,7 +31,7 @@ public static class Program
         app.Run();
     }
 
-    private static void AddServices(WebApplicationBuilder builder)
+    private static async Task AddServicesAsync(WebApplicationBuilder builder)
     {
         builder.Services.AddCors(options =>
         {
@@ -46,7 +46,7 @@ public static class Program
 
         builder.Services.AddAuthorization();
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
+            .AddJwtBearer(async options =>
             {
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -54,7 +54,8 @@ public static class Program
                     ValidIssuer = JwtOptions.Issuer,
                     ValidateAudience = false,
                     ValidateLifetime = true,
-                    IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(),
+                    IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(
+                        await EnvironmentVariables.JwtSecretKey),
                     ValidateIssuerSigningKey = true
                 };
             });
@@ -102,9 +103,14 @@ public static class Program
 
         builder.Services.AddHealthChecks();
 
-        builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString,
-            EnvironmentVariables.ConnectionStringPayment);
-        builder.Services.AddBusinessLayer();
+        builder.Services.AddDataLayer(
+            await EnvironmentVariables.ConnectionString,
+            await EnvironmentVariables.ConnectionStringPayment);
+
+        builder.Services.AddBusinessLayer(
+            await EnvironmentVariables.BlobStorageConnectionString,
+            await EnvironmentVariables.AzureServiceBusConnectionString);
+
         builder.Services.AddMapping();
     }
 

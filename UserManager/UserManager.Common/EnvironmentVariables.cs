@@ -1,58 +1,51 @@
-﻿namespace UserManager.Common;
+﻿using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using UserManager.Common.Constants;
+using UserManager.Common.Helpers;
+
+namespace UserManager.Common;
 
 public static class EnvironmentVariables
 {
-    public static string AzureServiceBusConnectionString
+    private static readonly Lazy<Task<Dictionary<string, string>>> _secrets = new(async () =>
     {
-        get
+        var vaultUri = new Uri(ConfigHelper.AppSetting(ConfigConstants.KeyVaultStorageUrl));
+        var client = new SecretClient(vaultUri, new DefaultAzureCredential());
+
+        var secrets = new Dictionary<string, string>
         {
-            var variable = Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING");
-            return variable ??= "default_AZURE_SERVICE_BUS_CONNECTION_STRING";
-        }
+            { SecretNames.AzureServiceBusConnectionString, await GetSecretAsync(client, SecretNames.AzureServiceBusConnectionString) },
+            { SecretNames.ConnectionString, await GetSecretAsync(client, SecretNames.ConnectionString) },
+            { SecretNames.ConnectionStringPayment, await GetSecretAsync(client, SecretNames.ConnectionStringPayment) },
+            { SecretNames.JwtSecretKey, await GetSecretAsync(client, SecretNames.JwtSecretKey) },
+            { SecretNames.EmailClientConnectionString, await GetSecretAsync(client, SecretNames.EmailClientConnectionString) },
+            { SecretNames.BlobStorageConnectionString, await GetSecretAsync(client, SecretNames.BlobStorageConnectionString) }
+        };
+
+        return secrets;
+    });
+
+    private static async Task<string> GetSecretAsync(SecretClient client, string secretName)
+    {
+        var secret = await client.GetSecretAsync(secretName);
+        return secret.Value.Value;
     }
 
-    public static string ConnectionString
+    public static async Task<string> GetSecretAsync(string key)
     {
-        get
+        var secrets = await _secrets.Value;
+        if (!secrets.ContainsKey(key))
         {
-            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            return variable ??= "default_CONNECTION_STRING";
+            throw new ArgumentException($"Secret with key '{key}' not found");
         }
+
+        return secrets[key];
     }
 
-    public static string ConnectionStringPayment
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("CONNECTIONSTRING_PAYMENT");
-            return variable ??= "default_CONNECTIONSTRING_PAYMENT";
-        }
-    }
-
-    public static string JwtSecretKey
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-            return variable ??= "default_JWT_SECRET_KEY_HAVE_32_S";
-        }
-    }
-
-    public static string EmailClientConnectionString
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("EMAIL_CLIENT_CONNECTION_STRING");
-            return variable ??= "default_EMAIL_CLIENT_CONNECTION_STRING";
-        }
-    }
-
-    public static string BlobStorageConnectionString
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING");
-            return variable ??= "default_BLOB_STORAGE_CONNECTION_STRING";
-        }
-    }
+    public static Task<string> AzureServiceBusConnectionString => GetSecretAsync(SecretNames.AzureServiceBusConnectionString);
+    public static Task<string> ConnectionString => GetSecretAsync(SecretNames.ConnectionString);
+    public static Task<string> ConnectionStringPayment => GetSecretAsync(SecretNames.ConnectionStringPayment);
+    public static Task<string> JwtSecretKey => GetSecretAsync(SecretNames.JwtSecretKey);
+    public static Task<string> EmailClientConnectionString => GetSecretAsync(SecretNames.EmailClientConnectionString);
+    public static Task<string> BlobStorageConnectionString => GetSecretAsync(SecretNames.BlobStorageConnectionString);
 }

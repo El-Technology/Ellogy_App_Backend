@@ -1,27 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UserManager.Common;
 using UserManager.DAL.Models;
 
-namespace UserManager.DAL.Context.PaymentContext
+namespace UserManager.DAL.Context.PaymentContext;
+
+public class PaymentContext : DbContext
 {
-    public class PaymentContext : DbContext
+    public DbSet<Wallet> Wallets { get; set; } = null!;
+
+    public PaymentContext() { }
+    public PaymentContext(DbContextOptions<PaymentContext> options) : base(options) { }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        public DbSet<Wallet> Wallets { get; set; } = null!;
-
-        public PaymentContext() { }
-        public PaymentContext(DbContextOptions<PaymentContext> options) : base(options) { }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        if (!optionsBuilder.IsConfigured)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionStringPayment);
-            }
+            optionsBuilder.UseNpgsql();
         }
+    }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(PaymentContext).Assembly);
-        }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(PaymentContext).Assembly);
     }
 }
