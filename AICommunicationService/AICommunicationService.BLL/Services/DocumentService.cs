@@ -1,6 +1,5 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
-using AICommunicationService.Common;
 using AICommunicationService.Common.Dtos;
 using AICommunicationService.DAL.Interfaces;
 using AICommunicationService.RAG.Interfaces;
@@ -56,7 +55,7 @@ public class DocumentService : IDocumentService
 
         var httpClient = new HttpClient();
         var response =
-            await httpClient.DeleteAsync(ReturnUrlWithPermission(userId, fileName, 5, BlobSasPermissions.Delete));
+            await httpClient.DeleteAsync(await ReturnUrlWithPermissionAsync(userId, fileName, 5, BlobSasPermissions.Delete));
 
         if (!response.IsSuccessStatusCode)
             throw new Exception("Delete file error, try again");
@@ -166,7 +165,7 @@ public class DocumentService : IDocumentService
     public async Task<string> ReadPdfAsync(Guid userId, string fileName)
     {
         var httpClient = new HttpClient();
-        var response = await httpClient.GetAsync(GetFileUrl(userId, fileName));
+        var response = await httpClient.GetAsync(await GetFileUrlAsync(userId, fileName));
 
         using var document = PdfDocument.Open(await response.Content.ReadAsByteArrayAsync());
 
@@ -183,13 +182,13 @@ public class DocumentService : IDocumentService
         if (await _documentRepository.GetDocumentByNameAsync(userId, fileName) is not null)
             throw new Exception("File already exist");
 
-        return ReturnUrlWithPermission(userId, fileName, SAS_TTL, BlobSasPermissions.Write);
+        return await ReturnUrlWithPermissionAsync(userId, fileName, SAS_TTL, BlobSasPermissions.Write);
     }
 
-    /// <inheritdoc cref="IDocumentService.GetFileUrl" />
-    public string GetFileUrl(Guid userId, string fileName)
+    /// <inheritdoc cref="IDocumentService.GetFileUrlAsync" />
+    public async Task<string> GetFileUrlAsync(Guid userId, string fileName)
     {
-        return ReturnUrlWithPermission(userId, fileName, SAS_TTL, BlobSasPermissions.Read);
+        return await ReturnUrlWithPermissionAsync(userId, fileName, SAS_TTL, BlobSasPermissions.Read);
     }
 
     /// <inheritdoc cref="IDocumentService.GetTheClosesContextAsync" />
@@ -250,7 +249,7 @@ public class DocumentService : IDocumentService
             await _userRepository.GetUsersByIdsWithPaginationAsync(users, paginationRequest));
     }
 
-    private string ReturnUrlWithPermission(Guid userId, string fileName, int minutesForExpire,
+    private async Task<string> ReturnUrlWithPermissionAsync(Guid userId, string fileName, int minutesForExpire,
         BlobSasPermissions permission)
     {
         var blobClient = GetBlobContainerClient(userId, fileName);
@@ -267,7 +266,7 @@ public class DocumentService : IDocumentService
 
         var conBuilder = new DbConnectionStringBuilder
         {
-            ConnectionString = EnvironmentVariables.BlobStorageConnectionString
+            ConnectionString = await EnvironmentVariables.GetBlobStorageConnectionStringAsync
         };
 
         var sasToken = sasBuilder

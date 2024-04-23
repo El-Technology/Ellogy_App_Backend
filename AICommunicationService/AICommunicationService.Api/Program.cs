@@ -17,7 +17,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-AddServices(builder);
+await AddServicesAsync(builder);
 
 var app = builder.Build();
 
@@ -30,7 +30,7 @@ MigrateRAG(app);
 
 app.Run();
 
-static void AddServices(WebApplicationBuilder builder)
+static async Task AddServicesAsync(WebApplicationBuilder builder)
 {
     builder.Services.AddCors(options =>
     {
@@ -52,7 +52,7 @@ static void AddServices(WebApplicationBuilder builder)
     });
 
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
+        .AddJwtBearer(async options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
@@ -60,7 +60,7 @@ static void AddServices(WebApplicationBuilder builder)
                 ValidIssuer = JwtOptions.ISSUER,
                 ValidateAudience = false,
                 ValidateLifetime = true,
-                IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(),
+                IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(await EnvironmentVariables.GetJwtSecretKeyAsync),
                 ValidateIssuerSigningKey = true
             };
         });
@@ -103,15 +103,15 @@ static void AddServices(WebApplicationBuilder builder)
     });
 
     builder.Services.AddHttpClient("AzureAiRequest",
-        client => { client.DefaultRequestHeaders.Add("api-key", EnvironmentVariables.OpenAiKey); });
+        async client => { client.DefaultRequestHeaders.Add("api-key", await EnvironmentVariables.GetOpenAiKeyAsync); });
 
     builder.Services.AddHttpClient("GroqAiRequest",
-        client => { client.DefaultRequestHeaders.Add("Authorization", $"Bearer {EnvironmentVariables.GroqKey}"); });
+        async client => { client.DefaultRequestHeaders.Add("Authorization", $"Bearer {await EnvironmentVariables.GetGroqKeyAsync}"); });
 
     builder.Services.AddHealthChecks();
-    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString, EnvironmentVariables.ConnectionStringPayment);
-    builder.Services.AddRAGDataLayer(EnvironmentVariables.ConnectionStringVector);
-    builder.Services.AddBusinessLayer();
+    builder.Services.AddDataLayer(await EnvironmentVariables.GetConnectionStringAsync, await EnvironmentVariables.GetConnectionStringPaymentAsync);
+    builder.Services.AddRAGDataLayer(await EnvironmentVariables.GetConnectionStringVectorAsync);
+    builder.Services.AddBusinessLayer(await EnvironmentVariables.GetBlobStorageConnectionStringAsync);
     builder.Services.AddMapping();
 }
 

@@ -1,27 +1,25 @@
 ﻿using AICommunicationService.DAL.Context.AiCommunication;
 using AICommunicationService.DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using AICommunicationService.Common;
 
-namespace AICommunicationService.DAL.Context.Wallets
+namespace AICommunicationService.DAL.Context.Wallets;
+
+public class WalletContext : DbContext
 {
-    public class WalletContext : DbContext
+    public DbSet<Wallet> Wallets { get; set; } = null!;
+
+    public WalletContext() { }
+    public WalletContext(DbContextOptions<WalletContext> options) : base(options) { }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        public DbSet<Wallet> Wallets { get; set; } = null!;
-
-        public WalletContext() { }
-        public WalletContext(DbContextOptions<WalletContext> options) : base(options) { }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        if (!optionsBuilder.IsConfigured)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionStringPayment);
-            }
+            optionsBuilder.UseNpgsql();
         }
+    }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AICommunicationContext).Assembly);
-        }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AICommunicationContext).Assembly);
     }
 }

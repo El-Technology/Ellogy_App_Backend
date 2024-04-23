@@ -1,5 +1,4 @@
-﻿using AICommunicationService.Common;
-using AICommunicationService.RAG.Models;
+﻿using AICommunicationService.RAG.Models;
 using Microsoft.EntityFrameworkCore;
 using Pgvector.EntityFrameworkCore;
 
@@ -21,7 +20,7 @@ public class VectorContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionStringVector, o => o.UseVector());
+        optionsBuilder.UseNpgsql(o => o.UseVector());
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

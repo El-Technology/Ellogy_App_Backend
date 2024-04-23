@@ -1,6 +1,5 @@
 ﻿using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.BLL.Services;
-using AICommunicationService.Common;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,14 +7,14 @@ namespace AICommunicationService.BLL.Extensions;
 
 public static class DiExtension
 {
-    public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
+    public static IServiceCollection AddBusinessLayer(this IServiceCollection services, string blobStorageConnectionString)
     {
         return services
             .AddScoped<IAzureOpenAiRequestService, AzureOpenAiRequestService>()
             .AddScoped<IPromptService, PromptService>()
             .AddScoped<ICommunicationService, CommunicationService>()
             .AddScoped<IDocumentService, DocumentService>()
-            .AddScoped<BlobServiceClient>(_ => new(EnvironmentVariables.BlobStorageConnectionString))
+            .AddScoped<BlobServiceClient>(_ => new(blobStorageConnectionString))
             .AddScoped<IGroqAiRequestService, GroqAiRequestService>();
     }
 

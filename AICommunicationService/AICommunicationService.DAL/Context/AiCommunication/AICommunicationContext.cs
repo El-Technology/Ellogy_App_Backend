@@ -1,27 +1,25 @@
 ﻿using AICommunicationService.DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using AICommunicationService.Common;
 
-namespace AICommunicationService.DAL.Context.AiCommunication
+namespace AICommunicationService.DAL.Context.AiCommunication;
+
+public class AICommunicationContext : DbContext
 {
-    public class AICommunicationContext : DbContext
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<AIPrompt> AIPrompts { get; set; } = null!;
+    public AICommunicationContext() { }
+    public AICommunicationContext(DbContextOptions<AICommunicationContext> options) : base(options) { }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        public DbSet<User> Users { get; set; } = null!;
-        public DbSet<AIPrompt> AIPrompts { get; set; } = null!;
-        public AICommunicationContext() { }
-        public AICommunicationContext(DbContextOptions<AICommunicationContext> options) : base(options) { }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        if (!optionsBuilder.IsConfigured)
         {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionString);
-            }
+            optionsBuilder.UseNpgsql();
         }
+    }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AICommunicationContext).Assembly);
-        }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AICommunicationContext).Assembly);
     }
 }
