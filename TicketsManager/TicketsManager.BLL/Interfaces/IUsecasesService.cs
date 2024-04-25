@@ -16,7 +16,7 @@ public interface IUsecasesService
     /// <param name="userIdFromToken">User id taken from jwt token</param>
     /// <returns>A task representing the asynchronous operation. The response containing
     /// information about the created use cases.</returns>
-    Task<List<UsecaseFullDto>> CreateUsecasesAsync(
+    Task<CreateUsecasesResponseDto> CreateUsecasesAsync(
         List<CreateUsecasesDto> createUsecasesDto, Guid userIdFromToken);
 
     /// <summary>

@@ -24,7 +24,7 @@ public class UsecasesService : IUsecasesService
             throw new Exception("You don't have permission to access another user data");
     }
 
-    ///<inheritdoc cref="IUsecasesService.CreateUsecasesAsync(List{CreateUsecasesDto})"/>
+    ///<inheritdoc cref="IUsecasesService.CreateUsecasesAsync(List{CreateUsecasesDto},Guid)"/>
     public async Task<CreateUsecasesResponseDto> CreateUsecasesAsync(List<CreateUsecasesDto> createUsecasesDto, Guid userIdFromToken)
     {
         foreach (var usecase in createUsecasesDto)

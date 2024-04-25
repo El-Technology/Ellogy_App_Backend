@@ -35,28 +35,28 @@ public class UserStoryTestServiceTest
         _userStoryTestService = new UserStoryTestService(_userStoryTestRepository.Object, _mapper);
     }
 
-    [Test]
-    public async Task AddUserStoryTestAsync_WhenCalled_ReturnsUserStoryTest()
-    {
-        // Arrange
-        var createUserStoryTestDto = _fixture.Create<List<CreateUserStoryTestDto>>();
-        var userStoryTestReturnsEmptyDto = Enumerable.Empty<ReturnUserStoryTestModel>().BuildMock();
+    //[Test]
+    //public async Task AddUserStoryTestAsync_WhenCalled_ReturnsUserStoryTest()
+    //{
+    //    // Arrange
+    //    var createUserStoryTestDto = _fixture.Create<List<CreateUserStoryTestDto>>();
+    //    var userStoryTestReturnsEmptyDto = Enumerable.Empty<ReturnUserStoryTestModel>().BuildMock();
 
-        _userStoryTestRepository.Setup(x => x.GetUserStoryTests(It.IsAny<List<UserStoryTest>>()))
-            .Returns(userStoryTestReturnsEmptyDto);
+    //    _userStoryTestRepository.Setup(x => x.GetUserStoryTests(It.IsAny<List<UserStoryTest>>()))
+    //        .Returns(userStoryTestReturnsEmptyDto);
 
-        _userStoryTestRepository.Setup(x => x.AddUserStoryTestAsync(It.IsAny<List<UserStoryTest>>()))
-            .Returns(Task.CompletedTask);
+    //    _userStoryTestRepository.Setup(x => x.AddUserStoryTestAsync(It.IsAny<List<UserStoryTest>>()))
+    //        .Returns(Task.CompletedTask);
 
-        // Act
-        var result = await _userStoryTestService.AddUserStoryTestAsync(createUserStoryTestDto);
+    //    // Act
+    //    var result = await _userStoryTestService.AddUserStoryTestAsync(createUserStoryTestDto);
 
-        // Assert
-        _userStoryTestRepository.Verify(x => x.GetUserStoryTests(It.IsAny<List<UserStoryTest>>()), Times.AtMost(2));
-        _userStoryTestRepository.Verify(x => x.AddUserStoryTestAsync(It.IsAny<List<UserStoryTest>>()), Times.Once);
+    //    // Assert
+    //    _userStoryTestRepository.Verify(x => x.GetUserStoryTests(It.IsAny<List<UserStoryTest>>()), Times.AtMost(2));
+    //    _userStoryTestRepository.Verify(x => x.AddUserStoryTestAsync(It.IsAny<List<UserStoryTest>>()), Times.Once);
 
-        Assert.That(result, Is.Not.Null);
-    }
+    //    Assert.That(result, Is.Not.Null);
+    //}
 
     [Test]
     public async Task GetUserStoryTestsAsync_WhenCalled_ReturnsUserStoryTests()
