@@ -10,18 +10,19 @@ namespace AICommunicationService.BLL.Extensions;
 
 public static class DiExtension
 {
-    public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
+    public static IServiceCollection AddBusinessLayer(this IServiceCollection services, string blobStorageConnectionString)
     {
         return services
             .AddScoped<IAzureOpenAiRequestService, AzureOpenAiRequestService>()
             .AddScoped<IPromptService, PromptService>()
             .AddScoped<ICommunicationService, CommunicationService>()
             .AddScoped<IDocumentService, DocumentService>()
-            .AddScoped<BlobServiceClient>(_ => new(EnvironmentVariables.BlobStorageConnectionString))
-
+            .AddScoped<BlobServiceClient>(_ => new(blobStorageConnectionString))
+            .AddScoped<IGroqAiRequestService, GroqAiRequestService>();
             .AddScoped<IUserExternalHttpService, UserExternalHttpService>()
             .AddScoped<IPaymentExternalHttpService, PaymentExternalHttpService>();
     }
+
     public static IServiceCollection AddMapping(this IServiceCollection services)
     {
         return services

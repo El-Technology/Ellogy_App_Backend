@@ -16,6 +16,22 @@ public class UserStoryTestRepository : IUserStoryTestRepository
         _context = context;
     }
 
+    public async Task<Dictionary<Guid, Guid>> GetUsecaseTicketIdRelationAsync(List<Guid> usecaseIds)
+    {
+        return await _context.Usecases
+            .Where(u => usecaseIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, u => u.TicketId);
+    }
+
+    public async Task<int> GetLastOrderForStoryTestByTicketIdAsync(Guid ticketId)
+    {
+        return await _context.UserStoryTests
+            .Where(a => a.Usecase!.TicketId == ticketId)
+            .Select(a => a.Order)
+            .DefaultIfEmpty()
+            .MaxAsync();
+    }
+
     /// <inheritdoc cref="IUserStoryTestRepository.AddUserStoryTestAsync" />
     public async Task AddUserStoryTestAsync(List<UserStoryTest> userStoryTests)
     {
@@ -30,6 +46,7 @@ public class UserStoryTestRepository : IUserStoryTestRepository
         .Include(a => a.TestCases)
         .Include(a => a.TestPlan)
         .Where(filterExpression)
+        .OrderBy(a => a.Order)
         .Select(a => new ReturnUserStoryTestModel
         {
             Id = a.Id,

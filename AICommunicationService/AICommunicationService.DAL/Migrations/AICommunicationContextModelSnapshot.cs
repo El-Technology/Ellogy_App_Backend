@@ -38,6 +38,9 @@ namespace AICommunicationService.DAL.Migrations
                     b.Property<string>("Input")
                         .HasColumnType("text");
 
+                    b.Property<string>("JsonSample")
+                        .HasColumnType("text");
+
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasColumnType("text");

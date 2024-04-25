@@ -23,16 +23,32 @@ public class UserStoryTestService : IUserStoryTestService
     public async Task<List<GetUserStoryDto>> AddUserStoryTestAsync(
         List<CreateUserStoryTestDto> userStoryTest)
     {
-        var mappedUserStoryTest = _mapper.Map<List<UserStoryTest>>(userStoryTest);
+        var mappedUserStoryTests = _mapper.Map<List<UserStoryTest>>(userStoryTest);
 
-        if (await _userStoryTestRepository.GetUserStoryTests(mappedUserStoryTest).AnyAsync())
+        if (await _userStoryTestRepository.GetUserStoryTests(mappedUserStoryTests).AnyAsync())
             throw new Exception("User story test already exists");
 
-        await _userStoryTestRepository.AddUserStoryTestAsync(mappedUserStoryTest);
+        var ticketIdsByUsecaseId = await _userStoryTestRepository
+            .GetUsecaseTicketIdRelationAsync(mappedUserStoryTests.Select(u => u.UsecaseId ?? Guid.Empty).ToList());
+
+        var lastOrders = new Dictionary<Guid, int>();
+
+        foreach (var ticketId in ticketIdsByUsecaseId.Values.Distinct())
+            lastOrders[ticketId] = await _userStoryTestRepository.GetLastOrderForStoryTestByTicketIdAsync(ticketId);
+
+        foreach (var test in mappedUserStoryTests)
+        {
+            var ticketId = ticketIdsByUsecaseId[test.UsecaseId ?? Guid.Empty];
+
+            if (lastOrders.ContainsKey(ticketId))
+                test.Order = ++lastOrders[ticketId];
+        }
+
+        await _userStoryTestRepository.AddUserStoryTestAsync(mappedUserStoryTests);
 
         return _mapper.Map<List<GetUserStoryDto>>(
             await _userStoryTestRepository
-                .GetUserStoryTests(mappedUserStoryTest)
+                .GetUserStoryTests(mappedUserStoryTests)
                 .ToListAsync());
     }
 

@@ -15,13 +15,13 @@ public static class DiExtension
     /// </summary>
     /// <param name="services"></param>
     /// <returns></returns>
-    public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
+    public static IServiceCollection AddBusinessLayer(this IServiceCollection services, string azureServiceBusConnectionString)
     {
         return services
             .AddScoped<PaymentProducer>()
             .AddHostedService<PaymentConsumer>()
             .AddScoped<IPaymentSessionService, PaymentSessionService>()
-            .AddSingleton(_ => new ServiceBusClient(EnvironmentVariables.AzureServiceBusConnectionString))
+            .AddSingleton(_ => new ServiceBusClient(azureServiceBusConnectionString))
             .AddScoped<IPaymentCustomerService, PaymentCustomerService>()
             .AddScoped<IProductCatalogService, ProductCatalogService>()
             .AddScoped<IWebhookService, WebhookService>()

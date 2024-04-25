@@ -15,6 +15,16 @@ public class UsecaseRepository : IUsecaseRepository
     {
         _context = context;
     }
+
+    public async Task<int> GetLastOrderForUsecaseByTicketIdAsync(Guid ticketId)
+    {
+        return await _context.Usecases
+            .Where(a => a.TicketId == ticketId)
+            .Select(a => a.Order)
+            .DefaultIfEmpty()
+            .MaxAsync();
+    }
+
     public IQueryable<TicketSummary> GetTicketSummariesByIdsAsync(List<Guid> ticketSummaryIds)
     {
         return _context.TicketSummaries.Where(a => ticketSummaryIds.Contains(a.Id));
@@ -40,6 +50,7 @@ public class UsecaseRepository : IUsecaseRepository
     {
         return await _context.Usecases
             .Where(a => a.TicketId == ticketId)
+            .OrderBy(a => a.Order)
             .Include(a => a.Tables)
             .Include(a => a.Diagrams)
             .Include(a => a.TicketSummaries)

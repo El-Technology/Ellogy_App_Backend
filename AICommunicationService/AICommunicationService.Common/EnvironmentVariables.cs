@@ -2,74 +2,55 @@
 using AICommunicationService.Common.Helpers;
 
 namespace AICommunicationService.Common;
+using AICommunicationService.Common.Constants;
+using AICommunicationService.Common.Helpers;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using System.Collections.Concurrent;
 
 public static class EnvironmentVariables
 {
-    public static string OpenAiKey
+    private static readonly Lazy<Task<ConcurrentDictionary<string, string>>> _secrets = new(async () =>
     {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("OPEN_AI_KEY");
-            return variable is null
-                ? variable = "default_OPEN_AI_KEY"
-                : variable;
-        }
+        var vaultUri = new Uri(ConfigHelper.AppSetting(ConfigConstants.KeyVaultStorageUrl));
+        var client = new SecretClient(vaultUri, new DefaultAzureCredential());
+        var secretsDictionary = new ConcurrentDictionary<string, string>();
+
+        await Task.WhenAll(
+            GetAndAddSecretAsync(client, SecretNames.ConnectionString, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.GroqKey, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.OpenAiKey, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.JwtSecretKey, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.Host, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.EnablePayments, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.BlobStorageConnectionString, secretsDictionary)
+        );
+
+        return secretsDictionary;
+    });
+
+    private static async Task GetAndAddSecretAsync(SecretClient client, string secretName, ConcurrentDictionary<string, string> secretsDictionary)
+    {
+        var secret = await client.GetSecretAsync(secretName);
+        secretsDictionary.TryAdd(secretName, secret.Value.Value);
     }
 
-    public static string JwtSecretKey
+    public static async Task<string> GetSecretAsync(string key)
     {
-        get
+        var secrets = await _secrets.Value;
+        if (!secrets.ContainsKey(key))
         {
-            var variable = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-            return variable is null
-                ? variable = "default_JWT_SECRET_KEY_HAVE_32_S"
-                : variable;
+            throw new ArgumentException($"Secret with key '{key}' not found");
         }
+
+        return secrets[key];
     }
 
-    public static string ConnectionString
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            return variable is null
-                ? variable = "default_CONNECTION_STRING"
-                : variable.Replace(
-                    ConfigConstants.DbReplacePattern,
-                    ConfigHelper.AppSetting(ConfigConstants.DbName));
-        }
-    }
-
-    public static bool EnablePayments
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("ENABLE_PAYMENTS");
-            return variable is null
-                ? false
-                : bool.Parse(variable);
-        }
-    }
-
-    public static string Host
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("SSH_HOST");
-            return variable is null
-                ? variable = "default_host"
-                : variable;
-        }
-    }
-
-    public static string BlobStorageConnectionString
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("BLOB_STORAGE_CONNECTION_STRING");
-            return variable is null
-                ? variable = "default_BLOB_STORAGE_CONNECTION_STRING"
-                : variable;
-        }
-    }
+    public static Task<string> GetConnectionStringAsync => GetSecretAsync(SecretNames.ConnectionString);
+    public static Task<string> GetGroqKeyAsync => GetSecretAsync(SecretNames.GroqKey);
+    public static Task<string> GetOpenAiKeyAsync => GetSecretAsync(SecretNames.OpenAiKey);
+    public static Task<string> GetJwtSecretKeyAsync => GetSecretAsync(SecretNames.JwtSecretKey);
+    public static Task<string> EnablePayments => GetSecretAsync(SecretNames.EnablePayments);
+    public static Task<string> Host => GetSecretAsync(SecretNames.Host);
+    public static Task<string> GetBlobStorageConnectionStringAsync => GetSecretAsync(SecretNames.BlobStorageConnectionString);
 }

@@ -17,7 +17,6 @@ env:
   SSH_USER: ${{ vars.REMOTE_USER }}
   SSH_KEY: ${{ secrets.SSH_KEY }}
   ENVNAME: ${{ vars.ENVNAME }}
-  BRANCH_NAME: ${{ github.ref }}
 
 jobs:
   changes:
@@ -247,17 +246,6 @@ jobs:
         SERVICE_NAME4: ${{ needs.build_payment_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE4: ${{ needs.build_payment_manager.outputs.MicroserviceImage }}
         
-        SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        WEBHOOK_KEY: ${{ secrets.WEBHOOK_KEY }}
-        CONNECTIONSTRING_VECTOR: ${{ secrets.CONNECTIONSTRING_VECTOR }}
-        CONNECTIONSTRING_PAYMENT: ${{ secrets.CONNECTIONSTRING_PAYMENT }}
-        AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT }}
-        ADMIN_JWT_SECRET_KEY: ${{ secrets.ADMIN_JWT_SECRET_KEY }}
-        AZURE_SERVICE_BUS_CONNECTION_STRING: ${{ secrets.AZURE_SERVICE_BUS_CONNECTION_STRING }}
-        BLOB_STORAGE_CONNECTION_STRING: ${{ secrets.BLOB_STORAGE_CONNECTION_STRING }}
-        OPEN_AI_KEY: ${{secrets.OPEN_AI_KEY}}
-        CONNECTION_STRING: ${{secrets.CONNECTION_STRING}}
-        JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY }}
       run: |
         ssh VM bash -s <<EOF
         sudo su
@@ -282,18 +270,6 @@ jobs:
         yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
         yq e -i ".services.$SERVICE_NAME4.image=env(SERVICE_IMAGE4)" docker-compose.yaml
-
-        export SECRET_KEY="$SECRET_KEY"
-        export WEBHOOK_KEY="$WEBHOOK_KEY"
-        export CONNECTIONSTRING_VECTOR="$CONNECTIONSTRING_VECTOR"
-        export AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT="$AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT"
-        export CONNECTIONSTRING_PAYMENT="$CONNECTIONSTRING_PAYMENT"
-        export ADMIN_JWT_SECRET_KEY="$ADMIN_JWT_SECRET_KEY"
-        export OPEN_AI_KEY="$OPEN_AI_KEY"
-        export CONNECTION_STRING="$CONNECTION_STRING"
-        export JWT_SECRET_KEY="$JWT_SECRET_KEY"
-        export AZURE_SERVICE_BUS_CONNECTION_STRING="$AZURE_SERVICE_BUS_CONNECTION_STRING"
-        export BLOB_STORAGE_CONNECTION_STRING="$BLOB_STORAGE_CONNECTION_STRING"
         
         docker-compose up -d
         EOF

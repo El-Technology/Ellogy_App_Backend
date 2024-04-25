@@ -1,65 +1,50 @@
-﻿using PaymentManager.Common.Constants;
+﻿using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using PaymentManager.Common.Constants;
 using PaymentManager.Common.Helpers;
-
-namespace PaymentManager.Common;
+using System.Collections.Concurrent;
 
 public static class EnvironmentVariables
 {
-    public static string WebhookKey
+    private static readonly Lazy<Task<ConcurrentDictionary<string, string>>> _secrets = new(async () =>
     {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("WEBHOOK_KEY");
-            return variable ?? "WEBHOOK_KEY";
-        }
+        var vaultUri = new Uri(ConfigHelper.AppSetting(ConfigConstants.KeyVaultStorageUrl));
+        var client = new SecretClient(vaultUri, new DefaultAzureCredential());
+        var secretsDictionary = new ConcurrentDictionary<string, string>();
+
+        await Task.WhenAll(
+            GetAndAddSecretAsync(client, SecretNames.ConnectionString, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.JwtSecretKey, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.Host, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.WebhookKey, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.SecretKey, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.AzureServiceBusConnectionStringPayment, secretsDictionary)
+        );
+
+        return secretsDictionary;
+    });
+
+    private static async Task GetAndAddSecretAsync(SecretClient client, string secretName, ConcurrentDictionary<string, string> secretsDictionary)
+    {
+        var secret = await client.GetSecretAsync(secretName);
+        secretsDictionary.TryAdd(secretName, secret.Value.Value);
     }
 
-    public static string Host
+    public static async Task<string> GetSecretAsync(string key)
     {
-        get
+        var secrets = await _secrets.Value;
+        if (!secrets.ContainsKey(key))
         {
-            var variable = Environment.GetEnvironmentVariable("SSH_HOST");
-            return variable ?? "SSH_HOST";
+            throw new ArgumentException($"Secret with key '{key}' not found");
         }
+
+        return secrets[key];
     }
 
-    public static string ConnectionString
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            return variable is null
-                ? variable = "default_CONNECTION_STRING"
-                : variable.Replace(
-                    ConfigConstants.DbReplacePattern,
-                    ConfigHelper.AppSetting(ConfigConstants.DbName));
-        }
-    }
-
-    public static string SecretKey
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("SECRET_KEY");
-            return variable ?? "default_SECRET_KEY";
-        }
-    }
-
-    public static string AzureServiceBusConnectionString
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("AZURE_SERVICE_BUS_CONNECTION_STRING_PAYMENT");
-            return variable ?? "default_AZURE_SERVICE_BUS_CONNECTION_STRING";
-        }
-    }
-
-    public static string JwtSecretKey
-    {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-            return variable ?? "default_JWT_SECRET_KEY_HAVE_32_S";
-        }
-    }
+    public static Task<string> ConnectionString => GetSecretAsync(SecretNames.ConnectionString);
+    public static Task<string> JwtSecretKey => GetSecretAsync(SecretNames.JwtSecretKey);
+    public static Task<string> Host => GetSecretAsync(SecretNames.Host);
+    public static Task<string> WebhookKey => GetSecretAsync(SecretNames.WebhookKey);
+    public static Task<string> SecretKey => GetSecretAsync(SecretNames.SecretKey);
+    public static Task<string> AzureServiceBusConnectionStringPayment => GetSecretAsync(SecretNames.AzureServiceBusConnectionStringPayment);
 }

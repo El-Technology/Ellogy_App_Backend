@@ -1,4 +1,3 @@
-using AICommunicationService.Api.Middlewares;
 using AICommunicationService.BLL.Extensions;
 using AICommunicationService.BLL.Hubs;
 using AICommunicationService.Common;
@@ -6,6 +5,7 @@ using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.DAL.Context;
 using AICommunicationService.DAL.Extensions;
+using AICommunicationService.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -15,7 +15,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-AddServices(builder);
+await AddServicesAsync(builder);
 
 var app = builder.Build();
 
@@ -27,7 +27,7 @@ MigrateDatabase(app);
 
 app.Run();
 
-static void AddServices(WebApplicationBuilder builder)
+static async Task AddServicesAsync(WebApplicationBuilder builder)
 {
     builder.Services.AddCors(options =>
     {
@@ -49,7 +49,7 @@ static void AddServices(WebApplicationBuilder builder)
     });
 
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
+        .AddJwtBearer(async options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters
             {
@@ -57,7 +57,7 @@ static void AddServices(WebApplicationBuilder builder)
                 ValidIssuer = JwtOptions.ISSUER,
                 ValidateAudience = false,
                 ValidateLifetime = true,
-                IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(),
+                IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(await EnvironmentVariables.GetJwtSecretKeyAsync),
                 ValidateIssuerSigningKey = true
             };
         });
@@ -101,8 +101,11 @@ static void AddServices(WebApplicationBuilder builder)
 
     builder.Services.RegisterHttpClients();
     builder.Services.AddHealthChecks();
-    builder.Services.AddDataLayer(EnvironmentVariables.ConnectionString);
-    builder.Services.AddBusinessLayer();
+    builder.Services.AddDataLayer(
+        await EnvironmentVariables.GetConnectionStringAsync,
+        await EnvironmentVariables.GetConnectionStringPaymentAsync);
+    builder.Services.AddRAGDataLayer(await EnvironmentVariables.GetConnectionStringVectorAsync);
+    builder.Services.AddBusinessLayer(await EnvironmentVariables.GetBlobStorageConnectionStringAsync);
     builder.Services.AddMapping();
 }
 

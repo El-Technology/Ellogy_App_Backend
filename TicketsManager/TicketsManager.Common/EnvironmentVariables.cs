@@ -1,31 +1,44 @@
-﻿using TicketsManager.Common.Constants;
+﻿using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using System.Collections.Concurrent;
+using TicketsManager.Common.Constants;
 using TicketsManager.Common.Helpers;
 
 namespace TicketsManager.Common;
 
 public static class EnvironmentVariables
 {
-    public static string ConnectionString
+    private static readonly Lazy<Task<ConcurrentDictionary<string, string>>> _secrets = new(async () =>
     {
-        get
-        {
-            var variable = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            return variable is null
-                ? variable = "default_CONNECTION_STRING"
-                : variable.Replace(
-                    ConfigConstants.DbReplacePattern,
-                    ConfigHelper.AppSetting(ConfigConstants.DbName));
-        }
+        var vaultUri = new Uri(ConfigHelper.AppSetting(ConfigConstants.KeyVaultStorageUrl));
+        var client = new SecretClient(vaultUri, new DefaultAzureCredential());
+        var secretsDictionary = new ConcurrentDictionary<string, string>();
+
+        await Task.WhenAll(
+            GetAndAddSecretAsync(client, SecretNames.ConnectionString, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.JwtSecretKey, secretsDictionary)
+        );
+
+        return secretsDictionary;
+    });
+
+    private static async Task GetAndAddSecretAsync(SecretClient client, string secretName, ConcurrentDictionary<string, string> secretsDictionary)
+    {
+        var secret = await client.GetSecretAsync(secretName);
+        secretsDictionary.TryAdd(secretName, secret.Value.Value);
     }
 
-    public static string JwtSecretKey
+    public static async Task<string> GetSecretAsync(string key)
     {
-        get
+        var secrets = await _secrets.Value;
+        if (!secrets.ContainsKey(key))
         {
-            var variable = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-            return variable is null
-                ? variable = "default_JWT_SECRET_KEY_HAVE_32_S"
-                : variable;
+            throw new ArgumentException($"Secret with key '{key}' not found");
         }
+
+        return secrets[key];
     }
+
+    public static Task<string> ConnectionString => GetSecretAsync(SecretNames.ConnectionString);
+    public static Task<string> JwtSecretKey => GetSecretAsync(SecretNames.JwtSecretKey);
 }

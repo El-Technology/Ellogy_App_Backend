@@ -46,4 +46,6 @@ public interface IUserStoryTestRepository
     /// <param name="userStoryTests"></param>
     /// <returns></returns>
     IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(List<UserStoryTest> userStoryTests);
+    Task<int> GetLastOrderForStoryTestByTicketIdAsync(Guid ticketId);
+    Task<Dictionary<Guid, Guid>> GetUsecaseTicketIdRelationAsync(List<Guid> usecaseIds);
 }

@@ -53,7 +53,7 @@ public class RAGController : Controller
     public IActionResult GetUrlOfPdfDocuments([FromQuery] string fileName, [FromQuery] Guid? ownerId)
     {
         var userId = ownerId ?? GetUserIdFromToken();
-        return Ok(_documentService.GetFileUrl(userId, fileName));
+        return Ok(_documentService.GetFileUrlAsync(userId, fileName));
     }
 
     /// <summary>

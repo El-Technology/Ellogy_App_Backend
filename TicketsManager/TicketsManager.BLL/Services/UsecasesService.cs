@@ -24,9 +24,8 @@ public class UsecasesService : IUsecasesService
             throw new Exception("You don't have permission to access another user data");
     }
 
-    ///<inheritdoc cref="IUsecasesService.CreateUsecasesAsync(List{CreateUsecasesDto}, Guid)"/>
-    public async Task<List<UsecaseFullDto>> CreateUsecasesAsync(
-        List<CreateUsecasesDto> createUsecasesDto, Guid userIdFromToken)
+    ///<inheritdoc cref="IUsecasesService.CreateUsecasesAsync(List{CreateUsecasesDto})"/>
+    public async Task<CreateUsecasesResponseDto> CreateUsecasesAsync(List<CreateUsecasesDto> createUsecasesDto, Guid userIdFromToken)
     {
         foreach (var usecase in createUsecasesDto)
         {
@@ -36,9 +35,17 @@ public class UsecasesService : IUsecasesService
         }
 
         var usecases = _mapper.Map<List<Usecase>>(createUsecasesDto);
-        await _usecaseRepository.CreateUsecasesAsync(usecases);
 
-        return _mapper.Map<List<UsecaseFullDto>>(usecases);
+        foreach (var usecaseGroup in usecases.GroupBy(u => u.TicketId))
+        {
+            var lastOrder = await _usecaseRepository.GetLastOrderForUsecaseByTicketIdAsync(usecaseGroup.Key);
+
+            foreach (var usecase in usecaseGroup)
+                usecase.Order = ++lastOrder;
+        }
+
+        await _usecaseRepository.CreateUsecasesAsync(usecases);
+        return new CreateUsecasesResponseDto { Usecases = _mapper.Map<List<UsecaseFullDto>>(usecases) };
     }
 
     ///<inheritdoc cref="IUsecasesService.GetUsecasesAsync(GetUsecasesDto, Guid)"/>

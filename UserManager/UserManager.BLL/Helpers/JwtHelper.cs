@@ -1,7 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
 using UserManager.BLL.Exceptions;
+using UserManager.Common;
 using UserManager.Common.Options;
 using UserManager.DAL.Models;
 
@@ -32,7 +33,7 @@ public static class JwtHelper
         }
     }
 
-    public static string GenerateJwt(User user)
+    public static async Task<string> GenerateJwtAsync(User user)
     {
         var claims = GetClaims(user);
 
@@ -43,7 +44,8 @@ public static class JwtHelper
             IssuedAt = DateTime.Now,
             Issuer = JwtOptions.Issuer,
             SigningCredentials =
-                new SigningCredentials(JwtOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
+                new SigningCredentials(JwtOptions.GetSymmetricSecurityKey(
+                    await EnvironmentVariables.JwtSecretKey), SecurityAlgorithms.HmacSha256)
         };
 
         return new JwtSecurityTokenHandler().CreateEncodedJwt(tokenDescriptor);

@@ -56,7 +56,7 @@ public class DocumentService : IDocumentService
 
         var httpClient = new HttpClient();
         var response =
-            await httpClient.DeleteAsync(ReturnUrlWithPermission(userId, fileName, 5, BlobSasPermissions.Delete));
+            await httpClient.DeleteAsync(await ReturnUrlWithPermissionAsync(userId, fileName, 5, BlobSasPermissions.Delete));
 
         if (!response.IsSuccessStatusCode)
             throw new Exception("Delete file error, try again");
@@ -169,7 +169,7 @@ public class DocumentService : IDocumentService
     public async Task<string> ReadPdfAsync(Guid userId, string fileName)
     {
         var httpClient = new HttpClient();
-        var response = await httpClient.GetAsync(GetFileUrl(userId, fileName));
+        var response = await httpClient.GetAsync(await GetFileUrlAsync(userId, fileName));
 
         using var document = PdfDocument.Open(await response.Content.ReadAsByteArrayAsync());
 
@@ -186,13 +186,13 @@ public class DocumentService : IDocumentService
         if (await _documentRepository.GetDocumentByNameAsync(userId, fileName) is not null)
             throw new Exception("File already exist");
 
-        return ReturnUrlWithPermission(userId, fileName, SAS_TTL, BlobSasPermissions.Write);
+        return await ReturnUrlWithPermissionAsync(userId, fileName, SAS_TTL, BlobSasPermissions.Write);
     }
 
-    /// <inheritdoc cref="IDocumentService.GetFileUrl" />
-    public string GetFileUrl(Guid userId, string fileName)
+    /// <inheritdoc cref="IDocumentService.GetFileUrlAsync" />
+    public async Task<string> GetFileUrlAsync(Guid userId, string fileName)
     {
-        return ReturnUrlWithPermission(userId, fileName, SAS_TTL, BlobSasPermissions.Read);
+        return await ReturnUrlWithPermissionAsync(userId, fileName, SAS_TTL, BlobSasPermissions.Read);
     }
 
     /// <inheritdoc cref="IDocumentService.GetTheClosesContextAsync" />
@@ -201,7 +201,10 @@ public class DocumentService : IDocumentService
         var embedding = await _customAiService.GetEmbeddingAsync(searchRequest);
         var searchResult = await _embeddingRepository.GetTheClosestEmbeddingAsync(userId, fileName, embedding);
 
-        return searchResult?.Text ?? string.Empty;
+        var stringBuilder = new StringBuilder();
+        foreach (var result in searchResult) stringBuilder.AppendLine(result.Text);
+
+        return stringBuilder.ToString();
     }
 
     /// <inheritdoc cref="IDocumentService.FindUserByEmailAsync" />
@@ -249,7 +252,7 @@ public class DocumentService : IDocumentService
         return await _userExternalHttpService.GetUsersByIdsWithPaginationAsync(users, paginationRequest);
     }
 
-    private string ReturnUrlWithPermission(Guid userId, string fileName, int minutesForExpire,
+    private async Task<string> ReturnUrlWithPermissionAsync(Guid userId, string fileName, int minutesForExpire,
         BlobSasPermissions permission)
     {
         var blobClient = GetBlobContainerClient(userId, fileName);
@@ -266,7 +269,7 @@ public class DocumentService : IDocumentService
 
         var conBuilder = new DbConnectionStringBuilder
         {
-            ConnectionString = EnvironmentVariables.BlobStorageConnectionString
+            ConnectionString = await EnvironmentVariables.GetBlobStorageConnectionStringAsync
         };
 
         var sasToken = sasBuilder
@@ -280,7 +283,7 @@ public class DocumentService : IDocumentService
 
     private List<string> SplitText(string text)
     {
-        var textSplitter = new RecursiveCharacterTextSplitter(chunkSize: 4000, chunkOverlap: 50);
+        var textSplitter = new RecursiveCharacterTextSplitter(chunkSize: 1500, chunkOverlap: 100);
         return textSplitter.SplitText(text);
     }
 

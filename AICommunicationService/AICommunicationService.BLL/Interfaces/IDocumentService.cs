@@ -39,7 +39,7 @@ public interface IDocumentService
     /// <param name="userId"></param>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    string GetFileUrl(Guid userId, string fileName);
+    Task<string> GetFileUrlAsync(Guid userId, string fileName);
 
     /// <summary>
     ///     This method returns the url for uploading the document

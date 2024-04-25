@@ -11,6 +11,7 @@ public class UserStoryTestConfiguration : IEntityTypeConfiguration<UserStoryTest
         builder.ToTable("UserStoryTest");
         builder.HasKey(c => c.Id);
         builder.Property(c => c.TestScenarios);
+        builder.Property(c => c.Order);
 
         builder.HasOne(c => c.TestPlan)
             .WithOne(c => c.UserStoryTest)

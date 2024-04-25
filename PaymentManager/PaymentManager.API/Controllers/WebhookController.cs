@@ -28,7 +28,7 @@ public class WebhookController : Controller
         try
         {
             var stripeEvent = EventUtility.ConstructEvent(json,
-                Request.Headers["Stripe-Signature"], EnvironmentVariables.WebhookKey);
+                Request.Headers["Stripe-Signature"], await EnvironmentVariables.WebhookKey);
 
             switch (stripeEvent.Type)
             {

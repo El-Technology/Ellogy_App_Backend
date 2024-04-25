@@ -3,6 +3,7 @@ using UserManager.BLL.Dtos.RefreshTokenDtos;
 using UserManager.BLL.Exceptions;
 using UserManager.BLL.Helpers;
 using UserManager.BLL.Interfaces;
+using UserManager.Common;
 using UserManager.Common.Helpers;
 using UserManager.Common.Options;
 using UserManager.DAL.Interfaces;
@@ -57,7 +58,7 @@ public class RefreshTokenService : IRefreshTokenService
     /// <inheritdoc cref="IRefreshTokenService.RegenerateJwtAsync" />
     public async Task<string> RegenerateJwtAsync(RefreshTokenRequestDto refreshTokenRequestDto)
     {
-        ValidateJwt(refreshTokenRequestDto.Jwt);
+        ValidateJwt(refreshTokenRequestDto.Jwt, await EnvironmentVariables.JwtSecretKey);
 
         var userId = JwtHelper.GetJwtClaimValue(refreshTokenRequestDto.Jwt, JwtOptions.UserIdClaimName)
                      ?? throw new InvalidJwtException();
@@ -70,7 +71,7 @@ public class RefreshTokenService : IRefreshTokenService
         var user = await _userRepository.GetUserByIdAsync(Guid.Parse(userId))
                    ?? throw new UserNotFoundException(userId);
 
-        return JwtHelper.GenerateJwt(user);
+        return await JwtHelper.GenerateJwtAsync(user);
     }
 
     private static void ValidateRefreshToken(RefreshToken refreshToken, RefreshTokenRequestDto refreshTokenRequest)
@@ -82,7 +83,7 @@ public class RefreshTokenService : IRefreshTokenService
             throw new InvalidRefreshTokenException();
     }
 
-    private static void ValidateJwt(string jwtToken)
+    private static void ValidateJwt(string jwtToken, string key)
     {
         var validationParameters = new TokenValidationParameters
         {
@@ -90,7 +91,7 @@ public class RefreshTokenService : IRefreshTokenService
             ValidateAudience = false,
             ValidateIssuer = true,
             ValidIssuer = JwtOptions.Issuer,
-            IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey()
+            IssuerSigningKey = JwtOptions.GetSymmetricSecurityKey(key)
         };
         JwtHelper.ValidateJwt(jwtToken, validationParameters);
     }

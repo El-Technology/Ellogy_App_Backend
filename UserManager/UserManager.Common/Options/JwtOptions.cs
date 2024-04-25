@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace UserManager.Common.Options;
 
@@ -12,12 +12,10 @@ public static class JwtOptions
     public static readonly TimeSpan TokenLifeTime = TimeSpan.FromMinutes(100);
     public static readonly TimeSpan RefreshTokenLifeTime = TimeSpan.FromDays(7);
 
-    private static readonly string? Key = EnvironmentVariables.JwtSecretKey;
-
-    public static SymmetricSecurityKey GetSymmetricSecurityKey()
+    public static SymmetricSecurityKey GetSymmetricSecurityKey(string key)
     {
-        return Key is null
+        return key is null
             ? throw new NullReferenceException()
-            : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key));
+            : new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
     }
 }

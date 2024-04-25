@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PaymentManager.Common;
 using PaymentManager.DAL.Models;
 
 namespace PaymentManager.DAL.Context;
@@ -20,7 +19,7 @@ public class PaymentContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured) optionsBuilder.UseNpgsql(EnvironmentVariables.ConnectionString);
+        if (!optionsBuilder.IsConfigured) optionsBuilder.UseNpgsql();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
