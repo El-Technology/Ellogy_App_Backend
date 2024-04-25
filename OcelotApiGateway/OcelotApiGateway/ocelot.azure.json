@@ -10,7 +10,12 @@
           "Host": "20.21.129.55",
           "Port": 53053
         }
-      ]
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
     },
     {
       "UpstreamPathTemplate": "/gateway/auth/register",
@@ -250,7 +255,12 @@
           "Host": "20.21.124.185",
           "Port": 53053
         }
-      ]
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
     },
     {
       "UpstreamPathTemplate": "/gateway/Communication/getChatResponse",
@@ -262,7 +272,12 @@
           "Host": "20.21.124.185",
           "Port": 53053
         }
-      ]
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
     },
     {
       "UpstreamPathTemplate": "/gateway/Communication/chatWithFunctions",
@@ -274,7 +289,12 @@
           "Host": "20.21.124.185",
           "Port": 53053
         }
-      ]
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
     },
     {
       "DownstreamPathTemplate": "/streamHub",
@@ -779,7 +799,12 @@
           "Host": "20.21.129.55",
           "Port": 53053
         }
-      ]
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
     },
     {
       "UpstreamPathTemplate": "/dev/Communication/getChatResponse",
@@ -791,7 +816,12 @@
           "Host": "20.21.129.55",
           "Port": 53053
         }
-      ]
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
     },
     {
       "UpstreamPathTemplate": "/dev/Communication/chatWithFunctions",
@@ -803,7 +833,12 @@
           "Host": "20.21.129.55",
           "Port": 53053
         }
-      ]
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
     },
     {
       "DownstreamPathTemplate": "/dev/streamHub",

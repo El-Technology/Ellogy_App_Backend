@@ -1,5 +1,6 @@
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Ocelot.Provider.Polly;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ var configurationBuilder = new ConfigurationBuilder();
 
 configurationBuilder.AddJsonFile($"ocelot.{ocelotConf}.json", optional: false, reloadOnChange: true);
 
-builder.Services.AddOcelot(configurationBuilder.Build());
+builder.Services.AddOcelot(configurationBuilder.Build()).AddPolly();
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(builder =>
