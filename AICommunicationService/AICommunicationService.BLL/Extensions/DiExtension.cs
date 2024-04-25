@@ -2,7 +2,6 @@
 using AICommunicationService.BLL.Interfaces.HttpInterfaces;
 using AICommunicationService.BLL.Services;
 using AICommunicationService.BLL.Services.HttpServices;
-using AICommunicationService.Common;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,7 +17,7 @@ public static class DiExtension
             .AddScoped<ICommunicationService, CommunicationService>()
             .AddScoped<IDocumentService, DocumentService>()
             .AddScoped<BlobServiceClient>(_ => new(blobStorageConnectionString))
-            .AddScoped<IGroqAiRequestService, GroqAiRequestService>();
+            .AddScoped<IGroqAiRequestService, GroqAiRequestService>()
             .AddScoped<IUserExternalHttpService, UserExternalHttpService>()
             .AddScoped<IPaymentExternalHttpService, PaymentExternalHttpService>();
     }

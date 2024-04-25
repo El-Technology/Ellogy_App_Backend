@@ -5,7 +5,8 @@ public static class SecretNames
     public const string GroqKey = "GROQ-KEY";
     public const string OpenAiKey = "OPEN-AI-KEY";
     public const string JwtSecretKey = "JWT-SECRET-KEY";
-    public const string ConnectionStringPayment = "CONNECTIONSTRING-PAYMENT";
-    public const string ConnectionStringVector = "CONNECTIONSTRING-VECTOR";
+    public const string Host = "HOST";
+    public const string EnablePayments = "ENABLE-PAYMENTS";
     public const string BlobStorageConnectionString = "BLOB-STORAGE-CONNECTION-STRING";
+
 }

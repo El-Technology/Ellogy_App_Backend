@@ -7,8 +7,11 @@ public static class HttpClientRegistration
 {
     public static void RegisterHttpClients(this IServiceCollection services)
     {
-        services.AddHttpClient("AzureAiRequest", client =>
-            client.DefaultRequestHeaders.Add("api-key", EnvironmentVariables.OpenAiKey));
+        services.AddHttpClient("AzureAiRequest", async client =>
+        {
+            client.DefaultRequestHeaders.Add("api-key", await EnvironmentVariables.GetOpenAiKeyAsync);
+            client.Timeout = TimeSpan.FromMinutes(3);
+        });
 
         services.AddHttpClient("UserManager", client =>
             client.BaseAddress = new Uri($"http://{EnvironmentVariables.Host}:{ClientPortConstants.UserManagerPort}"));

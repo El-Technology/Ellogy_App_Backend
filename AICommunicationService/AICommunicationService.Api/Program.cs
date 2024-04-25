@@ -102,10 +102,11 @@ static async Task AddServicesAsync(WebApplicationBuilder builder)
     builder.Services.RegisterHttpClients();
     builder.Services.AddHealthChecks();
     builder.Services.AddDataLayer(
-        await EnvironmentVariables.GetConnectionStringAsync,
-        await EnvironmentVariables.GetConnectionStringPaymentAsync);
-    builder.Services.AddRAGDataLayer(await EnvironmentVariables.GetConnectionStringVectorAsync);
-    builder.Services.AddBusinessLayer(await EnvironmentVariables.GetBlobStorageConnectionStringAsync);
+        await EnvironmentVariables.GetConnectionStringAsync);
+
+    builder.Services.AddBusinessLayer(
+        await EnvironmentVariables.GetBlobStorageConnectionStringAsync);
+
     builder.Services.AddMapping();
 }
 

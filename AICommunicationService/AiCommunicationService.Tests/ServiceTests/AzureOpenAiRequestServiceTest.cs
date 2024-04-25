@@ -1,7 +1,7 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Services;
-using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
+using AICommunicationService.Common.Models.GptResponseModel;
 using Moq;
 using Newtonsoft.Json;
 using System.Net;

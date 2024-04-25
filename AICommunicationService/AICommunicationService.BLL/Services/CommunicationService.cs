@@ -5,7 +5,6 @@ using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.BLL.Interfaces.HttpInterfaces;
 using AICommunicationService.Common;
-using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.Common.Models.GptResponseModel;
@@ -154,8 +153,7 @@ public class CommunicationService : ICommunicationService
 
     private async Task TakeChargeAsync(Guid userId, CommunicationResponseModel response)
     {
-        if (!EnvironmentVariables.EnablePayments)
-            return;
+        if (bool.Parse(await EnvironmentVariables.EnablePayments)) return;
 
         ArgumentNullException.ThrowIfNull(response.Usage, "Usage is null");
 
@@ -166,8 +164,7 @@ public class CommunicationService : ICommunicationService
 
     private async Task CheckIfUserAllowedToCreateRequest(Guid userId)
     {
-        if (!EnvironmentVariables.EnablePayments)
-            return;
+        if (bool.Parse(await EnvironmentVariables.EnablePayments)) return;
 
         var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new Exception("User was not found");
