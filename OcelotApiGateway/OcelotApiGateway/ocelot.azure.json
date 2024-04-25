@@ -1,6 +1,18 @@
 {
   "Routes": [
     {
+      "UpstreamPathTemplate": "/api/TimeOut/test",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/TimeOut/test",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "20.21.129.55",
+          "Port": 53053
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/gateway/auth/register",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/auth/register",
