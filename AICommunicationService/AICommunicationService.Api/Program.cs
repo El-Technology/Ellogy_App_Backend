@@ -103,10 +103,17 @@ static async Task AddServicesAsync(WebApplicationBuilder builder)
     });
 
     builder.Services.AddHttpClient("AzureAiRequest",
-        async client => { client.DefaultRequestHeaders.Add("api-key", await EnvironmentVariables.GetOpenAiKeyAsync); });
+        async client =>
+        {
+            client.DefaultRequestHeaders.Add("api-key", await EnvironmentVariables.GetOpenAiKeyAsync);
+            client.Timeout = TimeSpan.FromMinutes(3);
+        });
 
     builder.Services.AddHttpClient("GroqAiRequest",
-        async client => { client.DefaultRequestHeaders.Add("Authorization", $"Bearer {await EnvironmentVariables.GetGroqKeyAsync}"); });
+        async client =>
+        {
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {await EnvironmentVariables.GetGroqKeyAsync}");
+        });
 
     builder.Services.AddHealthChecks();
     builder.Services.AddDataLayer(
