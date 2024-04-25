@@ -5,7 +5,6 @@ using Microsoft.OpenApi.Models;
 using PaymentManager.API.Middlewares;
 using PaymentManager.BLL.Extensions;
 using PaymentManager.BLL.Hubs;
-using PaymentManager.Common;
 using PaymentManager.Common.Options;
 using PaymentManager.DAL.Context;
 using PaymentManager.DAL.Extensions;
@@ -107,11 +106,12 @@ static async Task AddServicesAsync(WebApplicationBuilder builder)
     });
 
     builder.Services.RegisterHttpClients();
-    builder.Services.AddBusinessLayer(await EnvironmentVariables.AzureServiceBusConnectionStringPayment);
+    builder.Services.AddBusinessLayer(
+        await EnvironmentVariables.AzureServiceBusConnectionStringPayment);
+
     builder.Services.AddMapping();
     builder.Services.AddDataLayer(
-        await EnvironmentVariables.ConnectionString,
-        await EnvironmentVariables.ConnectionStringPayment);
+        await EnvironmentVariables.ConnectionString);
 }
 
 static void MigrateDatabase(IHost app)
