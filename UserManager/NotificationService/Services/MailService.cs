@@ -48,7 +48,7 @@ public class MailService : IMailService
             Html = template
         };
 
-        var emailMessage = new EmailMessage(EnvironmentVariables.MailFrom, notificationModel.Consumer, emailContent);
+        var emailMessage = new EmailMessage(await EnvironmentVariables.MailFrom, notificationModel.Consumer, emailContent);
 
         if (notificationModel.BlobUrls is not null)
         {

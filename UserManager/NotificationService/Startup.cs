@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using NotificationService.Interfaces;
 using NotificationService.Services;
 using System.Threading.Tasks;
-using UserManager.BLL.Services;
 using UserManager.Common;
 using UserManager.Common.Constants;
 

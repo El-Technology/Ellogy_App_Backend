@@ -20,7 +20,7 @@ public static class DiExtension
             .AddScoped<IRegisterService, RegisterService>()
             .AddScoped<ILoginService, LoginService>()
             .AddScoped<IPasswordService, PasswordService>()
-            .AddScoped<IUserExternalService, UserExternalService>();
+            .AddScoped<IUserExternalService, UserExternalService>()
             .AddScoped<ServiceBusClient>(_ => new(azureServiceBusConnectionString));
     }
 

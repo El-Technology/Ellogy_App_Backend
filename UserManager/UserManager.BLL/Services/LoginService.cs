@@ -38,7 +38,7 @@ public class LoginService : ILoginService
             throw new FailedLoginException();
 
         var loggedInUser = _mapper.Map<LoginResponseDto>(user);
-        loggedInUser.Jwt = JwtHelper.GenerateJwt(user);
+        loggedInUser.Jwt = await JwtHelper.GenerateJwtAsync(user);
         loggedInUser.RefreshToken = await _refreshTokenService.GetRefreshTokenAsync(user.Id);
 
         return loggedInUser;
