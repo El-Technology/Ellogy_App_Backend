@@ -2,31 +2,32 @@
 using Azure.Security.KeyVault.Secrets;
 using PaymentManager.Common.Constants;
 using PaymentManager.Common.Helpers;
-
-namespace PaymentManager.Common;
+using System.Collections.Concurrent;
 
 public static class EnvironmentVariables
 {
-    private static readonly Lazy<Task<Dictionary<string, string>>> _secrets = new(async () =>
+    private static readonly Lazy<Task<ConcurrentDictionary<string, string>>> _secrets = new(async () =>
     {
         var vaultUri = new Uri(ConfigHelper.AppSetting(ConfigConstants.KeyVaultStorageUrl));
         var client = new SecretClient(vaultUri, new DefaultAzureCredential());
+        var secretsDictionary = new ConcurrentDictionary<string, string>();
 
-        return new Dictionary<string, string>
-        {
-            { SecretNames.ConnectionString, await GetSecretAsync(client, SecretNames.ConnectionString) },
-            { SecretNames.JwtSecretKey, await GetSecretAsync(client, SecretNames.JwtSecretKey) },
-            { SecretNames.ConnectionStringPayment, await GetSecretAsync(client, SecretNames.ConnectionStringPayment) },
-            { SecretNames.WebhookKey, await GetSecretAsync(client, SecretNames.WebhookKey) },
-            { SecretNames.SecretKey, await GetSecretAsync(client, SecretNames.SecretKey) },
-            { SecretNames.AzureServiceBusConnectionStringPayment, await GetSecretAsync(client, SecretNames.AzureServiceBusConnectionStringPayment) }
-        };
+        await Task.WhenAll(
+            GetAndAddSecretAsync(client, SecretNames.ConnectionString, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.JwtSecretKey, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.ConnectionStringPayment, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.WebhookKey, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.SecretKey, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.AzureServiceBusConnectionStringPayment, secretsDictionary)
+        );
+
+        return secretsDictionary;
     });
 
-    private static async Task<string> GetSecretAsync(SecretClient client, string secretName)
+    private static async Task GetAndAddSecretAsync(SecretClient client, string secretName, ConcurrentDictionary<string, string> secretsDictionary)
     {
         var secret = await client.GetSecretAsync(secretName);
-        return secret.Value.Value;
+        secretsDictionary.TryAdd(secretName, secret.Value.Value);
     }
 
     public static async Task<string> GetSecretAsync(string key)

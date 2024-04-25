@@ -109,7 +109,9 @@ static async Task AddServicesAsync(WebApplicationBuilder builder)
         async client => { client.DefaultRequestHeaders.Add("Authorization", $"Bearer {await EnvironmentVariables.GetGroqKeyAsync}"); });
 
     builder.Services.AddHealthChecks();
-    builder.Services.AddDataLayer(await EnvironmentVariables.GetConnectionStringAsync, await EnvironmentVariables.GetConnectionStringPaymentAsync);
+    builder.Services.AddDataLayer(
+        await EnvironmentVariables.GetConnectionStringAsync,
+        await EnvironmentVariables.GetConnectionStringPaymentAsync);
     builder.Services.AddRAGDataLayer(await EnvironmentVariables.GetConnectionStringVectorAsync);
     builder.Services.AddBusinessLayer(await EnvironmentVariables.GetBlobStorageConnectionStringAsync);
     builder.Services.AddMapping();
