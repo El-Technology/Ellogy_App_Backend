@@ -13,6 +13,11 @@ public static class HttpClientRegistration
             client.Timeout = TimeSpan.FromMinutes(3);
         });
 
+        services.AddHttpClient("GroqAiRequest", async client =>
+        {
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {await EnvironmentVariables.GetGroqKeyAsync}");
+        });
+
         services.AddHttpClient("UserManager", client =>
             client.BaseAddress = new Uri($"http://{EnvironmentVariables.Host}:{ClientPortConstants.UserManagerPort}"));
 

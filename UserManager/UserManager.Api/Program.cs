@@ -6,6 +6,8 @@ using System.Reflection;
 using UserManager.Api.Middlewares;
 using UserManager.BLL.Extensions;
 using UserManager.Common;
+using UserManager.Common.Constants;
+using UserManager.Common.Helpers;
 using UserManager.Common.Options;
 using UserManager.DAL.Context;
 using UserManager.DAL.Extensions;
@@ -103,7 +105,8 @@ public static class Program
         builder.Services.AddHealthChecks();
 
         builder.Services.AddDataLayer(
-            await EnvironmentVariables.ConnectionString);
+            (await EnvironmentVariables.ConnectionString)
+                .Replace(ConfigConstants.DbReplacePattern, ConfigHelper.AppSetting(ConfigConstants.DbName)));
 
         builder.Services.AddBusinessLayer(
             await EnvironmentVariables.BlobStorageConnectionString,

@@ -5,6 +5,8 @@ using Microsoft.OpenApi.Models;
 using PaymentManager.API.Middlewares;
 using PaymentManager.BLL.Extensions;
 using PaymentManager.BLL.Hubs;
+using PaymentManager.Common.Constants;
+using PaymentManager.Common.Helpers;
 using PaymentManager.Common.Options;
 using PaymentManager.DAL.Context;
 using PaymentManager.DAL.Extensions;
@@ -111,7 +113,8 @@ static async Task AddServicesAsync(WebApplicationBuilder builder)
 
     builder.Services.AddMapping();
     builder.Services.AddDataLayer(
-        await EnvironmentVariables.ConnectionString);
+        (await EnvironmentVariables.ConnectionString)
+    .Replace(ConfigConstants.DbReplacePattern, ConfigHelper.AppSetting(ConfigConstants.DbName)));
 }
 
 static void MigrateDatabase(IHost app)

@@ -7,6 +7,8 @@ using System.Text.Json.Serialization;
 using TicketsManager.Api.Middlewares;
 using TicketsManager.BLL.Extensions;
 using TicketsManager.Common;
+using TicketsManager.Common.Constants;
+using TicketsManager.Common.Helpers;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Extensions;
 
@@ -90,7 +92,8 @@ static async Task AddServicesAsync(WebApplicationBuilder builder)
 
     builder.Services.AddHealthChecks();
 
-    builder.Services.AddDataLayer(await EnvironmentVariables.ConnectionString);
+    builder.Services.AddDataLayer((await EnvironmentVariables.ConnectionString)
+                .Replace(ConfigConstants.DbReplacePattern, ConfigHelper.AppSetting(ConfigConstants.DbName)));
     builder.Services.AddBusinessLayer();
     builder.Services.AddMapping();
 }

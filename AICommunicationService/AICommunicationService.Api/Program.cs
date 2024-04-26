@@ -3,6 +3,7 @@ using AICommunicationService.BLL.Hubs;
 using AICommunicationService.Common;
 using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Enums;
+using AICommunicationService.Common.Helpers;
 using AICommunicationService.DAL.Context;
 using AICommunicationService.DAL.Extensions;
 using AICommunicationService.Middlewares;
@@ -102,7 +103,8 @@ static async Task AddServicesAsync(WebApplicationBuilder builder)
     builder.Services.RegisterHttpClients();
     builder.Services.AddHealthChecks();
     builder.Services.AddDataLayer(
-        await EnvironmentVariables.GetConnectionStringAsync);
+        (await EnvironmentVariables.GetConnectionStringAsync)
+    .Replace(ConfigConstants.DbReplacePattern, ConfigHelper.AppSetting(ConfigConstants.DbName)));
 
     builder.Services.AddBusinessLayer(
         await EnvironmentVariables.GetBlobStorageConnectionStringAsync);
