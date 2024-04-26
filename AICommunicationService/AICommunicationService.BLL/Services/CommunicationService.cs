@@ -44,6 +44,22 @@ public class CommunicationService : ICommunicationService
         _documentService = documentService;
     }
 
+    public async Task StreamRequestAsync(Guid userId, CreateConversationRequest createConversationRequest, Func<string, Task> onDataReceived)
+    {
+        var request = new MessageRequest
+        {
+            Context = null,
+            Functions = null,
+            ConversationHistory = createConversationRequest.ConversationHistory,
+            Temperature = createConversationRequest.Temperature,
+            Template = await GetTemplateAsync(createConversationRequest.TemplateName),
+            Url = GetAzureOpenAiRequestLink(createConversationRequest.AiModelEnum),
+            UserInput = createConversationRequest.UserInput
+        };
+
+        await _customAiService.PostAiRequestAsStreamAsync(request, onDataReceived);
+    }
+
     /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(Guid, CreateConversationRequest)" />
     public async Task<string> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest)
     {

@@ -69,6 +69,18 @@ public class CommunicationController : ControllerBase
         return Ok(response);
     }
 
+    [HttpPost]
+    [Route("getStreamResponse")]
+    public async Task GetStreamResponse([FromBody] CreateConversationRequest conversationRequest)
+    {
+        Response.Headers.Add("Content-Type", "text/event-stream");
+
+        await _communicationService.StreamRequestAsync(GetUserIdFromToken(), conversationRequest, async response =>
+        {
+            await Response.WriteAsync(response);
+        });
+    }
+
     /// <summary>
     ///     Endpoint for retrieving AI response as string.
     /// </summary>
