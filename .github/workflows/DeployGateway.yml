@@ -12,9 +12,9 @@ env:
   AZURE_WEBAPP_NAME: "EllogyGateway-9094"
 
 jobs:
-  permissions: write-all
-  
   build_api_gateway:
+    permissions: write-all
+    
     env:  
       MICROSERVICE_NAME: 'api_gateway'
       PROJECT_PATH: './OcelotApiGateway/'
