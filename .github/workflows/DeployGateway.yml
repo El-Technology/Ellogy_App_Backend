@@ -12,6 +12,8 @@ env:
   AZURE_WEBAPP_NAME: "EllogyGateway-9094"
 
 jobs:
+  permissions: write-all
+  
   build_api_gateway:
     env:  
       MICROSERVICE_NAME: 'api_gateway'
