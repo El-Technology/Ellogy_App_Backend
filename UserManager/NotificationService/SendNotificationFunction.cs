@@ -1,5 +1,4 @@
 using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NotificationService.Interfaces;
 using System;
@@ -7,32 +6,27 @@ using System.Threading.Tasks;
 using UserManager.Common;
 using UserManager.Common.Models.NotificationModels;
 
-namespace NotificationService
+namespace NotificationService;
+
+public class SendNotificationFunction
 {
-    public class SendNotificationFunction
+    private readonly INotifyService _notifier;
+
+    public SendNotificationFunction(INotifyService notifier)
     {
-        private readonly INotifyService _notifier;
+        _notifier = notifier;
+    }
 
-        public SendNotificationFunction(INotifyService notifier)
+    [FunctionName("SendNotificationFunction")]
+    public async Task Run([ServiceBusTrigger(NotificationQueueOptions.QueueName, Connection = "NOTIFICATION_QUEUE_CONNECTION_STRING")] string myQueueItem)
+    {
+        try
         {
-            _notifier = notifier;
+            var data = JsonConvert.DeserializeObject<NotificationModel>(myQueueItem);
+            await _notifier.SendNotificationAsync(data);
         }
-
-        [FunctionName("SendNotificationFunction")]
-        public async Task Run([ServiceBusTrigger(NotificationQueueOptions.QueueName, Connection = "NOTIFICATION_QUEUE_CONNECTION_STRING")] string myQueueItem, ILogger log)
+        catch (Exception)
         {
-            try
-            {
-                log.LogInformation("C# HTTP trigger function processed a request.");
-                var data = JsonConvert.DeserializeObject<NotificationModel>(myQueueItem);
-                log.LogInformation($"Notification: {data}");
-
-                await _notifier.SendNotificationAsync(data);
-            }
-            catch (Exception ex)
-            {
-                log.LogInformation(ex.ToString());
-            }
         }
     }
 }
