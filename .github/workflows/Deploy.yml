@@ -2,7 +2,7 @@ name: Build and push microservices
 on:
   push:
     branches:
-      - pre-release
+      - pre-release-architecture
     paths:
       - TicketsManager/**
       - UserManager/**
@@ -13,9 +13,9 @@ on:
       - '!UserManager/NotificationService/**'
       
 env:
-  SSH_HOST: ${{ secrets.SSH_HOST }}
+  SSH_HOST: ${{ secrets.SSH_HOST_DEV }}
   SSH_USER: ${{ vars.REMOTE_USER }}
-  SSH_KEY: ${{ secrets.SSH_KEY }}
+  SSH_KEY: ${{ secrets.SSH_KEY_DEV }}
   ENVNAME: ${{ vars.ENVNAME }}
 
 jobs:
@@ -64,7 +64,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
 
     needs: changes
-    if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' && (startsWith(github.ref, 'refs/heads/pre-release')) }}
+    if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' }}
 
     runs-on: ubuntu-latest
     steps:
@@ -216,8 +216,6 @@ jobs:
     needs: [build_user_manager, build_ticket_manager, build_ai_communication_service, build_payment_manager]
 
     runs-on: ubuntu-latest
-    environment: 
-      name: ${{ github.ref == 'refs/heads/pre-release' && 'development' ||  'production' }}
     steps:
     - name: Configure SSH
       run: |
