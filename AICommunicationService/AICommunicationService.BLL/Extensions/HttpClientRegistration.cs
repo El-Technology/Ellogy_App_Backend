@@ -9,6 +9,7 @@ public static class HttpClientRegistration
     {
         services.AddHttpClient("AzureAiRequest", async client =>
         {
+            client.BaseAddress = new Uri(await EnvironmentVariables.GetOpenAIEndpoint);
             client.DefaultRequestHeaders.Add("api-key", await EnvironmentVariables.GetOpenAiKeyAsync);
             client.Timeout = TimeSpan.FromMinutes(3);
         });

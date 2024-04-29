@@ -121,7 +121,7 @@ public class CommunicationService : ICommunicationService
             ConversationHistory = createConversationRequest.ConversationHistory,
             Temperature = createConversationRequest.Temperature,
             Template = await GetTemplateAsync(createConversationRequest.TemplateName),
-            Url = GetAzureOpenAiRequestLink(createConversationRequest.AiModelEnum),
+            Url = await GetAzureOpenAiRequestLinkAsync(createConversationRequest.AiModelEnum),
             UserInput = createConversationRequest.UserInput
         };
     }
@@ -199,7 +199,7 @@ public class CommunicationService : ICommunicationService
         return response;
     }
 
-    private string GetAzureOpenAiRequestLink(AiModelEnum aiModelEnum)
+    private async Task<string> GetAzureOpenAiRequestLinkAsync(AiModelEnum aiModelEnum)
     {
         if ((int)aiModelEnum >= 4)
             return string.Empty;

@@ -1,7 +1,4 @@
-﻿using AICommunicationService.Common.Constants;
-using AICommunicationService.Common.Helpers;
-
-namespace AICommunicationService.Common;
+﻿namespace AICommunicationService.Common;
 using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Helpers;
 using Azure.Identity;
@@ -23,7 +20,8 @@ public static class EnvironmentVariables
             GetAndAddSecretAsync(client, SecretNames.JwtSecretKey, secretsDictionary),
             GetAndAddSecretAsync(client, SecretNames.Host, secretsDictionary),
             GetAndAddSecretAsync(client, SecretNames.EnablePayments, secretsDictionary),
-            GetAndAddSecretAsync(client, SecretNames.BlobStorageConnectionString, secretsDictionary)
+            GetAndAddSecretAsync(client, SecretNames.BlobStorageConnectionString, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.OpenAiEndpoint, secretsDictionary)
         );
 
         return secretsDictionary;
@@ -46,6 +44,7 @@ public static class EnvironmentVariables
         return secrets[key];
     }
 
+    public static Task<string> GetOpenAIEndpoint => GetSecretAsync(SecretNames.OpenAiEndpoint);
     public static Task<string> GetConnectionStringAsync => GetSecretAsync(SecretNames.ConnectionString);
     public static Task<string> GetGroqKeyAsync => GetSecretAsync(SecretNames.GroqKey);
     public static Task<string> GetOpenAiKeyAsync => GetSecretAsync(SecretNames.OpenAiKey);
