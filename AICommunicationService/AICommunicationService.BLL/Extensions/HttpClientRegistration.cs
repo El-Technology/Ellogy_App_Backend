@@ -18,10 +18,10 @@ public static class HttpClientRegistration
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {await EnvironmentVariables.GetGroqKeyAsync}");
         });
 
-        services.AddHttpClient("UserManager", client =>
-            client.BaseAddress = new Uri($"http://{EnvironmentVariables.Host}:{ClientPortConstants.UserManagerPort}"));
+        services.AddHttpClient("UserManager", async client =>
+            client.BaseAddress = new Uri($"http://{await EnvironmentVariables.Host}:{ClientPortConstants.UserManagerPort}"));
 
-        services.AddHttpClient("PaymentManager", client =>
-            client.BaseAddress = new Uri($"http://{EnvironmentVariables.Host}:{ClientPortConstants.PaymentManagerPort}"));
+        services.AddHttpClient("PaymentManager", async client =>
+            client.BaseAddress = new Uri($"http://{await EnvironmentVariables.Host}:{ClientPortConstants.PaymentManagerPort}"));
     }
 }
