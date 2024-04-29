@@ -15,16 +15,18 @@ namespace NotificationService;
 
 public class Startup : FunctionsStartup
 {
-    private IConfigurationRoot _functionConfig = null;
+    public override void ConfigureAppConfiguration(IFunctionsConfigurationBuilder builder)
+    {
+        var context = builder.GetContext();
 
-    private IConfigurationRoot FunctionConfig(string appDir) =>
-        _functionConfig ??= new ConfigurationBuilder()
-            .AddJsonFile(Path.Combine(appDir, "appsettings.json"), optional: false, reloadOnChange: true)
-            .Build();
+        builder.ConfigurationBuilder
+            .AddJsonFile(Path.Combine(context.ApplicationRootPath, "appsettings.json"), optional: true, reloadOnChange: false)
+            .AddJsonFile(Path.Combine(context.ApplicationRootPath, $"appsettings.{context.EnvironmentName}.json"), optional: true, reloadOnChange: false)
+            .AddEnvironmentVariables();
+    }
 
     public override void Configure(IFunctionsHostBuilder builder)
     {
-        FunctionConfig(builder.GetContext().ApplicationRootPath);
         ConfigureServicesAsync(builder).GetAwaiter().GetResult();
     }
 
