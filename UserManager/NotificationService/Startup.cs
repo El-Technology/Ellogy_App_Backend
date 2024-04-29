@@ -19,7 +19,7 @@ public class Startup : FunctionsStartup
 
     private IConfigurationRoot FunctionConfig(string appDir) =>
         _functionConfig ??= new ConfigurationBuilder()
-            .AddJsonFile(Path.Combine(appDir, "appsettings.json"), optional: true, reloadOnChange: true)
+            .AddJsonFile(Path.Combine(appDir, "appsettings.json"), optional: false, reloadOnChange: true)
             .Build();
 
     public override void Configure(IFunctionsHostBuilder builder)
