@@ -42,7 +42,7 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.UseCors();
-app.UseWebSockets();
+//app.UseWebSockets();
 await app.UseOcelot();
 
 app.Run();
