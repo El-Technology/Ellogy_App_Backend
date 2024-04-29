@@ -1,114 +1,1043 @@
 {
   "Routes": [
     {
-      "UpstreamPathTemplate": "/gateway/health",
-      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamPathTemplate": "/uml/png/{everything}",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/png/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8080
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/uml/svg/{everything}",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/svg/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 8080
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/health",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
       "DownstreamPathTemplate": "/health",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "localhost",
+          "Port": 5281
         }
       ]
     },
     {
-      "UpstreamPathTemplate": "/gateway/auth/register",
-      "UpstreamHttpMethod": [ "Post" ],
+      "UpstreamPathTemplate": "/dev/auth/register",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
       "DownstreamPathTemplate": "/api/auth/register",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "localhost",
+          "Port": 5281
         }
       ]
     },
     {
-      "UpstreamPathTemplate": "/gateway/auth/login",
-      "UpstreamHttpMethod": [ "Post" ],
+      "UpstreamPathTemplate": "/dev/auth/login",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
       "DownstreamPathTemplate": "/api/auth/login",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "localhost",
+          "Port": 5281
         }
       ]
     },
     {
-      "UpstreamPathTemplate": "/gateway/auth/forgotPassword",
-      "UpstreamHttpMethod": [ "Post" ],
+      "UpstreamPathTemplate": "/dev/auth/forgotPassword",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
       "DownstreamPathTemplate": "/api/Password/forgotPassword",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "localhost",
+          "Port": 5281
         }
       ]
     },
     {
-      "UpstreamPathTemplate": "/gateway/auth/resetPassword",
-      "UpstreamHttpMethod": [ "Post" ],
+      "UpstreamPathTemplate": "/dev/auth/resetPassword",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
       "DownstreamPathTemplate": "/api/Password/resetPassword",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "localhost",
+          "Port": 5281
         }
       ]
     },
-
-    
     {
-      "UpstreamPathTemplate": "/gateway/chat/sendMessage",
-      "UpstreamHttpMethod": [ "Post" ],
-      "DownstreamPathTemplate": "/api/communication/sendMessage",
+      "UpstreamPathTemplate": "/dev/auth/refreshJwtToken",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/auth/refreshJwtToken",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "user_manager",
-          "Port": 80
+          "Host": "localhost",
+          "Port": 5281
         }
       ]
     },
-   
-    
     {
-      "UpstreamPathTemplate": "/gateway/Tickets/getTickets/{userId}",
-      "UpstreamHttpMethod": [ "Post" ],
+      "UpstreamPathTemplate": "/dev/auth/sentVerificationEmail",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/auth/sentVerificationEmail",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/auth/activateUserAccount",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/auth/activateUserAccount",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Report/sendReport",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Report/sendReport",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Profile/deleteUser",
+      "UpstreamHttpMethod": [
+        "Delete"
+      ],
+      "DownstreamPathTemplate": "/api/Profile/deleteUser",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Profile/updateUserProfile",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Profile/updateUserProfile",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Profile/changeUserEmail",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Profile/changeUserEmail",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Profile/verifyUserEmail",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Profile/verifyUserEmail",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Profile/changeUserPassword",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Profile/changeUserPassword",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Profile/uploadAvatar",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Profile/uploadAvatar",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Profile/getUserProfile",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/Profile/getUserProfile",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Tickets/getTickets/{userId}",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
       "DownstreamPathTemplate": "/api/Tickets/tickets/{userId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "ticket_manager",
-          "Port": 80
+          "Host": "localhost",
+          "Port": 5041
         }
       ]
     },
     {
-      "UpstreamPathTemplate": "/gateway/Tickets/search/{userId}",
-      "UpstreamHttpMethod": [ "Post" ],
+      "UpstreamPathTemplate": "/dev/Tickets/search/{userId}",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
       "DownstreamPathTemplate": "/api/Tickets/search/{userId}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "ticket_manager",
-          "Port": 80
+          "Host": "localhost",
+          "Port": 5041
         }
       ]
     },
     {
-      "UpstreamPathTemplate": "/gateway/Tickets/{id}",
-      "UpstreamHttpMethod": [ "Post", "Delete", "Put" ],
+      "UpstreamPathTemplate": "/dev/Tickets/{id}",
+      "UpstreamHttpMethod": [
+        "Post",
+        "Delete",
+        "Put"
+      ],
       "DownstreamPathTemplate": "/api/Tickets/{id}",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "ticket_manager",
-          "Port": 80
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Tickets/generateDoc",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Tickets/generateDoc",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/TicketSummary/getTicketSummariesByTicketId",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/TicketSummary/getTicketSummariesByTicketId",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/TicketSummary/createTicketSummaries",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/TicketSummary/createTicketSummaries",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/TicketSummary/updateTicketSummaries",
+      "UpstreamHttpMethod": [
+        "Put"
+      ],
+      "DownstreamPathTemplate": "/api/TicketSummary/updateTicketSummaries",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/TicketSummary/deleteTicketSummaries",
+      "UpstreamHttpMethod": [
+        "Delete"
+      ],
+      "DownstreamPathTemplate": "/api/TicketSummary/deleteTicketSummaries",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/UserStoryTest/createUserStoryTests",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/UserStoryTest/createUserStoryTests",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/UserStoryTest/getUserStoryTests",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/UserStoryTest/getUserStoryTests",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/UserStoryTest/updateUserStoryTests",
+      "UpstreamHttpMethod": [
+        "Put"
+      ],
+      "DownstreamPathTemplate": "/api/UserStoryTest/updateUserStoryTests",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/UserStoryTest/deleteUserStoryTests",
+      "UpstreamHttpMethod": [
+        "Delete"
+      ],
+      "DownstreamPathTemplate": "/api/UserStoryTest/deleteUserStoryTests",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/UserStoryTest/deleteTestCases",
+      "UpstreamHttpMethod": [
+        "Delete"
+      ],
+      "DownstreamPathTemplate": "/api/UserStoryTest/deleteTestCases",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Usecases/create",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Usecases/create",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Usecases/get",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Usecases/get",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Usecases/update",
+      "UpstreamHttpMethod": [
+        "Put"
+      ],
+      "DownstreamPathTemplate": "/api/Usecases/update",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Usecases/delete",
+      "UpstreamHttpMethod": [
+        "Delete"
+      ],
+      "DownstreamPathTemplate": "/api/Usecases/delete",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Communication/getSignalRStreamResponse",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Communication/getSignalRStreamResponse",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Communication/getChatResponse",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Communication/getChatResponse",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Communication/chatWithFunctions",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/Communication/chatWithFunctions",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
+    },
+    {
+      "DownstreamPathTemplate": "/dev/streamHub",
+      "DownstreamScheme": "ws",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ],
+      "UpstreamPathTemplate": "/dev/streamHub",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "OPTIONS"
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/dev/streamHub/negotiate",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ],
+      "UpstreamPathTemplate": "/dev/streamHub/negotiate",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "OPTIONS"
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/uploadDocumentUrl",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/RAG/uploadDocumentUrl",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/getDocumentUrl",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/RAG/getDocumentUrl",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/deleteDocument",
+      "UpstreamHttpMethod": [
+        "Delete"
+      ],
+      "DownstreamPathTemplate": "/api/RAG/deleteDocument",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/getUserDocuments",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/RAG/getUserDocuments",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/verifyDocumentUpload",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/RAG/verifyDocumentUpload",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/embedDocument",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/RAG/embedDocument",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/findUser",
+      "UpstreamHttpMethod": [
+        "Get"
+      ],
+      "DownstreamPathTemplate": "/api/RAG/findUser",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/givePermission",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/RAG/givePermission",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/removePermission",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/RAG/removePermission",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/RAG/getAllUsersWithPermission",
+      "UpstreamHttpMethod": [
+        "Post"
+      ],
+      "DownstreamPathTemplate": "/api/RAG/getAllUsersWithPermission",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 53053
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/CheckOut/getUserBalance",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/CheckOut/getUserBalance",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/CheckOut/createPayment",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "DownstreamPathTemplate": "/api/CheckOut/createPayment",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/CheckOut/createFreeSubscription",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "DownstreamPathTemplate": "/api/CheckOut/createFreeSubscription",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/CheckOut/upgradeSubscription",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/CheckOut/upgradeSubscription",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/CheckOut/downgradeSubscription",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/CheckOut/downgradeSubscription",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/CheckOut/cancelSubscription",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/CheckOut/cancelSubscription",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Customer/deleteCustomer",
+      "UpstreamHttpMethod": [
+        "DELETE"
+      ],
+      "DownstreamPathTemplate": "/api/Customer/deleteCustomer",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Customer/createCustomer",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/Customer/createCustomer",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Customer/updateCustomerData",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/Customer/updateCustomerData",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Customer/addCustomerPaymentMethod",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "DownstreamPathTemplate": "/api/Customer/addCustomerPaymentMethod",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Customer/getAllPaymentMethods",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "DownstreamPathTemplate": "/api/Customer/getAllPaymentMethods",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Customer/setDefaultPaymentMethod",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/Customer/setDefaultPaymentMethod",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Customer/getCustomerPayments",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "DownstreamPathTemplate": "/api/Customer/getCustomerPayments",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Customer/getActiveSubscription",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/Customer/getActiveSubscription",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Customer/detachPaymentMethod",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/Customer/detachPaymentMethod",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Customer/updateSubscriptionPreview",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/Customer/updateSubscriptionPreview",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Product/getProducts",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/Product/getProducts",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/paymentHub",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "OPTIONS"
+      ],
+      "DownstreamPathTemplate": "/paymentHub",
+      "DownstreamScheme": "ws",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/paymentHub/negotiate",
+      "UpstreamHttpMethod": [
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "OPTIONS"
+      ],
+      "DownstreamPathTemplate": "/paymentHub/negotiate",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/CheckOut/expireSession",
+      "UpstreamHttpMethod": [
+        "GET"
+      ],
+      "DownstreamPathTemplate": "/api/CheckOut/expireSession",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5021
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/ActionHistory/createActionHistory",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "DownstreamPathTemplate": "/api/ActionHistory/createActionHistory",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/ActionHistory/getActionHistory",
+      "UpstreamHttpMethod": [
+        "POST"
+      ],
+      "DownstreamPathTemplate": "/api/ActionHistory/getActionHistory",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5041
         }
       ]
     }

@@ -17,9 +17,7 @@ public static class EnvironmentVariables
         await Task.WhenAll(
             GetAndAddSecretAsync(client, SecretNames.AzureServiceBusConnectionString, secretsDictionary),
             GetAndAddSecretAsync(client, SecretNames.ConnectionString, secretsDictionary),
-            GetAndAddSecretAsync(client, SecretNames.MailFrom, secretsDictionary),
             GetAndAddSecretAsync(client, SecretNames.JwtSecretKey, secretsDictionary),
-            GetAndAddSecretAsync(client, SecretNames.EmailClientConnectionString, secretsDictionary),
             GetAndAddSecretAsync(client, SecretNames.BlobStorageConnectionString, secretsDictionary)
         );
 
@@ -45,8 +43,6 @@ public static class EnvironmentVariables
 
     public static Task<string> AzureServiceBusConnectionString => GetSecretAsync(SecretNames.AzureServiceBusConnectionString);
     public static Task<string> ConnectionString => GetSecretAsync(SecretNames.ConnectionString);
-    public static Task<string> MailFrom => GetSecretAsync(SecretNames.MailFrom);
     public static Task<string> JwtSecretKey => GetSecretAsync(SecretNames.JwtSecretKey);
-    public static Task<string> EmailClientConnectionString => GetSecretAsync(SecretNames.EmailClientConnectionString);
     public static Task<string> BlobStorageConnectionString => GetSecretAsync(SecretNames.BlobStorageConnectionString);
 }
