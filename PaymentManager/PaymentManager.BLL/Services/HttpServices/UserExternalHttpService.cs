@@ -25,7 +25,7 @@ public class UserExternalHttpService : IUserExternalHttpService
         var requestObject = new
         {
             UserId = userId,
-            StripeId = stripeId
+            CustomerId = stripeId
         };
         var jsonRequest = JsonConvert.SerializeObject(requestObject);
         var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
