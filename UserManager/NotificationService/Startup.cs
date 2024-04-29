@@ -1,9 +1,11 @@
 ﻿using Azure.Communication.Email;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NotificationService.Interfaces;
 using NotificationService.Services;
+using System.IO;
 using System.Threading.Tasks;
 using UserManager.Common;
 using UserManager.Common.Constants;
@@ -13,8 +15,16 @@ namespace NotificationService;
 
 public class Startup : FunctionsStartup
 {
+    private IConfigurationRoot _functionConfig = null;
+
+    private IConfigurationRoot FunctionConfig(string appDir) =>
+        _functionConfig ??= new ConfigurationBuilder()
+            .AddJsonFile(Path.Combine(appDir, "appsettings.json"), optional: true, reloadOnChange: true)
+            .Build();
+
     public override void Configure(IFunctionsHostBuilder builder)
     {
+        FunctionConfig(builder.GetContext().ApplicationRootPath);
         ConfigureServicesAsync(builder).GetAwaiter().GetResult();
     }
 
