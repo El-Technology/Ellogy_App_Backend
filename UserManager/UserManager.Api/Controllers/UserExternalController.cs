@@ -147,7 +147,7 @@ public class UserExternalController : Controller
     /// <returns>200 status code</returns>
     [HttpGet("update-account-plan")]
     public async Task<IActionResult> UpdateAccountPlanAsync(
-        [FromQuery] Guid userId, [FromQuery] AccountPlan accountPlan)
+        [FromQuery] Guid userId, [FromQuery] AccountPlan? accountPlan)
     {
         await _userExternalService.UpdateAccountPlanAsync(userId, accountPlan);
         return Ok();

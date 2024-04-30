@@ -63,7 +63,7 @@ public class UserExternalService : IUserExternalService
         await Task.CompletedTask;
     }
 
-    public async Task UpdateAccountPlanAsync(Guid userId, AccountPlan accountPlan)
+    public async Task UpdateAccountPlanAsync(Guid userId, AccountPlan? accountPlan)
     {
         await _userExternalRepository.UpdateAccountPlanAsync(userId, accountPlan);
         await Task.CompletedTask;
