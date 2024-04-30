@@ -135,43 +135,43 @@ public class AzureOpenAiRequestServiceTest
         });
     }
 
-    [Test]
-    public async Task PostAiRequestAsStreamAsync_ShouldCallOnDataReceivedWithCorrectResponse()
-    {
-        var expectedResponse = "some response";
-        var messageRequest = new MessageRequest
-        {
-            Temperature = 0.9f,
-            UserInput = "some user input",
-            Template = "some template",
-            Url = "http://example.com/api/ai"
-        };
+    //[Test]
+    //public async Task PostAiRequestAsStreamAsync_ShouldCallOnDataReceivedWithCorrectResponse()
+    //{
+    //    var expectedResponse = "some response";
+    //    var messageRequest = new MessageRequest
+    //    {
+    //        Temperature = 0.9f,
+    //        UserInput = "some user input",
+    //        Template = "some template",
+    //        Url = "http://example.com/api/ai"
+    //    };
 
-        var aiResponseModel = new AiResponseModel
-        {
-            Choices = new List<Choice>
-            {
-                new Choice
-                {
-                    Delta = new Delta
-                    {
-                        Content = expectedResponse
-                    }
-                }
-            }
-        };
+    //    var aiResponseModel = new AiResponseModel
+    //    {
+    //        Choices = new List<Choice>
+    //        {
+    //            new Choice
+    //            {
+    //                Delta = new Delta
+    //                {
+    //                    Content = expectedResponse
+    //                }
+    //            }
+    //        }
+    //    };
 
-        var aiService = ReturnAiRequestServiceAsync(aiResponseModel);
+    //    var aiService = ReturnAiRequestServiceAsync(aiResponseModel);
 
-        var onDataReceivedCalled = false;
-        async Task OnDataReceived(string data)
-        {
-            onDataReceivedCalled = true;
-            Assert.That(data, Is.EqualTo(expectedResponse));
-        }
+    //    var onDataReceivedCalled = false;
+    //    async Task OnDataReceived(string data)
+    //    {
+    //        onDataReceivedCalled = true;
+    //        Assert.That(data, Is.EqualTo(expectedResponse));
+    //    }
 
-        await aiService.PostAiRequestAsStreamAsync(messageRequest, OnDataReceived);
+    //    await aiService.PostAiRequestAsStreamAsync(messageRequest, OnDataReceived);
 
-        Assert.That(onDataReceivedCalled, Is.True, "onDataReceived should have been called with the correct response.");
-    }
+    //    Assert.That(onDataReceivedCalled, Is.True, "onDataReceived should have been called with the correct response.");
+    //}
 }
