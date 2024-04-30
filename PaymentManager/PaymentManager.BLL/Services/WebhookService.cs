@@ -42,13 +42,14 @@ public class WebhookService : StripeBaseService, IWebhookService
     /// <inheritdoc cref="IWebhookService.OrderConfirmationAsync(Session)" />
     public async Task OrderConfirmationAsync(Session session)
     {
+        if (!session.Mode.Equals(Constants.PaymentMode)) return;
+
         var payment = await _paymentRepository.GetPaymentAsync(session.Id);
 
         ArgumentNullException.ThrowIfNull(payment, nameof(payment));
         ArgumentNullException.ThrowIfNull(payment.Mode, nameof(payment.Mode));
 
-        if (payment.UpdatedBallance || !session.Mode.Equals(Constants.PaymentMode))
-            return;
+        if (payment.UpdatedBallance) return;
 
         await _paymentRepository.UpdatePaymentAsync(new Payment
         {
