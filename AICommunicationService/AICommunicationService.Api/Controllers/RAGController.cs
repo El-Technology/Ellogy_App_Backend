@@ -56,10 +56,10 @@ public class RAGController : Controller
     /// <returns></returns>
     [HttpGet]
     [Route("getDocumentUrl")]
-    public IActionResult GetUrlOfPdfDocuments([FromQuery] string fileName, [FromQuery] Guid? ownerId)
+    public async Task<IActionResult> GetUrlOfPdfDocuments([FromQuery] string fileName, [FromQuery] Guid? ownerId)
     {
         var userId = ownerId ?? GetUserIdFromToken();
-        return Ok(_documentService.GetFileUrlAsync(userId, fileName));
+        return Ok(await _documentService.GetFileUrlAsync(userId, fileName));
     }
 
     /// <summary>
