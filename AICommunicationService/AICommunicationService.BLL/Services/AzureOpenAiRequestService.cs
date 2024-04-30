@@ -74,6 +74,12 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
 
         var result = await _httpClient.PostAsync(request.Url, content);
 
+        if (result.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            result.Headers.TryGetValues("retry-after", out var values);
+            throw new ToManyRequestsException(values?.FirstOrDefault());
+        }
+
         if (result.StatusCode == HttpStatusCode.BadRequest)
         {
             var exceptionResponse = await result.Content.ReadFromJsonAsync<ModelError>();
@@ -119,6 +125,12 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
         var message = new HttpRequestMessage { RequestUri = new Uri(request.Url), Method = HttpMethod.Post, Content = content };
         var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
 
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            response.Headers.TryGetValues("retry-after", out var values);
+            throw new ToManyRequestsException(values?.FirstOrDefault());
+        }
+
         if (response.StatusCode == HttpStatusCode.BadRequest)
         {
             var exceptionResponse = await response.Content.ReadFromJsonAsync<ModelError>();
@@ -155,6 +167,12 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
             "application/json");
 
         var response = await _httpClient.PostAsync(AzureAiConstants.EmbeddingUrl, content);
+
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            response.Headers.TryGetValues("retry-after", out var values);
+            throw new ToManyRequestsException(values?.FirstOrDefault());
+        }
 
         var resultAsObject = JsonConvert.DeserializeObject<EmbeddingResponseModel>(await response.Content.ReadAsStringAsync());
 

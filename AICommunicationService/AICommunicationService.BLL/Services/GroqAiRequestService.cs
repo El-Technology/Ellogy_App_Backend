@@ -66,16 +66,19 @@ public class GroqAiRequestService : BasicRequestService, IGroqAiRequestService
         var response = await _httpClient.PostAsync(GroqConstants.GroqUrl, content);
         var contentAsString = await response.Content.ReadAsStringAsync();
 
-        _ = response.StatusCode switch
+        switch (response.StatusCode)
         {
-            HttpStatusCode.BadRequest =>
-                throw new GptModelException($"Model error, try to replace with another one\nRequest return message: {contentAsString}"),
+            case HttpStatusCode.BadRequest:
+                throw new GptModelException($"Model error, try to replace with another one\nRequest return message: {contentAsString}");
 
-            HttpStatusCode.TooManyRequests =>
-                throw new ToManyRequestsException(contentAsString),
+            case HttpStatusCode.TooManyRequests:
+                response.Headers.TryGetValues("retry-after", out var values);
+                throw new ToManyRequestsException(values?.FirstOrDefault());
 
-            _ => response.EnsureSuccessStatusCode()
-        };
+            default:
+                response.EnsureSuccessStatusCode();
+                break;
+        }
 
         var responseContent = await response.Content.ReadFromJsonAsync<GroqResponseModel>();
 

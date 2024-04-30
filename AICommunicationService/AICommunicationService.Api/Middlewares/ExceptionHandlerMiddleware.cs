@@ -35,7 +35,8 @@ public class ExceptionHandlerMiddleware
         }
         catch (ToManyRequestsException ex)
         {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.TooManyRequests, ex.Message);
+            var message = "Rate Limited Exceeded";
+            await HandleExceptionAsync(context, message, HttpStatusCode.TooManyRequests, message, retryAfter: ex.Message);
         }
         catch (Exception ex)
         {
@@ -46,9 +47,14 @@ public class ExceptionHandlerMiddleware
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, string errorMessage,
-                                                   HttpStatusCode httpStatusCode = StandartHttpStatusCode, string responseMessage = StandartResponseMessage)
+    private static async Task HandleExceptionAsync(
+        HttpContext context, string errorMessage,
+        HttpStatusCode httpStatusCode = StandartHttpStatusCode, string responseMessage = StandartResponseMessage,
+        string? retryAfter = null)
     {
+        if (!string.IsNullOrEmpty(retryAfter))
+            context.Response.Headers.Add("Retry-After", retryAfter);
+
         context.Response.ContentType = "text/plain";
         context.Response.StatusCode = (int)httpStatusCode;
 
