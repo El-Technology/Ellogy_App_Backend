@@ -77,6 +77,9 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
 
         var result = await _httpClient.PostAsync(request.Url, content);
 
+        if (result.StatusCode == HttpStatusCode.TooManyRequests)
+            throw new ToManyRequestsException(await result.Content.ReadAsStringAsync());
+
         if (result.StatusCode == HttpStatusCode.BadRequest)
         {
             var exceptionResponse = await result.Content.ReadFromJsonAsync<ModelError>();
@@ -126,6 +129,9 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
             Content = content
         };
         var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
+
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+            throw new ToManyRequestsException(await response.Content.ReadAsStringAsync());
 
         if (response.StatusCode == HttpStatusCode.BadRequest)
         {
