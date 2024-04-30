@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PaymentManager.BLL.Interfaces;
-using PaymentManager.Common;
 using Stripe;
 using Stripe.Checkout;
 
@@ -66,9 +65,9 @@ public class WebhookController : Controller
 
             return Ok();
         }
-        catch
+        catch (Exception ex)
         {
-            return BadRequest();
+            return BadRequest(ex.Message);
         }
     }
 }
