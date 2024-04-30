@@ -176,6 +176,12 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
 
         var response = await _httpClient.PostAsync(AzureAiConstants.EmbeddingUrl, content);
 
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            response.Headers.TryGetValues("retry-after", out var values);
+            throw new ToManyRequestsException(values?.FirstOrDefault());
+        }
+
         var resultAsObject = JsonConvert.DeserializeObject<EmbeddingResponseModel>(await response.Content.ReadAsStringAsync())
             ?? throw new Exception("Error while parsing the object");
 
