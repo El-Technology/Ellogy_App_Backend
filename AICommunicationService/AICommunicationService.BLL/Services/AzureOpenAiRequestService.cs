@@ -78,7 +78,10 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
         var result = await _httpClient.PostAsync(request.Url, content);
 
         if (result.StatusCode == HttpStatusCode.TooManyRequests)
-            throw new ToManyRequestsException(await result.Content.ReadAsStringAsync());
+        {
+            result.Headers.TryGetValues("retry-after", out var values);
+            throw new ToManyRequestsException(values?.FirstOrDefault());
+        }
 
         if (result.StatusCode == HttpStatusCode.BadRequest)
         {
@@ -131,7 +134,10 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
         var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
 
         if (response.StatusCode == HttpStatusCode.TooManyRequests)
-            throw new ToManyRequestsException(await response.Content.ReadAsStringAsync());
+        {
+            response.Headers.TryGetValues("retry-after", out var values);
+            throw new ToManyRequestsException(values?.FirstOrDefault());
+        }
 
         if (response.StatusCode == HttpStatusCode.BadRequest)
         {
