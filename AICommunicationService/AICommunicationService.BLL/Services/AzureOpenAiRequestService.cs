@@ -2,6 +2,7 @@ using AICommunicationService.BLL.Constants;
 using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.Common;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
@@ -118,7 +119,12 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
     {
         var content = PostAiRequestGetContent(request, AiRequestType.Streaming);
 
-        var message = new HttpRequestMessage { RequestUri = new Uri(request.Url), Method = HttpMethod.Post, Content = content };
+        var message = new HttpRequestMessage
+        {
+            RequestUri = new Uri($"{await EnvironmentVariables.GetOpenAIEndpoint}{request.Url}"),
+            Method = HttpMethod.Post,
+            Content = content
+        };
         var response = await _httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
 
         if (response.StatusCode == HttpStatusCode.BadRequest)
