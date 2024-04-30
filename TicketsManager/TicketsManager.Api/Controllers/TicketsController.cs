@@ -115,16 +115,16 @@ public class TicketsController : Controller
     /// Updates the details of a ticket.
     /// </summary>
     /// <param name="ticketUpdateRequest">The updated data for the ticket.</param>
-    /// <param name="userId">The id of the user, to which belongs that ticket.</param>
+    /// <param name="ticketId">The id of the user, to which belongs that ticket.</param>
     /// <returns>An <see cref="IActionResult"/> containing the updated ticket.</returns>
     [ProducesResponseType(typeof(TicketResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-    [HttpPut("{id:guid}")]
+    [HttpPut("{ticketId:guid}")]
     public async Task<IActionResult> UpdateTicket(
-        Guid userId, [FromBody] TicketUpdateRequestDto ticketUpdateRequest)
+        Guid ticketId, [FromBody] TicketUpdateRequestDto ticketUpdateRequest)
     {
         var ticket = await _ticketsService.UpdateTicketAsync(
-            userId, ticketUpdateRequest, GetUserIdFromToken());
+            ticketId, ticketUpdateRequest, GetUserIdFromToken());
 
         return Ok(ticket);
     }
