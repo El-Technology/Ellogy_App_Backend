@@ -39,7 +39,8 @@ static async Task AddServicesAsync(WebApplicationBuilder builder)
             builder.SetIsOriginAllowed(origin => true)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials();
+                .AllowCredentials()
+                .WithExposedHeaders("*");
         });
     });
 
