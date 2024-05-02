@@ -1,10 +1,8 @@
-﻿using AICommunicationService.Common.Helpers;
-using AICommunicationService.DAL.Models;
-using AICommunicationService.DAL.Models.Roots;
+﻿using AICommunicationService.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace AICommunicationService.DAL.Context.Configurations;
+namespace AICommunicationService.DAL.Context.AiCommunication.Configurations;
 
 public class GptPromptConfiguration : IEntityTypeConfiguration<AIPrompt>
 {
@@ -18,8 +16,5 @@ public class GptPromptConfiguration : IEntityTypeConfiguration<AIPrompt>
         builder.Property(a => a.Description);
         builder.Property(a => a.Functions);
         builder.Property(a => a.JsonSample);
-        builder.HasData(
-            DbSeedHelper.ConvertJsonToList<AIPromptsRoot>
-            ("AIPrompts_Seed.json", ".DAL")!.AIPrompts!);
     }
 }
