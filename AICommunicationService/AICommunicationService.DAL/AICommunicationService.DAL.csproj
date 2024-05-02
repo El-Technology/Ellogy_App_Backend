@@ -22,4 +22,10 @@
     <ProjectReference Include="..\AICommunicationService.Common\AICommunicationService.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="AIPrompts_Seed.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
