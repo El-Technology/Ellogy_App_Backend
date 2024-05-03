@@ -1,12 +1,10 @@
 ﻿using AICommunicationService.BLL.Constants;
 using AICommunicationService.BLL.Dtos;
-using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
 using Newtonsoft.Json;
-using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 
@@ -64,21 +62,8 @@ public class GroqAiRequestService : BasicRequestService, IGroqAiRequestService
     {
         var content = PostAiRequestGetContent(request, aiRequestType, aiModelEnum);
         var response = await _httpClient.PostAsync(GroqConstants.GroqUrl, content);
-        var contentAsString = await response.Content.ReadAsStringAsync();
 
-        switch (response.StatusCode)
-        {
-            case HttpStatusCode.BadRequest:
-                throw new GptModelException($"Model error, try to replace with another one\nRequest return message: {contentAsString}");
-
-            case HttpStatusCode.TooManyRequests:
-                response.Headers.TryGetValues("retry-after", out var values);
-                throw new ToManyRequestsException(values?.FirstOrDefault());
-
-            default:
-                response.EnsureSuccessStatusCode();
-                break;
-        }
+        ValidateResponse(response);
 
         var responseContent = await response.Content.ReadFromJsonAsync<GroqResponseModel>();
 
