@@ -146,16 +146,7 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
             if (string.IsNullOrEmpty(line))
                 continue;
 
-            var aiResponse = new AiResponseModel();
-            try
-            {
-                aiResponse = JsonConvert.DeserializeObject<AiResponseModel>(line.Replace("data: ", ""));
-            }
-            catch (Exception) { continue; };
-
-            var stringAiResponse = aiResponse?.Choices?.FirstOrDefault()?.Delta?.Content;
-            if (!string.IsNullOrEmpty(stringAiResponse))
-                await onDataReceived(stringAiResponse);
+            await onDataReceived(line);
         }
     }
 
