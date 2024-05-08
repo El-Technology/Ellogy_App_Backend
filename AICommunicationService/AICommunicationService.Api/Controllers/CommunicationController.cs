@@ -68,6 +68,7 @@ public class CommunicationController : ControllerBase
             async response =>
             {
                 await Response.WriteAsync(response);
+                await Response.Body.FlushAsync();
             });
     }
 
