@@ -1,5 +1,4 @@
 using AICommunicationService.BLL.Extensions;
-using AICommunicationService.BLL.Hubs;
 using AICommunicationService.Common;
 using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Enums;
@@ -142,7 +141,6 @@ static void AddMiddleware(WebApplication app)
     app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
-    app.MapHub<StreamAiHub>("/dev/streamHub");
     app.UseMiddleware<ExceptionHandlerMiddleware>();
 }
 

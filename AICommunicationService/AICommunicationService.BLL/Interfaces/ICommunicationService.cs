@@ -22,13 +22,12 @@ public interface ICommunicationService
     /// <param name="userId">User id</param>
     /// <returns>Returns string data in Json</returns>
     Task<string> ChatRequestWithFunctionAsync(Guid userId, CreateConversationRequest createConversationRequest);
-    Task StreamRequestAsync(Guid userId, CreateConversationRequest createConversationRequest, Func<string, Task> onDataReceived);
 
     /// <summary>
-    /// Endpoint for retrieving AI response as streaming using SignalR.
+    /// Endpoint for retrieving AI response as streaming
     /// </summary>
-    /// <param name="streamRequest">Request params</param>
+    /// <param name="createConversationRequest">Request params</param>
     /// <param name="userId">User id</param>
     /// <returns>Returns response is success</returns>
-    Task<string> StreamSignalRConversationAsync(Guid userId, StreamRequest streamRequest);
+    Task StreamRequestAsync(Guid userId, CreateConversationRequest createConversationRequest, Func<string, Task> onDataReceived);
 }
