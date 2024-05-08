@@ -63,6 +63,7 @@ public class CommunicationController : ControllerBase
     [Route("getStreamResponse")]
     public async Task GetStreamResponse([FromBody] CreateConversationRequest conversationRequest)
     {
+        Response.Headers.Add("Cache-Control", "no-cache");
         Response.Headers.Add("Content-Type", "text/event-stream");
         await _communicationService.StreamRequestAsync(GetUserIdFromToken(), CheckUserPlan(conversationRequest),
             async response =>
