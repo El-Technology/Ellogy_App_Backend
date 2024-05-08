@@ -69,7 +69,7 @@ public class CommunicationController : ControllerBase
             async response =>
             {
                 await Task.Delay(50);
-                await Response.WriteAsync($"{response}/n/n");
+                await Response.WriteAsync(response);
                 await Response.Body.FlushAsync();
             });
     }
