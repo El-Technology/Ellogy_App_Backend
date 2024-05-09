@@ -68,7 +68,6 @@ public class CommunicationController : ControllerBase
         await _communicationService.StreamRequestAsync(GetUserIdFromToken(), CheckUserPlan(conversationRequest),
             async response =>
             {
-                await Task.Delay(50);
                 await Response.WriteAsync($"{response}\n");
                 await Response.Body.FlushAsync();
             });
