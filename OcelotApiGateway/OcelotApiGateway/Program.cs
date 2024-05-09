@@ -50,6 +50,33 @@ app.MapControllers();
 
 app.MapPost("dev/Communication/getStreamResponse", async context =>
 {
+    var response = await GetStreamResponseAsync(context);
+
+    using var stream = await response.Content.ReadAsStreamAsync();
+    if (!response.IsSuccessStatusCode)
+    {
+        context.Response.StatusCode = (int)response.StatusCode;
+        await stream.CopyToAsync(context.Response.Body);
+        return;
+    }
+
+    using var reader = new StreamReader(stream);
+    while (!reader.EndOfStream)
+    {
+        Console.WriteLine(await reader.ReadLineAsync());
+        await context.Response.WriteAsync($"{await reader.ReadLineAsync()}\n");
+        await context.Response.Body.FlushAsync();
+    }
+});
+
+app.UseCors();
+app.UseWebSockets();
+await app.UseOcelot();
+
+app.Run();
+
+static async Task<HttpResponseMessage> GetStreamResponseAsync(HttpContext context)
+{
     context.Response.Headers.Add("Content-Type", "text/event-stream");
 
     var requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
@@ -76,29 +103,8 @@ app.MapPost("dev/Communication/getStreamResponse", async context =>
         Content = content
     };
 
-    var response = await httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
-
-    using var stream = await response.Content.ReadAsStreamAsync();
-    if (!response.IsSuccessStatusCode)
-    {
-        context.Response.StatusCode = (int)response.StatusCode;
-        await stream.CopyToAsync(context.Response.Body);
-        return;
-    }
-
-    using var reader = new StreamReader(stream);
-    while (!reader.EndOfStream)
-    {
-        await context.Response.WriteAsync($"{await reader.ReadLineAsync()}\n");
-        await context.Response.Body.FlushAsync();
-    }
-});
-
-app.UseCors();
-app.UseWebSockets();
-await app.UseOcelot();
-
-app.Run();
+    return await httpClient.SendAsync(message, HttpCompletionOption.ResponseHeadersRead);
+}
 
 static string UpdateHost(string jsonString)
 {
