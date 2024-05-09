@@ -1,7 +1,6 @@
 ﻿using AICommunicationService.BLL.Constants;
 using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Exceptions;
-using AICommunicationService.BLL.Hubs;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.BLL.Interfaces.HttpInterfaces;
 using AICommunicationService.Common;
@@ -9,7 +8,6 @@ using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.Common.Models.GptResponseModel;
 using AICommunicationService.DAL.Interfaces;
-using Microsoft.AspNetCore.SignalR;
 using System.Text;
 using Encoding = Tiktoken.Encoding;
 
@@ -24,20 +22,17 @@ public class CommunicationService : ICommunicationService
     private readonly IAIPromptRepository _aIPromptRepository;
     private readonly IAzureOpenAiRequestService _customAiService;
     private readonly IDocumentService _documentService;
-    private readonly IHubContext<StreamAiHub> _hubContext;
     private readonly IUserExternalHttpService _userExternalHttpService;
     private readonly IPaymentExternalHttpService _paymentExternalHttpService;
     private readonly IGroqAiRequestService _groqAiRequestService;
 
     public CommunicationService(IAIPromptRepository aIPromptRepository,
-        IHubContext<StreamAiHub> hubContext,
         IAzureOpenAiRequestService azureOpenAiRequestService,
         IDocumentService documentService,
         IUserExternalHttpService userExternalHttpService,
         IPaymentExternalHttpService paymentExternalHttpService,
         IGroqAiRequestService groqAiRequestService)
     {
-        _hubContext = hubContext;
         _groqAiRequestService = groqAiRequestService;
         _aIPromptRepository = aIPromptRepository;
         _customAiService = azureOpenAiRequestService;
@@ -74,24 +69,24 @@ public class CommunicationService : ICommunicationService
         return await ProcessResultAsync(userId, response);
     }
 
-    /// <inheritdoc cref="ICommunicationService.StreamSignalRConversationAsync(Guid, StreamRequest)" />
-    public async Task<string> StreamSignalRConversationAsync(Guid userId, StreamRequest streamRequest)
+    /// <inheritdoc cref="ICommunicationService.StreamRequestAsync(Guid, CreateConversationRequest, Func{string, Task})" />
+    public async Task StreamRequestAsync(
+    Guid userId, CreateConversationRequest createConversationRequest, Func<string, Task> onDataReceived)
     {
-        if (!StreamAiHub.listOfConnections.Any(c => c.Equals(streamRequest.ConnectionId)))
-            throw new Exception($"We can`t find connectionId => {streamRequest.ConnectionId}");
-
-        var request = await CreateMessageRequestAsync(userId, streamRequest, AiRequestType.Streaming);
-
+        var request = await CreateMessageRequestAsync(userId, createConversationRequest, AiRequestType.Streaming);
         var stringBuilder = new StringBuilder();
-        await _customAiService.PostAiRequestAsStreamAsync(request, async response =>
-        {
-            await _hubContext.Clients.Client(streamRequest.ConnectionId)
-                .SendAsync(streamRequest.SignalMethodName, response);
-            stringBuilder.Append(response);
-        });
 
-        var promptTokens = Tokenizer(streamRequest.AiModelEnum, $"{request.Template} {streamRequest.UserInput}");
-        var completionTokens = Tokenizer(streamRequest.AiModelEnum, stringBuilder.ToString());
+        await _customAiService.PostAiRequestAsStreamAsync(request,
+            async response =>
+            {
+                await onDataReceived(response);
+                stringBuilder.Append(response);
+            });
+
+        var promptTokens = Tokenizer(createConversationRequest.AiModelEnum,
+            $"{request.Template} {createConversationRequest.UserInput}");
+        var completionTokens = Tokenizer(createConversationRequest.AiModelEnum,
+            stringBuilder.ToString());
 
         var response = new CommunicationResponseModel
         {
@@ -104,7 +99,7 @@ public class CommunicationService : ICommunicationService
             }
         };
 
-        return await ProcessResultAsync(userId, response);
+        await ProcessResultAsync(userId, response);
     }
 
     private async Task<MessageRequest> CreateMessageRequestAsync(

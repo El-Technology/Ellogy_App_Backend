@@ -50,18 +50,22 @@ public class CommunicationController : ControllerBase
         TokenParseHelper.GetUserId(User);
 
     /// <summary>
-    ///     Endpoint for retrieving AI response as streaming using SignalR.
+    ///    Endpoint for retrieving AI response as streaming.
     /// </summary>
-    /// <param name="streamRequest">Request params</param>
-    /// <returns>Returns true if request is success</returns>
+    /// <param name="conversationRequest"></param>
+    /// <returns></returns>
     [HttpPost]
-    [Route("getSignalRStreamResponse")]
-    public async Task<IActionResult> GetSignalRStreamResponse([FromBody] StreamRequest streamRequest)
+    [Route("getStreamResponse")]
+    public async Task GetStreamResponse([FromBody] CreateConversationRequest conversationRequest)
     {
-        var response =
-            await _communicationService.StreamSignalRConversationAsync(GetUserIdFromToken(),
-                CheckUserPlan(streamRequest));
-        return Ok(response);
+        Response.Headers.Add("Cache-Control", "no-cache");
+        Response.Headers.Add("Content-Type", "text/event-stream");
+        await _communicationService.StreamRequestAsync(GetUserIdFromToken(), CheckUserPlan(conversationRequest),
+            async response =>
+            {
+                await Response.WriteAsync($"{response}\n");
+                await Response.Body.FlushAsync();
+            });
     }
 
     /// <summary>
