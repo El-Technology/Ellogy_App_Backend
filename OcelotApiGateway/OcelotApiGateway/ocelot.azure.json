@@ -422,23 +422,6 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/dev/Communication/getSignalRStreamResponse",
-      "UpstreamHttpMethod": [ "Post" ],
-      "DownstreamPathTemplate": "/api/Communication/getSignalRStreamResponse",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "HostSample",
-          "Port": 53053
-        }
-      ],
-      "QoSOptions": {
-        "ExceptionsAllowedBeforeBreaking": 99999,
-        "DurationOfBreak": 0,
-        "TimeoutValue": 230000
-      }
-    },
-    {
       "UpstreamPathTemplate": "/dev/Communication/getChatResponse",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Communication/getChatResponse",
@@ -471,30 +454,6 @@
         "DurationOfBreak": 0,
         "TimeoutValue": 230000
       }
-    },
-    {
-      "DownstreamPathTemplate": "/dev/streamHub",
-      "DownstreamScheme": "ws",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "HostSample",
-          "Port": 53053
-        }
-      ],
-      "UpstreamPathTemplate": "/dev/streamHub",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
-    },
-    {
-      "DownstreamPathTemplate": "/dev/streamHub/negotiate",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "HostSample",
-          "Port": 53053
-        }
-      ],
-      "UpstreamPathTemplate": "/dev/streamHub/negotiate",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     },
     {
       "UpstreamPathTemplate": "/dev/RAG/uploadDocumentUrl",
