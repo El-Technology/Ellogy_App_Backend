@@ -4,7 +4,6 @@ using UserManager.BLL.Exceptions;
 using UserManager.BLL.Helpers;
 using UserManager.BLL.Interfaces;
 using UserManager.Common.Helpers;
-using UserManager.DAL.Enums;
 using UserManager.DAL.Interfaces;
 
 namespace UserManager.BLL.Services;
@@ -30,9 +29,6 @@ public class LoginService : ILoginService
 
         if (!user.IsAccountActivated)
             throw new EmailVerificationException();
-
-        if (user.Role != RoleEnum.Admin)
-            throw new Exception("You are not allowed to login");
 
         if (!CryptoHelper.ConfirmPassword(loginUser.Password, user.Salt, user.Password))
             throw new FailedLoginException();
