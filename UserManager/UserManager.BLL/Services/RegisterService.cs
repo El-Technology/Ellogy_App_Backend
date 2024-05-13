@@ -3,6 +3,7 @@ using System.Web;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Exceptions;
 using UserManager.BLL.Interfaces;
+using UserManager.Common;
 using UserManager.Common.Helpers;
 using UserManager.Common.Models.NotificationModels;
 using UserManager.DAL.Interfaces;
@@ -56,6 +57,9 @@ public class RegisterService : IRegisterService
         var token = CryptoHelper.GenerateToken();
         user.VerifyToken = token;
         user.IsAccountActivated = false;
+
+        if (!bool.Parse(await EnvironmentVariables.EnablePayments))
+            user.AccountPlan = DAL.Enums.AccountPlan.Basic;
 
         await _userRepository.AddUserAsync(user);
     }

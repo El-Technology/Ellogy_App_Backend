@@ -7,4 +7,5 @@ public static class SecretNames
     public const string JwtSecretKey = "JWT-SECRET-KEY";
     public const string EmailClientConnectionString = "EMAIL-CLIENT-CONNECTION-STRING";
     public const string BlobStorageConnectionString = "BLOB-STORAGE-CONNECTION-STRING";
+    public const string EnablePayments = "ENABLE-PAYMENTS";
 }
