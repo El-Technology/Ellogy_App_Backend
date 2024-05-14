@@ -1,4 +1,5 @@
 ﻿using AICommunicationService.DAL.Models;
+using Pgvector;
 
 namespace AICommunicationService.DAL.Interfaces;
 
@@ -8,5 +9,5 @@ public interface IEmbeddingRepository
     Task AddRangeEmbeddingsAsync(List<Embedding> embeddings);
     Task<bool> CheckIfEmbeddingAlreadyExistAsync(Guid userId, string fileName);
     Task DeleteEmbeddingsAsync(Guid userId, string fileName);
-    Task<List<Embedding>> GetTheClosestEmbeddingAsync(Guid userId, string fileName, float[] searchRequest);
+    Task<List<Embedding>> GetTheClosestEmbeddingAsync(Guid userId, string fileName, Vector vector);
 }

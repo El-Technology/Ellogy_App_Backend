@@ -199,7 +199,9 @@ public class DocumentService : IDocumentService
     public async Task<string> GetTheClosesContextAsync(Guid userId, string searchRequest, string fileName)
     {
         var embedding = await _customAiService.GetEmbeddingAsync(searchRequest);
-        var searchResult = await _embeddingRepository.GetTheClosestEmbeddingAsync(userId, fileName, embedding);
+        var embeddingVector = new Vector(embedding);
+
+        var searchResult = await _embeddingRepository.GetTheClosestEmbeddingAsync(userId, fileName, embeddingVector);
 
         var stringBuilder = new StringBuilder();
         foreach (var result in searchResult) stringBuilder.AppendLine(result.Text);
