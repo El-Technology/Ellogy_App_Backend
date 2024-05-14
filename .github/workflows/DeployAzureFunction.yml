@@ -2,12 +2,12 @@ name: Build and deploy .NET Core Function App to Azure functions app
 on:
   push:
     branches:
-      - pre-release-architecture
+      - 'customer_7653'
     paths:
       - UserManager/NotificationService/**
       - .github/workflows/DeployAzureFunction.yml
 env:
-  AZURE_FUNCTIONAPP_NAME: EllogyNotificationService-7792
+  AZURE_FUNCTIONAPP_NAME: 'EllogyNotificationService-7653'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 6.0.x
@@ -24,6 +24,15 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
 
+    - name: Get WebApp/FunctionApp publish profile
+      id: webapp
+      uses: aliencube/publish-profile-actions@v1
+      env:
+        AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_7653 }}
+      with:
+        resourceGroupName: 'Ellogy_7653'
+        appName: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+
     - name: Build Azure Function
       run: |
         cd ${{ env.WORKING_DIRECTORY }}
@@ -35,5 +44,5 @@ jobs:
       uses: Azure/functions-action@v1
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_NOTIFICATIONSERVICE_PUBLISH_PROFILE_DEV }}
+        publish-profile: '${{ steps.webapp.outputs.profile }}'
         package: '${{ env.WORKING_DIRECTORY}}/${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
