@@ -29,20 +29,4 @@ public class SendNotificationFunction
         {
         }
     }
-
-    //[FunctionName("HttpFunction")]
-    //public async Task<IActionResult> Run(
-    //[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "projectStarted")] HttpRequest req)
-    //{
-    //    await _notifier.SendNotificationAsync(new NotificationModel
-    //    {
-    //        Type = NotificationTypeEnum.VerifyEmail,
-    //        Way = NotificationWayEnum.Email,
-    //        MetaData = new Dictionary<string, string>
-    //        { { "{{{firstName}}}", "sharkovskiy1@gmail.com" }, { "{{{verifyEmailAddressLink}}}", "https://string.com" } },
-    //        Consumer = "sharkovskiy1@gmail.com"
-    //    });
-
-    //    return new OkResult();
-    //}
 }

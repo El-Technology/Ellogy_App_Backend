@@ -40,6 +40,9 @@ public static class EnvironmentVariables
 
         return secrets[key];
     }
+
+    public static Task<string> AppCdnUrl => GetSecretAsync(SecretNames.AppCdnUrl);
+    public static Task<string> ConsumerEmail => GetSecretAsync(SecretNames.ConsumerEmail);
     public static Task<string> MailFrom => GetSecretAsync(SecretNames.MailFrom);
     public static Task<string> EmailClientConnectionString => GetSecretAsync(SecretNames.EmailClientConnectionString);
     public static Task<string> BlobStorageConnectionString => GetSecretAsync(SecretNames.BlobStorageConnectionString);

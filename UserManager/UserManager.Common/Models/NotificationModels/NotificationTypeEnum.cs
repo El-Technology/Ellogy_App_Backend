@@ -1,9 +1,9 @@
-﻿namespace UserManager.Common.Models.NotificationModels
+﻿namespace UserManager.Common.Models.NotificationModels;
+
+public enum NotificationTypeEnum
 {
-    public enum NotificationTypeEnum
-    {
-        ResetPassword = 0,
-        Report = 1,
-        VerifyEmail = 2
-    }
+    ResetPassword = 0,
+    Report = 1,
+    VerifyEmail = 2,
+    ProjectStarted = 3
 }

@@ -8,4 +8,6 @@ public static class SecretNames
     public const string EmailClientConnectionString = "EMAIL-CLIENT-CONNECTION-STRING";
     public const string BlobStorageConnectionString = "BLOB-STORAGE-CONNECTION-STRING";
     public const string EnablePayments = "ENABLE-PAYMENTS";
+    public const string ConsumerEmail = "CONSUMER-EMAIL";
+    public const string AppCdnUrl = "APP-CDN-URL";
 }

@@ -9,11 +9,11 @@ using UserManager.Common.Models.NotificationModels;
 
 namespace NotificationService;
 
-public class Function
+public class HttpTriggerFunction
 {
     private readonly INotifyService _notifier;
 
-    public Function(INotifyService notifier)
+    public HttpTriggerFunction(INotifyService notifier)
     {
         _notifier = notifier;
     }
@@ -24,11 +24,11 @@ public class Function
     {
         await _notifier.SendNotificationAsync(new NotificationModel
         {
-            Type = NotificationTypeEnum.VerifyEmail,
+            Type = NotificationTypeEnum.ProjectStarted,
             Way = NotificationWayEnum.Email,
             MetaData = new Dictionary<string, string>
-            { { "{{{firstName}}}", "sharkovskiy1@gmail.com" }, { "{{{verifyEmailAddressLink}}}", "https://string.com" } },
-            Consumer = "sharkovskiy1@gmail.com"
+            { { "{{{applicationLink}}}", $"https://{await EnvironmentVariables.AppCdnUrl}" } },
+            Consumer = await EnvironmentVariables.ConsumerEmail
         });
 
         return new OkResult();
