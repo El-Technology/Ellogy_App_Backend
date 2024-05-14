@@ -1,5 +1,6 @@
 using AICommunicationService.BLL.Constants;
 using AICommunicationService.BLL.Dtos;
+using AICommunicationService.BLL.Exceptions;
 using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
 using AICommunicationService.Common.Enums;
@@ -7,6 +8,7 @@ using AICommunicationService.Common.Models;
 using AICommunicationService.Common.Models.AIRequest;
 using AICommunicationService.Common.Models.GptResponseModel;
 using Newtonsoft.Json;
+using Polly;
 using System.Text;
 
 namespace AICommunicationService.BLL.Services;
@@ -146,9 +148,30 @@ public class AzureOpenAiRequestService : BasicRequestService, IAzureOpenAiReques
             Encoding.UTF8,
             "application/json");
 
-        var response = await _httpClient.PostAsync(AzureAiConstants.EmbeddingUrl, content);
+        var retryPolicy = Policy
+            .Handle<ToManyRequestsException>()
+            .RetryAsync(2, (exception, retryCount, context) =>
+            {
+                context["RetryCount"] = retryCount;
+            });
 
-        ValidateResponse(response);
+        var response = await retryPolicy.ExecuteAsync(async (context) =>
+        {
+            context.TryGetValue("RetryCount", out var retryCount);
+            var currentRetryCount = retryCount != null
+                ? (int)retryCount
+                : default;
+
+            var currentUrl = currentRetryCount == default
+                ? AzureAiConstants.EmbeddingUrl
+                : AzureAiConstants.EmbeddingUrlReserve;
+
+            var result = await _httpClient.PostAsync(currentUrl, content);
+
+            ValidateResponse(result);
+
+            return result;
+        }, new Context());
 
         var resultAsObject = JsonConvert.DeserializeObject<EmbeddingResponseModel>(await response.Content.ReadAsStringAsync());
         var data = resultAsObject?.data.FirstOrDefault();
