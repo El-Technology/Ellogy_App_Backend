@@ -2,14 +2,14 @@ name: Build and deploy API Gateway
 on:
   push:
     branches:
-      - pre-release-architecture
+      - 'customer_7653'
     paths:
       - OcelotApiGateway/**
       - .github/workflows/DeployGateway.yml
 
 env:
   ENVNAME: ${{ vars.ENVNAME }} 
-  AZURE_WEBAPP_NAME: "EllogyGateway-7792"
+  AZURE_WEBAPP_NAME: 'EllogyGateway-7653'
 
 jobs:
   build_api_gateway:
@@ -57,10 +57,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
+      - name: Get WebApp/FunctionApp publish profile
+        id: webapp
+        uses: aliencube/publish-profile-actions@v1
+        env:
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_7653 }}
+        with:
+          resourceGroupName: 'Ellogy_7653'
+          appName: ${{ env.AZURE_WEBAPP_NAME }}
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@85270a1854658d167ab239bce43949edb336fa7c
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_DEV }}
+          publish-profile: '${{ steps.webapp.outputs.profile }}'
           images: 'ghcr.io/${{ env.URL }}'
