@@ -525,7 +525,12 @@
           "Host": "HostSample",
           "Port": 53053
         }
-      ]
+      ],
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 99999,
+        "DurationOfBreak": 0,
+        "TimeoutValue": 230000
+      }
     },
     {
       "UpstreamPathTemplate": "/dev/RAG/findUser",
