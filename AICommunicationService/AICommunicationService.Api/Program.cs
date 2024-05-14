@@ -19,11 +19,11 @@ await AddServicesAsync(builder);
 
 var app = builder.Build();
 
+await MigrateDatabaseAsync(app);
+
 AddMiddleware(app);
 
 app.MapControllers();
-
-MigrateDatabase(app);
 
 app.Run();
 
@@ -131,11 +131,14 @@ static void AddMiddleware(WebApplication app)
     app.UseMiddleware<ExceptionHandlerMiddleware>();
 }
 
-static void MigrateDatabase(IHost app)
+static async Task MigrateDatabaseAsync(IHost app)
 {
     using var scope = app.Services.CreateScope();
     var services = scope.ServiceProvider;
 
     var context = services.GetRequiredService<AICommunicationContext>();
-    if (context.Database.GetPendingMigrations().Any()) context.Database.Migrate();
+    if ((await context.Database.GetPendingMigrationsAsync()).Any())
+    {
+        await context.Database.MigrateAsync();
+    }
 }

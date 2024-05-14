@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Pgvector;
 
 #nullable disable
 
@@ -7,11 +9,84 @@
 namespace AICommunicationService.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class AIPromptsAutoFill : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("Npgsql:PostgresExtension:vector", ",,");
+
+            migrationBuilder.CreateTable(
+                name: "AIPrompts",
+                columns: table => new
+                {
+                    TemplateName = table.Column<string>(type: "text", nullable: false),
+                    Functions = table.Column<string>(type: "text", nullable: true),
+                    JsonSample = table.Column<string>(type: "text", nullable: true),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Input = table.Column<string>(type: "text", nullable: true),
+                    Value = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AIPrompts", x => x.TemplateName);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Documents",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    IsReadyToUse = table.Column<bool>(type: "boolean", nullable: true),
+                    CreationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Documents", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DocumentSharing",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DocumentId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DocumentSharing", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DocumentSharing_Documents_DocumentId",
+                        column: x => x.DocumentId,
+                        principalTable: "Documents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Embeddings",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Text = table.Column<string>(type: "text", nullable: false),
+                    Vector = table.Column<Vector>(type: "vector(1536)", nullable: true),
+                    DocumentId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Embeddings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Embeddings_Documents_DocumentId",
+                        column: x => x.DocumentId,
+                        principalTable: "Documents",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "AIPrompts",
                 columns: new[] { "TemplateName", "Description", "Functions", "Input", "JsonSample", "Value" },
@@ -62,230 +137,32 @@ namespace AICommunicationService.DAL.Migrations
                     { "userStoriesRAGTemplate", "string", "string", "string", null, "Consider this context also in generating new user stories." },
                     { "UserStoriesScenariosTemplate", "string", "[{'name':'Json','parameters':{'type':'object','properties':{'scenarios':{'type':'array','items':{'type':'object','properties':{'title':{'type':'string'},'description':{'type':'string'}},'required':['title','description']}}},'required':['scenarios']}}]", "user story: ${0}", "Response must follow exactly this JSON structure. Response JSON must not contain new line symbols. You must keep object keys exactly the same so response can be successfully parsed: {\"scenarios\": [{\"title\": \"string\", \"description\": \"string\"}]}", "As an Software Requirements Engineer, Your role is to create scenarios for provided user story. User story has to have successful scenario and possible alternative scenarios. Each scenario has to have title and description. Example: User story: As a user I want to log in to the system, so that I can access my personalized content. Scenario title: Successful Login. Scenario description: Given I am on the login page, when I enter valid credentials and click the 'Login' button I should be redirected to the dashboard and see a welcome message." }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DocumentSharing_DocumentId",
+                table: "DocumentSharing",
+                column: "DocumentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Embeddings_DocumentId",
+                table: "Embeddings",
+                column: "DocumentId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "AvailabilityConversationTemplate");
+            migrationBuilder.DropTable(
+                name: "AIPrompts");
 
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "BannersTemplate");
+            migrationBuilder.DropTable(
+                name: "DocumentSharing");
 
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "BusinessImpactTableTemplate");
+            migrationBuilder.DropTable(
+                name: "Embeddings");
 
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "BusinessImpactTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "chatRAGTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "DescriptionTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "DiagramChangeRequestTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "DiagramCorrectionTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "DiagramValidationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "FeaturesConversationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "FlowchartTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "FlowOfEventsTableTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "IsUserMessageValidTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "KeyRolesTableTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "MaintainabilityConversationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "NotificationsConversationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "NotificationsTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "PerformanceConversationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "PortabilityConversationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "PostConditionsTableTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "PotentialNotificationsTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "PotentialSummaryTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "PreconditionsTableTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "RAG");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "ReliabilityConversationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "ScalabilityConversationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "SecurityConversationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "SequenceDiagramTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "SuccessfulOutcomeTableTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "SummaryTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "Test");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "TestCasesTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "TestCasesTemplateTest");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "TestPlanTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "TestScenariosTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "TriggerTableTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "UsabilityConversationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "UsecaseConversationTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "UseCaseDiagramTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "UseCasesTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "UserStoriesAcceptanceCriteriaTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "UserStoriesEpicsTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "userStoriesRAGTemplate");
-
-            migrationBuilder.DeleteData(
-                table: "AIPrompts",
-                keyColumn: "TemplateName",
-                keyValue: "UserStoriesScenariosTemplate");
+            migrationBuilder.DropTable(
+                name: "Documents");
         }
     }
 }

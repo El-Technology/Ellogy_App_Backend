@@ -13,15 +13,15 @@ using Pgvector;
 namespace AICommunicationService.DAL.Migrations
 {
     [DbContext(typeof(AICommunicationContext))]
-    [Migration("20240502132957_AIPromptsAutoFill")]
-    partial class AIPromptsAutoFill
+    [Migration("20240514103621_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.9")
+                .HasAnnotation("ProductVersion", "7.0.18")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "vector");

@@ -1,4 +1,7 @@
-﻿using AICommunicationService.DAL.Models;
+﻿using AICommunicationService.Common;
+using AICommunicationService.Common.Constants;
+using AICommunicationService.Common.Helpers;
+using AICommunicationService.DAL.Models;
 using Microsoft.EntityFrameworkCore;
 using Pgvector.EntityFrameworkCore;
 
@@ -17,7 +20,11 @@ public class AICommunicationContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
-            optionsBuilder.UseNpgsql(o => o.UseVector());
+        {
+            var connectionString = EnvironmentVariables.GetConnectionStringAsync.GetAwaiter().GetResult()
+                .Replace(ConfigConstants.DbReplacePattern, ConfigHelper.AppSetting(ConfigConstants.DbName));
+            optionsBuilder.UseNpgsql(connectionString, o => o.UseVector());
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
