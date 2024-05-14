@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManager.BLL", "UserMana
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationService", "NotificationService\NotificationService.csproj", "{2DC10AC2-B31D-4B43-811F-9021144639D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserManager.Tests", "UserManager.Tests\UserManager.Tests.csproj", "{7BA5DE7B-A7E7-4A9A-9743-3DD1AB16CB30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UserManager.Tests", "UserManager.Tests\UserManager.Tests.csproj", "{7BA5DE7B-A7E7-4A9A-9743-3DD1AB16CB30}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
