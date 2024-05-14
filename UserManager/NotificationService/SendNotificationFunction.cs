@@ -43,7 +43,7 @@ public class SendNotificationFunction
             Type = NotificationTypeEnum.VerifyEmail,
             Way = NotificationWayEnum.Email,
             MetaData = new Dictionary<string, string>
-            { { "{{{firstName}}}", "sharkovskiy1@gmail.com" }, { "{{{verifyEmailAddressLink}}}", "asd" } },
+            { { "{{{firstName}}}", "sharkovskiy1@gmail.com" }, { "{{{verifyEmailAddressLink}}}", "https://string.com" } },
             Consumer = "sharkovskiy1@gmail.com"
         });
 
