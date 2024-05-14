@@ -73,6 +73,11 @@ app.UseCors();
 app.UseWebSockets();
 await app.UseOcelot();
 
+app.Lifetime.ApplicationStarted.Register(async () =>
+{
+    await PerformStartupRequestAsync();
+});
+
 app.Run();
 
 static async Task<HttpResponseMessage> GetStreamResponseAsync(HttpContext context)
@@ -122,4 +127,11 @@ static string UpdateHost(string jsonString)
     }
 
     return jsonObject.ToString();
+}
+
+static async Task PerformStartupRequestAsync()
+{
+    using var httpClient = new HttpClient();
+    var requestUri = new Uri($"https://{Environment.GetEnvironmentVariable("FUNC_URL")}/api/projectStarted");
+    _ = await httpClient.GetAsync(requestUri);
 }
