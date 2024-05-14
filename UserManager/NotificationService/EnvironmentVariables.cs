@@ -18,7 +18,9 @@ public static class EnvironmentVariables
         await Task.WhenAll(
             GetAndAddSecretAsync(client, SecretNames.MailFrom, secretsDictionary),
             GetAndAddSecretAsync(client, SecretNames.EmailClientConnectionString, secretsDictionary),
-            GetAndAddSecretAsync(client, SecretNames.BlobStorageConnectionString, secretsDictionary)
+            GetAndAddSecretAsync(client, SecretNames.BlobStorageConnectionString, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.AppCdnUrl, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.ConsumerEmail, secretsDictionary)
         );
 
         return secretsDictionary;
