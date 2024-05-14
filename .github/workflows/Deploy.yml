@@ -2,7 +2,7 @@ name: Build and push microservices
 on:
   push:
     branches:
-      - pre-release-architecture
+      - 'customer_7653'
     paths:
       - TicketsManager/**
       - UserManager/**
@@ -13,9 +13,9 @@ on:
       - '!UserManager/NotificationService/**'
       
 env:
-  SSH_HOST: ${{ secrets.SSH_HOST_DEV }}
+  SSH_HOST: ${{ secrets.SSH_HOST_7653 }}
   SSH_USER: ${{ vars.REMOTE_USER }}
-  SSH_KEY: ${{ secrets.SSH_KEY_DEV }}
+  SSH_KEY: ${{ secrets.SSH_KEY_7653 }}
   ENVNAME: ${{ vars.ENVNAME }}
 
 jobs:
@@ -64,7 +64,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
 
     needs: changes
-    if: ${{ needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' }}
+    if: ${{ ( needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' ) && false }}
 
     runs-on: ubuntu-latest
     steps:
@@ -73,12 +73,12 @@ jobs:
 
       - name: Run Tests
         run: |
-            dotnet test PaymentManager.Tests/PaymentManager.Tests.csproj --logger "console;verbosity=normal"
+            dotnet test PaymentManager.Tests/PaymentManager.Tests.csproj --logger 'console;verbosity=normal'
             if [ $? -ne 0 ]; then
-                echo "Tests failed, deployment canceled."
+                echo 'Tests failed, deployment canceled.'
                 exit 1
             else
-                echo "Tests passed, continuing with deployment."
+                echo 'Tests passed, continuing with deployment.'
             fi
         working-directory: ${{ env.PROJECT_PATH }}
       
@@ -116,12 +116,12 @@ jobs:
 
       - name: Run Tests
         run: |
-            dotnet test AiCommunicationService.Tests/AiCommunicationService.Tests.csproj --logger "console;verbosity=normal"
+            dotnet test AiCommunicationService.Tests/AiCommunicationService.Tests.csproj --logger 'console;verbosity=normal'
             if [ $? -ne 0 ]; then
-                echo "Tests failed, deployment canceled."
+                echo 'Tests failed, deployment canceled.'
                 exit 1
             else
-                echo "Tests passed, continuing with deployment."
+                echo 'Tests passed, continuing with deployment.'
             fi
         working-directory: ${{ env.PROJECT_PATH }}
       
@@ -191,12 +191,12 @@ jobs:
 
       - name: Run Tests
         run: |
-            dotnet test TicketsManager.Tests/TicketsManager.Tests.csproj --logger "console;verbosity=normal"
+            dotnet test TicketsManager.Tests/TicketsManager.Tests.csproj --logger 'console;verbosity=normal'
             if [ $? -ne 0 ]; then
-                echo "Tests failed, deployment canceled."
+                echo 'Tests failed, deployment canceled.'
                 exit 1
             else
-                echo "Tests passed, continuing with deployment."
+                echo 'Tests passed, continuing with deployment.'
             fi
         working-directory: ${{ env.PROJECT_PATH }}
 
@@ -264,11 +264,16 @@ jobs:
         export SERVICE_NAME4=$SERVICE_NAME4
         export SERVICE_IMAGE4=$SERVICE_IMAGE4
 
-        yq e -i ".services.$SERVICE_NAME1.image=env(SERVICE_IMAGE1)" docker-compose.yaml
-        yq e -i ".services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)" docker-compose.yaml
-        yq e -i ".services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)" docker-compose.yaml
-        yq e -i ".services.$SERVICE_NAME4.image=env(SERVICE_IMAGE4)" docker-compose.yaml
-        
-        docker-compose up -d
+        yq e -i '.services.$SERVICE_NAME1.image=env(SERVICE_IMAGE1)' docker-compose.yaml
+        yq e -i '.services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)' docker-compose.yaml
+        yq e -i '.services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)' docker-compose.yaml
+        yq e -i '.services.$SERVICE_NAME4.image=env(SERVICE_IMAGE4)' docker-compose.yaml
+
+        if [ "false" == "true" ]
+          then 
+            docker-compose --profile payments up -d
+          else
+            docker-compose up -d
+        fi
+
         EOF
-  
