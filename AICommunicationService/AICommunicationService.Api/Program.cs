@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Npgsql;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -140,5 +141,8 @@ static async Task MigrateDatabaseAsync(IHost app)
     if ((await context.Database.GetPendingMigrationsAsync()).Any())
     {
         await context.Database.MigrateAsync();
+
+        await context.Database.OpenConnectionAsync();
+        await ((NpgsqlConnection)context.Database.GetDbConnection()).ReloadTypesAsync();
     }
 }
