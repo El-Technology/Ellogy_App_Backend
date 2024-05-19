@@ -144,7 +144,7 @@ public class CommunicationService : ICommunicationService
     }
 
     private int TokensToPointsConverter(int? amountOfTokens) =>
-        amountOfTokens ?? 0 / PaymentConstants.TokensToPointsRelation;
+        (amountOfTokens ?? 0) / PaymentConstants.TokensToPointsRelation;
 
     private async Task TakeChargeAsync(Guid userId, CommunicationResponseModel response)
     {
