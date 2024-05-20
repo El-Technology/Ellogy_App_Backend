@@ -63,7 +63,6 @@ app.MapPost("dev/Communication/getStreamResponse", async context =>
     using var reader = new StreamReader(stream);
     while (!reader.EndOfStream)
     {
-        Console.WriteLine(await reader.ReadLineAsync());
         await context.Response.WriteAsync($"{await reader.ReadLineAsync()}\n");
         await context.Response.Body.FlushAsync();
     }
