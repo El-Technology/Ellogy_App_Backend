@@ -25,6 +25,7 @@ public class WebhookServiceTest : StripeBaseServiceForTests
     private Mock<IProductCatalogService> _productCatalogService;
     private Mock<ISubscriptionRepository> _subscriptionRepository;
     private Mock<IUserExternalHttpService> _userExternalHttpService;
+    private Mock<IPaymentCustomerService> _paymentCustomerService;
 
     private Mock<WebhookService> _webhookService;
 
@@ -39,6 +40,7 @@ public class WebhookServiceTest : StripeBaseServiceForTests
         _productCatalogService = new Mock<IProductCatalogService>();
         _subscriptionRepository = new Mock<ISubscriptionRepository>();
         _userExternalHttpService = new Mock<IUserExternalHttpService>();
+        _paymentCustomerService = new Mock<IPaymentCustomerService>();
 
         _webhookService = new Mock<WebhookService>(
             _paymentRepository.Object,
@@ -46,7 +48,8 @@ public class WebhookServiceTest : StripeBaseServiceForTests
             _logger.Object,
             _productCatalogService.Object,
             _hubContext.Object,
-            _userExternalHttpService.Object);
+            _userExternalHttpService.Object,
+            _paymentCustomerService.Object);
 
         _invoiceService = new Mock<InvoiceService>();
         _sessionService = new Mock<SessionService>();

@@ -16,6 +16,7 @@ public abstract class StripeBaseService
     private Lazy<ProductService>? _productService;
     private Lazy<SessionService>? _sessionService;
     private Lazy<SubscriptionService>? _subscriptionService;
+    private Lazy<SetupIntentService>? _setupIntentService;
 
     protected virtual PriceService GetPriceService()
     {
@@ -63,5 +64,11 @@ public abstract class StripeBaseService
     {
         _sessionService ??= new Lazy<SessionService>(() => new SessionService());
         return _sessionService.Value;
+    }
+
+    protected virtual SetupIntentService GetSetupIntentService()
+    {
+        _setupIntentService ??= new Lazy<SetupIntentService>(() => new SetupIntentService());
+        return _setupIntentService.Value;
     }
 }

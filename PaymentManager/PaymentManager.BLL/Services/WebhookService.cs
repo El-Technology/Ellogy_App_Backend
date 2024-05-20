@@ -23,13 +23,15 @@ public class WebhookService : StripeBaseService, IWebhookService
     private readonly IProductCatalogService _productCatalogService;
     private readonly ISubscriptionRepository _subscriptionRepository;
     private readonly IUserExternalHttpService _userExternalHttpService;
+    private readonly IPaymentCustomerService _paymentCustomerService;
 
     public WebhookService(IPaymentRepository paymentRepository,
         ISubscriptionRepository subscriptionRepository,
         ILogger<WebhookService> logger,
         IProductCatalogService productCatalogService,
         IHubContext<PaymentHub> hubContext,
-        IUserExternalHttpService userExternalHttpService)
+        IUserExternalHttpService userExternalHttpService,
+        IPaymentCustomerService paymentCustomerService)
     {
         _userExternalHttpService = userExternalHttpService;
         _hubContext = hubContext;
@@ -37,11 +39,23 @@ public class WebhookService : StripeBaseService, IWebhookService
         _logger = logger;
         _paymentRepository = paymentRepository;
         _subscriptionRepository = subscriptionRepository;
+        _paymentCustomerService = paymentCustomerService;
     }
 
     /// <inheritdoc cref="IWebhookService.OrderConfirmationAsync(Session)" />
     public async Task OrderConfirmationAsync(Session session)
     {
+        if (session.Mode.Equals(Constants.SetupMode))
+        {
+            var setupIntent = await GetSetupIntentService().GetAsync(session.SetupIntentId);
+            try
+            {
+                var userId = Guid.Parse(session.Metadata[MetadataConstants.UserId]);
+                await _paymentCustomerService.SetDefaultPaymentMethodAsync(userId, setupIntent.PaymentMethodId);
+            }
+            catch (Exception) { }
+        }
+
         if (!session.Mode.Equals(Constants.PaymentMode)) return;
 
         var payment = await _paymentRepository.GetPaymentAsync(session.Id);
