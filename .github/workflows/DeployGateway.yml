@@ -2,14 +2,14 @@ name: Build and deploy API Gateway
 on:
   push:
     branches:
-      - 'customer_7653'
+      - 'Ellogy_test'
     paths:
       - OcelotApiGateway/**
       - .github/workflows/DeployGateway.yml
 
 env:
   ENVNAME: ${{ vars.ENVNAME }} 
-  AZURE_WEBAPP_NAME: 'EllogyGateway-7653'
+  AZURE_WEBAPP_NAME: 'EllogyGateway-test'
 
 jobs:
   build_api_gateway:
@@ -61,9 +61,9 @@ jobs:
         id: webapp
         uses: aliencube/publish-profile-actions@v1
         env:
-          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_7653 }}
+          AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS_test }}
         with:
-          resourceGroupName: 'Ellogy_7653'
+          resourceGroupName: 'Ellogy_test'
           appName: ${{ env.AZURE_WEBAPP_NAME }}
 
       - name: Deploy to Azure Web App
