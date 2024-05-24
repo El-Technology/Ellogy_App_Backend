@@ -2,7 +2,7 @@ name: Build and push microservices
 on:
   push:
     branches:
-      - 'customer_7653'
+      - 'Ellogy_prod'
     paths:
       - TicketsManager/**
       - UserManager/**
@@ -13,9 +13,9 @@ on:
       - '!UserManager/NotificationService/**'
       
 env:
-  SSH_HOST: ${{ secrets.SSH_HOST_7653 }}
+  SSH_HOST: ${{ secrets.SSH_HOST_prod }}
   SSH_USER: ${{ vars.REMOTE_USER }}
-  SSH_KEY: ${{ secrets.SSH_KEY_7653 }}
+  SSH_KEY: ${{ secrets.SSH_KEY_prod }}
   ENVNAME: ${{ vars.ENVNAME }}
 
 jobs:
@@ -64,7 +64,7 @@ jobs:
       MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
 
     needs: changes
-    if: ${{ ( needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' ) && false }}
+    if: ${{ ( needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' ) && true }}
 
     runs-on: ubuntu-latest
     steps:
@@ -269,7 +269,7 @@ jobs:
         yq e -i '.services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)' docker-compose.yaml
         yq e -i '.services.$SERVICE_NAME4.image=env(SERVICE_IMAGE4)' docker-compose.yaml
 
-        if [ "false" == "true" ]
+        if [ "true" == "true" ]
           then 
             docker-compose --profile payments up -d
           else
