@@ -31,7 +31,7 @@ runs:
       id: imageName-lowercase
       uses: ASzc/change-string-case-action@v6
       env:
-        REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{ inputs.MicroserviceName }}:${{ inputs.Environment }}-${{ github.run_number }}
+        REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{ inputs.MicroserviceName }}_prod:${{ inputs.Environment }}-${{ github.run_number }}
       with:
         string: ${{ env.REPO_NAME }}
 
@@ -52,7 +52,7 @@ runs:
       id: packageName-lowercase
       uses: ASzc/change-string-case-action@v6
       env:
-        PACKAGE_NAME: ${{ github.event.repository.name }}/${{ inputs.MicroserviceName }}
+        PACKAGE_NAME: ${{ github.event.repository.name }}/${{ inputs.MicroserviceName }}_prod
       with:
         string: ${{ env.PACKAGE_NAME }}
 
