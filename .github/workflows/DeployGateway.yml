@@ -5,6 +5,7 @@ on:
       - 'Ellogy_test'
     paths:
       - OcelotApiGateway/**
+      - .github/actions/** 
       - .github/workflows/DeployGateway.yml
 
 env:
