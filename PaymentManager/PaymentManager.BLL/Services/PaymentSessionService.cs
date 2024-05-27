@@ -1,4 +1,5 @@
-﻿using PaymentManager.BLL.Interfaces;
+﻿using PaymentManager.BLL.Hubs;
+using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Interfaces.IHttpServices;
 using PaymentManager.BLL.Models;
 using PaymentManager.Common.Constants;
@@ -38,6 +39,9 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     /// <inheritdoc cref="IPaymentSessionService.CreateOneTimePaymentAsync(Guid, CreatePaymentRequest)" />
     public async Task<SessionCreateOptions> CreateOneTimePaymentAsync(Guid userId, CreatePaymentRequest streamRequest)
     {
+        if (!PaymentHub.CheckIfConnectionIdExist(streamRequest.ConnectionId))
+            throw new Exception($"Connection id - {streamRequest.ConnectionId} does not exist");
+
         var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException($"User with id - {userId} was not found");
 
@@ -94,6 +98,9 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
     /// <inheritdoc cref="IPaymentSessionService.CreateFreeSubscriptionAsync(SignalRModel, Guid)" />
     public async Task<SubscriptionCreateOptions> CreateFreeSubscriptionAsync(SignalRModel signalRModel, Guid userId)
     {
+        if (!PaymentHub.CheckIfConnectionIdExist(signalRModel.ConnectionId))
+            throw new Exception($"Connection id - {signalRModel.ConnectionId} does not exist");
+
         var user = await _userExternalHttpService.GetUserByIdAsync(userId)
                    ?? throw new ArgumentNullException(nameof(userId));
 
