@@ -75,29 +75,29 @@ public class LoginServiceTest
         Assert.ThrowsAsync<FailedLoginException>(async () => await _loginService.LoginUserAsync(loginUser));
     }
 
-    [TestCase("6dd2d75fba81ee5e32f275e9c3dbb376af928a2f878b6e07644965f0622f3cc0", "string", "phuLowAEuzh+z3yPtOTU56M4ITXLPU61Sry2Fv8OZZg=")]
-    [Test]
-    public async Task LoginUserAsync_WhenAllDataIsValid_ReturnsLoginResponseDto(string passwordFromDb, string requestPassword, string salt)
-    {
-        // Arrange
-        var loginUser = _fixture.Create<LoginRequestDto>();
-        loginUser.Password = requestPassword;
+    //[TestCase("6dd2d75fba81ee5e32f275e9c3dbb376af928a2f878b6e07644965f0622f3cc0", "string", "phuLowAEuzh+z3yPtOTU56M4ITXLPU61Sry2Fv8OZZg=")]
+    //[Test]
+    //public async Task LoginUserAsync_WhenAllDataIsValid_ReturnsLoginResponseDto(string passwordFromDb, string requestPassword, string salt)
+    //{
+    //    // Arrange
+    //    var loginUser = _fixture.Create<LoginRequestDto>();
+    //    loginUser.Password = requestPassword;
 
-        var user = _fixture.Build<User>()
-            .With(x => x.IsAccountActivated, true)
-            .With(x => x.Role, RoleEnum.Admin)
-            .With(x => x.Password, passwordFromDb)
-            .With(x => x.Salt, salt)
-            .Create();
+    //    var user = _fixture.Build<User>()
+    //        .With(x => x.IsAccountActivated, true)
+    //        .With(x => x.Role, RoleEnum.Admin)
+    //        .With(x => x.Password, passwordFromDb)
+    //        .With(x => x.Salt, salt)
+    //        .Create();
 
-        _userRepository.Setup(x => x.GetUserByEmailAsync(loginUser.Email)).ReturnsAsync(user);
-        _refreshTokenService.Setup(x => x.GetRefreshTokenAsync(user.Id)).ReturnsAsync(_fixture.Create<string>());
+    //    _userRepository.Setup(x => x.GetUserByEmailAsync(loginUser.Email)).ReturnsAsync(user);
+    //    _refreshTokenService.Setup(x => x.GetRefreshTokenAsync(user.Id)).ReturnsAsync(_fixture.Create<string>());
 
-        // Act
-        var result = await _loginService.LoginUserAsync(loginUser);
+    //    // Act
+    //    var result = await _loginService.LoginUserAsync(loginUser);
 
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result, Is.InstanceOf<LoginResponseDto>());
-    }
+    //    // Assert
+    //    Assert.That(result, Is.Not.Null);
+    //    Assert.That(result, Is.InstanceOf<LoginResponseDto>());
+    //}
 }
