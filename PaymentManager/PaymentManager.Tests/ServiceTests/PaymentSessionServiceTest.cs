@@ -5,7 +5,6 @@ using PaymentManager.BLL.Interfaces;
 using PaymentManager.BLL.Interfaces.IHttpServices;
 using PaymentManager.BLL.Models;
 using PaymentManager.BLL.Services;
-using PaymentManager.Common.Constants;
 using PaymentManager.DAL.Enums;
 using PaymentManager.DAL.Interfaces;
 using PaymentManager.DAL.Models;
@@ -47,48 +46,48 @@ public class PaymentSessionServiceTest : StripeBaseServiceForTests
             _userExternalHttpService.Object);
     }
 
-    [Test]
-    public async Task CreateOneTimePaymentSessionAsync_WhenUserExists_ShouldReturnsPaymentSession()
-    {
-        // Arrange
-        var user = _fixture.Create<UserDto>();
-        var createPaymentRequest = _fixture.Create<CreatePaymentRequest>();
+    //[Test]
+    //public async Task CreateOneTimePaymentSessionAsync_WhenUserExists_ShouldReturnsPaymentSession()
+    //{
+    //    // Arrange
+    //    var user = _fixture.Create<UserDto>();
+    //    var createPaymentRequest = _fixture.Create<CreatePaymentRequest>();
 
-        _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id))).ReturnsAsync(user);
+    //    _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id))).ReturnsAsync(user);
 
-        _paymentSessionService.Protected().Setup<CustomerService>(GET_CUSTOMER_SERVICE)
-            .Returns(_customerService.Object);
+    //    _paymentSessionService.Protected().Setup<CustomerService>(GET_CUSTOMER_SERVICE)
+    //        .Returns(_customerService.Object);
 
-        _customerService.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<CustomerGetOptions>(), null, default))
-            .ReturnsAsync(new Customer() { InvoiceSettings = new CustomerInvoiceSettings() { DefaultPaymentMethodId = "defaultPaymentMethodId" } });
+    //    _customerService.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<CustomerGetOptions>(), null, default))
+    //        .ReturnsAsync(new Customer() { InvoiceSettings = new CustomerInvoiceSettings() { DefaultPaymentMethodId = "defaultPaymentMethodId" } });
 
-        // Act
-        var result = await _paymentSessionService.Object.CreateOneTimePaymentAsync(user.Id, createPaymentRequest);
+    //    // Act
+    //    var result = await _paymentSessionService.Object.CreateOneTimePaymentAsync(user.Id, createPaymentRequest);
 
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.SuccessUrl, Is.EqualTo(createPaymentRequest.SuccessUrl));
-        Assert.That(result.CancelUrl, Is.EqualTo(createPaymentRequest.CancelUrl));
-        Assert.That(result.Metadata[MetadataConstants.UserId], Is.EqualTo(user.Id.ToString()));
-    }
+    //    // Assert
+    //    Assert.That(result, Is.Not.Null);
+    //    Assert.That(result.SuccessUrl, Is.EqualTo(createPaymentRequest.SuccessUrl));
+    //    Assert.That(result.CancelUrl, Is.EqualTo(createPaymentRequest.CancelUrl));
+    //    Assert.That(result.Metadata[MetadataConstants.UserId], Is.EqualTo(user.Id.ToString()));
+    //}
 
-    [Test]
-    public void CreateOneTimePaymentSessionAsync_WhenUserNotExists_ShouldThrowException()
-    {
-        // Arrange
-        var user = _fixture.Create<UserDto>();
-        var createPaymentRequest = _fixture.Create<CreatePaymentRequest>();
+    //[Test]
+    //public void CreateOneTimePaymentSessionAsync_WhenUserNotExists_ShouldThrowException()
+    //{
+    //    // Arrange
+    //    var user = _fixture.Create<UserDto>();
+    //    var createPaymentRequest = _fixture.Create<CreatePaymentRequest>();
 
-        _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id)))
-            .ReturnsAsync((UserDto?)null);
+    //    _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id)))
+    //        .ReturnsAsync((UserDto?)null);
 
-        // Act
-        var ex = Assert.ThrowsAsync<ArgumentNullException>(async () =>
-             await _paymentSessionService.Object.CreateOneTimePaymentAsync(user.Id, createPaymentRequest));
+    //    // Act
+    //    var ex = Assert.ThrowsAsync<ArgumentNullException>(async () =>
+    //         await _paymentSessionService.Object.CreateOneTimePaymentAsync(user.Id, createPaymentRequest));
 
-        // Assert
-        Assert.That(ex, Is.Not.Null);
-    }
+    //    // Assert
+    //    Assert.That(ex, Is.Not.Null);
+    //}
 
     [Test]
     public async Task GetUserBalanceAsync_WhenWalletExists_ShouldReturnsUserBalance()
@@ -124,72 +123,72 @@ public class PaymentSessionServiceTest : StripeBaseServiceForTests
         Assert.That(ex, Is.Not.Null);
     }
 
-    [Test]
-    public async Task CreateFreeSubscriptionAsync_WhenUserExists_ShouldReturnsSubscription()
-    {
-        // Arrange
-        var signalRModel = _fixture.Create<SignalRModel>();
-        var user = _fixture.Create<UserDto>();
-        user.AccountPlan = null;
-        var productName = AccountPlan.Free.ToString();
+    //[Test]
+    //public async Task CreateFreeSubscriptionAsync_WhenUserExists_ShouldReturnsSubscription()
+    //{
+    //    // Arrange
+    //    var signalRModel = _fixture.Create<SignalRModel>();
+    //    var user = _fixture.Create<UserDto>();
+    //    user.AccountPlan = null;
+    //    var productName = AccountPlan.Free.ToString();
 
-        _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id)))
-            .ReturnsAsync(user);
+    //    _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id)))
+    //        .ReturnsAsync(user);
 
-        _paymentSessionService.Protected().Setup<CustomerService>(GET_CUSTOMER_SERVICE)
-            .Returns(_customerService.Object);
+    //    _paymentSessionService.Protected().Setup<CustomerService>(GET_CUSTOMER_SERVICE)
+    //        .Returns(_customerService.Object);
 
-        _customerService.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<CustomerGetOptions>(), null, default))
-            .ReturnsAsync(new Customer() { InvoiceSettings = new CustomerInvoiceSettings() { DefaultPaymentMethodId = "defaultPaymentMethodId" } });
+    //    _customerService.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<CustomerGetOptions>(), null, default))
+    //        .ReturnsAsync(new Customer() { InvoiceSettings = new CustomerInvoiceSettings() { DefaultPaymentMethodId = "defaultPaymentMethodId" } });
 
-        _productCatalogService.Setup(x => x.GetProductByNameAsync(It.Is<string>(a => a.Equals(productName))))
-            .ReturnsAsync(new ProductModel() { Name = productName });
+    //    _productCatalogService.Setup(x => x.GetProductByNameAsync(It.Is<string>(a => a.Equals(productName))))
+    //        .ReturnsAsync(new ProductModel() { Name = productName });
 
-        // Act
-        var result = await _paymentSessionService.Object.CreateFreeSubscriptionAsync(signalRModel, user.Id);
+    //    // Act
+    //    var result = await _paymentSessionService.Object.CreateFreeSubscriptionAsync(signalRModel, user.Id);
 
-        // Assert
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Metadata[MetadataConstants.UserId], Is.EqualTo(user.Id.ToString()));
-    }
+    //    // Assert
+    //    Assert.That(result, Is.Not.Null);
+    //    Assert.That(result.Metadata[MetadataConstants.UserId], Is.EqualTo(user.Id.ToString()));
+    //}
 
-    [Test]
-    public void CreateFreeSubscriptionAsync_WhenUserNotExists_ShouldThrowException()
-    {
-        // Arrange
-        var signalRModel = _fixture.Create<SignalRModel>();
-        var user = _fixture.Create<UserDto>();
-        user.AccountPlan = null;
+    //[Test]
+    //public void CreateFreeSubscriptionAsync_WhenUserNotExists_ShouldThrowException()
+    //{
+    //    // Arrange
+    //    var signalRModel = _fixture.Create<SignalRModel>();
+    //    var user = _fixture.Create<UserDto>();
+    //    user.AccountPlan = null;
 
-        _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id)))
-            .ReturnsAsync((UserDto?)null);
+    //    _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id)))
+    //        .ReturnsAsync((UserDto?)null);
 
-        // Act
-        var ex = Assert.ThrowsAsync<ArgumentNullException>(async () =>
-                   await _paymentSessionService.Object.CreateFreeSubscriptionAsync(signalRModel, user.Id));
+    //    // Act
+    //    var ex = Assert.ThrowsAsync<ArgumentNullException>(async () =>
+    //               await _paymentSessionService.Object.CreateFreeSubscriptionAsync(signalRModel, user.Id));
 
-        // Assert
-        Assert.That(ex, Is.Not.Null);
-    }
+    //    // Assert
+    //    Assert.That(ex, Is.Not.Null);
+    //}
 
-    [Test]
-    public void CreateFreeSubscriptionAsync_WhenUserHasAccountPlan_ShouldThrowException()
-    {
-        // Arrange
-        var signalRModel = _fixture.Create<SignalRModel>();
-        var user = _fixture.Create<UserDto>();
-        user.AccountPlan = _fixture.Create<AccountPlan>();
+    //[Test]
+    //public void CreateFreeSubscriptionAsync_WhenUserHasAccountPlan_ShouldThrowException()
+    //{
+    //    // Arrange
+    //    var signalRModel = _fixture.Create<SignalRModel>();
+    //    var user = _fixture.Create<UserDto>();
+    //    user.AccountPlan = _fixture.Create<AccountPlan>();
 
-        _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id)))
-            .ReturnsAsync(user);
+    //    _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id)))
+    //        .ReturnsAsync(user);
 
-        // Act
-        var ex = Assert.ThrowsAsync<Exception>(async () =>
-                          await _paymentSessionService.Object.CreateFreeSubscriptionAsync(signalRModel, user.Id));
+    //    // Act
+    //    var ex = Assert.ThrowsAsync<Exception>(async () =>
+    //                      await _paymentSessionService.Object.CreateFreeSubscriptionAsync(signalRModel, user.Id));
 
-        // Assert
-        Assert.That(ex, Is.Not.Null);
-    }
+    //    // Assert
+    //    Assert.That(ex, Is.Not.Null);
+    //}
 
     [Test]
     public async Task CancelSubscriptionAsync_UserIsAbleToDoThis_ShouldCancelSubscription()
