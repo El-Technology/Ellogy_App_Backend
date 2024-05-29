@@ -150,8 +150,6 @@ public class RegisterServiceTest
         _notificationQueueService.Verify(x => x.SendNotificationAsync(It.IsAny<NotificationModel>()), Times.Once);
     }
 
-
-
     [TestCase("username@example.com")]
     [TestCase("user.name@example.com")]
     [TestCase("username@example.com")]
