@@ -112,6 +112,9 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc cref="IUserProfileService.ChangeUserEmailAsync(Guid, SendVerificationEmailDto)" />
     public async Task ChangeUserEmailAsync(Guid userId, SendVerificationEmailDto sendVerificationEmailDto)
     {
+        if (!EmailHelper.IsValidEmail(sendVerificationEmailDto.UserEmail))
+            throw new InvalidEmailException();
+
         var user = await GetUserByIdAsync(userId)
                    ?? throw new UserNotFoundException($"User with id => {userId} was not found");
 
@@ -126,6 +129,9 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc cref="IUserProfileService.VerifyUserEmailAsync(Guid, ActivateUserAccountDto)" />
     public async Task VerifyUserEmailAsync(Guid userId, ActivateUserAccountDto activateUser)
     {
+        if (!EmailHelper.IsValidEmail(activateUser.UserEmail))
+            throw new InvalidEmailException();
+
         activateUser.Token = HttpUtility.UrlDecode(activateUser.Token);
 
         var user = await _userRepository.GetUserByIdAsync(userId)
