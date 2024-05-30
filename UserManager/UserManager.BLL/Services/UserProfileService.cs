@@ -92,10 +92,17 @@ public class UserProfileService : IUserProfileService
         var blobClient = containerClient.GetBlobClient(fileName);
         using var memoryStream = new MemoryStream(bytes);
         await blobClient.UploadAsync(memoryStream, true);
-        var blobUri = blobClient.Uri.ToString();
 
+        if (user.AvatarLink is not null)
+        {
+            var blobDeleteClient = containerClient.GetBlobClient(user.AvatarLink);
+            await blobDeleteClient.DeleteIfExistsAsync();
+        }
+
+        var blobUri = blobClient.Uri.ToString();
         user.AvatarLink = blobUri;
         await _userRepository.UpdateUserAsync(user);
+
         return blobUri;
     }
 
