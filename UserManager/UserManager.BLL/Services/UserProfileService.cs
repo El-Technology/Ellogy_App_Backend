@@ -95,8 +95,13 @@ public class UserProfileService : IUserProfileService
 
         if (user.AvatarLink is not null)
         {
-            var blobDeleteClient = containerClient.GetBlobClient(user.AvatarLink);
-            await blobDeleteClient.DeleteIfExistsAsync();
+            var index = user.AvatarLink.IndexOf(BlobContainerConstants.AvatarsContainer);
+            if (index != -1)
+            {
+                var blobDeleteClient = containerClient.GetBlobClient(
+                    user.AvatarLink.Substring(index + BlobContainerConstants.AvatarsContainer.Length + 1));
+                await blobDeleteClient.DeleteIfExistsAsync();
+            }
         }
 
         var blobUri = blobClient.Uri.ToString();
