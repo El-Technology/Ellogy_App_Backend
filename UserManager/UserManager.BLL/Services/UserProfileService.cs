@@ -88,7 +88,7 @@ public class UserProfileService : IUserProfileService
 
         var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerConstants.AvatarsContainer);
         var bytes = Convert.FromBase64String(uploadAvatar.Base64Avatar);
-        var fileName = $"{uploadAvatar.UserId}{ImageExtensionHelper.GetImageExtention(uploadAvatar.ImageExtension)}";
+        var fileName = $"{Guid.NewGuid()}{ImageExtensionHelper.GetImageExtention(uploadAvatar.ImageExtension)}";
         var blobClient = containerClient.GetBlobClient(fileName);
         using var memoryStream = new MemoryStream(bytes);
         await blobClient.UploadAsync(memoryStream, true);
