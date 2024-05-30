@@ -115,6 +115,9 @@ public class UserProfileService : IUserProfileService
         if (!EmailHelper.IsValidEmail(sendVerificationEmailDto.UserEmail))
             throw new InvalidEmailException();
 
+        if (await _userRepository.CheckEmailIsExistAsync(sendVerificationEmailDto.UserEmail))
+            throw new UserAlreadyExistException(sendVerificationEmailDto.UserEmail);
+
         var user = await GetUserByIdAsync(userId)
                    ?? throw new UserNotFoundException($"User with id => {userId} was not found");
 
@@ -131,6 +134,9 @@ public class UserProfileService : IUserProfileService
     {
         if (!EmailHelper.IsValidEmail(activateUser.UserEmail))
             throw new InvalidEmailException();
+
+        if (await _userRepository.CheckEmailIsExistAsync(activateUser.UserEmail))
+            throw new UserAlreadyExistException(activateUser.UserEmail);
 
         activateUser.Token = HttpUtility.UrlDecode(activateUser.Token);
 

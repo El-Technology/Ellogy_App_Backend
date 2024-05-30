@@ -52,11 +52,11 @@ public class RegisterService : IRegisterService
             throw new InvalidEmailException();
 
         var user = _mapper.Map<User>(userRegister);
-        user.Password = CryptoHelper.GetHash(userRegister.Password, user.Salt);
 
         if (await _userRepository.CheckEmailIsExistAsync(user.Email))
             throw new UserAlreadyExistException(user.Email);
 
+        user.Password = CryptoHelper.GetHash(userRegister.Password, user.Salt);
         var token = CryptoHelper.GenerateToken();
         user.VerifyToken = token;
         user.IsAccountActivated = false;
