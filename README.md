@@ -35,7 +35,7 @@
 ---
 
 ## <a name="azure-architecture"></a>1. Azure Architecture
-<img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/Ellogy-prod/images/Azure%20architecture.vpd.png">
+<img src="https://github.com/El-Technology/Ellogy_App_Backend/blob/771cb8ee86df641c74cb451e99f6a3df9efbdd4e/images/Azure%20architecture.vpd.png">
 The entire backend of the application is hosted on Azure. Here's a breakdown of key services:
 
 ### <a name="api-gateway"></a><ins>1.1 API Gateway</ins>
