@@ -789,23 +789,6 @@
         }
       ]
     },
-    //{
-    //  "UpstreamPathTemplate": "/dev/Communication/getStreamResponse",
-    //  "UpstreamHttpMethod": [ "Post" ],
-    //  "DownstreamPathTemplate": "/api/Communication/getStreamResponse",
-    //  "DownstreamScheme": "http",
-    //  "DownstreamHostAndPorts": [
-    //    {
-    //      "Host": "20.21.129.55",
-    //      "Port": 53053
-    //    }
-    //  ],
-    //  "QoSOptions": {
-    //    "ExceptionsAllowedBeforeBreaking": 99999,
-    //    "DurationOfBreak": 0,
-    //    "TimeoutValue": 230000
-    //  }
-    //},
     {
       "UpstreamPathTemplate": "/dev/Communication/getChatResponse",
       "UpstreamHttpMethod": [ "Post" ],
