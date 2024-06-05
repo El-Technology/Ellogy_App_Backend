@@ -62,7 +62,7 @@ public class TicketsService : ITicketsService
         TicketCurrentStepEnum ticketCurrentStepEnum)
     {
         if (!Enum.IsDefined(typeof(TicketStatusEnum), ticketStatusEnum)
-            && !Enum.IsDefined(typeof(TicketCurrentStepEnum), ticketCurrentStepEnum))
+            || !Enum.IsDefined(typeof(TicketCurrentStepEnum), ticketCurrentStepEnum))
             throw new Exception("Wrong enum");
     }
 
@@ -171,6 +171,7 @@ public class TicketsService : ITicketsService
         ValidateUserPermission(ticket.UserId, userIdFromToken);
 
         var mappedTicket = _mapper.Map(ticketUpdate, ticket);
+
         await _ticketsRepository.CheckTicketUpdateIds(mappedTicket);
         await _ticketsRepository.UpdateTicketAsync(mappedTicket);
 
