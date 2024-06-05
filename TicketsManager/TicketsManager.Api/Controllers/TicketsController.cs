@@ -115,7 +115,7 @@ public class TicketsController : Controller
     /// Updates the details of a ticket.
     /// </summary>
     /// <param name="ticketUpdateRequest">The updated data for the ticket.</param>
-    /// <param name="ticketId">The id of the user, to which belongs that ticket.</param>
+    /// <param name="ticketId">The id of the ticket.</param>
     /// <returns>An <see cref="IActionResult"/> containing the updated ticket.</returns>
     [ProducesResponseType(typeof(TicketResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
