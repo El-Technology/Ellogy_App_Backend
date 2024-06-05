@@ -22,7 +22,6 @@ public class TicketsRepository : ITicketsRepository
     {
         return await _context.Tickets
             .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
-            .Include(e => e.TicketSummaries)
             .Include(e => e.Notifications)
             .AsNoTracking()
             .Where(a => a.UserId == userId)
@@ -35,7 +34,6 @@ public class TicketsRepository : ITicketsRepository
     {
         return await _context.Tickets
             .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
-            .Include(e => e.TicketSummaries)
             .Include(e => e.Notifications)
             .AsNoTracking()
             .Where(a => a.UserId == userId)
@@ -56,7 +54,7 @@ public class TicketsRepository : ITicketsRepository
         return _context.Tickets
             .Include(e => e.TicketMessages)
             .Include(e => e.Notifications)
-            .AsTracking()
+            .AsNoTracking()
             .FirstOrDefaultAsync(e => e.Id == id);
     }
 
@@ -85,13 +83,29 @@ public class TicketsRepository : ITicketsRepository
     public async Task CheckTicketUpdateIds(Ticket ticket)
     {
         var messageIds = ticket.TicketMessages.Where(e => e.Id != Guid.Empty).Select(e => e.Id).ToList();
-        foreach (var messageId in messageIds)
-            if (!await _context.Messages.AnyAsync(e => e.Id == messageId))
-                throw new Exception($"Message with id {messageId} was not found, we can`t update it.");
+        if (messageIds.Any())
+        {
+            var existingMessageIds = await _context.Messages
+                .Where(e => messageIds.Contains(e.Id))
+                .Select(e => e.Id)
+                .ToListAsync();
+
+            var missingMessageIds = messageIds.Except(existingMessageIds).ToList();
+            if (missingMessageIds.Any())
+                throw new Exception($"Messages with ids {string.Join(", ", missingMessageIds)} were not found, we can't update them.");
+        }
 
         var notificationIds = ticket.Notifications.Where(e => e.Id != Guid.Empty).Select(e => e.Id).ToList();
-        foreach (var notificationId in notificationIds)
-            if (!await _context.Notifications.AnyAsync(e => e.Id == notificationId))
-                throw new Exception($"Notification with id {notificationId} was not found, we can`t update it.");
+        if (notificationIds.Any())
+        {
+            var existingNotificationIds = await _context.Notifications
+                .Where(e => notificationIds.Contains(e.Id))
+                .Select(e => e.Id)
+                .ToListAsync();
+
+            var missingNotificationIds = notificationIds.Except(existingNotificationIds).ToList();
+            if (missingNotificationIds.Any())
+                throw new Exception($"Notifications with ids {string.Join(", ", missingNotificationIds)} were not found, we can't update them.");
+        }
     }
 }
