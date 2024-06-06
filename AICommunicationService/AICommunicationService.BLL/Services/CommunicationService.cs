@@ -52,7 +52,7 @@ public class CommunicationService : ICommunicationService
             _ => await _customAiService.PostAiRequestAsync(request)
         };
 
-        return await ProcessResultAsync(userId, response);
+        return await ProcessResultAsync(userId, response, createConversationRequest.TemplateName);
     }
 
     /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(Guid, CreateConversationRequest)" />
@@ -66,7 +66,7 @@ public class CommunicationService : ICommunicationService
             _ => await _customAiService.PostAiRequestWithFunctionAsync(request)
         };
 
-        return await ProcessResultAsync(userId, response);
+        return await ProcessResultAsync(userId, response, createConversationRequest.TemplateName);
     }
 
     /// <inheritdoc cref="ICommunicationService.StreamRequestAsync(Guid, CreateConversationRequest, Func{string, Task})" />
@@ -99,7 +99,7 @@ public class CommunicationService : ICommunicationService
             }
         };
 
-        await ProcessResultAsync(userId, response);
+        await ProcessResultAsync(userId, response, createConversationRequest.TemplateName);
     }
 
     private async Task<MessageRequest> CreateMessageRequestAsync(
@@ -121,10 +121,10 @@ public class CommunicationService : ICommunicationService
         };
     }
 
-    private async Task<string> ProcessResultAsync(Guid userId, CommunicationResponseModel response)
+    private async Task<string> ProcessResultAsync(Guid userId, CommunicationResponseModel response, string templateName)
     {
-
-        await TakeChargeAsync(userId, response);
+        if (!TemplatesWithoutChargeConst.ListOfFreeTemplates.Any(a => a.Equals(templateName)))
+            await TakeChargeAsync(userId, response);
 
         return response.Content ?? string.Empty;
     }
