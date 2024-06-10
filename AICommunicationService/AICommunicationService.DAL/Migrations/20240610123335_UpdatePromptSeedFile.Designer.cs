@@ -13,7 +13,7 @@ using Pgvector;
 namespace AICommunicationService.DAL.Migrations
 {
     [DbContext(typeof(AICommunicationContext))]
-    [Migration("20240610121954_UpdatePromptSeedFile")]
+    [Migration("20240610123335_UpdatePromptSeedFile")]
     partial class UpdatePromptSeedFile
     {
         /// <inheritdoc />
