@@ -62,7 +62,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
                         {
                             Name = $"{streamRequest.AmountOfPoints} - points"
                         },
-                        UnitAmountDecimal = streamRequest.AmountOfPoints * Constants.OneTokenPrice *
+                        UnitAmountDecimal = /*streamRequest.AmountOfPoints * Constants.OneTokenPrice*/ 1 * //set price for testing - 1$
                                             Constants.PriceInCents
                     },
                     Quantity = AMOUNT_OF_ITEMS
