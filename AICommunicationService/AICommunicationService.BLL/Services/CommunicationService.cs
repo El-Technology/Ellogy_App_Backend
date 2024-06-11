@@ -62,7 +62,9 @@ public class CommunicationService : ICommunicationService
 
         var response = (int)createConversationRequest.AiModelEnum switch
         {
-            >= 4 => await _groqAiRequestService.PostAiRequestAsync(request, AiRequestType.Functions, createConversationRequest.AiModelEnum),
+            (int)AiModelEnum.Mixtral_8x7b or (int)AiModelEnum.Llama3_70b =>
+                await _groqAiRequestService.PostAiRequestAsync(request, AiRequestType.Functions, createConversationRequest.AiModelEnum),
+
             _ => await _customAiService.PostAiRequestWithFunctionAsync(request)
         };
 
@@ -187,7 +189,7 @@ public class CommunicationService : ICommunicationService
 
         var response = (int)aiModelEnum switch
         {
-            >= 4 => getPrompt.JsonSample,
+            (int)AiModelEnum.Mixtral_8x7b or (int)AiModelEnum.Llama3_70b => getPrompt.JsonSample,
             _ => getPrompt.Functions
         };
 
@@ -196,7 +198,7 @@ public class CommunicationService : ICommunicationService
 
     private async Task<string> GetAzureOpenAiRequestLinkAsync(AiModelEnum aiModelEnum)
     {
-        if ((int)aiModelEnum >= 4)
+        if ((int)aiModelEnum == (int)AiModelEnum.Mixtral_8x7b || (int)aiModelEnum == (int)AiModelEnum.Llama3_70b)
             return string.Empty;
 
         var deploymentName = aiModelEnum switch
@@ -205,6 +207,7 @@ public class CommunicationService : ICommunicationService
             AiModelEnum.Four => AzureAiConstants.FourModel,
             AiModelEnum.FourTurbo => AzureAiConstants.FourTurboModel,
             AiModelEnum.Four32k => AzureAiConstants.Four32kModel,
+            AiModelEnum.FourO => AzureAiConstants.FourOModel,
             _ => throw new Exception("Wrong enum")
         };
         return $"{AzureAiConstants.BaseUrl}{deploymentName}/chat/completions?{AzureAiConstants.ApiVersion}";

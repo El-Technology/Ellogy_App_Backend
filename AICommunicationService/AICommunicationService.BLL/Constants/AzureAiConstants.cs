@@ -6,6 +6,7 @@ public static class AzureAiConstants
     public const string FourModel = "EllogyGptFour";
     public const string FourTurboModel = "EllogyGptFourTurbo";
     public const string Four32kModel = "EllogyGptFour32k";
+    public const string FourOModel = "EllogyGpt4o";
     public const string ResourceName = "EllogyCommunication";
     public const string EmbeddingUrl = $"openai/deployments/EllogyEmbedding3Small/embeddings?{ApiVersion}";
     public const string EmbeddingUrlReserve = $"openai/deployments/EllogyEmbedding/embeddings?{ApiVersion}";

@@ -7,5 +7,6 @@ public enum AiModelEnum
     FourTurbo = 2,
     Four32k = 3,
     Mixtral_8x7b = 4,
-    Llama3_70b = 5
+    Llama3_70b = 5,
+    FourO = 6
 }
