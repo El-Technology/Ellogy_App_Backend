@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using PaymentManager.BLL.Exceptions;
+using System.Net;
 
 namespace PaymentManager.API.Middlewares;
 
@@ -25,6 +26,10 @@ public class ExceptionHandlerMiddleware
         try
         {
             await _next(context);
+        }
+        catch (ConnectionNotFoundException ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.NotFound, ex.Message);
         }
         catch (Exception ex)
         {

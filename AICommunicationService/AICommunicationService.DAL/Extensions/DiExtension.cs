@@ -15,7 +15,11 @@ public static class DiExtension
             throw new ArgumentNullException(nameof(connectionString));
 
         return services
-            .AddDbContext<AICommunicationContext>(c => c.UseNpgsql(connectionString, o => o.UseVector()))
+            .AddDbContext<AICommunicationContext>(c => c.UseNpgsql(connectionString, o =>
+            {
+                o.UseVector();
+                o.EnableRetryOnFailure(3);
+            }))
             .AddScoped<IEmbeddingRepository, EmbeddingRepository>()
             .AddScoped<IDocumentRepository, DocumentRepository>()
             .AddScoped<IDocumentSharingRepository, DocumentSharingRepository>()

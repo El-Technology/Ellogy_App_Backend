@@ -184,9 +184,12 @@ public class UserProfileServiceTest
     public async Task ChangeUserEmailAsync_ShouldChangeUserEmail_WhenUserExists()
     {
         // Arrange
+        var email = "test@domain.com";
         var sendVerificationEmailDto = _fixture.Create<SendVerificationEmailDto>();
+        sendVerificationEmailDto.UserEmail = email;
         var userId = Guid.NewGuid();
         var user = _fixture.Create<User>();
+        user.Email = email;
         _userRepository.Setup(x => x.GetUserByIdAsync(userId)).ReturnsAsync(user);
 
         // Act
@@ -201,10 +204,12 @@ public class UserProfileServiceTest
     {
         // Arrange
         var token = CryptoHelper.GenerateToken();
-
+        var email = "test@domain.com";
         var activateUser = _fixture.Create<ActivateUserAccountDto>();
         activateUser.Token = CryptoHelper.GetHash(token);
+        activateUser.UserEmail = email;
         var user = _fixture.Create<User>();
+        user.Email = email;
         user.VerifyToken = token;
         _userRepository.Setup(x => x.GetUserByIdAsync(user.Id)).ReturnsAsync(user);
 

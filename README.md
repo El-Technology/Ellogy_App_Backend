@@ -1991,4 +1991,3 @@ To do this, you need to add a value to the template stored in the database in th
 ```
 This example returns a Json with the title and description fields, which will be strings.
 This greatly facilitates the exchange of returned information.
-

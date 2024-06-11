@@ -24,6 +24,9 @@ public class LoginService : ILoginService
     /// <inheritdoc cref="ILoginService.LoginUserAsync" />
     public async Task<LoginResponseDto> LoginUserAsync(LoginRequestDto loginUser)
     {
+        if (!EmailHelper.IsValidEmail(loginUser.Email))
+            throw new InvalidEmailException();
+
         var user = await _userRepository.GetUserByEmailAsync(loginUser.Email) ??
                    throw new UserNotFoundException(loginUser.Email);
 

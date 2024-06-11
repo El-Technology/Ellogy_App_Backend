@@ -61,6 +61,10 @@ public class ExceptionHandlerMiddleware
         {
             await HandleExceptionAsync(context, ex.Message, HttpStatusCode.Forbidden, ex.Message);
         }
+        catch (InvalidEmailException ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.BadRequest, ex.Message);
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, ex.Message,

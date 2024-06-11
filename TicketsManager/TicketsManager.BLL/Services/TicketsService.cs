@@ -62,7 +62,7 @@ public class TicketsService : ITicketsService
         TicketCurrentStepEnum ticketCurrentStepEnum)
     {
         if (!Enum.IsDefined(typeof(TicketStatusEnum), ticketStatusEnum)
-            && !Enum.IsDefined(typeof(TicketCurrentStepEnum), ticketCurrentStepEnum))
+            || !Enum.IsDefined(typeof(TicketCurrentStepEnum), ticketCurrentStepEnum))
             throw new Exception("Wrong enum");
     }
 
@@ -171,6 +171,7 @@ public class TicketsService : ITicketsService
         ValidateUserPermission(ticket.UserId, userIdFromToken);
 
         var mappedTicket = _mapper.Map(ticketUpdate, ticket);
+
         await _ticketsRepository.CheckTicketUpdateIds(mappedTicket);
         await _ticketsRepository.UpdateTicketAsync(mappedTicket);
 
@@ -181,25 +182,25 @@ public class TicketsService : ITicketsService
     public byte[] DownloadAsDoc(string[] base64Data)
     {
         using var memoryStream = new MemoryStream();
-        using var package = WordprocessingDocument
-            .Create(memoryStream, WordprocessingDocumentType.Document);
-
-        var mainPart = package.MainDocumentPart;
-        if (mainPart == null)
+        using (var package = WordprocessingDocument.Create(memoryStream,
+                            WordprocessingDocumentType.Document))
         {
-            mainPart = package.AddMainDocumentPart();
-            new Document(new Body()).Save(mainPart);
+            var mainPart = package.MainDocumentPart;
+            if (mainPart == null)
+            {
+                mainPart = package.AddMainDocumentPart();
+                new Document(new Body()).Save(mainPart);
+            }
+            var converter = new HtmlConverter(mainPart);
+
+            foreach (var page in base64Data)
+            {
+                var htmlContent = ConvertBase64ToString(page);
+                converter.ParseHtml(htmlContent);
+            }
+
+            mainPart.Document.Save();
         }
-        var converter = new HtmlConverter(mainPart);
-
-        foreach (var page in base64Data)
-        {
-            var htmlContent = ConvertBase64ToString(page);
-            converter.ParseHtml(htmlContent);
-        }
-
-        mainPart.Document.Save();
-
         return memoryStream.ToArray();
     }
 }

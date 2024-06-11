@@ -88,14 +88,26 @@ public class UserProfileService : IUserProfileService
 
         var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerConstants.AvatarsContainer);
         var bytes = Convert.FromBase64String(uploadAvatar.Base64Avatar);
-        var fileName = $"{uploadAvatar.UserId}{ImageExtensionHelper.GetImageExtention(uploadAvatar.ImageExtension)}";
+        var fileName = $"{Guid.NewGuid()}{ImageExtensionHelper.GetImageExtention(uploadAvatar.ImageExtension)}";
         var blobClient = containerClient.GetBlobClient(fileName);
         using var memoryStream = new MemoryStream(bytes);
         await blobClient.UploadAsync(memoryStream, true);
-        var blobUri = blobClient.Uri.ToString();
 
+        if (user.AvatarLink is not null)
+        {
+            var index = user.AvatarLink.IndexOf(BlobContainerConstants.AvatarsContainer);
+            if (index != -1)
+            {
+                var blobDeleteClient = containerClient.GetBlobClient(
+                    user.AvatarLink.Substring(index + BlobContainerConstants.AvatarsContainer.Length + 1));
+                await blobDeleteClient.DeleteIfExistsAsync();
+            }
+        }
+
+        var blobUri = blobClient.Uri.ToString();
         user.AvatarLink = blobUri;
         await _userRepository.UpdateUserAsync(user);
+
         return blobUri;
     }
 
@@ -112,6 +124,12 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc cref="IUserProfileService.ChangeUserEmailAsync(Guid, SendVerificationEmailDto)" />
     public async Task ChangeUserEmailAsync(Guid userId, SendVerificationEmailDto sendVerificationEmailDto)
     {
+        if (!EmailHelper.IsValidEmail(sendVerificationEmailDto.UserEmail))
+            throw new InvalidEmailException();
+
+        if (await _userRepository.CheckEmailIsExistAsync(sendVerificationEmailDto.UserEmail))
+            throw new UserAlreadyExistException(sendVerificationEmailDto.UserEmail);
+
         var user = await GetUserByIdAsync(userId)
                    ?? throw new UserNotFoundException($"User with id => {userId} was not found");
 
@@ -126,6 +144,12 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc cref="IUserProfileService.VerifyUserEmailAsync(Guid, ActivateUserAccountDto)" />
     public async Task VerifyUserEmailAsync(Guid userId, ActivateUserAccountDto activateUser)
     {
+        if (!EmailHelper.IsValidEmail(activateUser.UserEmail))
+            throw new InvalidEmailException();
+
+        if (await _userRepository.CheckEmailIsExistAsync(activateUser.UserEmail))
+            throw new UserAlreadyExistException(activateUser.UserEmail);
+
         activateUser.Token = HttpUtility.UrlDecode(activateUser.Token);
 
         var user = await _userRepository.GetUserByIdAsync(userId)
