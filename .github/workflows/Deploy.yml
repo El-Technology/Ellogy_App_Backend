@@ -2,7 +2,7 @@ name: Build and push microservices
 on:
   push:
     branches:
-      - 'Ellogy_prod'
+      - 'Ellogy_test'
     paths:
       - TicketsManager/**
       - UserManager/**
@@ -13,9 +13,9 @@ on:
       - '!UserManager/NotificationService/**'
       
 env:
-  SSH_HOST: ${{ secrets.SSH_HOST_prod }}
+  SSH_HOST: ${{ secrets.SSH_HOST_test }}
   SSH_USER: ${{ vars.REMOTE_USER }}
-  SSH_KEY: ${{ secrets.SSH_KEY_prod }}
+  SSH_KEY: ${{ secrets.SSH_KEY_test }}
   ENVNAME: ${{ vars.ENVNAME }}
 
 jobs:
