@@ -48,7 +48,9 @@ public class CommunicationService : ICommunicationService
 
         var response = (int)createConversationRequest.AiModelEnum switch
         {
-            >= 4 => await _groqAiRequestService.PostAiRequestAsync(request, AiRequestType.Default, createConversationRequest.AiModelEnum),
+            (int)AiModelEnum.Mixtral_8x7b or (int)AiModelEnum.Llama3_70b =>
+                await _groqAiRequestService.PostAiRequestAsync(request, AiRequestType.Default, createConversationRequest.AiModelEnum),
+
             _ => await _customAiService.PostAiRequestAsync(request)
         };
 
