@@ -20,6 +20,10 @@ public class CommunicationController : ControllerBase
 {
     private readonly ICommunicationService _communicationService;
 
+    /// <summary>
+    ///    Constructor for CommunicationController
+    /// </summary>
+    /// <param name="communicationService"></param>
     public CommunicationController(ICommunicationService communicationService)
     {
         _communicationService = communicationService;
