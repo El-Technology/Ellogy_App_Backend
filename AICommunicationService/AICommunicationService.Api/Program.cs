@@ -47,7 +47,7 @@ static async Task AddServicesAsync(WebApplicationBuilder builder)
     builder.Services.AddAuthorization(options =>
     {
         options.AddPolicy(PolicyConstants.REQUIRE_BASIC_ACCOUNT, policy =>
-            policy.RequireClaim(JwtOptions.ACCOUNT_PLAN, AccountPlan.Basic.ToString()));
+            policy.RequireClaim(JwtOptions.ACCOUNT_PLAN, AccountPlan.Starter.ToString()));
     });
 
     builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -1,4 +1,5 @@
-﻿using AICommunicationService.BLL.Interfaces;
+﻿using AICommunicationService.BLL.Dtos;
+using AICommunicationService.BLL.Interfaces;
 using AICommunicationService.Common;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Helpers;
@@ -30,16 +31,23 @@ public class CommunicationController : ControllerBase
     /// <typeparam name="T"></typeparam>
     /// <param name="request"></param>
     /// <returns></returns>
-    private T CheckUserPlan<T>(T request) where T : CreateConversationRequest
+    private ConversationRequestDto CheckUserPlan<T>(T request) where T : CreateConversationRequest
     {
-        if (User.HasClaim(JwtOptions.ACCOUNT_PLAN, AccountPlan.Basic.ToString()))
-            return request;
+        var plan = Enum.Parse<AccountPlan>(TokenParseHelper.GetValueFromJwt(JwtOptions.ACCOUNT_PLAN, User));
 
-        request.FileName = null;
-        request.UseRAG = false;
+        if (plan != AccountPlan.Starter)
+        {
+            request.FileName = null;
+            request.UseRAG = false;
+        }
 
-        return request;
+        return new ConversationRequestDto
+        {
+            CreateConversationRequest = request,
+            AccountPlan = plan
+        };
     }
+
 
     /// <summary>
     ///     This method retrieves the user id from the JWT token
@@ -47,7 +55,7 @@ public class CommunicationController : ControllerBase
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     private Guid GetUserIdFromToken() =>
-        TokenParseHelper.GetUserId(User);
+        Guid.Parse(TokenParseHelper.GetValueFromJwt(JwtOptions.UserIdClaimName, User));
 
     /// <summary>
     ///    Endpoint for retrieving AI response as streaming.

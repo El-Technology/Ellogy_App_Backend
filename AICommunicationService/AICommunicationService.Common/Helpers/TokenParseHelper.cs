@@ -3,12 +3,20 @@
 namespace AICommunicationService.Common.Helpers;
 public static class TokenParseHelper
 {
-    public static Guid GetUserId(ClaimsPrincipal claimsPrincipal)
+    public static string GetValueFromJwt(string claimName, ClaimsPrincipal claimsPrincipal)
     {
-        var status = Guid.TryParse(claimsPrincipal.FindFirst(JwtOptions.UserIdClaimName)?.Value, out var userId);
-        if (!status)
-            throw new Exception("Taking user id error, try again later");
+        var value = string.Empty;
 
-        return userId;
+        try
+        {
+            value = claimsPrincipal.FindFirst(claimName)?.Value;
+            ArgumentNullException.ThrowIfNull(value);
+        }
+        catch
+        {
+            throw new Exception($"Taking {claimName} error, try again later");
+        }
+
+        return value;
     }
 }
