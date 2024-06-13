@@ -41,6 +41,8 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
         if (!string.IsNullOrEmpty(user.StripeCustomerId))
             throw new Exception("Customer is already created");
 
+        await _paymentRepository.CreateUserWalletAsync(userId);
+
         var customerData = await GetCustomerService().CreateAsync(new CustomerCreateOptions
         {
             Email = user.Email,
@@ -48,7 +50,6 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
             Metadata = new Dictionary<string, string> { { MetadataConstants.UserId, userId.ToString() } }
         });
 
-        await _paymentRepository.CreateUserWalletAsync(userId);
         await _userExternalHttpService.AddStripeCustomerIdAsync(userId, customerData.Id);
     }
 
