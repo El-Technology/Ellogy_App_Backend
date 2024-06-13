@@ -337,6 +337,7 @@ public class WebhookServiceTest : StripeBaseServiceForTests
     [Test]
     public async Task InvoiceFailedHandleAsync_IfExistingSubscriptionIsNotEnds_ShouldLeaveCurrent()
     {
+        // Arrange
         var userId = _fixture.Create<Guid>();
         var invoice = new Invoice()
         {
