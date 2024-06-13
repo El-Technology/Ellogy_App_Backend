@@ -460,7 +460,7 @@ public class WebhookServiceTest : StripeBaseServiceForTests
 
         var productModel = new ProductModel()
         {
-            Name = "Basic/someTranslate",
+            Name = "Starter/someTranslate",
             Price = 10
         };
 
