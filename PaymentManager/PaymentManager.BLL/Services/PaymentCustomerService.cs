@@ -19,14 +19,17 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     private readonly IMapper _mapper;
     private readonly ISubscriptionRepository _subscriptionRepository;
     private readonly IUserExternalHttpService _userExternalHttpService;
+    private readonly IPaymentRepository _paymentRepository;
 
     public PaymentCustomerService(ISubscriptionRepository subscriptionRepository,
         IMapper mapper,
-        IUserExternalHttpService userExternalHttpService)
+        IUserExternalHttpService userExternalHttpService,
+        IPaymentRepository paymentRepository)
     {
         _userExternalHttpService = userExternalHttpService;
         _mapper = mapper;
         _subscriptionRepository = subscriptionRepository;
+        _paymentRepository = paymentRepository;
     }
 
     /// <inheritdoc cref="IPaymentCustomerService.CreateCustomerAsync(Guid)" />
@@ -45,6 +48,7 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
             Metadata = new Dictionary<string, string> { { MetadataConstants.UserId, userId.ToString() } }
         });
 
+        await _paymentRepository.CreateUserWalletAsync(userId);
         await _userExternalHttpService.AddStripeCustomerIdAsync(userId, customerData.Id);
     }
 
