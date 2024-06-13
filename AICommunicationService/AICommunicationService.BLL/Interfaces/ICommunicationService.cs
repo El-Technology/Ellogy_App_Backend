@@ -1,4 +1,4 @@
-﻿using AICommunicationService.Common.Models.AIRequest;
+﻿using AICommunicationService.BLL.Dtos;
 
 namespace AICommunicationService.BLL.Interfaces;
 
@@ -13,7 +13,8 @@ public interface ICommunicationService
     /// <param name="createConversationRequest">Request params</param>
     /// <param name="userId">User id</param>
     /// <returns>Returns string data</returns>
-    Task<string> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest);
+    Task<string> ChatRequestAsync(
+        Guid userId, ConversationRequestDto createConversationRequest);
 
     /// <summary>
     /// Endpoint for retrieving AI response by Json Example.
@@ -21,7 +22,8 @@ public interface ICommunicationService
     /// <param name="createConversationRequest">Request params</param>
     /// <param name="userId">User id</param>
     /// <returns>Returns string data in Json</returns>
-    Task<string> ChatRequestWithFunctionAsync(Guid userId, CreateConversationRequest createConversationRequest);
+    Task<string> ChatRequestWithFunctionAsync(
+        Guid userId, ConversationRequestDto createConversationRequest);
 
     /// <summary>
     /// Endpoint for retrieving AI response as streaming
@@ -29,5 +31,6 @@ public interface ICommunicationService
     /// <param name="createConversationRequest">Request params</param>
     /// <param name="userId">User id</param>
     /// <returns>Returns response is success</returns>
-    Task StreamRequestAsync(Guid userId, CreateConversationRequest createConversationRequest, Func<string, Task> onDataReceived);
+    Task StreamRequestAsync(
+        Guid userId, ConversationRequestDto createConversationRequest, Func<string, Task> onDataReceived);
 }

@@ -3,5 +3,5 @@
 public enum AccountPlan
 {
     Free = 0,
-    Basic = 1
+    Starter = 1
 }

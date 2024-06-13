@@ -1,8 +1,7 @@
-﻿namespace UserManager.DAL.Enums
+﻿namespace UserManager.DAL.Enums;
+
+public enum AccountPlan
 {
-    public enum AccountPlan
-    {
-        Free = 0,
-        Basic = 1
-    }
+    Free = 0,
+    Starter = 1
 }

@@ -19,14 +19,17 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
     private readonly IMapper _mapper;
     private readonly ISubscriptionRepository _subscriptionRepository;
     private readonly IUserExternalHttpService _userExternalHttpService;
+    private readonly IPaymentRepository _paymentRepository;
 
     public PaymentCustomerService(ISubscriptionRepository subscriptionRepository,
         IMapper mapper,
-        IUserExternalHttpService userExternalHttpService)
+        IUserExternalHttpService userExternalHttpService,
+        IPaymentRepository paymentRepository)
     {
         _userExternalHttpService = userExternalHttpService;
         _mapper = mapper;
         _subscriptionRepository = subscriptionRepository;
+        _paymentRepository = paymentRepository;
     }
 
     /// <inheritdoc cref="IPaymentCustomerService.CreateCustomerAsync(Guid)" />
@@ -37,6 +40,8 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
 
         if (!string.IsNullOrEmpty(user.StripeCustomerId))
             throw new Exception("Customer is already created");
+
+        await _paymentRepository.CreateUserWalletAsync(userId);
 
         var customerData = await GetCustomerService().CreateAsync(new CustomerCreateOptions
         {

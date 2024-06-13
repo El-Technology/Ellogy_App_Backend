@@ -1,5 +1,6 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.Common;
 using AICommunicationService.Common.Constants;
 using AICommunicationService.Common.Dtos;
 using AICommunicationService.Common.Helpers;
@@ -28,7 +29,7 @@ public class RAGController : Controller
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     private Guid GetUserIdFromToken() =>
-        TokenParseHelper.GetUserId(User);
+        Guid.Parse(TokenParseHelper.GetValueFromJwt(JwtOptions.UserIdClaimName, User));
 
     /// <summary>
     ///     This method returns the url for uploading the document

@@ -21,6 +21,7 @@ public class PaymentCustomerServiceTest : StripeBaseServiceForTests
     private Mock<PaymentCustomerService> _paymentCustomerService;
     private Mock<ISubscriptionRepository> _subscriptionRepository;
     private Mock<IUserExternalHttpService> _userExternalHttpService;
+    private Mock<IPaymentRepository> _paymentRepository;
 
     [SetUp]
     public void Setup()
@@ -42,9 +43,11 @@ public class PaymentCustomerServiceTest : StripeBaseServiceForTests
 
         _userExternalHttpService = new Mock<IUserExternalHttpService>();
         _subscriptionRepository = new Mock<ISubscriptionRepository>();
+        _paymentRepository = new Mock<IPaymentRepository>();
 
         _paymentCustomerService =
-            new Mock<PaymentCustomerService>(_subscriptionRepository.Object, _mapper, _userExternalHttpService.Object);
+            new Mock<PaymentCustomerService>(_subscriptionRepository.Object,
+                _mapper, _userExternalHttpService.Object, _paymentRepository.Object);
     }
 
     [Test]

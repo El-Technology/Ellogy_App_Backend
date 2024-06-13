@@ -9,7 +9,7 @@ public static class Constants
 
     public static int NewWalletBalance = 0;
     public static decimal PriceInCents = 100;
-    public static decimal OneTokenPrice = 0.01m;
+    public static decimal OneTokenPrice = 0.0333m;
 
     public static string ApplicationCurrency = "usd";
 

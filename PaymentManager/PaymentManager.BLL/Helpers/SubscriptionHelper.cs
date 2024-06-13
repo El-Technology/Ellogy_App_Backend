@@ -16,8 +16,8 @@ public static class SubscriptionHelper
     {
         return accountPlan switch
         {
-            AccountPlan.Basic => 45000,
-            AccountPlan.Free => 15000,
+            AccountPlan.Starter => 0, //unlimited access
+            AccountPlan.Free => 20000,
             _ => 0
         };
     }

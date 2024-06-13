@@ -197,7 +197,7 @@ public class PaymentSessionServiceTest : StripeBaseServiceForTests
         var user = _fixture.Create<UserDto>();
         var subscriptionId = _fixture.Create<string>();
         var productId = _fixture.Create<string>();
-        var productName = $"{AccountPlan.Basic}/otherLanguageTranslate";
+        var productName = $"{AccountPlan.Starter}/otherLanguageTranslate";
 
         _userExternalHttpService.Setup(x => x.GetUserByIdAsync(It.Is<Guid>(a => a == user.Id)))
             .ReturnsAsync(user);

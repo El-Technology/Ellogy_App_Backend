@@ -41,39 +41,47 @@ public class CommunicationService : ICommunicationService
         _paymentExternalHttpService = paymentExternalHttpService;
     }
 
-    /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(Guid, CreateConversationRequest)" />
-    public async Task<string> ChatRequestAsync(Guid userId, CreateConversationRequest createConversationRequest)
+    /// <inheritdoc cref="ICommunicationService.ChatRequestAsync(Guid, ConversationRequestDto)" />
+    public async Task<string> ChatRequestAsync(Guid userId, ConversationRequestDto conversationRequest)
     {
-        var request = await CreateMessageRequestAsync(userId, createConversationRequest, AiRequestType.Default);
+        var request = await CreateMessageRequestAsync(userId, conversationRequest, AiRequestType.Default);
 
-        var response = (int)createConversationRequest.AiModelEnum switch
+        var response = (int)conversationRequest.CreateConversationRequest.AiModelEnum switch
         {
-            >= 4 => await _groqAiRequestService.PostAiRequestAsync(request, AiRequestType.Default, createConversationRequest.AiModelEnum),
+            (int)AiModelEnum.Mixtral_8x7b or (int)AiModelEnum.Llama3_70b =>
+                await _groqAiRequestService.PostAiRequestAsync(
+                    request, AiRequestType.Default, conversationRequest.CreateConversationRequest.AiModelEnum),
+
             _ => await _customAiService.PostAiRequestAsync(request)
         };
 
-        return await ProcessResultAsync(userId, response, createConversationRequest.TemplateName);
+        return await ProcessResultAsync(
+            userId, response, conversationRequest.CreateConversationRequest.TemplateName, conversationRequest.AccountPlan);
     }
 
-    /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(Guid, CreateConversationRequest)" />
-    public async Task<string> ChatRequestWithFunctionAsync(Guid userId, CreateConversationRequest createConversationRequest)
+    /// <inheritdoc cref="ICommunicationService.ChatRequestWithFunctionAsync(Guid, ConversationRequestDto)" />
+    public async Task<string> ChatRequestWithFunctionAsync(Guid userId, ConversationRequestDto conversationRequest)
     {
-        var request = await CreateMessageRequestAsync(userId, createConversationRequest, AiRequestType.Functions);
+        var request = await CreateMessageRequestAsync(userId, conversationRequest, AiRequestType.Functions);
 
-        var response = (int)createConversationRequest.AiModelEnum switch
+        var response = (int)conversationRequest.CreateConversationRequest.AiModelEnum switch
         {
-            >= 4 => await _groqAiRequestService.PostAiRequestAsync(request, AiRequestType.Functions, createConversationRequest.AiModelEnum),
+            (int)AiModelEnum.Mixtral_8x7b or (int)AiModelEnum.Llama3_70b =>
+                await _groqAiRequestService.PostAiRequestAsync(
+                    request, AiRequestType.Functions, conversationRequest.CreateConversationRequest.AiModelEnum),
+
             _ => await _customAiService.PostAiRequestWithFunctionAsync(request)
         };
 
-        return await ProcessResultAsync(userId, response, createConversationRequest.TemplateName);
+        return await ProcessResultAsync(
+            userId, response, conversationRequest.CreateConversationRequest.TemplateName, conversationRequest.AccountPlan);
     }
 
-    /// <inheritdoc cref="ICommunicationService.StreamRequestAsync(Guid, CreateConversationRequest, Func{string, Task})" />
+    /// <inheritdoc cref="ICommunicationService.StreamRequestAsync(Guid, ConversationRequestDto, Func{string, Task})" />
     public async Task StreamRequestAsync(
-    Guid userId, CreateConversationRequest createConversationRequest, Func<string, Task> onDataReceived)
+    Guid userId, ConversationRequestDto conversationRequest, Func<string, Task> onDataReceived)
     {
-        var request = await CreateMessageRequestAsync(userId, createConversationRequest, AiRequestType.Streaming);
+        var request = await CreateMessageRequestAsync(userId, conversationRequest, AiRequestType.Streaming);
         var stringBuilder = new StringBuilder();
 
         await _customAiService.PostAiRequestAsStreamAsync(request,
@@ -83,9 +91,9 @@ public class CommunicationService : ICommunicationService
                 stringBuilder.Append(response);
             });
 
-        var promptTokens = Tokenizer(createConversationRequest.AiModelEnum,
-            $"{request.Template} {createConversationRequest.UserInput}");
-        var completionTokens = Tokenizer(createConversationRequest.AiModelEnum,
+        var promptTokens = Tokenizer(conversationRequest.CreateConversationRequest.AiModelEnum,
+            $"{request.Template} {conversationRequest.CreateConversationRequest.UserInput}");
+        var completionTokens = Tokenizer(conversationRequest.CreateConversationRequest.AiModelEnum,
             stringBuilder.ToString());
 
         var response = new CommunicationResponseModel
@@ -99,13 +107,17 @@ public class CommunicationService : ICommunicationService
             }
         };
 
-        await ProcessResultAsync(userId, response, createConversationRequest.TemplateName);
+        await ProcessResultAsync(
+            userId, response, conversationRequest.CreateConversationRequest.TemplateName, conversationRequest.AccountPlan);
     }
 
     private async Task<MessageRequest> CreateMessageRequestAsync(
-        Guid userId, CreateConversationRequest createConversationRequest, AiRequestType requestType)
+        Guid userId, ConversationRequestDto conversationRequest, AiRequestType requestType)
     {
-        await CheckIfUserAllowedToCreateRequest(userId);
+        if (!(conversationRequest.AccountPlan == AccountPlan.Starter))
+            await CheckIfUserAllowedToCreateRequest(userId);
+
+        var createConversationRequest = conversationRequest.CreateConversationRequest;
 
         return new MessageRequest
         {
@@ -121,9 +133,12 @@ public class CommunicationService : ICommunicationService
         };
     }
 
-    private async Task<string> ProcessResultAsync(Guid userId, CommunicationResponseModel response, string templateName)
+    private async Task<string> ProcessResultAsync(Guid userId, CommunicationResponseModel response, string templateName, AccountPlan accountPlan)
     {
-        if (!TemplatesWithoutChargeConst.ListOfFreeTemplates.Any(a => a.Equals(templateName)))
+        var isTemplateFree = TemplatesWithoutChargeConst.ListOfFreeTemplates.Any(a => a.Equals(templateName));
+        var isPlanRequireCharge = accountPlan != AccountPlan.Starter;
+
+        if (isPlanRequireCharge || isTemplateFree)
             await TakeChargeAsync(userId, response);
 
         return response.Content ?? string.Empty;
@@ -187,7 +202,7 @@ public class CommunicationService : ICommunicationService
 
         var response = (int)aiModelEnum switch
         {
-            >= 4 => getPrompt.JsonSample,
+            (int)AiModelEnum.Mixtral_8x7b or (int)AiModelEnum.Llama3_70b => getPrompt.JsonSample,
             _ => getPrompt.Functions
         };
 
@@ -196,7 +211,7 @@ public class CommunicationService : ICommunicationService
 
     private async Task<string> GetAzureOpenAiRequestLinkAsync(AiModelEnum aiModelEnum)
     {
-        if ((int)aiModelEnum >= 4)
+        if ((int)aiModelEnum == (int)AiModelEnum.Mixtral_8x7b || (int)aiModelEnum == (int)AiModelEnum.Llama3_70b)
             return string.Empty;
 
         var deploymentName = aiModelEnum switch
@@ -205,6 +220,7 @@ public class CommunicationService : ICommunicationService
             AiModelEnum.Four => AzureAiConstants.FourModel,
             AiModelEnum.FourTurbo => AzureAiConstants.FourTurboModel,
             AiModelEnum.Four32k => AzureAiConstants.Four32kModel,
+            AiModelEnum.FourO => AzureAiConstants.FourOModel,
             _ => throw new Exception("Wrong enum")
         };
         return $"{AzureAiConstants.BaseUrl}{deploymentName}/chat/completions?{AzureAiConstants.ApiVersion}";
