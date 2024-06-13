@@ -62,7 +62,7 @@ public class RegisterService : IRegisterService
         user.IsAccountActivated = false;
 
         if (!bool.Parse(await EnvironmentVariables.EnablePayments))
-            user.AccountPlan = DAL.Enums.AccountPlan.Basic;
+            user.AccountPlan = DAL.Enums.AccountPlan.Starter;
 
         await _userRepository.AddUserAsync(user);
     }
