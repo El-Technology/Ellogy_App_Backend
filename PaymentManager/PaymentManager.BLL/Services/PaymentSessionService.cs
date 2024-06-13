@@ -62,7 +62,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
                         {
                             Name = $"{streamRequest.AmountOfPoints} - points"
                         },
-                        UnitAmountDecimal = streamRequest.AmountOfPoints * Constants.OneTokenPrice
+                        UnitAmountDecimal = Math.Round(streamRequest.AmountOfPoints * Constants.OneTokenPrice)
                     },
                     Quantity = AMOUNT_OF_ITEMS
                 }
