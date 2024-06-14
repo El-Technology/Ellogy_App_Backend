@@ -138,7 +138,7 @@ public class CommunicationService : ICommunicationService
         var isTemplateFree = TemplatesWithoutChargeConst.ListOfFreeTemplates.Any(a => a.Equals(templateName));
         var isPlanRequireCharge = accountPlan != AccountPlan.Starter;
 
-        if (isPlanRequireCharge || isTemplateFree)
+        if (!isTemplateFree && isPlanRequireCharge)
             await TakeChargeAsync(userId, response);
 
         return response.Content ?? string.Empty;
