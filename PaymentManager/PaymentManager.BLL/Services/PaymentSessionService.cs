@@ -60,7 +60,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
                         Currency = Constants.ApplicationCurrency,
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
-                            Name = $"{streamRequest.AmountOfTickets * Constants.OneTicketInCredits} - points"
+                            Name = $"{streamRequest.AmountOfTickets * Constants.OneTicketInCredits} - credits"
                         },
                         UnitAmountDecimal = streamRequest.AmountOfTickets * Constants.OneTicketPrice * Constants.PriceInCents
                     },
@@ -68,13 +68,13 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
                 }
             },
             PaymentIntentData = new SessionPaymentIntentDataOptions
-            { Description = $"{streamRequest.AmountOfTickets * Constants.OneTicketInCredits} - points" },
+            { Description = $"{streamRequest.AmountOfTickets * Constants.OneTicketInCredits} - credits" },
             Mode = Constants.PaymentMode,
             Customer = string.IsNullOrEmpty(user.StripeCustomerId) ? null : user.StripeCustomerId,
             CustomerEmail = string.IsNullOrEmpty(user.StripeCustomerId) ? user.Email : null,
             Metadata = new Dictionary<string, string>
             {
-                { MetadataConstants.ProductName, $"{streamRequest.AmountOfTickets * Constants.OneTicketInCredits} - points" },
+                { MetadataConstants.ProductName, $"{streamRequest.AmountOfTickets * Constants.OneTicketInCredits} - credits" },
                 { MetadataConstants.AmountOfPoint, (streamRequest.AmountOfTickets * Constants.OneTicketInCredits).ToString() },
                 { MetadataConstants.UserId, user.Id.ToString() },
                 { MetadataConstants.ConnectionId, streamRequest.ConnectionId },
