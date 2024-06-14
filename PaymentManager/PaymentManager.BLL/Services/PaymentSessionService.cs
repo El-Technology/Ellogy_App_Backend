@@ -60,22 +60,22 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
                         Currency = Constants.ApplicationCurrency,
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
-                            Name = $"{streamRequest.AmountOfPoints} - points"
+                            Name = $"{streamRequest.AmountOfTickets * Constants.OneTicketInCredits} - credits"
                         },
-                        UnitAmountDecimal = Math.Round(streamRequest.AmountOfPoints * Constants.OneTokenPrice)
+                        UnitAmountDecimal = streamRequest.AmountOfTickets * Constants.OneTicketPrice * Constants.PriceInCents
                     },
                     Quantity = AMOUNT_OF_ITEMS
                 }
             },
             PaymentIntentData = new SessionPaymentIntentDataOptions
-            { Description = $"{streamRequest.AmountOfPoints} - points" },
+            { Description = $"{streamRequest.AmountOfTickets * Constants.OneTicketInCredits} - credits" },
             Mode = Constants.PaymentMode,
             Customer = string.IsNullOrEmpty(user.StripeCustomerId) ? null : user.StripeCustomerId,
             CustomerEmail = string.IsNullOrEmpty(user.StripeCustomerId) ? user.Email : null,
             Metadata = new Dictionary<string, string>
             {
-                { MetadataConstants.ProductName, $"{streamRequest.AmountOfPoints} - points" },
-                { MetadataConstants.AmountOfPoint, streamRequest.AmountOfPoints.ToString() },
+                { MetadataConstants.ProductName, $"{streamRequest.AmountOfTickets * Constants.OneTicketInCredits} - credits" },
+                { MetadataConstants.AmountOfPoint, (streamRequest.AmountOfTickets * Constants.OneTicketInCredits).ToString() },
                 { MetadataConstants.UserId, user.Id.ToString() },
                 { MetadataConstants.ConnectionId, streamRequest.ConnectionId },
                 { MetadataConstants.SignalRMethodName, streamRequest.SignalMethodName }
