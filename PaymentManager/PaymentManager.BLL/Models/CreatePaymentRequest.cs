@@ -2,5 +2,5 @@
 
 public class CreatePaymentRequest : CreateSessionRequest
 {
-    public int AmountOfPoints { get; set; }
+    public int AmountOfTickets { get; set; }
 }
