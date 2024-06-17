@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using TicketsManager.BLL.Dtos.MessageDtos;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.BLL.Mapping;
 

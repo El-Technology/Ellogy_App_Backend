@@ -7,7 +7,7 @@ using TicketsManager.BLL.Mapping;
 using TicketsManager.BLL.Services;
 using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Interfaces;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.Tests.ServiceTests;
 

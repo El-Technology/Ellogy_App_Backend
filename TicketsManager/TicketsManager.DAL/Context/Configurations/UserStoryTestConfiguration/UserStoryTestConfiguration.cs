@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TicketsManager.DAL.Models.UserStoryTests;
+using TicketsManager.DAL.Models.UserStoryTestsModels;
 
 namespace TicketsManager.DAL.Context.Configurations.UserStoryTestConfiguration;
 

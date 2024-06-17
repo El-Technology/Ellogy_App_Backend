@@ -2,7 +2,7 @@
 using TicketsManager.BLL.Dtos.SummaryAcceptanceCriteriaDtos;
 using TicketsManager.BLL.Dtos.SummaryScenarioDtos;
 using TicketsManager.BLL.Dtos.TicketSummaryDtos;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketSummaryModels;
 
 namespace TicketsManager.BLL.Mapping;
 

@@ -1,4 +1,6 @@
-﻿namespace TicketsManager.DAL.Models.UserStoryTests;
+﻿using TicketsManager.DAL.Models.UsecaseModels;
+
+namespace TicketsManager.DAL.Models.UserStoryTestsModels;
 
 public class UserStoryTest
 {

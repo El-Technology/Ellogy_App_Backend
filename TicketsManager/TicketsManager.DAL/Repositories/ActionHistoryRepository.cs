@@ -3,7 +3,7 @@ using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.DAL.Repositories;
 

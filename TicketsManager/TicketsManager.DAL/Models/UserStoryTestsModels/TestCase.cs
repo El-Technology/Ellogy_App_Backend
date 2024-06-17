@@ -1,4 +1,4 @@
-﻿namespace TicketsManager.DAL.Models.UserStoryTests;
+﻿namespace TicketsManager.DAL.Models.UserStoryTestsModels;
 
 public class TestCase
 {

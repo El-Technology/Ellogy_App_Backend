@@ -4,7 +4,7 @@ using TicketsManager.BLL.Dtos.TicketUsecaseDtos.UsecasesDtos;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Interfaces;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.UsecaseModels;
 
 namespace TicketsManager.BLL.Services;
 

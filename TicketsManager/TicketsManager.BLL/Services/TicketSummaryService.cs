@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TicketsManager.BLL.Dtos.TicketSummaryDtos;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.DAL.Interfaces;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketSummaryModels;
 
 namespace TicketsManager.BLL.Services;
 

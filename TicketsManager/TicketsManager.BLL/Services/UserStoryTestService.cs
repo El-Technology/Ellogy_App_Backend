@@ -4,7 +4,7 @@ using TicketsManager.BLL.Dtos.UserStoryTestDtos;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos.GetDtos;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.DAL.Interfaces;
-using TicketsManager.DAL.Models.UserStoryTests;
+using TicketsManager.DAL.Models.UserStoryTestsModels;
 
 namespace TicketsManager.BLL.Services;
 

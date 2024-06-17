@@ -1,6 +1,8 @@
 ﻿using TicketsManager.DAL.Enums;
+using TicketsManager.DAL.Models.TicketModels;
+using TicketsManager.DAL.Models.UsecaseModels;
 
-namespace TicketsManager.DAL.Models;
+namespace TicketsManager.DAL.Models.TicketSummaryModels;
 
 public class TicketSummary
 {

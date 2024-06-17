@@ -1,5 +1,5 @@
 ﻿using TicketsManager.DAL.Dtos;
-using TicketsManager.DAL.Models.UserStoryTests;
+using TicketsManager.DAL.Models.UserStoryTestsModels;
 
 namespace TicketsManager.DAL.Interfaces;
 
