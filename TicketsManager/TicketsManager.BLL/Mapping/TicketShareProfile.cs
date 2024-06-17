@@ -1,0 +1,16 @@
+﻿using AutoMapper;
+using TicketsManager.BLL.Dtos.TicketShareDtos;
+using TicketsManager.DAL.Models.TicketModels;
+
+namespace TicketsManager.BLL.Mapping;
+public class TicketShareProfile : Profile
+{
+    public TicketShareProfile()
+    {
+        CreateMap<CreateTicketShareDto, TicketShare>()
+            .ForMember(dest => dest.Id, opt =>
+                opt.MapFrom(new GuidValueResolver()))
+            .ForMember(dest => dest.GivenAt, opt =>
+                opt.MapFrom(_ => DateTime.UtcNow));
+    }
+}

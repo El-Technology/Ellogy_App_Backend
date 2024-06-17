@@ -3,7 +3,7 @@ using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.DAL.Repositories;
 
@@ -16,15 +16,20 @@ public class TicketsRepository : ITicketsRepository
         _context = context;
     }
 
+    private IQueryable<Ticket> GetTicketsByUserIdQuery(Guid userId) =>
+        _context.Tickets
+            .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
+            .Include(e => e.Notifications)
+            .Include(e => e.TicketShares)
+            .AsNoTracking()
+            .Where(a => a.UserId == userId
+                || a.TicketShares.Any(ts => ts.SharedUserId == userId && ts.RevokedAt > DateTime.UtcNow));
+
     /// <inheritdoc cref="ITicketsRepository.GetTicketsAsync" />
     public async Task<PaginationResponseDto<Ticket>> GetTicketsAsync(
         Guid userId, PaginationRequestDto paginateRequest)
     {
-        return await _context.Tickets
-            .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
-            .Include(e => e.Notifications)
-            .AsNoTracking()
-            .Where(a => a.UserId == userId)
+        return await GetTicketsByUserIdQuery(userId)
             .GetFinalResultAsync(paginateRequest);
     }
 
@@ -32,11 +37,7 @@ public class TicketsRepository : ITicketsRepository
     public async Task<PaginationResponseDto<Ticket>> FindTicketsAsync(Guid userId,
         SearchTicketsRequestDto searchTicketsRequest)
     {
-        return await _context.Tickets
-            .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
-            .Include(e => e.Notifications)
-            .AsNoTracking()
-            .Where(a => a.UserId == userId)
+        return await GetTicketsByUserIdQuery(userId)
             .Where(e => e.Title.ToLower().Contains(searchTicketsRequest.TicketTitle.ToLower()))
             .GetFinalResultAsync(searchTicketsRequest.Pagination);
     }

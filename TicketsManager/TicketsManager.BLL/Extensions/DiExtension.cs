@@ -13,7 +13,8 @@ public static class DiExtension
             .AddScoped<IUsecasesService, UsecasesService>()
             .AddScoped<ITicketsService, TicketsService>()
             .AddScoped<ITicketSummaryService, TicketSummaryService>()
-            .AddScoped<IUserStoryTestService, UserStoryTestService>();
+            .AddScoped<IUserStoryTestService, UserStoryTestService>()
+            .AddScoped<ITicketShareService, TicketShareService>();
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)
