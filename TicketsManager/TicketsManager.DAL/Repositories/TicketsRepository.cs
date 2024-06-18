@@ -18,11 +18,19 @@ public class TicketsRepository : ITicketsRepository
 
     private IQueryable<Ticket> GetTicketsByUserIdQuery(Guid userId) =>
         _context.Tickets
-            .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
-            .Include(e => e.Notifications)
             .Include(e => e.TicketShares)
+            .Include(e => e.TicketMessages
+                .Where(a => a.Ticket.UserId == userId || a.Ticket.TicketShares
+                    .Any(ts => ts.SharedUserId == userId
+                        && (ts.SubStageEnum == a.SubStage || a.SubStage == Enums.SubStageEnum.FunctionalRequirements)))
+                .OrderBy(a => a.SendTime))
+            .Include(e => e.Notifications
+                .Where(a => a.Ticket.UserId == userId || a.Ticket.TicketShares
+                    .Any(ts => ts.SharedUserId == userId
+                        && ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.Notifications)))
             .AsNoTracking()
-            .Where(a => a.UserId == userId
+            .Where(a =>
+                   a.UserId == userId
                 || a.TicketShares.Any(ts => ts.SharedUserId == userId && ts.RevokedAt > DateTime.UtcNow));
 
     /// <inheritdoc cref="ITicketsRepository.GetTicketsAsync" />
