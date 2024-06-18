@@ -208,6 +208,12 @@ namespace TicketsManager.DAL.Migrations
                     b.Property<Guid>("SharedUserId")
                         .HasColumnType("uuid");
 
+                    b.Property<int?>("SubStageEnum")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TicketCurrentStep")
+                        .HasColumnType("integer");
+
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uuid");
 

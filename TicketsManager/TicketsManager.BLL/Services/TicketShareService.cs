@@ -43,10 +43,6 @@ public class TicketShareService : ITicketShareService
         VerifyPermissionEnum(createTicketShareDto.Permission);
         await VerifyIfUserIsTicketOwnerAsync(ownerId, createTicketShareDto.TicketId);
 
-        if (await _ticketShareRepository.IfPermissionAlreadyGivenToUserAsync(
-            createTicketShareDto.TicketId, createTicketShareDto.SharedUserId))
-            throw new InvalidOperationException("Permission already given to user");
-
         var ticketShare = _mapper.Map<CreateTicketShareDto, TicketShare>(createTicketShareDto);
         await _ticketShareRepository.CreateTicketShareAsync(ticketShare);
     }

@@ -15,6 +15,8 @@ public class TicketShareConfiguration : IEntityTypeConfiguration<TicketShare>
             .IsRequired();
         builder.Property(c => c.Permission)
             .IsRequired();
+        builder.Property(c => c.TicketCurrentStep);
+        builder.Property(c => c.SubStageEnum);
         builder.Property(c => c.GivenAt)
             .IsRequired();
         builder.Property(c => c.RevokedAt);
