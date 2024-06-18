@@ -1,6 +1,5 @@
 ﻿using TicketsManager.BLL.Dtos.TicketShareDtos;
 using TicketsManager.Common.Dtos;
-using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.BLL.Interfaces;
 public interface ITicketShareService
@@ -11,7 +10,7 @@ public interface ITicketShareService
     /// <param name="ownerId"></param>
     /// <param name="createTicketShareDto"></param>
     /// <returns></returns>
-    Task<TicketShare> CreateTicketShareAsync(
+    Task CreateTicketShareAsync(
         Guid ownerId, CreateTicketShareDto createTicketShareDto);
 
     /// <summary>
@@ -27,15 +26,18 @@ public interface ITicketShareService
     /// Get ticket shares by ticket id using pagination
     /// </summary>
     /// <param name="ticketId"></param>
+    /// <param name="ownerId"></param>
     /// <param name="paginationRequestDto"></param>
     /// <returns></returns>
-    Task<PaginationResponseDto<TicketShare>> GetListOfSharesAsync(
-        Guid ticketId, PaginationRequestDto paginationRequestDto);
+    Task<PaginationResponseDto<GetTicketShareDto>> GetListOfSharesAsync(
+        Guid ownerId, Guid ticketId, PaginationRequestDto paginationRequestDto);
 
     /// <summary>
     /// Update a ticket share
     /// </summary>
     /// <param name="ticketShare"></param>
+    /// <param name="ticketShareId"></param>
+    /// <param name="ownerId"></param>
     /// <returns></returns>
-    Task UpdateTicketShareAsync(TicketShare ticketShare);
+    Task UpdateTicketShareAsync(Guid ownerId, Guid ticketShareId, UpdateTicketShareDto ticketShare);
 }

@@ -43,8 +43,8 @@ public static class EnvironmentVariables
     }
 
     public static Task<string> AzureServiceBusConnectionString => GetSecretAsync(SecretNames.AzureServiceBusConnectionString);
-    public static Task<string> ConnectionString => GetSecretAsync(SecretNames.ConnectionString);
-    public static Task<string> JwtSecretKey => GetSecretAsync(SecretNames.JwtSecretKey);
+    public static Task<string> ConnectionString => /*GetSecretAsync(SecretNames.ConnectionString)*/Task.FromResult("Server=localhost;Database={{{databaseName}}};Port=5432;User Id=postgres;Password=password;");
+    public static Task<string> JwtSecretKey => /*GetSecretAsync(SecretNames.JwtSecretKey)*/ Task.FromResult("testJWTtokenForLocalDevelopmentt");
     public static Task<string> BlobStorageConnectionString => GetSecretAsync(SecretNames.BlobStorageConnectionString);
     public static Task<string> EnablePayments => GetSecretAsync(SecretNames.EnablePayments);
 }

@@ -5,7 +5,6 @@ using TicketsManager.BLL.Dtos.TicketShareDtos;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.Common.Dtos;
 using TicketsManager.Common.Helpers;
-using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.Api.Controllers;
 
@@ -44,10 +43,10 @@ public class TicketShareController : Controller
     public async Task<IActionResult> CreateTicketShareAsync(
         [FromBody] CreateTicketShareDto createTicketShareDto)
     {
-        var ticketShare = await _ticketShareService.CreateTicketShareAsync(
+        await _ticketShareService.CreateTicketShareAsync(
             GetUserIdFromToken(), createTicketShareDto);
 
-        return Ok(ticketShare);
+        return Ok();
     }
 
     /// <summary>
@@ -61,7 +60,7 @@ public class TicketShareController : Controller
         [FromBody] PaginationRequestDto paginationRequestDto, [FromQuery] Guid ticketId)
     {
         var ticketShares = await _ticketShareService.GetListOfSharesAsync(
-                       ticketId, paginationRequestDto);
+            GetUserIdFromToken(), ticketId, paginationRequestDto);
 
         return Ok(ticketShares);
     }
@@ -70,12 +69,14 @@ public class TicketShareController : Controller
     ///   Controller for updating ticket shares
     /// </summary>
     /// <param name="ticketShare"></param>
+    /// <param name="ticketShareId"></param>
     /// <returns></returns>
     [HttpPut("updateTicketShare")]
     public async Task<IActionResult> UpdateTicketShareAsync(
-               [FromBody] TicketShare ticketShare)
+        [FromBody] UpdateTicketShareDto ticketShare, [FromQuery] Guid ticketShareId)
     {
-        await _ticketShareService.UpdateTicketShareAsync(ticketShare);
+        await _ticketShareService.UpdateTicketShareAsync(
+            GetUserIdFromToken(), ticketShareId, ticketShare);
 
         return Ok();
     }

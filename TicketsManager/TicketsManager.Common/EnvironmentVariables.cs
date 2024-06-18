@@ -16,7 +16,8 @@ public static class EnvironmentVariables
 
         await Task.WhenAll(
             GetAndAddSecretAsync(client, SecretNames.ConnectionString, secretsDictionary),
-            GetAndAddSecretAsync(client, SecretNames.JwtSecretKey, secretsDictionary)
+            GetAndAddSecretAsync(client, SecretNames.JwtSecretKey, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.Host, secretsDictionary)
         );
 
         return secretsDictionary;
@@ -45,4 +46,6 @@ public static class EnvironmentVariables
     public static Task<string> JwtSecretKey =>
         /*GetSecretAsync(SecretNames.JwtSecretKey)*/
         Task.FromResult("testJWTtokenForLocalDevelopmentt");
+
+    public static Task<string> Host => /*GetSecretAsync(SecretNames.Host)*/Task.FromResult("localhost");
 }

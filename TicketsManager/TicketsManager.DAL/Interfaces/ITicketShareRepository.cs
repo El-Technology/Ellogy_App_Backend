@@ -19,6 +19,13 @@ public interface ITicketShareRepository
     Task DeleteTicketShareAsync(Guid ticketShareId);
 
     /// <summary>
+    /// Get ticket id by ticket share id
+    /// </summary>
+    /// <param name="ticketShareId"></param>
+    /// <returns></returns>
+    Task<Guid> GetTicketIdByTicketShareIdAsync(Guid ticketShareId);
+
+    /// <summary>
     /// Get ticket shares by ticket id using pagination
     /// </summary>
     /// <param name="ticketId"></param>
@@ -28,11 +35,19 @@ public interface ITicketShareRepository
         Guid ticketId, PaginationRequestDto paginationRequestDto);
 
     /// <summary>
+    /// Verify if a permission is already given to a user
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <param name="sharedUserId"></param>
+    /// <returns></returns>
+    Task<bool> IfPermissionAlreadyGivenToUserAsync(Guid ticketId, Guid sharedUserId);
+
+    /// <summary>
     /// Update a ticket share
     /// </summary>
     /// <param name="ticketShare"></param>
     /// <returns></returns>
-    Task UpdateTicketShareAsync(TicketShare ticketShare);
+    Task UpdateTicketShareAsync(Guid ticketShareId, TicketShare ticketShare);
 
     /// <summary>
     /// Verify if a user is the owner of a ticket

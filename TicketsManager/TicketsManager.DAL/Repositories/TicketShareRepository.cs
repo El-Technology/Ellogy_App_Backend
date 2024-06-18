@@ -39,10 +39,12 @@ public class TicketShareRepository : ITicketShareRepository
     }
 
     /// <inheritdoc cref="ITicketShareRepository.UpdateTicketShareAsync" />
-    public async Task UpdateTicketShareAsync(TicketShare ticketShare)
+    public async Task UpdateTicketShareAsync(Guid ticketShareId, TicketShare ticketShare)
     {
-        _context.Update(ticketShare);
-        await _context.SaveChangesAsync();
+        await _context.TicketShares.Where(a => a.Id == ticketShareId)
+            .ExecuteUpdateAsync(a => a
+                .SetProperty(ts => ts.Permission, ts => ticketShare.Permission)
+                .SetProperty(ts => ts.RevokedAt, ts => ticketShare.RevokedAt));
     }
 
     /// <inheritdoc cref="ITicketShareRepository.DeleteTicketShareAsync" />
@@ -54,5 +56,21 @@ public class TicketShareRepository : ITicketShareRepository
 
         if (numberOfDeletedRows != 1)
             throw new InvalidOperationException("Failed to delete ticket share");
+    }
+
+    /// <inheritdoc cref="ITicketShareRepository.GetTicketIdByTicketShareIdAsync" />
+    public async Task<Guid> GetTicketIdByTicketShareIdAsync(Guid ticketShareId)
+    {
+        return await _context.TicketShares
+            .Where(a => a.Id == ticketShareId)
+            .Select(a => a.TicketId)
+            .FirstOrDefaultAsync();
+    }
+
+    /// <inheritdoc cref="ITicketShareRepository.IfPermissionAlreadyGivenToUserAsync" />
+    public async Task<bool> IfPermissionAlreadyGivenToUserAsync(Guid ticketId, Guid sharedUserId)
+    {
+        return await _context.TicketShares
+            .AnyAsync(ts => ts.TicketId == ticketId && ts.SharedUserId == sharedUserId);
     }
 }
