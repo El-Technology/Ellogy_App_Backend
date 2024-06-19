@@ -23,7 +23,9 @@ public class TicketProfile : Profile
 
         CreateMap<Ticket, TicketResponseDto>()
             .ForMember(dest => dest.Messages, opts =>
-                opts.MapFrom(_ => _.TicketMessages));
+                opts.MapFrom(_ => _.TicketMessages))
+            .ForMember(dest => dest.Permissions, opts =>
+                opts.MapFrom(_ => _.TicketShares.Where(a => a.RevokedAt > DateTime.UtcNow)));
 
         CreateMap<TicketUpdateRequestDto, Ticket>()
             .ForMember(dest => dest.TicketMessages, opts =>

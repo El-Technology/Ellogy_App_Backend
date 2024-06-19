@@ -8,6 +8,8 @@ public class TicketShareProfile : Profile
 {
     public TicketShareProfile()
     {
+        CreateMap<TicketShare, PermissionDto>();
+
         CreateMap<CreateTicketShareDto, TicketShare>()
             .ForMember(dest => dest.Id, opt =>
                 opt.MapFrom(new GuidValueResolver()))

@@ -19,7 +19,7 @@ public class TicketsRepository : ITicketsRepository
     private IQueryable<Ticket> GetTicketsByUserIdQuery(Guid userId)
     {
         return _context.Tickets
-            .Include(e => e.TicketShares)
+            .Include(e => e.TicketShares.Where(a => a.SharedUserId == userId))
             .Include(e => e.TicketMessages
                 .Where(msg =>
                     msg.Ticket.UserId == userId ||
