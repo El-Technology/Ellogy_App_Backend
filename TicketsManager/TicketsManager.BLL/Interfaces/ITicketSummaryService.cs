@@ -8,29 +8,33 @@ public interface ITicketSummaryService
     ///     Get ticket summaries by ticket id
     /// </summary>
     /// <param name="ticketId"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    Task<List<TicketSummaryFullDto>> GetTicketSummariesByTicketIdAsync(Guid ticketId);
+    Task<List<TicketSummaryFullDto>> GetTicketSummariesByTicketIdAsync(Guid userId, Guid ticketId);
 
     /// <summary>
     ///     Create ticket summaries
     /// </summary>
     /// <param name="ticketSummaries"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
     Task<List<TicketSummaryFullDto>> CreateTicketSummariesAsync(
-        List<TicketSummaryCreateDto> ticketSummaries);
+        Guid userId, List<TicketSummaryCreateDto> ticketSummaries);
 
     /// <summary>
     ///     Update ticket summaries
     /// </summary>
     /// <param name="ticketSummaries"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
     Task<List<TicketSummaryFullDto>> UpdateTicketSummariesAsync(
-        List<TicketSummaryFullDto> ticketSummaries);
+        Guid userId, List<TicketSummaryFullDto> ticketSummaries);
 
     /// <summary>
     ///     Delete ticket summaries
     /// </summary>
     /// <param name="ticketId"></param>
+    /// <param name="userId"></param>
     /// <returns></returns>
-    Task DeleteTicketSummariesAsync(Guid ticketId);
+    Task DeleteTicketSummariesAsync(Guid userId, Guid ticketId);
 }

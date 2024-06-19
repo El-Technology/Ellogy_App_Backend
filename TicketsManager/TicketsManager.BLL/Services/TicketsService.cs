@@ -20,17 +20,26 @@ public class TicketsService : ITicketsService
 {
     private readonly IMapper _mapper;
     private readonly ITicketsRepository _ticketsRepository;
+    private readonly ITicketShareRepository _ticketShareRepository;
 
-    public TicketsService(IMapper mapper, ITicketsRepository ticketsRepository)
+    public TicketsService(
+        IMapper mapper,
+        ITicketsRepository ticketsRepository,
+        ITicketShareRepository ticketShareRepository)
     {
         _mapper = mapper;
         _ticketsRepository = ticketsRepository;
+        _ticketShareRepository = ticketShareRepository;
     }
 
-    private static void ValidateUserPermission(Guid inputUserId, Guid userIdFromToken)
+    private async Task ValidateUserPermissionAsync(
+    Guid ticketId, Guid userIdFromToken, SharePermissionEnum sharePermissionEnum)
     {
-        if (inputUserId != userIdFromToken)
-            throw new Exception("You don't have permission to access another user data");
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketId(
+            ticketId,
+            userIdFromToken,
+            TicketCurrentStepEnum.General,
+            sharePermissionEnum);
     }
 
     private static string ConvertBase64ToString(string base64)
@@ -103,8 +112,6 @@ public class TicketsService : ITicketsService
     public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(
         Guid userId, PaginationRequestDto paginateRequest, Guid userIdFromToken)
     {
-        ValidateUserPermission(userId, userIdFromToken);
-
         try
         {
             var tickets = await _ticketsRepository.GetTicketsAsync(userId, paginateRequest);
@@ -120,8 +127,6 @@ public class TicketsService : ITicketsService
     public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(
         Guid userId, SearchTicketsRequestDto searchRequest, Guid userIdFromToken)
     {
-        ValidateUserPermission(userId, userIdFromToken);
-
         try
         {
             var findTickets = await _ticketsRepository.FindTicketsAsync(userId, searchRequest);
@@ -139,9 +144,8 @@ public class TicketsService : ITicketsService
     {
         CheckTicketEnums(createTicketRequest.Status, createTicketRequest.CurrentStep);
         CheckMessageCreateEnums(createTicketRequest.Messages);
-        ValidateUserPermission(userId, userIdFromToken);
 
-        var mappedTicket = MapCreateTicket(createTicketRequest, userId);
+        var mappedTicket = MapCreateTicket(createTicketRequest, userIdFromToken);
         await _ticketsRepository.CreateTicketAsync(mappedTicket);
 
         return _mapper.Map<TicketResponseDto>(mappedTicket);
@@ -153,7 +157,8 @@ public class TicketsService : ITicketsService
         var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
             ?? throw new TicketNotFoundException(ticketId);
 
-        ValidateUserPermission(ticket.UserId, userIdFromToken);
+        if (ticket.UserId != userIdFromToken)
+            throw new Exception("Action allowed just for owner");
 
         await _ticketsRepository.DeleteTicketAsync(ticket.Id);
     }
@@ -168,7 +173,7 @@ public class TicketsService : ITicketsService
         var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
                      ?? throw new TicketNotFoundException(ticketId);
 
-        ValidateUserPermission(ticket.UserId, userIdFromToken);
+        await ValidateUserPermissionAsync(ticketId, ticket.UserId, SharePermissionEnum.ReadWrite);
 
         var mappedTicket = _mapper.Map(ticketUpdate, ticket);
 

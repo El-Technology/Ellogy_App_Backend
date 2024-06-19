@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TicketsManager.BLL.Dtos.TicketSummaryDtos;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common.Helpers;
 
 namespace TicketsManager.Api.Controllers;
 
@@ -26,6 +27,14 @@ public class TicketSummaryController : ControllerBase
     }
 
     /// <summary>
+    /// This method retrieves the user id from the JWT token
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    private Guid GetUserIdFromToken() =>
+        TokenParseHelper.GetUserId(User);
+
+    /// <summary>
     ///     Get all ticket summaries by ticket id
     /// </summary>
     /// <param name="ticketId"></param>
@@ -35,7 +44,7 @@ public class TicketSummaryController : ControllerBase
     public async Task<IActionResult> GetTicketSummariesByTicketIdAsync([FromQuery] Guid ticketId)
     {
         var ticketSummaries = await _ticketSummaryService
-            .GetTicketSummariesByTicketIdAsync(ticketId);
+            .GetTicketSummariesByTicketIdAsync(GetUserIdFromToken(), ticketId);
 
         return Ok(ticketSummaries);
     }
@@ -49,7 +58,8 @@ public class TicketSummaryController : ControllerBase
     public async Task<IActionResult> CreateTicketSummariesAsync(
         [FromBody] List<TicketSummaryCreateDto> ticketSummaries)
     {
-        return Ok(await _ticketSummaryService.CreateTicketSummariesAsync(ticketSummaries));
+        return Ok(await _ticketSummaryService.CreateTicketSummariesAsync(
+            GetUserIdFromToken(), ticketSummaries));
     }
 
     /// <summary>
@@ -61,7 +71,8 @@ public class TicketSummaryController : ControllerBase
     public async Task<IActionResult> UpdateTicketSummariesAsync(
         [FromBody] List<TicketSummaryFullDto> ticketSummaries)
     {
-        return Ok(await _ticketSummaryService.UpdateTicketSummariesAsync(ticketSummaries));
+        return Ok(await _ticketSummaryService.UpdateTicketSummariesAsync(
+            GetUserIdFromToken(), ticketSummaries));
     }
 
     /// <summary>
@@ -72,7 +83,8 @@ public class TicketSummaryController : ControllerBase
     [HttpDelete("deleteTicketSummaries")]
     public async Task<IActionResult> DeleteTicketSummariesAsync([FromQuery] Guid ticketId)
     {
-        await _ticketSummaryService.DeleteTicketSummariesAsync(ticketId);
+        await _ticketSummaryService.DeleteTicketSummariesAsync(
+            GetUserIdFromToken(), ticketId);
 
         return Ok();
     }
