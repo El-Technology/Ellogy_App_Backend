@@ -48,4 +48,6 @@ public interface IUserStoryTestRepository
     IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(List<UserStoryTest> userStoryTests);
     Task<int> GetLastOrderForStoryTestByTicketIdAsync(Guid ticketId);
     Task<Dictionary<Guid, Guid>> GetUsecaseTicketIdRelationAsync(List<Guid> usecaseIds);
+    Task<Guid> GetTicketIdByUsecaseIdAsync(Guid usecaseId);
+    Task<Guid> GetTicketIdByTestCaseIdAsync(Guid testCaseId);
 }

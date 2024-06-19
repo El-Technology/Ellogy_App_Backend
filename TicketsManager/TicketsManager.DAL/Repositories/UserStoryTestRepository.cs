@@ -16,6 +16,22 @@ public class UserStoryTestRepository : IUserStoryTestRepository
         _context = context;
     }
 
+    public async Task<Guid> GetTicketIdByTestCaseIdAsync(Guid testCaseId)
+    {
+        return await _context.TestCases
+            .Where(tc => tc.Id == testCaseId)
+            .Select(tc => tc.UserStoryTest!.Usecase!.TicketId)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Guid> GetTicketIdByUsecaseIdAsync(Guid usecaseId)
+    {
+        return await _context.Usecases
+            .Where(u => u.Id == usecaseId)
+            .Select(u => u.TicketId)
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<Dictionary<Guid, Guid>> GetUsecaseTicketIdRelationAsync(List<Guid> usecaseIds)
     {
         return await _context.Usecases

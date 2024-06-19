@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
+using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models.TicketModels;
@@ -13,6 +14,33 @@ public class TicketShareRepository : ITicketShareRepository
     public TicketShareRepository(TicketsManagerDbContext context)
     {
         _context = context;
+    }
+
+    public async Task CheckIfUserHaveAccessToComponentByTicketId(
+        Guid ticketId, Guid userId, TicketCurrentStepEnum currentStepEnum, SharePermissionEnum requireSharePermissionEnum)
+    {
+        var ticket = await _context.Tickets
+            .Include(e => e.TicketShares
+                .Where(a => a.TicketId == ticketId
+                    && (a.SharedUserId == userId)
+                    && (a.TicketCurrentStep == null || a.TicketCurrentStep == currentStepEnum)
+                    && a.Permission >= requireSharePermissionEnum
+                 )
+             )
+            .FirstOrDefaultAsync(a => a.Id == ticketId);
+
+        if (ticket is not null && ticket.UserId == userId)
+            return;
+
+        if (ticket is null || ticket.TicketShares.Count == 0)
+            throw new Exception("Access restricted");
+    }
+
+    /// <inheritdoc cref="ITicketShareRepository.IfPermissionAlreadyGivenToUserAsync" />
+    public async Task<bool> IfPermissionAlreadyGivenToUserAsync(Guid ticketId, Guid sharedUserId)
+    {
+        return await _context.TicketShares
+            .AnyAsync(ts => ts.TicketId == ticketId && ts.SharedUserId == sharedUserId);
     }
 
     /// <inheritdoc cref="ITicketShareRepository.VerifyIfUserIsTicketOwnerAsync" />
@@ -65,12 +93,5 @@ public class TicketShareRepository : ITicketShareRepository
             .Where(a => a.Id == ticketShareId)
             .Select(a => a.TicketId)
             .FirstOrDefaultAsync();
-    }
-
-    /// <inheritdoc cref="ITicketShareRepository.IfPermissionAlreadyGivenToUserAsync" />
-    public async Task<bool> IfPermissionAlreadyGivenToUserAsync(Guid ticketId, Guid sharedUserId)
-    {
-        return await _context.TicketShares
-            .AnyAsync(ts => ts.TicketId == ticketId && ts.SharedUserId == sharedUserId);
     }
 }

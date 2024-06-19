@@ -1,9 +1,13 @@
 ﻿using TicketsManager.Common.Dtos;
+using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.DAL.Interfaces;
 public interface ITicketShareRepository
 {
+    Task CheckIfUserHaveAccessToComponentByTicketId(
+        Guid ticketId, Guid userId, TicketCurrentStepEnum currentStepEnum, SharePermissionEnum requireSharePermissionEnum);
+
     /// <summary>
     /// Create a new ticket share
     /// </summary>
