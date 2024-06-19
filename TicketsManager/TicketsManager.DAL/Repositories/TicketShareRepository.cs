@@ -21,12 +21,17 @@ public class TicketShareRepository : ITicketShareRepository
     {
         var ticket = await _context.Tickets
             .Include(e => e.TicketShares
-                .Where(a => a.TicketId == ticketId
-                    && (a.SharedUserId == userId)
-                    && (a.TicketCurrentStep == null || a.TicketCurrentStep == currentStepEnum)
-                    && a.Permission >= requireSharePermissionEnum
-                 )
-             )
+                .Where(a => a.TicketId == ticketId &&
+                       a.SharedUserId == userId &&
+                       a.RevokedAt > DateTime.UtcNow &&
+                          (
+                            a.TicketCurrentStep == null ||
+                            a.TicketCurrentStep == currentStepEnum ||
+                            a.TicketCurrentStep == TicketCurrentStepEnum.Report
+                          ) &&
+                       a.Permission >= requireSharePermissionEnum
+                      )
+                    )
             .FirstOrDefaultAsync(a => a.Id == ticketId);
 
         if (ticket is not null && ticket.UserId == userId)

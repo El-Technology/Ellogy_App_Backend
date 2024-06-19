@@ -25,7 +25,11 @@ public class TicketsRepository : ITicketsRepository
                     msg.Ticket.UserId == userId ||
                     msg.Ticket.TicketShares.Any(ts =>
                         ts.SharedUserId == userId &&
-                        (ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.General || ts.TicketCurrentStep == null) &&
+                        (
+                            ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.General ||
+                            ts.TicketCurrentStep == null ||
+                            ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.Report
+                        ) &&
                         (
                             ts.TicketCurrentStep == null ||
                             ts.SubStageEnum == null ||
@@ -42,8 +46,9 @@ public class TicketsRepository : ITicketsRepository
                     notification.Ticket.TicketShares.Any(ts =>
                         ts.SharedUserId == userId &&
                         (
+                            ts.TicketCurrentStep == null ||
                             ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.Notifications ||
-                            ts.TicketCurrentStep == null
+                            ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.Report
                         )
                     )
                 )
