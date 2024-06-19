@@ -42,6 +42,12 @@ public class TicketsService : ITicketsService
             sharePermissionEnum);
     }
 
+    private void OwnerValidation(Guid userId, Guid userIdFromToken)
+    {
+        if (userId != userIdFromToken)
+            throw new ForbiddenException(userId);
+    }
+
     private static string ConvertBase64ToString(string base64)
     {
         var htmlBytes = Convert.FromBase64String(base64);
@@ -112,6 +118,7 @@ public class TicketsService : ITicketsService
     public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(
         Guid userId, PaginationRequestDto paginateRequest, Guid userIdFromToken)
     {
+        OwnerValidation(userId, userIdFromToken);
         try
         {
             var tickets = await _ticketsRepository.GetTicketsAsync(userId, paginateRequest);
@@ -127,6 +134,7 @@ public class TicketsService : ITicketsService
     public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(
         Guid userId, SearchTicketsRequestDto searchRequest, Guid userIdFromToken)
     {
+        OwnerValidation(userId, userIdFromToken);
         try
         {
             var findTickets = await _ticketsRepository.FindTicketsAsync(userId, searchRequest);
@@ -142,6 +150,7 @@ public class TicketsService : ITicketsService
     public async Task<TicketResponseDto> CreateTicketAsync(
         TicketCreateRequestDto createTicketRequest, Guid userId, Guid userIdFromToken)
     {
+        OwnerValidation(userId, userIdFromToken);
         CheckTicketEnums(createTicketRequest.Status, createTicketRequest.CurrentStep);
         CheckMessageCreateEnums(createTicketRequest.Messages);
 
@@ -157,8 +166,7 @@ public class TicketsService : ITicketsService
         var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
             ?? throw new TicketNotFoundException(ticketId);
 
-        if (ticket.UserId != userIdFromToken)
-            throw new Exception("Action allowed just for owner");
+        OwnerValidation(ticket.UserId, userIdFromToken);
 
         await _ticketsRepository.DeleteTicketAsync(ticket.Id);
     }

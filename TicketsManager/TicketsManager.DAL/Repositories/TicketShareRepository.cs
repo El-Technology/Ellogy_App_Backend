@@ -2,6 +2,7 @@
 using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Enums;
+using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models.TicketModels;
@@ -10,6 +11,7 @@ namespace TicketsManager.DAL.Repositories;
 public class TicketShareRepository : ITicketShareRepository
 {
     private readonly TicketsManagerDbContext _context;
+    private const int stepIncreaserNumber = 1;
 
     public TicketShareRepository(TicketsManagerDbContext context)
     {
@@ -27,18 +29,23 @@ public class TicketShareRepository : ITicketShareRepository
                           (
                             a.TicketCurrentStep == null ||
                             a.TicketCurrentStep == currentStepEnum ||
+                            (
+                                requireSharePermissionEnum == SharePermissionEnum.Read &&
+                                a.TicketCurrentStep == currentStepEnum + stepIncreaserNumber
+                            ) ||
                             a.TicketCurrentStep == TicketCurrentStepEnum.Report
                           ) &&
                        a.Permission >= requireSharePermissionEnum
                       )
                     )
+            .AsNoTracking()
             .FirstOrDefaultAsync(a => a.Id == ticketId);
 
         if (ticket is not null && ticket.UserId == userId)
             return;
 
         if (ticket is null || ticket.TicketShares.Count == 0)
-            throw new Exception("Access restricted");
+            throw new ForbiddenException(userId);
     }
 
     /// <inheritdoc cref="ITicketShareRepository.IfPermissionAlreadyGivenToUserAsync" />
