@@ -56,7 +56,9 @@ public class TicketsRepository : ITicketsRepository
             .AsNoTracking()
             .Where(a =>
                 a.UserId == userId ||
-                a.TicketShares.Any(ts => ts.SharedUserId == userId && ts.RevokedAt > DateTime.UtcNow)
+                a.TicketShares.Any(ts =>
+                    ts.SharedUserId == userId &&
+                    (ts.RevokedAt > DateTime.UtcNow || ts.RevokedAt == null))
             );
     }
 
