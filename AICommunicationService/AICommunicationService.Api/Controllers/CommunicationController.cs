@@ -53,13 +53,13 @@ public class CommunicationController : ControllerBase
     }
 
 
-    ///// <summary>
-    /////     This method retrieves the user id from the JWT token
-    ///// </summary>
-    ///// <returns></returns>
-    ///// <exception cref="Exception"></exception>
-    //private Guid GetUserIdFromToken() =>
-    //    Guid.Parse(TokenParseHelper.GetValueFromJwt(JwtOptions.UserIdClaimName, User));
+    /// <summary>
+    ///     This method retrieves the user id from the JWT token
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    private Guid GetUserIdFromToken() =>
+        Guid.Parse(TokenParseHelper.GetValueFromJwt(JwtOptions.UserIdClaimName, User));
 
     /// <summary>
     ///    Endpoint for retrieving AI response as streaming.
@@ -70,11 +70,13 @@ public class CommunicationController : ControllerBase
     [HttpPost]
     [Route("getStreamResponse")]
     public async Task GetStreamResponse(
-        [FromBody] CreateConversationRequest conversationRequest, [FromQuery] Guid ticketOwnerId)
+        [FromBody] CreateConversationRequest conversationRequest, [FromQuery] Guid? ticketOwnerId)
     {
+        var ownerId = ticketOwnerId ?? GetUserIdFromToken();
+
         Response.Headers.Add("Cache-Control", "no-cache");
         Response.Headers.Add("Content-Type", "text/event-stream");
-        await _communicationService.StreamRequestAsync(ticketOwnerId, CheckUserPlan(conversationRequest),
+        await _communicationService.StreamRequestAsync(ownerId, CheckUserPlan(conversationRequest),
             async response =>
             {
                 await Response.WriteAsync($"{response}\n");
@@ -91,10 +93,12 @@ public class CommunicationController : ControllerBase
     [HttpPost]
     [Route("getChatResponse")]
     public async Task<IActionResult> GetChatResponse(
-        [FromBody] CreateConversationRequest conversationRequest, [FromQuery] Guid ticketOwnerId)
+        [FromBody] CreateConversationRequest conversationRequest, [FromQuery] Guid? ticketOwnerId)
     {
+        var ownerId = ticketOwnerId ?? GetUserIdFromToken();
+
         var response =
-            await _communicationService.ChatRequestAsync(ticketOwnerId, CheckUserPlan(conversationRequest));
+            await _communicationService.ChatRequestAsync(ownerId, CheckUserPlan(conversationRequest));
         return Ok(response);
     }
 
@@ -107,10 +111,12 @@ public class CommunicationController : ControllerBase
     [HttpPost]
     [Route("chatWithFunctions")]
     public async Task<IActionResult> GetChatWithFunctions(
-        [FromBody] CreateConversationRequest requestWithFunction, [FromQuery] Guid ticketOwnerId)
+        [FromBody] CreateConversationRequest requestWithFunction, [FromQuery] Guid? ticketOwnerId)
     {
+        var ownerId = ticketOwnerId ?? GetUserIdFromToken();
+
         var response =
-            await _communicationService.ChatRequestWithFunctionAsync(ticketOwnerId,
+            await _communicationService.ChatRequestWithFunctionAsync(ownerId,
                 CheckUserPlan(requestWithFunction));
         return Ok(response);
     }
