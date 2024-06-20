@@ -16,6 +16,11 @@ public class TicketResponseDto
     public Guid Id { get; set; }
 
     /// <summary>
+    ///    The unique identifier of the user who owns the ticket.
+    /// </summary>
+    public Guid TicketOwnerId { get; set; }
+
+    /// <summary>
     ///     The title of the ticket.
     /// </summary>
     public string Title { get; set; }
