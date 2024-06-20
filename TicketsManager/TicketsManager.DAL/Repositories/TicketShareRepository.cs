@@ -34,6 +34,11 @@ public class TicketShareRepository : ITicketShareRepository
                                 requireSharePermissionEnum == SharePermissionEnum.Read &&
                                 a.TicketCurrentStep == currentStepEnum + stepIncreaserNumber
                             ) ||
+                            (
+                                currentStepEnum == TicketCurrentStepEnum.General &&
+                                a.TicketCurrentStep == TicketCurrentStepEnum.Notifications &&
+                                a.Permission >= SharePermissionEnum.ReadWrite
+                            ) ||
                             a.TicketCurrentStep == TicketCurrentStepEnum.Report
                           )
                       )
