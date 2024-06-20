@@ -37,7 +37,7 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("TicketSummaryUsecase");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.ActionHistory", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketModels.ActionHistory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -71,7 +71,7 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("ActionHistories", (string)null);
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.Message", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketModels.Message", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -111,7 +111,7 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("Messages", (string)null);
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.Notification", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketModels.Notification", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -144,55 +144,7 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("Notifications", (string)null);
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.SummaryAcceptanceCriteria", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("TicketSummaryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TicketSummaryId");
-
-                    b.ToTable("SummaryAcceptanceCriteria", (string)null);
-                });
-
-            modelBuilder.Entity("TicketsManager.DAL.Models.SummaryScenario", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("TicketSummaryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TicketSummaryId");
-
-                    b.ToTable("SummaryScenario", (string)null);
-                });
-
-            modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketModels.Ticket", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -238,7 +190,115 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("Tickets", (string)null);
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.TicketDiagram", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketModels.TicketShare", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("GivenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Permission")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SharedUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("SubStageEnum")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("TicketCurrentStep")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketShares", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummaryModels.SummaryAcceptanceCriteria", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TicketSummaryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketSummaryId");
+
+                    b.ToTable("SummaryAcceptanceCriteria", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummaryModels.SummaryScenario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TicketSummaryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketSummaryId");
+
+                    b.ToTable("SummaryScenario", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummaryModels.TicketSummary", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsPotential")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("SubStage")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketSummaries", (string)null);
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.UsecaseModels.TicketDiagram", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -266,33 +326,7 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("TicketDiagrams", (string)null);
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsPotential")
-                        .HasColumnType("boolean");
-
-                    b.Property<int?>("SubStage")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("TicketId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TicketId");
-
-                    b.ToTable("TicketSummaries", (string)null);
-                });
-
-            modelBuilder.Entity("TicketsManager.DAL.Models.TicketTable", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UsecaseModels.TicketTable", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -312,7 +346,7 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("TicketTables", (string)null);
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.Usecase", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UsecaseModels.Usecase", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -338,7 +372,7 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("Usecases", (string)null);
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.TestCase", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTestsModels.TestCase", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -378,7 +412,7 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("TestCase", (string)null);
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.TestPlan", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTestsModels.TestPlan", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -419,7 +453,7 @@ namespace TicketsManager.DAL.Migrations
                     b.ToTable("TestPlan", (string)null);
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTestsModels.UserStoryTest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -445,22 +479,22 @@ namespace TicketsManager.DAL.Migrations
 
             modelBuilder.Entity("TicketSummaryUsecase", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.TicketSummary", null)
+                    b.HasOne("TicketsManager.DAL.Models.TicketSummaryModels.TicketSummary", null)
                         .WithMany()
                         .HasForeignKey("TicketSummariesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TicketsManager.DAL.Models.Usecase", null)
+                    b.HasOne("TicketsManager.DAL.Models.UsecaseModels.Usecase", null)
                         .WithMany()
                         .HasForeignKey("UsecasesId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.ActionHistory", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketModels.ActionHistory", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                    b.HasOne("TicketsManager.DAL.Models.TicketModels.Ticket", "Ticket")
                         .WithMany("ActionHistories")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -469,9 +503,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Ticket");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.Message", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketModels.Message", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                    b.HasOne("TicketsManager.DAL.Models.TicketModels.Ticket", "Ticket")
                         .WithMany("TicketMessages")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -480,9 +514,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Ticket");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.Notification", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketModels.Notification", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                    b.HasOne("TicketsManager.DAL.Models.TicketModels.Ticket", "Ticket")
                         .WithMany("Notifications")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -491,9 +525,20 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Ticket");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.SummaryAcceptanceCriteria", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketModels.TicketShare", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.TicketSummary", "TicketSummary")
+                    b.HasOne("TicketsManager.DAL.Models.TicketModels.Ticket", "Ticket")
+                        .WithMany("TicketShares")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummaryModels.SummaryAcceptanceCriteria", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.TicketSummaryModels.TicketSummary", "TicketSummary")
                         .WithMany("SummaryAcceptanceCriteria")
                         .HasForeignKey("TicketSummaryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -502,9 +547,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("TicketSummary");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.SummaryScenario", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummaryModels.SummaryScenario", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.TicketSummary", "TicketSummary")
+                    b.HasOne("TicketsManager.DAL.Models.TicketSummaryModels.TicketSummary", "TicketSummary")
                         .WithMany("SummaryScenarios")
                         .HasForeignKey("TicketSummaryId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -513,20 +558,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("TicketSummary");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.TicketDiagram", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummaryModels.TicketSummary", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.Usecase", "Usecase")
-                        .WithMany("Diagrams")
-                        .HasForeignKey("UsecaseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usecase");
-                });
-
-            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
-                {
-                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                    b.HasOne("TicketsManager.DAL.Models.TicketModels.Ticket", "Ticket")
                         .WithMany("TicketSummaries")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -535,9 +569,20 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Ticket");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.TicketTable", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UsecaseModels.TicketDiagram", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.Usecase", "Usecase")
+                    b.HasOne("TicketsManager.DAL.Models.UsecaseModels.Usecase", "Usecase")
+                        .WithMany("Diagrams")
+                        .HasForeignKey("UsecaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usecase");
+                });
+
+            modelBuilder.Entity("TicketsManager.DAL.Models.UsecaseModels.TicketTable", b =>
+                {
+                    b.HasOne("TicketsManager.DAL.Models.UsecaseModels.Usecase", "Usecase")
                         .WithMany("Tables")
                         .HasForeignKey("UsecaseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -546,9 +591,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Usecase");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.Usecase", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UsecaseModels.Usecase", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.Ticket", "Ticket")
+                    b.HasOne("TicketsManager.DAL.Models.TicketModels.Ticket", "Ticket")
                         .WithMany("Usecases")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -557,9 +602,9 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("Ticket");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.TestCase", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTestsModels.TestCase", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", "UserStoryTest")
+                    b.HasOne("TicketsManager.DAL.Models.UserStoryTestsModels.UserStoryTest", "UserStoryTest")
                         .WithMany("TestCases")
                         .HasForeignKey("UserStoryTestId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -568,28 +613,28 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("UserStoryTest");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.TestPlan", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTestsModels.TestPlan", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", "UserStoryTest")
+                    b.HasOne("TicketsManager.DAL.Models.UserStoryTestsModels.UserStoryTest", "UserStoryTest")
                         .WithOne("TestPlan")
-                        .HasForeignKey("TicketsManager.DAL.Models.UserStoryTests.TestPlan", "UserStoryTestId")
+                        .HasForeignKey("TicketsManager.DAL.Models.UserStoryTestsModels.TestPlan", "UserStoryTestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("UserStoryTest");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTestsModels.UserStoryTest", b =>
                 {
-                    b.HasOne("TicketsManager.DAL.Models.Usecase", "Usecase")
+                    b.HasOne("TicketsManager.DAL.Models.UsecaseModels.Usecase", "Usecase")
                         .WithOne("UserStoryTest")
-                        .HasForeignKey("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", "UsecaseId")
+                        .HasForeignKey("TicketsManager.DAL.Models.UserStoryTestsModels.UserStoryTest", "UsecaseId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Usecase");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.Ticket", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketModels.Ticket", b =>
                 {
                     b.Navigation("ActionHistories");
 
@@ -597,19 +642,21 @@ namespace TicketsManager.DAL.Migrations
 
                     b.Navigation("TicketMessages");
 
+                    b.Navigation("TicketShares");
+
                     b.Navigation("TicketSummaries");
 
                     b.Navigation("Usecases");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummary", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.TicketSummaryModels.TicketSummary", b =>
                 {
                     b.Navigation("SummaryAcceptanceCriteria");
 
                     b.Navigation("SummaryScenarios");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.Usecase", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UsecaseModels.Usecase", b =>
                 {
                     b.Navigation("Diagrams");
 
@@ -618,7 +665,7 @@ namespace TicketsManager.DAL.Migrations
                     b.Navigation("UserStoryTest");
                 });
 
-            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTests.UserStoryTest", b =>
+            modelBuilder.Entity("TicketsManager.DAL.Models.UserStoryTestsModels.UserStoryTest", b =>
                 {
                     b.Navigation("TestCases");
 

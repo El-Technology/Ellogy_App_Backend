@@ -1,4 +1,4 @@
-﻿using TicketsManager.DAL.Models;
+﻿using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.DAL.Interfaces;
 

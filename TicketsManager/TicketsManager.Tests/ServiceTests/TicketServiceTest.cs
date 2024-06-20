@@ -6,8 +6,10 @@ using TicketsManager.BLL.Exceptions;
 using TicketsManager.BLL.Mapping;
 using TicketsManager.BLL.Services;
 using TicketsManager.Common.Dtos;
+using TicketsManager.DAL.Enums;
+using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Interfaces;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.Tests.ServiceTests;
 
@@ -16,6 +18,7 @@ public class TicketServiceTest
 {
     private IMapper _mapper;
     private Mock<ITicketsRepository> _ticketsRepository;
+    private Mock<ITicketShareRepository> _ticketShareRepository;
 
     private Fixture _fixture;
     private TicketsService _ticketService;
@@ -26,16 +29,18 @@ public class TicketServiceTest
         _fixture = new Fixture();
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
 
+        _ticketShareRepository = new Mock<ITicketShareRepository>();
         _ticketsRepository = new Mock<ITicketsRepository>();
         var mapperConfig = new MapperConfiguration(cfg =>
         {
+            cfg.AddProfile<TicketShareProfile>();
             cfg.AddProfile<TicketProfile>();
             cfg.AddProfile<NotificationProfile>();
             cfg.AddProfile<MessageProfile>();
         });
         _mapper = mapperConfig.CreateMapper();
 
-        _ticketService = new TicketsService(_mapper, _ticketsRepository.Object);
+        _ticketService = new TicketsService(_mapper, _ticketsRepository.Object, _ticketShareRepository.Object);
     }
 
     [Test]
@@ -66,7 +71,7 @@ public class TicketServiceTest
         var paginationRequestDto = _fixture.Create<PaginationRequestDto>();
 
         // Act
-        var ex = Assert.ThrowsAsync<Exception>(async () =>
+        var ex = Assert.ThrowsAsync<ForbiddenException>(async () =>
             await _ticketService.GetTicketsAsync(userId, paginationRequestDto, userIdFromToken));
 
         // Assert
@@ -101,7 +106,7 @@ public class TicketServiceTest
         var searchTicketsRequestDto = _fixture.Create<SearchTicketsRequestDto>();
 
         // Act
-        var ex = Assert.ThrowsAsync<Exception>(async () =>
+        var ex = Assert.ThrowsAsync<ForbiddenException>(async () =>
                    await _ticketService.SearchTicketsByNameAsync(userId, searchTicketsRequestDto, userIdFromToken));
 
         // Assert
@@ -136,7 +141,7 @@ public class TicketServiceTest
         var userIdFromToken = _fixture.Create<Guid>();
 
         // Act
-        var ex = Assert.ThrowsAsync<Exception>(async () =>
+        var ex = Assert.ThrowsAsync<ForbiddenException>(async () =>
                    await _ticketService.CreateTicketAsync(createTicketRequestDto, userId, userIdFromToken));
 
         // Assert
@@ -155,7 +160,7 @@ public class TicketServiceTest
             .ReturnsAsync(ticket);
 
         // Act
-        var ex = Assert.ThrowsAsync<Exception>(async () =>
+        var ex = Assert.ThrowsAsync<ForbiddenException>(async () =>
                    await _ticketService.DeleteTicketAsync(ticketId, userIdFromToken));
 
         // Assert
@@ -212,32 +217,17 @@ public class TicketServiceTest
         _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId))
             .ReturnsAsync(ticket);
 
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<TicketCurrentStepEnum>(),
+            It.IsAny<SharePermissionEnum>())).Returns(Task.CompletedTask);
+
         // Act
         var result = await _ticketService.UpdateTicketAsync(ticketId, ticketUpdateRequestDto, userIdFromToken);
 
         // Assert
         Assert.That(result, Is.Not.Null);
-    }
-
-    [Test]
-    public void UpdateTicketAsync_WhenUserIdFromTokenIsNotEqualToOwnerId_ShouldThrowException()
-    {
-        // Arrange
-        var ticketId = _fixture.Create<Guid>();
-        var ticketUpdateRequestDto = _fixture.Create<TicketUpdateRequestDto>();
-        var userIdFromToken = _fixture.Create<Guid>();
-        var ticket = _fixture.Create<Ticket>();
-        ticket.UserId = _fixture.Create<Guid>();
-
-        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId))
-            .ReturnsAsync(ticket);
-
-        // Act
-        var ex = Assert.ThrowsAsync<Exception>(async () =>
-                          await _ticketService.UpdateTicketAsync(ticketId, ticketUpdateRequestDto, userIdFromToken));
-
-        // Assert
-        Assert.That(ex, Is.Not.Null);
     }
 
     [Test]
@@ -250,6 +240,12 @@ public class TicketServiceTest
 
         _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId))
             .ReturnsAsync(null as Ticket);
+
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<TicketCurrentStepEnum>(),
+            It.IsAny<SharePermissionEnum>())).Returns(Task.CompletedTask);
 
         // Act
         var ex = Assert.ThrowsAsync<TicketNotFoundException>(async () =>
@@ -274,6 +270,12 @@ public class TicketServiceTest
 
         _ticketsRepository.Setup(x => x.CheckTicketUpdateIds(ticket))
             .ThrowsAsync(new Exception());
+
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<TicketCurrentStepEnum>(),
+            It.IsAny<SharePermissionEnum>())).Returns(Task.CompletedTask);
 
         // Act
         var ex = Assert.ThrowsAsync<Exception>(async () =>

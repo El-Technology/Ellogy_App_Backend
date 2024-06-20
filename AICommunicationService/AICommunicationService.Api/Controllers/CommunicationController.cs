@@ -65,14 +65,18 @@ public class CommunicationController : ControllerBase
     ///    Endpoint for retrieving AI response as streaming.
     /// </summary>
     /// <param name="conversationRequest"></param>
+    /// <param name="ticketOwnerId"></param>
     /// <returns></returns>
     [HttpPost]
     [Route("getStreamResponse")]
-    public async Task GetStreamResponse([FromBody] CreateConversationRequest conversationRequest)
+    public async Task GetStreamResponse(
+        [FromBody] CreateConversationRequest conversationRequest, [FromQuery] Guid? ticketOwnerId)
     {
+        var ownerId = ticketOwnerId ?? GetUserIdFromToken();
+
         Response.Headers.Add("Cache-Control", "no-cache");
         Response.Headers.Add("Content-Type", "text/event-stream");
-        await _communicationService.StreamRequestAsync(GetUserIdFromToken(), CheckUserPlan(conversationRequest),
+        await _communicationService.StreamRequestAsync(ownerId, CheckUserPlan(conversationRequest),
             async response =>
             {
                 await Response.WriteAsync($"{response}\n");
@@ -84,13 +88,17 @@ public class CommunicationController : ControllerBase
     ///     Endpoint for retrieving AI response as string.
     /// </summary>
     /// <param name="conversationRequest">Request params</param>
+    /// <param name="ticketOwnerId"></param>
     /// <returns>Returns true if request is success</returns>
     [HttpPost]
     [Route("getChatResponse")]
-    public async Task<IActionResult> GetChatResponse([FromBody] CreateConversationRequest conversationRequest)
+    public async Task<IActionResult> GetChatResponse(
+        [FromBody] CreateConversationRequest conversationRequest, [FromQuery] Guid? ticketOwnerId)
     {
+        var ownerId = ticketOwnerId ?? GetUserIdFromToken();
+
         var response =
-            await _communicationService.ChatRequestAsync(GetUserIdFromToken(), CheckUserPlan(conversationRequest));
+            await _communicationService.ChatRequestAsync(ownerId, CheckUserPlan(conversationRequest));
         return Ok(response);
     }
 
@@ -98,13 +106,17 @@ public class CommunicationController : ControllerBase
     ///     Endpoint for retrieving AI response by Json Example.
     /// </summary>
     /// <param name="requestWithFunction"></param>
+    /// <param name="ticketOwnerId"></param>
     /// <returns>Returns string data in Json</returns>
     [HttpPost]
     [Route("chatWithFunctions")]
-    public async Task<IActionResult> GetChatWithFunctions([FromBody] CreateConversationRequest requestWithFunction)
+    public async Task<IActionResult> GetChatWithFunctions(
+        [FromBody] CreateConversationRequest requestWithFunction, [FromQuery] Guid? ticketOwnerId)
     {
+        var ownerId = ticketOwnerId ?? GetUserIdFromToken();
+
         var response =
-            await _communicationService.ChatRequestWithFunctionAsync(GetUserIdFromToken(),
+            await _communicationService.ChatRequestWithFunctionAsync(ownerId,
                 CheckUserPlan(requestWithFunction));
         return Ok(response);
     }

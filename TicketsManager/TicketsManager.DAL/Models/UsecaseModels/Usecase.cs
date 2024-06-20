@@ -1,6 +1,8 @@
-﻿using TicketsManager.DAL.Models.UserStoryTests;
+﻿using TicketsManager.DAL.Models.TicketModels;
+using TicketsManager.DAL.Models.TicketSummaryModels;
+using TicketsManager.DAL.Models.UserStoryTestsModels;
 
-namespace TicketsManager.DAL.Models;
+namespace TicketsManager.DAL.Models.UsecaseModels;
 
 public class Usecase
 {

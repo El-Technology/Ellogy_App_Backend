@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TicketsManager.DAL.Models;
-using TicketsManager.DAL.Models.UserStoryTests;
+using TicketsManager.DAL.Models.TicketModels;
+using TicketsManager.DAL.Models.TicketSummaryModels;
+using TicketsManager.DAL.Models.UsecaseModels;
+using TicketsManager.DAL.Models.UserStoryTestsModels;
 
 namespace TicketsManager.DAL.Context;
 
@@ -27,10 +29,11 @@ public class TicketsManagerDbContext : DbContext
     public DbSet<TicketSummary> TicketSummaries { get; set; } = null!;
     public DbSet<SummaryScenario> SummaryScenarios { get; set; } = null!;
     public DbSet<SummaryAcceptanceCriteria> SummaryAcceptanceCriteria { get; set; } = null!;
+    public DbSet<TicketShare> TicketShares { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured) optionsBuilder.UseNpgsql();
+        if (!optionsBuilder.IsConfigured) optionsBuilder.UseNpgsql("Server=localhost;Database=TicketManager;Port=5432;User Id=postgres;Password=password;");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

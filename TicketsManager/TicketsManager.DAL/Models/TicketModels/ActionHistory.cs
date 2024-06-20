@@ -1,6 +1,6 @@
 ﻿using TicketsManager.DAL.Enums;
 
-namespace TicketsManager.DAL.Models;
+namespace TicketsManager.DAL.Models.TicketModels;
 
 public class ActionHistory
 {

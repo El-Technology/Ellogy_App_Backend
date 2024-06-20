@@ -1,4 +1,4 @@
-﻿using TicketsManager.DAL.Models.UserStoryTests;
+﻿using TicketsManager.DAL.Models.UserStoryTestsModels;
 
 namespace TicketsManager.DAL.Dtos;
 

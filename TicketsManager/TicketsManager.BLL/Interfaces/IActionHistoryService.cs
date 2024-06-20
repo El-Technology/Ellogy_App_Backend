@@ -1,6 +1,6 @@
 ﻿using TicketsManager.BLL.Dtos.ActionHistoryDtos;
 using TicketsManager.Common.Dtos;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.BLL.Interfaces;
 

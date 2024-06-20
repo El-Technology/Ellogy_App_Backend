@@ -1,6 +1,6 @@
-﻿namespace TicketsManager.DAL.Models;
+﻿namespace TicketsManager.DAL.Models.TicketSummaryModels;
 
-public class SummaryAcceptanceCriteria
+public class SummaryScenario
 {
     public Guid Id { get; set; }
     public string Title { get; set; } = string.Empty;

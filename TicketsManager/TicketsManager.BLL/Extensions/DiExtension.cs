@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.BLL.Interfaces.External;
 using TicketsManager.BLL.Services;
+using TicketsManager.BLL.Services.External;
 
 namespace TicketsManager.BLL.Extensions;
 
@@ -13,7 +15,9 @@ public static class DiExtension
             .AddScoped<IUsecasesService, UsecasesService>()
             .AddScoped<ITicketsService, TicketsService>()
             .AddScoped<ITicketSummaryService, TicketSummaryService>()
-            .AddScoped<IUserStoryTestService, UserStoryTestService>();
+            .AddScoped<IUserStoryTestService, UserStoryTestService>()
+            .AddScoped<ITicketShareService, TicketShareService>()
+            .AddScoped<IUserExternalHttpService, UserExternalHttpService>();
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.UsecaseModels;
 
 namespace TicketsManager.DAL.Context.Configurations;
 
