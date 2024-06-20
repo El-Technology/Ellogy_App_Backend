@@ -25,7 +25,7 @@ public class TicketShareRepository : ITicketShareRepository
             .Include(e => e.TicketShares
                 .Where(a => a.TicketId == ticketId &&
                        a.SharedUserId == userId &&
-                       a.RevokedAt > DateTime.UtcNow &&
+                       (a.RevokedAt > DateTime.UtcNow || a.RevokedAt == null) &&
                        a.Permission >= requireSharePermissionEnum &&
                           (
                             a.TicketCurrentStep == null ||
