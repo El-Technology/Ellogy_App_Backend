@@ -31,4 +31,7 @@ public interface ITicketSummaryRepository
     /// <param name="ticketId"></param>
     /// <returns></returns>
     Task DeleteTicketSummariesAsync(Guid ticketId);
+    Task DeleteTicketSummaryScenariosAsync(List<Guid> summaryScenarioIds);
+    Task DeleteTicketSummaryAcceptanceCriteriaAsync(List<Guid> summaryAcceptanceCriteriaIds);
+    Task DeleteTicketSummariesByIdAsync(List<Guid> summaryIds);
 }

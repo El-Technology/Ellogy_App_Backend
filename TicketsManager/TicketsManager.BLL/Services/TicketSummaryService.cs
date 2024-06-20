@@ -83,4 +83,37 @@ public class TicketSummaryService : ITicketSummaryService
 
         await _ticketSummaryRepository.DeleteTicketSummariesAsync(ticketId);
     }
+
+    /// <inheritdoc cref="ITicketSummaryService.DeleteTicketSummaryScenariosAsync" />
+    public async Task DeleteTicketSummaryScenariosAsync(Guid userId, Guid ticketId, List<Guid> summaryScenarioIds)
+    {
+        await ValidateUserPermissionAsync(
+            ticketId,
+            userId,
+            SharePermissionEnum.Manage);
+
+        await _ticketSummaryRepository.DeleteTicketSummaryScenariosAsync(summaryScenarioIds);
+    }
+
+    /// <inheritdoc cref="ITicketSummaryService.DeleteTicketSummaryAcceptanceCriteriaAsync" />
+    public async Task DeleteTicketSummaryAcceptanceCriteriaAsync(Guid userId, Guid ticketId, List<Guid> summaryAcceptanceCriteriaIds)
+    {
+        await ValidateUserPermissionAsync(
+            ticketId,
+            userId,
+            SharePermissionEnum.Manage);
+
+        await _ticketSummaryRepository.DeleteTicketSummaryAcceptanceCriteriaAsync(summaryAcceptanceCriteriaIds);
+    }
+
+    /// <inheritdoc cref="ITicketSummaryService.DeleteTicketSummariesByIdsAsync" />
+    public async Task DeleteTicketSummariesByIdsAsync(Guid userId, Guid ticketId, List<Guid> summaryIds)
+    {
+        await ValidateUserPermissionAsync(
+            ticketId,
+            userId,
+            SharePermissionEnum.Manage);
+
+        await _ticketSummaryRepository.DeleteTicketSummariesByIdAsync(summaryIds);
+    }
 }

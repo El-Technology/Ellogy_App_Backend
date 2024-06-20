@@ -37,4 +37,7 @@ public interface ITicketSummaryService
     /// <param name="userId"></param>
     /// <returns></returns>
     Task DeleteTicketSummariesAsync(Guid userId, Guid ticketId);
+    Task DeleteTicketSummaryScenariosAsync(Guid userId, Guid ticketId, List<Guid> summaryScenarioIds);
+    Task DeleteTicketSummaryAcceptanceCriteriaAsync(Guid userId, Guid ticketId, List<Guid> summaryAcceptanceCriteriaIds);
+    Task DeleteTicketSummariesByIdsAsync(Guid userId, Guid ticketId, List<Guid> summaryIds);
 }

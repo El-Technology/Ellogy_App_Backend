@@ -88,4 +88,52 @@ public class TicketSummaryController : ControllerBase
 
         return Ok();
     }
+
+    /// <summary>
+    ///    Delete ticket summaries by ids
+    /// </summary>
+    /// <param name="summaryIds"></param>
+    /// <param name="ticketId"></param>
+    /// <returns></returns>
+    [HttpDelete("deleteTicketSummariesByIds")]
+    public async Task<IActionResult> DeleteTicketSummariesByIdsAsync(
+        [FromBody] List<Guid> summaryIds, [FromQuery] Guid ticketId)
+    {
+        await _ticketSummaryService.DeleteTicketSummariesByIdsAsync(
+            GetUserIdFromToken(), ticketId, summaryIds);
+
+        return Ok();
+    }
+
+    /// <summary>
+    ///   Delete ticket summary acceptance criteria
+    /// </summary>
+    /// <param name="summaryScenarioIds"></param>
+    /// <param name="ticketId"></param>
+    /// <returns></returns>
+    [HttpDelete("deleteTicketSummaryScenarios")]
+    public async Task<IActionResult> DeleteTicketSummaryScenariosAsync(
+        [FromBody] List<Guid> summaryScenarioIds, [FromQuery] Guid ticketId)
+    {
+        await _ticketSummaryService.DeleteTicketSummaryScenariosAsync(
+            GetUserIdFromToken(), ticketId, summaryScenarioIds);
+
+        return Ok();
+    }
+
+    /// <summary>
+    ///    Delete ticket summary acceptance criteria
+    /// </summary>
+    /// <param name="summaryAcceptanceCriteriaIds"></param>
+    /// <param name="ticketId"></param>
+    /// <returns></returns>
+    [HttpDelete("deleteTicketSummaryAcceptanceCriteria")]
+    public async Task<IActionResult> DeleteTicketSummaryAcceptanceCriteriaAsync(
+        [FromBody] List<Guid> summaryAcceptanceCriteriaIds, [FromQuery] Guid ticketId)
+    {
+        await _ticketSummaryService.DeleteTicketSummaryAcceptanceCriteriaAsync(
+            GetUserIdFromToken(), ticketId, summaryAcceptanceCriteriaIds);
+
+        return Ok();
+    }
 }
