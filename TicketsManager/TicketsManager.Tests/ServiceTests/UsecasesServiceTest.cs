@@ -6,6 +6,7 @@ using TicketsManager.BLL.Dtos.TicketUsecaseDtos.UsecasesDtos;
 using TicketsManager.BLL.Mapping;
 using TicketsManager.BLL.Services;
 using TicketsManager.Common.Dtos;
+using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models.UsecaseModels;
 
@@ -19,6 +20,7 @@ public class UsecasesServiceTest
     private UsecasesService _usecasesService;
 
     private Mock<IUsecaseRepository> _usecasesRepository;
+    private Mock<ITicketShareRepository> _ticketShareRepository;
 
     [SetUp]
     public void Setup()
@@ -31,8 +33,9 @@ public class UsecasesServiceTest
         });
         _mapper = mapperConfig.CreateMapper();
 
+        _ticketShareRepository = new Mock<ITicketShareRepository>();
         _usecasesRepository = new Mock<IUsecaseRepository>();
-        _usecasesService = new UsecasesService(_usecasesRepository.Object, _mapper);
+        _usecasesService = new UsecasesService(_usecasesRepository.Object, _mapper, _ticketShareRepository.Object);
     }
 
     [Test]
@@ -44,6 +47,12 @@ public class UsecasesServiceTest
 
         _usecasesRepository.Setup(x => x.GetUserIdByTicketIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(userIdFromToken);
+
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<TicketCurrentStepEnum>(),
+            It.IsAny<SharePermissionEnum>())).Returns(Task.CompletedTask);
 
         // Act
         var result = await _usecasesService.CreateUsecasesAsync(createUsecasesDto, userIdFromToken);
@@ -64,6 +73,12 @@ public class UsecasesServiceTest
 
         _usecasesRepository.Setup(x => x.GetUsecasesAsync(It.IsAny<PaginationRequestDto>(), It.IsAny<Guid>()))
             .ReturnsAsync(_fixture.Create<PaginationResponseDto<Usecase>>());
+
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<TicketCurrentStepEnum>(),
+            It.IsAny<SharePermissionEnum>())).Returns(Task.CompletedTask);
 
         // Act
         var result = await _usecasesService.GetUsecasesAsync(getUsecasesDto, userIdFromToken);
@@ -92,6 +107,12 @@ public class UsecasesServiceTest
         _usecasesRepository.Setup(x => x.UpdateUsecaseAsync(It.IsAny<Usecase>()))
             .Returns(Task.CompletedTask);
 
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<TicketCurrentStepEnum>(),
+            It.IsAny<SharePermissionEnum>())).Returns(Task.CompletedTask);
+
         // Act
         var result = await _usecasesService.UpdateUsecaseAsync(usecaseId, updateUsecaseDto, userIdFromToken);
 
@@ -111,6 +132,12 @@ public class UsecasesServiceTest
 
         _usecasesRepository.Setup(x => x.DeleteUsecasesAsync(It.IsAny<Guid>()))
             .Returns(Task.CompletedTask);
+
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+            It.IsAny<Guid>(),
+            It.IsAny<Guid>(),
+            It.IsAny<TicketCurrentStepEnum>(),
+            It.IsAny<SharePermissionEnum>())).Returns(Task.CompletedTask);
 
         // Act
         await _usecasesService.DeleteUsecasesByTicketIdAsync(ticketId, userIdFromToken);
