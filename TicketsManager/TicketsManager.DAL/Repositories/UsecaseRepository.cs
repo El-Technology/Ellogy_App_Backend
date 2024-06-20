@@ -39,7 +39,20 @@ public class UsecaseRepository : IUsecaseRepository
     /// <inheritdoc cref="IUsecaseRepository.CreateUsecasesAsync(List{Usecase})" />
     public async Task CreateUsecasesAsync(List<Usecase> usecases)
     {
-        _context.TicketSummaries.AttachRange(usecases.SelectMany(a => a.TicketSummaries));
+        var allTicketSummaryIds = usecases.SelectMany(u => u.TicketSummaries.Select(ts => ts.Id)).ToList();
+
+        var allTicketSummaries = _context.TicketSummaries
+            .Where(ts => allTicketSummaryIds.Contains(ts.Id))
+            .ToList();
+
+        foreach (var item in usecases)
+        {
+            var itemTicketSummaryIds = item.TicketSummaries.Select(ts => ts.Id).ToList();
+            item.TicketSummaries = allTicketSummaries
+                .Where(ts => itemTicketSummaryIds.Contains(ts.Id))
+                .ToList();
+        }
+
         await _context.Usecases.AddRangeAsync(usecases);
         await _context.SaveChangesAsync();
     }
