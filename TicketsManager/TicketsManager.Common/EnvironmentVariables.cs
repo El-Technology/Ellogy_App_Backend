@@ -41,11 +41,10 @@ public static class EnvironmentVariables
     }
 
     public static Task<string> ConnectionString =>
-        /*GetSecretAsync(SecretNames.ConnectionString)*/
-        Task.FromResult("Server=localhost;Database=TicketManager;Port=5432;User Id=postgres;Password=password;");
+        GetSecretAsync(SecretNames.ConnectionString);
     public static Task<string> JwtSecretKey =>
-        /*GetSecretAsync(SecretNames.JwtSecretKey)*/
-        Task.FromResult("testJWTtokenForLocalDevelopmentt");
+        GetSecretAsync(SecretNames.JwtSecretKey);
 
-    public static Task<string> Host => /*GetSecretAsync(SecretNames.Host)*/Task.FromResult("localhost");
+    public static Task<string> Host =>
+        GetSecretAsync(SecretNames.Host);
 }
