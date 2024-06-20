@@ -181,7 +181,7 @@ public class TicketsService : ITicketsService
         var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
                      ?? throw new TicketNotFoundException(ticketId);
 
-        await ValidateUserPermissionAsync(ticketId, ticket.UserId, SharePermissionEnum.ReadWrite);
+        await ValidateUserPermissionAsync(ticketId, userIdFromToken, SharePermissionEnum.ReadWrite);
 
         var mappedTicket = _mapper.Map(ticketUpdate, ticket);
 

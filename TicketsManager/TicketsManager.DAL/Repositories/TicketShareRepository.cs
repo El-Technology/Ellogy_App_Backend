@@ -26,6 +26,7 @@ public class TicketShareRepository : ITicketShareRepository
                 .Where(a => a.TicketId == ticketId &&
                        a.SharedUserId == userId &&
                        a.RevokedAt > DateTime.UtcNow &&
+                       a.Permission >= requireSharePermissionEnum &&
                           (
                             a.TicketCurrentStep == null ||
                             a.TicketCurrentStep == currentStepEnum ||
@@ -34,8 +35,7 @@ public class TicketShareRepository : ITicketShareRepository
                                 a.TicketCurrentStep == currentStepEnum + stepIncreaserNumber
                             ) ||
                             a.TicketCurrentStep == TicketCurrentStepEnum.Report
-                          ) &&
-                       a.Permission >= requireSharePermissionEnum
+                          )
                       )
                     )
             .AsNoTracking()
