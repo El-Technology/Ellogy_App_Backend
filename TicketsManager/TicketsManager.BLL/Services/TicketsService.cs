@@ -35,7 +35,7 @@ public class TicketsService : ITicketsService
     private async Task ValidateUserPermissionAsync(
     Guid ticketId, Guid userIdFromToken, SharePermissionEnum sharePermissionEnum)
     {
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketId(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
             ticketId,
             userIdFromToken,
             TicketCurrentStepEnum.General,
