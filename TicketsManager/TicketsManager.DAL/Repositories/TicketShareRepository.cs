@@ -18,7 +18,7 @@ public class TicketShareRepository : ITicketShareRepository
         _context = context;
     }
 
-    public async Task CheckIfUserHaveAccessToComponentByTicketId(
+    public async Task CheckIfUserHaveAccessToComponentByTicketIdAsync(
         Guid ticketId, Guid userId, TicketCurrentStepEnum currentStepEnum, SharePermissionEnum requireSharePermissionEnum)
     {
         var ticket = await _context.Tickets

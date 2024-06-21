@@ -32,7 +32,7 @@ public class UserStoryTestService : IUserStoryTestService
         var ticketIdByUsecaseId = await _userStoryTestRepository.GetTicketIdByUsecaseIdAsync(
             userStoryTest.FirstOrDefault()!.UsecaseId ?? Guid.Empty);
 
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketId(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
             ticketIdByUsecaseId,
             userId,
             TicketCurrentStepEnum.TestCases,
@@ -71,7 +71,7 @@ public class UserStoryTestService : IUserStoryTestService
     /// <inheritdoc cref="IUserStoryTestService.GetUserStoryTestsAsync" />
     public async Task<List<GetUserStoryDto>> GetUserStoryTestsAsync(Guid userId, Guid ticketId)
     {
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketId(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
             ticketId,
             userId,
             TicketCurrentStepEnum.TestCases,
@@ -89,7 +89,7 @@ public class UserStoryTestService : IUserStoryTestService
         var ticketIdByUsecaseId = await _userStoryTestRepository.GetTicketIdByUsecaseIdAsync(
             userStoryTest.FirstOrDefault()!.UsecaseId ?? Guid.Empty);
 
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketId(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
             ticketIdByUsecaseId,
             userId,
             TicketCurrentStepEnum.TestCases,
@@ -102,7 +102,7 @@ public class UserStoryTestService : IUserStoryTestService
     /// <inheritdoc cref="IUserStoryTestService.DeleteUserStoryTestAsync" />
     public async Task DeleteUserStoryTestAsync(Guid userId, Guid ticketId)
     {
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketId(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
             ticketId,
             userId,
             TicketCurrentStepEnum.TestCases,
@@ -117,7 +117,7 @@ public class UserStoryTestService : IUserStoryTestService
         var ticketId = await _userStoryTestRepository
             .GetTicketIdByTestCaseIdAsync(listOfTestCaseIds.FirstOrDefault());
 
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketId(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
             ticketId,
             userId,
             TicketCurrentStepEnum.TestCases,

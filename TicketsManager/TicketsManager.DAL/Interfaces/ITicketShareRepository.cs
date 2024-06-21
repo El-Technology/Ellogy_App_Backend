@@ -5,7 +5,7 @@ using TicketsManager.DAL.Models.TicketModels;
 namespace TicketsManager.DAL.Interfaces;
 public interface ITicketShareRepository
 {
-    Task CheckIfUserHaveAccessToComponentByTicketId(
+    Task CheckIfUserHaveAccessToComponentByTicketIdAsync(
         Guid ticketId, Guid userId, TicketCurrentStepEnum currentStepEnum, SharePermissionEnum requireSharePermissionEnum);
 
     /// <summary>

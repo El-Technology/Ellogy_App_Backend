@@ -48,7 +48,7 @@ public class UserStoryTestServiceTest
 
         _userStoryTestRepository.Setup(x => x.GetUserStoryTests(ticketId))
             .Returns(userStoryTestsMock);
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),
@@ -70,7 +70,7 @@ public class UserStoryTestServiceTest
 
         _userStoryTestRepository.Setup(x => x.UpdateUserStoryTestAsync(It.IsAny<List<UserStoryTest>>()))
             .Returns(Task.CompletedTask);
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
            It.IsAny<Guid>(),
            It.IsAny<Guid>(),
            It.IsAny<TicketCurrentStepEnum>(),
@@ -92,7 +92,7 @@ public class UserStoryTestServiceTest
 
         _userStoryTestRepository.Setup(x => x.DeleteUserStoryTestByTicketIdAsync(ticketId))
             .Returns(Task.CompletedTask);
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
            It.IsAny<Guid>(),
            It.IsAny<Guid>(),
            It.IsAny<TicketCurrentStepEnum>(),
@@ -114,7 +114,7 @@ public class UserStoryTestServiceTest
 
         _userStoryTestRepository.Setup(x => x.DeleteTestCasesByIds(testCasesIds))
             .Returns(Task.CompletedTask);
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketId(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),

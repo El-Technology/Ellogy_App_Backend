@@ -17,7 +17,8 @@ public static class DiExtension
             .AddScoped<ITicketSummaryService, TicketSummaryService>()
             .AddScoped<IUserStoryTestService, UserStoryTestService>()
             .AddScoped<ITicketShareService, TicketShareService>()
-            .AddScoped<IUserExternalHttpService, UserExternalHttpService>();
+            .AddScoped<IUserExternalHttpService, UserExternalHttpService>()
+            .AddScoped<ITicketShareExternalService, TicketShareExternalService>();
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)
