@@ -19,7 +19,8 @@ public static class DiExtension
             .AddScoped<BlobServiceClient>(_ => new(blobStorageConnectionString))
             .AddScoped<IGroqAiRequestService, GroqAiRequestService>()
             .AddScoped<IUserExternalHttpService, UserExternalHttpService>()
-            .AddScoped<IPaymentExternalHttpService, PaymentExternalHttpService>();
+            .AddScoped<IPaymentExternalHttpService, PaymentExternalHttpService>()
+            .AddScoped<ITicketExternalHttpService, TicketExternalHttpService>();
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)

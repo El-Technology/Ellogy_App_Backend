@@ -24,5 +24,8 @@ public static class HttpClientRegistration
 
         services.AddHttpClient("PaymentManager", async client =>
             client.BaseAddress = new Uri($"http://{await EnvironmentVariables.Host}:{ClientPortConstants.PaymentManagerPort}"));
+
+        services.AddHttpClient("TicketManager", async client =>
+            client.BaseAddress = new Uri($"http://{await EnvironmentVariables.Host}:{ClientPortConstants.TicketManagerPort}"));
     }
 }

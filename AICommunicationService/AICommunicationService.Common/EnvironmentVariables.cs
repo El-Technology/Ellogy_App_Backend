@@ -50,6 +50,6 @@ public static class EnvironmentVariables
     public static Task<string> GetOpenAiKeyAsync => GetSecretAsync(SecretNames.OpenAiKey);
     public static Task<string> GetJwtSecretKeyAsync => GetSecretAsync(SecretNames.JwtSecretKey);
     public static Task<string> EnablePayments => GetSecretAsync(SecretNames.EnablePayments);
-    public static Task<string> Host => GetSecretAsync(SecretNames.Host);
+    public static Task<string> Host => /*GetSecretAsync(SecretNames.Host)*/ Task.FromResult("localhost");
     public static Task<string> GetBlobStorageConnectionStringAsync => GetSecretAsync(SecretNames.BlobStorageConnectionString);
 }
