@@ -278,6 +278,54 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/dev/TicketShare/createTicketShare",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/TicketShare/createTicketShare",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/TicketShare/getListOfShares",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/TicketShare/getListOfShares",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/TicketShare/updateTicketShare",
+      "UpstreamHttpMethod": [ "Put" ],
+      "DownstreamPathTemplate": "/api/TicketShare/updateTicketShare",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/TicketShare/deleteTicketShare",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/api/TicketShare/deleteTicketShare",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5041
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/TicketSummary/getTicketSummariesByTicketId",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/api/TicketSummary/getTicketSummariesByTicketId",
@@ -317,6 +365,42 @@
       "UpstreamPathTemplate": "/dev/TicketSummary/deleteTicketSummaries",
       "UpstreamHttpMethod": [ "Delete" ],
       "DownstreamPathTemplate": "/api/TicketSummary/deleteTicketSummaries",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/TicketSummary/deleteTicketSummariesByIds",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/api/TicketSummary/deleteTicketSummariesByIds",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/TicketSummary/deleteTicketSummaryScenarios",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/api/TicketSummary/deleteTicketSummaryScenarios",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5041
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/TicketSummary/deleteTicketSummaryAcceptanceCriteria",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/api/TicketSummary/deleteTicketSummaryAcceptanceCriteria",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
