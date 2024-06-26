@@ -1,8 +1,6 @@
-﻿namespace UserManager.Common.Models.NotificationModels
+﻿namespace UserManager.Common.Models.NotificationModels;
+
+public enum NotificationWayEnum
 {
-    public enum NotificationWayEnum
-    {
-        Email = 0,
-        Sms = 1
-    }
+    Email = 0
 }
