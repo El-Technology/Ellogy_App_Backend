@@ -17,7 +17,8 @@ public static class EnvironmentVariables
         await Task.WhenAll(
             GetAndAddSecretAsync(client, SecretNames.ConnectionString, secretsDictionary),
             GetAndAddSecretAsync(client, SecretNames.JwtSecretKey, secretsDictionary),
-            GetAndAddSecretAsync(client, SecretNames.Host, secretsDictionary)
+            GetAndAddSecretAsync(client, SecretNames.Host, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.AzureServiceBusConnectionString, secretsDictionary)
         );
 
         return secretsDictionary;
@@ -39,6 +40,9 @@ public static class EnvironmentVariables
 
         return secrets[key];
     }
+
+    public static Task<string> AzureServiceBusConnectionString =>
+        GetSecretAsync(SecretNames.AzureServiceBusConnectionString);
 
     public static Task<string> ConnectionString =>
         GetSecretAsync(SecretNames.ConnectionString);

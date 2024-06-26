@@ -37,6 +37,7 @@ public interface ITicketShareRepository
     /// <returns></returns>
     Task<PaginationResponseDto<TicketShare>> GetTicketSharesAsync(
         Guid ticketId, PaginationRequestDto paginationRequestDto);
+    Task<string?> GetTicketTitleByTicketIdAsync(Guid ticketId);
 
     /// <summary>
     /// Verify if a permission is already given to a user
