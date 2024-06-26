@@ -1,27 +1,26 @@
-﻿using Azure.Messaging.ServiceBus;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Microsoft.Extensions.DependencyInjection;
 using UserManager.BLL.Interfaces;
 using UserManager.BLL.Services;
+using UserManager.BLL.Services.HttpServices;
 
 namespace UserManager.BLL.Extensions;
 
 public static class DiExtension
 {
     public static IServiceCollection AddBusinessLayer(
-        this IServiceCollection services, string blobStorageConnectionString, string azureServiceBusConnectionString)
+        this IServiceCollection services, string blobStorageConnectionString)
     {
         return services
             .AddScoped<IUserProfileService, UserProfileService>()
             .AddScoped<BlobServiceClient>(_ => new(blobStorageConnectionString))
             .AddScoped<IReportService, ReportService>()
             .AddScoped<IRefreshTokenService, RefreshTokenService>()
-            .AddScoped<INotificationQueueService, NotificationQueueService>()
+            .AddScoped<IExternalNotificationService, ExternalNotificationService>()
             .AddScoped<IRegisterService, RegisterService>()
             .AddScoped<ILoginService, LoginService>()
             .AddScoped<IPasswordService, PasswordService>()
-            .AddScoped<IUserExternalService, UserExternalService>()
-            .AddScoped<ServiceBusClient>(_ => new(azureServiceBusConnectionString));
+            .AddScoped<IUserExternalService, UserExternalService>();
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)

@@ -25,8 +25,8 @@ public class PasswordService : IPasswordService
     };
 
     private readonly IForgotPasswordRepository _forgotPasswordRepository;
-    private readonly INotificationQueueService _notificationQueueService;
     private readonly IUserRepository _userRepository;
+    private readonly IExternalNotificationService _notificationQueueService;
 
     /// <summary>
     ///     Constructor
@@ -34,8 +34,9 @@ public class PasswordService : IPasswordService
     /// <param name="userRepository"></param>
     /// <param name="forgotPasswordRepository"></param>
     /// <param name="notificationQueueService"></param>
-    public PasswordService(IUserRepository userRepository, IForgotPasswordRepository forgotPasswordRepository,
-        INotificationQueueService notificationQueueService)
+    public PasswordService(IUserRepository userRepository,
+        IForgotPasswordRepository forgotPasswordRepository,
+        IExternalNotificationService notificationQueueService)
     {
         _userRepository = userRepository;
         _forgotPasswordRepository = forgotPasswordRepository;

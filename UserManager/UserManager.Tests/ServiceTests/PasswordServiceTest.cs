@@ -15,7 +15,7 @@ namespace UserManager.Tests.ServiceTests;
 public class PasswordServiceTest
 {
     private Mock<IForgotPasswordRepository> _forgotPasswordRepository;
-    private Mock<INotificationQueueService> _notificationQueueService;
+    private Mock<IExternalNotificationService> _notificationQueueService;
     private Mock<IUserRepository> _userRepository;
     private PasswordService _passwordService;
     private Fixture _fixture = new();
@@ -26,7 +26,7 @@ public class PasswordServiceTest
         _fixture = new Fixture();
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         _forgotPasswordRepository = new Mock<IForgotPasswordRepository>();
-        _notificationQueueService = new Mock<INotificationQueueService>();
+        _notificationQueueService = new Mock<IExternalNotificationService>();
         _userRepository = new Mock<IUserRepository>();
         _passwordService = new PasswordService(
             _userRepository.Object, _forgotPasswordRepository.Object, _notificationQueueService.Object);

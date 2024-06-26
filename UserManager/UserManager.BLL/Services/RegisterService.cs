@@ -27,8 +27,8 @@ public class RegisterService : IRegisterService
         Way = NotificationWayEnum.Email
     };
 
-    private readonly INotificationQueueService _notificationQueueService;
     private readonly IUserRepository _userRepository;
+    private readonly IExternalNotificationService _notificationQueueService;
 
     /// <summary>
     ///     Constructor
@@ -37,8 +37,9 @@ public class RegisterService : IRegisterService
     /// <param name="userRepository"></param>
     /// <param name="paymentRepository"></param>
     /// <param name="notificationQueueService"></param>
-    public RegisterService(IMapper mapper, IUserRepository userRepository,
-        INotificationQueueService notificationQueueService)
+    public RegisterService(IMapper mapper,
+        IUserRepository userRepository,
+        IExternalNotificationService notificationQueueService)
     {
         _mapper = mapper;
         _userRepository = userRepository;

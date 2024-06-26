@@ -22,7 +22,7 @@ public class RegisterServiceTest
     private RegisterService _registerService;
 
     private Mock<IUserRepository> _userRepository;
-    private Mock<INotificationQueueService> _notificationQueueService;
+    private Mock<IExternalNotificationService> _notificationQueueService;
 
     private static readonly Regex EmailRegex = new Regex(
         @"^(([^<>()\[\]\\.,;:\s@\""]+(\.[^<>()\[\]\\.,;:\s@\""]+)*)|("".+""))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z0-9]+[-a-zA-Z0-9]*[a-zA-Z0-9]+\.)+[a-zA-Z]{2,}))$",
@@ -44,7 +44,7 @@ public class RegisterServiceTest
         _fixture = new Fixture();
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         _userRepository = new Mock<IUserRepository>();
-        _notificationQueueService = new Mock<INotificationQueueService>();
+        _notificationQueueService = new Mock<IExternalNotificationService>();
         _mapper = new MapperConfiguration(cfg => cfg.AddProfile<UserProfile>()).CreateMapper();
         _registerService = new RegisterService(_mapper, _userRepository.Object, _notificationQueueService.Object);
     }
