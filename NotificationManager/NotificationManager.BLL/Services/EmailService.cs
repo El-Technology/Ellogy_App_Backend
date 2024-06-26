@@ -19,7 +19,8 @@ public class EmailService : IEmailService
         { NotificationTypeEnum.ResetPassword, "ResetPasswordTemplate.html"},
         { NotificationTypeEnum.Report, "ReportTemplate.html"},
         { NotificationTypeEnum.VerifyEmail, "VerifyEmailTemplate.html"},
-        { NotificationTypeEnum.ProjectStarted, "ProjectStartedTemplate.html" }
+        { NotificationTypeEnum.ProjectStarted, "ProjectStartedTemplate.html" },
+        { NotificationTypeEnum.Notification, "NotificationTemplate.html" }
     };
 
     public EmailService(EmailClient emailClient, IBlobService blobService)
