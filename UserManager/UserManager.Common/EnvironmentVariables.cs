@@ -19,7 +19,8 @@ public static class EnvironmentVariables
             GetAndAddSecretAsync(client, SecretNames.JwtSecretKey, secretsDictionary),
             GetAndAddSecretAsync(client, SecretNames.BlobStorageConnectionString, secretsDictionary),
             GetAndAddSecretAsync(client, SecretNames.EnablePayments, secretsDictionary),
-            GetAndAddSecretAsync(client, SecretNames.Host, secretsDictionary)
+            GetAndAddSecretAsync(client, SecretNames.Host, secretsDictionary),
+            GetAndAddSecretAsync(client, SecretNames.AzureServiceBusConnectionString, secretsDictionary)
         );
 
         return secretsDictionary;
@@ -42,6 +43,7 @@ public static class EnvironmentVariables
         return secrets[key];
     }
 
+    public static Task<string> AzureServiceBusConnectionString => GetSecretAsync(SecretNames.AzureServiceBusConnectionString);
     public static Task<string> ConnectionString => GetSecretAsync(SecretNames.ConnectionString);
     public static Task<string> JwtSecretKey => GetSecretAsync(SecretNames.JwtSecretKey);
     public static Task<string> BlobStorageConnectionString => GetSecretAsync(SecretNames.BlobStorageConnectionString);

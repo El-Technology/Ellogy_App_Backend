@@ -108,10 +108,9 @@ public static class Program
             (await EnvironmentVariables.ConnectionString)
                 .Replace(ConfigConstants.DbReplacePattern, ConfigHelper.AppSetting(ConfigConstants.DbName)));
 
-        builder.Services.RegisterHttpClients();
-
         builder.Services.AddBusinessLayer(
-            await EnvironmentVariables.BlobStorageConnectionString);
+            await EnvironmentVariables.BlobStorageConnectionString,
+            await EnvironmentVariables.AzureServiceBusConnectionString);
 
         builder.Services.AddMapping();
     }

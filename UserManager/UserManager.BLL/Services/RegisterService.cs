@@ -28,7 +28,7 @@ public class RegisterService : IRegisterService
     };
 
     private readonly IUserRepository _userRepository;
-    private readonly IExternalNotificationService _notificationQueueService;
+    private readonly IServiceBusQueue _notificationQueueService;
 
     /// <summary>
     ///     Constructor
@@ -39,7 +39,7 @@ public class RegisterService : IRegisterService
     /// <param name="notificationQueueService"></param>
     public RegisterService(IMapper mapper,
         IUserRepository userRepository,
-        IExternalNotificationService notificationQueueService)
+        IServiceBusQueue notificationQueueService)
     {
         _mapper = mapper;
         _userRepository = userRepository;
@@ -106,6 +106,6 @@ public class RegisterService : IRegisterService
         _notificationModel.MetaData = new Dictionary<string, string>
             { { FirstName, user.FirstName }, { VerifyEmailAddressLink, verifyEmailUrl } };
 
-        await _notificationQueueService.SendNotificationAsync(_notificationModel);
+        await _notificationQueueService.SendMessageAsync(_notificationModel);
     }
 }

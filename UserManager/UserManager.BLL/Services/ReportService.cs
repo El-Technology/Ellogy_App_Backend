@@ -28,7 +28,7 @@ public class ReportService : IReportService
     };
 
     private readonly IUserRepository _userRepository;
-    private readonly IExternalNotificationService _notificationQueueService;
+    private readonly IServiceBusQueue _notificationQueueService;
 
     /// <summary>
     ///     Constructor
@@ -38,7 +38,7 @@ public class ReportService : IReportService
     /// <param name="blobServiceClient"></param>
     public ReportService(IUserRepository userRepository,
         BlobServiceClient blobServiceClient,
-        IExternalNotificationService notificationQueueService)
+        IServiceBusQueue notificationQueueService)
     {
         _blobServiceClient = blobServiceClient;
         _userRepository = userRepository;
@@ -79,6 +79,6 @@ public class ReportService : IReportService
             { UserTextPattern, reportModel.UserText }
         };
 
-        await _notificationQueueService.SendNotificationAsync(_notificationModel);
+        await _notificationQueueService.SendMessageAsync(_notificationModel);
     }
 }

@@ -26,7 +26,7 @@ public class PasswordService : IPasswordService
 
     private readonly IForgotPasswordRepository _forgotPasswordRepository;
     private readonly IUserRepository _userRepository;
-    private readonly IExternalNotificationService _notificationQueueService;
+    private readonly IServiceBusQueue _notificationQueueService;
 
     /// <summary>
     ///     Constructor
@@ -36,7 +36,7 @@ public class PasswordService : IPasswordService
     /// <param name="notificationQueueService"></param>
     public PasswordService(IUserRepository userRepository,
         IForgotPasswordRepository forgotPasswordRepository,
-        IExternalNotificationService notificationQueueService)
+        IServiceBusQueue notificationQueueService)
     {
         _userRepository = userRepository;
         _forgotPasswordRepository = forgotPasswordRepository;
@@ -68,7 +68,7 @@ public class PasswordService : IPasswordService
         _notificationModel.Consumer = user.Email;
         _notificationModel.MetaData = new Dictionary<string, string> { { ResetPasswordPattern, resetPasswordUrl } };
 
-        await _notificationQueueService.SendNotificationAsync(_notificationModel);
+        await _notificationQueueService.SendMessageAsync(_notificationModel);
     }
 
     /// <summary>

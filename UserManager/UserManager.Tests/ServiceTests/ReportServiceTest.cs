@@ -17,7 +17,7 @@ namespace UserManager.Tests.ServiceTests;
 public class ReportServiceTest
 {
     private Mock<BlobServiceClient> _blobServiceClient;
-    private Mock<IExternalNotificationService> _notificationQueueService;
+    private Mock<IServiceBusQueue> _notificationQueueService;
     private Mock<IUserRepository> _userRepository;
     private ReportService _reportService;
     private Fixture _fixture;
@@ -28,7 +28,7 @@ public class ReportServiceTest
         _fixture = new Fixture();
         _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
         _blobServiceClient = new Mock<BlobServiceClient>();
-        _notificationQueueService = new Mock<IExternalNotificationService>();
+        _notificationQueueService = new Mock<IServiceBusQueue>();
         _userRepository = new Mock<IUserRepository>();
         _reportService = new ReportService(
             _userRepository.Object, _blobServiceClient.Object, _notificationQueueService.Object);
