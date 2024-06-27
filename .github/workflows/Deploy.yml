@@ -8,9 +8,9 @@ on:
       - UserManager/**
       - AICommunicationService/**
       - PaymentManager/**
+      - NotificationManager/**
       - .github/workflows/Deploy.yml
-      - .github/actions/** 
-      - '!UserManager/NotificationService/**'
+      - .github/actions/**
       
 env:
   SSH_HOST: ${{ secrets.SSH_HOST_test }}
@@ -27,6 +27,7 @@ jobs:
       UserManager: ${{ steps.changes.outputs.UserManager }}
       TicketsManager: ${{ steps.changes.outputs.TicketsManager }}
       PaymentManager: ${{ steps.changes.outputs.PaymentManager }}
+      NotificationManager: ${{ steps.changes.outputs.NotificationManager }}
       Workflow: ${{ steps.changes.outputs.Workflow }}
       
     steps:
@@ -47,9 +48,43 @@ jobs:
                 - 'TicketsManager/**'
               PaymentManager:
                 - 'PaymentManager/**'
+              NotificationManager:
+                - 'NotificationManager/**'
               Workflow:
                 - '.github/**'
   
+  build_notification_manager:
+    permissions: write-all
+
+    env:
+      MICROSERVICE_NAME: 'notification_manager'
+      PROJECT_PATH: './NotificationManager/'
+      CONTEXT: '.'
+      DOCKERFILEPATH: './NotificationManager.API/Dockerfile'
+
+    outputs:
+      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
+      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
+
+    needs: changes
+    if: ${{ ( needs.changes.outputs.NotificationManager == 'true' || needs.changes.outputs.Workflow == 'true' ) && true }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v4
+      
+      - name: Build and push image of NotificationManager
+        id: build-n-push
+        uses: ./.github/actions/Build-n-push
+        with: 
+          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+          Environment: ${{ env.ENVNAME }}
+          ProjectPath: ${{ env.PROJECT_PATH }}
+          Context: ${{ env.CONTEXT }}
+          DockerfilePath: ${{ env.DOCKERFILEPATH }}
+          Token: ${{ secrets.GITHUB_TOKEN }}
+
   build_payment_manager:
     permissions: write-all
 
@@ -213,7 +248,7 @@ jobs:
 
   deploy_microservices:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-    needs: [build_user_manager, build_ticket_manager, build_ai_communication_service, build_payment_manager]
+    needs: [build_user_manager, build_ticket_manager, build_ai_communication_service, build_payment_manager, build_notification_manager]
 
     runs-on: ubuntu-latest
     steps:
@@ -243,6 +278,9 @@ jobs:
 
         SERVICE_NAME4: ${{ needs.build_payment_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE4: ${{ needs.build_payment_manager.outputs.MicroserviceImage }}
+
+        SERVICE_NAME5: ${{ needs.build_notification_manager.outputs.MicroserviceName }}
+        SERVICE_IMAGE5: ${{ needs.build_notification_manager.outputs.MicroserviceImage }}
         
       run: |
         ssh VM bash -s <<EOF
@@ -263,11 +301,14 @@ jobs:
         export SERVICE_IMAGE3=$SERVICE_IMAGE3
         export SERVICE_NAME4=$SERVICE_NAME4
         export SERVICE_IMAGE4=$SERVICE_IMAGE4
+        export SERVICE_NAME5=$SERVICE_NAME5
+        export SERVICE_IMAGE5=$SERVICE_IMAGE5
 
         yq e -i '.services.$SERVICE_NAME1.image=env(SERVICE_IMAGE1)' docker-compose.yaml
         yq e -i '.services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)' docker-compose.yaml
         yq e -i '.services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)' docker-compose.yaml
         yq e -i '.services.$SERVICE_NAME4.image=env(SERVICE_IMAGE4)' docker-compose.yaml
+        yq e -i '.services.$SERVICE_NAME5.image=env(SERVICE_IMAGE5)' docker-compose.yaml
 
         if [ "true" == "true" ]
           then 
