@@ -27,8 +27,8 @@ public class ReportService : IReportService
         Way = NotificationWayEnum.Email
     };
 
-    private readonly INotificationQueueService _notificationQueueService;
     private readonly IUserRepository _userRepository;
+    private readonly IServiceBusQueue _notificationQueueService;
 
     /// <summary>
     ///     Constructor
@@ -36,8 +36,9 @@ public class ReportService : IReportService
     /// <param name="userRepository"></param>
     /// <param name="notificationQueueService"></param>
     /// <param name="blobServiceClient"></param>
-    public ReportService(IUserRepository userRepository, INotificationQueueService notificationQueueService,
-        BlobServiceClient blobServiceClient)
+    public ReportService(IUserRepository userRepository,
+        BlobServiceClient blobServiceClient,
+        IServiceBusQueue notificationQueueService)
     {
         _blobServiceClient = blobServiceClient;
         _userRepository = userRepository;
@@ -78,6 +79,6 @@ public class ReportService : IReportService
             { UserTextPattern, reportModel.UserText }
         };
 
-        await _notificationQueueService.SendNotificationAsync(_notificationModel);
+        await _notificationQueueService.SendMessageAsync(_notificationModel);
     }
 }

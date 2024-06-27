@@ -111,4 +111,13 @@ public class TicketShareRepository : ITicketShareRepository
             .Select(a => a.TicketId)
             .FirstOrDefaultAsync();
     }
+
+    /// <inheritdoc cref="ITicketShareRepository.GetTicketTitleByTicketIdAsync" />
+    public async Task<string?> GetTicketTitleByTicketIdAsync(Guid ticketId)
+    {
+        return await _context.Tickets
+            .Where(a => a.Id == ticketId)
+            .Select(a => a.Title)
+            .FirstOrDefaultAsync();
+    }
 }

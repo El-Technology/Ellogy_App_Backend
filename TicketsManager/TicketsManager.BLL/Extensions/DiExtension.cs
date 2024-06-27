@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Azure.Messaging.ServiceBus;
+using Microsoft.Extensions.DependencyInjection;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.BLL.Interfaces.External;
+using TicketsManager.BLL.ServiceBus;
 using TicketsManager.BLL.Services;
 using TicketsManager.BLL.Services.External;
 
@@ -8,7 +10,9 @@ namespace TicketsManager.BLL.Extensions;
 
 public static class DiExtension
 {
-    public static IServiceCollection AddBusinessLayer(this IServiceCollection services)
+    public static IServiceCollection AddBusinessLayer(
+        this IServiceCollection services,
+        string busConnectionString)
     {
         return services
             .AddScoped<IActionHistoryService, ActionHistoryService>()
@@ -18,7 +22,9 @@ public static class DiExtension
             .AddScoped<IUserStoryTestService, UserStoryTestService>()
             .AddScoped<ITicketShareService, TicketShareService>()
             .AddScoped<IUserExternalHttpService, UserExternalHttpService>()
-            .AddScoped<ITicketShareExternalService, TicketShareExternalService>();
+            .AddScoped<IServiceBusQueue, ServiceBusQueue>()
+            .AddScoped<ITicketShareExternalService, TicketShareExternalService>()
+            .AddScoped<ServiceBusClient>(_ => new(busConnectionString));
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)
