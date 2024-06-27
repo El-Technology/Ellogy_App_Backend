@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationManager.API", "NotificationManager.API.csproj", "{642B95A3-A091-4604-96C6-1C3F5C32F4A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationManager.API", "NotificationManager.API\NotificationManager.API.csproj", "{642B95A3-A091-4604-96C6-1C3F5C32F4A3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationManager.Common", "..\NotificationManager.Common\NotificationManager.Common.csproj", "{C130FF5E-2B08-4923-A7AB-AB5C409ADEB4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationManager.Common", "NotificationManager.Common\NotificationManager.Common.csproj", "{C130FF5E-2B08-4923-A7AB-AB5C409ADEB4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NotificationManager.BLL", "..\NotificationManager.BLL\NotificationManager.BLL.csproj", "{36338CC7-4FFD-4EC6-8FDA-D79C313F757B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NotificationManager.BLL", "NotificationManager.BLL\NotificationManager.BLL.csproj", "{36338CC7-4FFD-4EC6-8FDA-D79C313F757B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
