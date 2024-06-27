@@ -51,13 +51,14 @@ public class TicketShareService : ITicketShareService
             var ticketShareRepository = scope.ServiceProvider.GetRequiredService<ITicketShareRepository>();
             var serviceBusQueue = scope.ServiceProvider.GetRequiredService<IServiceBusQueue>();
 
-            var accessTo = createTicketShareDto.TicketCurrentStep.ToString();
+            var accessTo = "All";
+
+            if (createTicketShareDto.TicketCurrentStep is not null)
+                accessTo = createTicketShareDto.TicketCurrentStep.ToString();
 
             if (createTicketShareDto.TicketCurrentStep == TicketCurrentStepEnum.General
                 && createTicketShareDto.SubStageEnum is not null)
-            {
                 accessTo = createTicketShareDto.SubStageEnum.ToString();
-            }
 
             var users = await userExternalService.GetUsersByIdsAsync(new List<Guid>
             {
