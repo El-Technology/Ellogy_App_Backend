@@ -6,6 +6,10 @@ using NotificationManager.BLL.ServiceBus;
 using NotificationManager.BLL.Services;
 
 namespace NotificationManager.BLL.Extensions;
+
+/// <summary>
+/// Dependency injection extensions for the business layer
+/// </summary>
 public static class DiExtensions
 {
     public static IServiceCollection AddBusinessLayer(

@@ -7,6 +7,10 @@ using NotificationManager.Common.Models;
 using System.Text.Json;
 
 namespace NotificationManager.BLL.ServiceBus;
+
+/// <summary>
+/// Service bus listener
+/// </summary>
 public class ServiceBusListener : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;

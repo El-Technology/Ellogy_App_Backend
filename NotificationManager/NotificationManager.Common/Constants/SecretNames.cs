@@ -1,4 +1,8 @@
 ﻿namespace NotificationManager.Common.Constants;
+
+/// <summary>
+/// Constants for the secret names
+/// </summary>
 public static class SecretNames
 {
     public const string JwtSecretKey = "JWT-SECRET-KEY";

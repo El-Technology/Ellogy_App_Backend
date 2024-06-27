@@ -5,10 +5,16 @@ using NotificationManager.Common.Options;
 using System.Text.Json;
 
 namespace NotificationManager.BLL.ServiceBus;
+
+/// <summary>
+/// Service bus queue
+/// </summary>
+/// <param name="busConnectionString"></param>
 public class ServiceBusQueue(string busConnectionString) : IServiceBusQueue
 {
     private readonly ServiceBusClient _serviceBusClient = new(busConnectionString);
 
+    /// <inheritdoc cref="IServiceBusQueue.SendMessageAsync(NotificationModel)"/>
     public async Task SendMessageAsync(NotificationModel notificationModel)
     {
         var busSender = _serviceBusClient.CreateSender(NotificationQueueOptions.QueueName);
@@ -20,6 +26,7 @@ public class ServiceBusQueue(string busConnectionString) : IServiceBusQueue
         await busSender.SendMessageAsync(message);
     }
 
+    /// <inheritdoc cref="IServiceBusQueue.ReceiveMessageAsync(string)"/>
     public async Task<string> ReceiveMessageAsync(string queue)
     {
         var busReceiver = _serviceBusClient.CreateReceiver(queue);
@@ -28,6 +35,7 @@ public class ServiceBusQueue(string busConnectionString) : IServiceBusQueue
         return message.Body.ToString();
     }
 
+    /// <inheritdoc cref="IServiceBusQueue.CreateProcessor(ServiceBusProcessorOptions)"/>
     public ServiceBusProcessor CreateProcessor(
         ServiceBusProcessorOptions serviceBusProcessorOptions)
     {
