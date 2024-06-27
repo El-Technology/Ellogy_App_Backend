@@ -5,16 +5,29 @@ using NotificationManager.Common.Models;
 
 namespace NotificationManager.API.Controllers;
 
+/// <summary>
+/// Controller for sending external notifications
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class ExternalNotificationController : ControllerBase
 {
     private readonly IServiceBusQueue _serviceBusQueueService;
+
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="serviceBusQueueService"></param>
     public ExternalNotificationController(IServiceBusQueue serviceBusQueueService)
     {
         _serviceBusQueueService = serviceBusQueueService;
     }
 
+    /// <summary>
+    ///  Send notification endpoint (allows send email via http request)
+    /// </summary>
+    /// <param name="notificationModel"></param>
+    /// <returns></returns>
     [HttpPost("sendNotification")]
     public async Task<IActionResult> SendNotificationAsync([FromBody] NotificationModel notificationModel)
     {
@@ -22,6 +35,10 @@ public class ExternalNotificationController : ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Send project started email
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("projectStarted")]
     public async Task<IActionResult> SendProjectStartedEmail()
     {

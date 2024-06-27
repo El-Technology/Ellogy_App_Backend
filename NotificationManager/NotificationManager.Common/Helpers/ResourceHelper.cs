@@ -1,6 +1,16 @@
 ﻿namespace NotificationManager.Common.Helpers;
+
+/// <summary>
+/// Helper class for resources
+/// </summary>
 public static class ResourceHelper
 {
+    /// <summary>
+    /// Resource helper for getting html templates from project resources
+    /// </summary>
+    /// <param name="fileName"></param>
+    /// <returns></returns>
+    /// <exception cref="FileNotFoundException"></exception>
     public static string GetHtmlTemplate(string fileName)
     {
         var assembly = typeof(ResourceHelper).Assembly;

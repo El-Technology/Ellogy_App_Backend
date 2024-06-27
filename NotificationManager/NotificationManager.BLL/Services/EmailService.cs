@@ -10,6 +10,10 @@ using NotificationManager.Common.Options;
 using System.Net.Mime;
 
 namespace NotificationManager.BLL.Services;
+
+/// <summary>
+/// Email service
+/// </summary>
 public class EmailService : IEmailService
 {
     private readonly EmailClient _emailClient;
@@ -23,18 +27,30 @@ public class EmailService : IEmailService
         { NotificationTypeEnum.Notification, "NotificationTemplate.html" }
     };
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="emailClient"></param>
+    /// <param name="blobService"></param>
     public EmailService(EmailClient emailClient, IBlobService blobService)
     {
         _emailClient = emailClient;
         _blobService = blobService;
     }
 
+    /// <inheritdoc cref="IEmailService.SendNotificationAsync(NotificationModel, CancellationToken)"/>
     public async Task SendNotificationAsync(NotificationModel notificationModel, CancellationToken cancellationToken)
     {
         var emailMessage = await GetEmailMessage(notificationModel, cancellationToken);
         _ = await _emailClient.SendAsync(WaitUntil.Started, emailMessage, cancellationToken);
     }
 
+    /// <summary>
+    /// This method creates an email message with the given notification model, and returns it
+    /// </summary>
+    /// <param name="notificationModel"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
     private async Task<EmailMessage> GetEmailMessage(NotificationModel notificationModel, CancellationToken cancellationToken)
     {
         var template = ResourceHelper.GetHtmlTemplate(notificationTypePath.GetValueOrDefault(notificationModel.Type)!);
