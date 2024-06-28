@@ -24,6 +24,8 @@ public class UsecasesService : IUsecasesService
         _ticketShareRepository = ticketShareRepository;
     }
 
+    #region Private methods
+
     private async Task ValidateUserPermissionAsync(
         Guid ticketId, Guid userIdFromToken, SharePermissionEnum sharePermissionEnum)
     {
@@ -33,6 +35,8 @@ public class UsecasesService : IUsecasesService
             TicketCurrentStepEnum.Usecases,
             sharePermissionEnum);
     }
+
+    #endregion
 
     ///<inheritdoc cref="IUsecasesService.CreateUsecasesAsync(List{CreateUsecasesDto},Guid)"/>
     public async Task<CreateUsecasesResponseDto> CreateUsecasesAsync(List<CreateUsecasesDto> createUsecasesDto, Guid userIdFromToken)

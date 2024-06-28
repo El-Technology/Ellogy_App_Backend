@@ -24,6 +24,8 @@ public class ActionHistoryService : IActionHistoryService
         _actionHistoryRepository = actionHistoryRepository;
     }
 
+    #region Private methods
+
     private async Task CheckIfTicketExist(Guid ticketId)
     {
         if (!await _ticketsRepository.CheckIfTicketExistAsync(ticketId))
@@ -41,6 +43,8 @@ public class ActionHistoryService : IActionHistoryService
         if (!Enum.IsDefined(typeof(ActionHistoryEnum), actionHistoryEnum))
             throw new Exception("Wrong action history enum");
     }
+
+    #endregion
 
     public async Task<PaginationResponseDto<ActionHistory>> GetActionHistoriesAsync(
         Guid ticketId, SearchHistoryRequestDto searchHistoryRequestDto)

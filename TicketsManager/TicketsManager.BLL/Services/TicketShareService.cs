@@ -30,6 +30,8 @@ public class TicketShareService : ITicketShareService
         _serviceProvider = serviceProvider;
     }
 
+    #region Private methods
+
     private async Task VerifyIfUserIsTicketOwnerAsync(Guid ownerId, Guid ticketId)
     {
         if (!await _ticketShareRepository.VerifyIfUserIsTicketOwnerAsync(ownerId, ticketId))
@@ -69,17 +71,23 @@ public class TicketShareService : ITicketShareService
             var ticketTitle = await ticketShareRepository
                 .GetTicketTitleByTicketIdAsync(createTicketShareDto.TicketId);
 
+            var ownerModel = users.FirstOrDefault(a => a.Id == ownerId) ?? new();
+
             await serviceBusQueue.SendMessageAsync(
                 NotificationHelper.CreateSharingNotification(new SharingNotificationDto
                 {
                     ConsumerEmail = users.FirstOrDefault(a => a.Id == createTicketShareDto.SharedUserId)!.Email,
                     AccessTo = $"{accessTo}",
-                    OwnerEmail = users.FirstOrDefault(a => a.Id == ownerId)!.Email,
+                    OwnerEmail = ownerModel.Email,
+                    OwnerFistName = ownerModel.FirstName,
+                    OwnerLastName = ownerModel.LastName,
                     Permission = createTicketShareDto.Permission.ToString(),
                     TicketTitle = ticketTitle ?? string.Empty
                 }));
         });
     }
+
+    #endregion
 
     /// <inheritdoc cref="ITicketShareService.CreateTicketShareAsync" />
     public async Task CreateTicketShareAsync(
