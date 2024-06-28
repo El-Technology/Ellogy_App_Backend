@@ -12,7 +12,7 @@ using UserManager.DAL.Context;
 namespace UserManager.DAL.Migrations
 {
     [DbContext(typeof(UserManagerDbContext))]
-    [Migration("20240628063338_CreateAtFieldInUsersTable")]
+    [Migration("20240628081912_CreateAtFieldInUsersTable")]
     partial class CreateAtFieldInUsersTable
     {
         /// <inheritdoc />
