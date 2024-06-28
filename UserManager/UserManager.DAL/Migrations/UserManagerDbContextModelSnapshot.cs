@@ -90,7 +90,7 @@ namespace UserManager.DAL.Migrations
                     b.Property<DateTime>("CreateAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+                        .HasDefaultValueSql("NOW()");
 
                     b.Property<string>("Department")
                         .HasMaxLength(100)
