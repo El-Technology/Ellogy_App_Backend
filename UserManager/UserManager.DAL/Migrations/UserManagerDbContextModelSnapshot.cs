@@ -87,6 +87,11 @@ namespace UserManager.DAL.Migrations
                     b.Property<string>("AvatarLink")
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("CreateAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
                     b.Property<string>("Department")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");

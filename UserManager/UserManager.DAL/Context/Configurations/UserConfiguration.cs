@@ -42,5 +42,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(c => c.VerifyToken);
         builder.Property(c => c.StripeCustomerId);
         builder.Property(c => c.AccountPlan);
+        builder.Property(c => c.CreateAt)
+            .IsRequired()
+            .HasDefaultValueSql("NOW()");
     }
 }
