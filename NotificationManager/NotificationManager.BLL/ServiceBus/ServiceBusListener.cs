@@ -27,12 +27,12 @@ public class ServiceBusListener : BackgroundService
         _serviceProvider = serviceProvider;
     }
 
-    private async Task SendEmailAsync(NotificationModel notificationModel, CancellationToken cancelationToken)
+    private async Task SendNotificationAsync(NotificationModel notificationModel, CancellationToken cancelationToken)
     {
         await using var scope = _serviceProvider.CreateAsyncScope();
-        var emailService = scope.ServiceProvider.GetRequiredService<INotifyService>();
+        var notifyService = scope.ServiceProvider.GetRequiredService<INotifyService>();
 
-        await emailService.SendNotificationAsync(notificationModel, cancelationToken);
+        await notifyService.SendNotificationAsync(notificationModel, cancelationToken);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -49,9 +49,11 @@ public class ServiceBusListener : BackgroundService
 
                 var notificationModel = JsonSerializer.Deserialize<NotificationModel>(message.Body.ToString());
 
-                await SendEmailAsync(notificationModel ?? new(), stoppingToken);
+                await SendNotificationAsync(notificationModel ?? new(), stoppingToken);
 
                 await args.CompleteMessageAsync(message, stoppingToken);
+
+                _logger.LogInformation("Message processed. {Message}", args.Message);
             }
             catch (Exception ex)
             {
