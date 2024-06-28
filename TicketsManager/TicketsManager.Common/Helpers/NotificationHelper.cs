@@ -7,7 +7,7 @@ public static class NotificationHelper
     {
         var message =
             $"You have been invited to collaborate on the request: <br>" +
-            $"\"{sharingNotificationDto.TicketTitle}\" by {sharingNotificationDto.OwnerEmail}<br>" +
+            $"\"{sharingNotificationDto.TicketTitle}\" by {sharingNotificationDto.OwnerFistName} {sharingNotificationDto.OwnerLastName}<br>" +
             $"Access given to: \"{sharingNotificationDto.AccessTo}\" component(s)<br>" +
             $"Your permission: \"{sharingNotificationDto.Permission}\"";
 

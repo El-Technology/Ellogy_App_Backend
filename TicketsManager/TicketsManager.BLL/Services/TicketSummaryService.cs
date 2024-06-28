@@ -24,6 +24,8 @@ public class TicketSummaryService : ITicketSummaryService
         _ticketShareRepository = ticketShareRepository;
     }
 
+    #region Private methods
+
     private async Task ValidateUserPermissionAsync(
     Guid ticketId, Guid userIdFromToken, SharePermissionEnum sharePermissionEnum)
     {
@@ -33,6 +35,8 @@ public class TicketSummaryService : ITicketSummaryService
             TicketCurrentStepEnum.General,
             sharePermissionEnum);
     }
+
+    #endregion
 
     /// <inheritdoc cref="ITicketSummaryService.GetTicketSummariesByTicketIdAsync" />
     public async Task<List<TicketSummaryFullDto>> GetTicketSummariesByTicketIdAsync(Guid userId, Guid ticketId)

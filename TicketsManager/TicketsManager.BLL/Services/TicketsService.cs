@@ -32,6 +32,8 @@ public class TicketsService : ITicketsService
         _ticketShareRepository = ticketShareRepository;
     }
 
+    #region Private methods
+
     private async Task ValidateUserPermissionAsync(
     Guid ticketId, Guid userIdFromToken, SharePermissionEnum sharePermissionEnum)
     {
@@ -113,6 +115,8 @@ public class TicketsService : ITicketsService
             throw new Exception($"Invalid {propertyName} enum value");
         }
     }
+
+    #endregion
 
     /// <inheritdoc cref="ITicketsService.GetTicketsAsync(Guid, PaginationRequestDto, Guid)"/>
     public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(
