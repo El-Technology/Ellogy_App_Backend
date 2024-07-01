@@ -16,7 +16,14 @@ public partial class AddUserIdFieldToMessageTable : Migration
             type: "uuid",
             nullable: true);
 
-        migrationBuilder.Sql("UPDATE \"Messages\" ms\r\nSET \"UserId\" = (SELECT \"UserId\" FROM \"Tickets\" ts WHERE ms.\"TicketId\" = ts.\"Id\")");
+        migrationBuilder.Sql(
+            @"
+            UPDATE ""Messages"" ms
+            SET ""UserId"" = ts.""UserId""
+            FROM ""Tickets"" ts
+            WHERE ms.""TicketId"" = ts.""Id""
+            "
+        );
     }
 
     /// <inheritdoc />
