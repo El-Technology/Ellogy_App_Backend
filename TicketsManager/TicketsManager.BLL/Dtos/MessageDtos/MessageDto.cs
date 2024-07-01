@@ -10,6 +10,11 @@ public class MessageDto
     public string Sender { get; set; }
 
     /// <summary>
+    /// The user id of the sender.
+    /// </summary>
+    public Guid? UserId { get; set; }
+
+    /// <summary>
     /// The content of the message.
     /// </summary>
     public string Content { get; set; }

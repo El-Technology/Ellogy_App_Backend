@@ -7,6 +7,7 @@ public class Message
     public Guid Id { get; set; }
 
     public string Sender { get; set; }
+    public Guid? UserId { get; set; }
     public string Content { get; set; }
     public DateTime SendTime { get; set; }
     public MessageActionTypeEnum? ActionType { get; set; }

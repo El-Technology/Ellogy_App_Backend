@@ -14,6 +14,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
         builder.Property(c => c.Sender)
             .IsRequired()
             .HasMaxLength(50);
+        builder.Property(c => c.UserId);
         builder.Property(c => c.Content)
             .IsRequired();
         builder.Property(c => c.SendTime)
