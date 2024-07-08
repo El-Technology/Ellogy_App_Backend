@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Azure.Storage.Blobs;
 using System.Web;
+using UserManager.BLL.Dtos.ExternalDtos;
 using UserManager.BLL.Dtos.ProfileDto;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.BLL.Exceptions;
@@ -38,6 +39,59 @@ public class UserProfileService : IUserProfileService
         _mapper = mapper;
         _userRepository = userRepository;
         _registerService = registerService;
+    }
+
+    #region Private Methods
+
+    /// <summary>
+    ///     This method compare input user id and another one from JWT token
+    /// </summary>
+    /// <param name="inputId"></param>
+    /// <param name="idFromToken"></param>
+    /// <exception cref="Exception"></exception>
+    private void ValidateUserAccess(Guid inputId, Guid idFromToken)
+    {
+        if (inputId != idFromToken)
+            throw new Exception("You don`t have access to another user data");
+    }
+
+    /// <summary>
+    ///     This method retrieves the user by id
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    /// <exception cref="UserNotFoundException"></exception>
+    private async Task<User> GetUserByIdAsync(Guid userId)
+    {
+        var user = await _userRepository.GetUserByIdAsync(userId)
+                   ?? throw new UserNotFoundException($"User with id => {userId} was not found");
+
+        return user;
+    }
+
+    #endregion
+
+    /// <inheritdoc cref="IUserProfileService.GetUserProfileByIdAsync(Guid)" />
+    public async Task<UserDto> GetUserProfileByIdAsync(Guid userId)
+    {
+        var user = await GetUserByIdAsync(userId);
+        return _mapper.Map<UserDto>(user);
+    }
+
+    /// <inheritdoc cref="IUserProfileService.GetUserByEmailAsync(string)" />
+    public async Task<UserDto> GetUserByEmailAsync(string email)
+    {
+        var user = await _userRepository.GetUserByEmailAsync(email)
+                   ?? throw new UserNotFoundException($"User with email => {email} was not found");
+
+        return _mapper.Map<UserDto>(user);
+    }
+
+    /// <inheritdoc cref="IUserProfileService.FindUserByEmailAsync(string)" />
+    public async Task<List<UserDto>> FindUserByEmailAsync(string emailPrefix)
+    {
+        var users = await _userRepository.FindUserByEmailAsync(emailPrefix);
+        return _mapper.Map<List<UserDto>>(users);
     }
 
     /// <inheritdoc cref="IUserProfileService.UpdateUserProfileAsync(Guid, UserProfileDto, Guid)" />
@@ -164,31 +218,5 @@ public class UserProfileService : IUserProfileService
         user.Email = activateUser.UserEmail;
 
         await _userRepository.UpdateUserAsync(user);
-    }
-
-    /// <summary>
-    ///     This method compare input user id and another one from JWT token
-    /// </summary>
-    /// <param name="inputId"></param>
-    /// <param name="idFromToken"></param>
-    /// <exception cref="Exception"></exception>
-    private void ValidateUserAccess(Guid inputId, Guid idFromToken)
-    {
-        if (inputId != idFromToken)
-            throw new Exception("You don`t have access to another user data");
-    }
-
-    /// <summary>
-    ///     This method retrieves the user by id
-    /// </summary>
-    /// <param name="userId"></param>
-    /// <returns></returns>
-    /// <exception cref="UserNotFoundException"></exception>
-    private async Task<User> GetUserByIdAsync(Guid userId)
-    {
-        var user = await _userRepository.GetUserByIdAsync(userId)
-                   ?? throw new UserNotFoundException($"User with id => {userId} was not found");
-
-        return user;
     }
 }

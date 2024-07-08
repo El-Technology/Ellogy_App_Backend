@@ -104,7 +104,6 @@ public class ProfileController : ControllerBase
         return Ok(response);
     }
 
-
     /// <summary>
     ///     Uploads the user avatar.
     /// </summary>
@@ -118,7 +117,6 @@ public class ProfileController : ControllerBase
         return Ok(response);
     }
 
-
     /// <summary>
     ///     Gets the user profile.
     /// </summary>
@@ -128,6 +126,45 @@ public class ProfileController : ControllerBase
     public async Task<IActionResult> GetUserProfile()
     {
         var response = await _userProfileService.GetUserProfileAsync(GetUserIdFromToken());
+        return Ok(response);
+    }
+
+    /// <summary>
+    ///    Gets the user profile by identifier.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("getUserProfileById")]
+    public async Task<IActionResult> GetUserProfileById(Guid userId)
+    {
+        var response = await _userProfileService.GetUserProfileByIdAsync(userId);
+        return Ok(response);
+    }
+
+    /// <summary>
+    ///    Finds the user profile by email.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("findUserProfileByEmail")]
+    public async Task<IActionResult> FindUserProfileByEmail(string email)
+    {
+        var response = await _userProfileService.FindUserByEmailAsync(email);
+        return Ok(response);
+    }
+
+    /// <summary>
+    ///   Gets the user profile by email.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("getUserProfileByEmail")]
+    public async Task<IActionResult> GetUserProfileByEmail(string email)
+    {
+        var response = await _userProfileService.GetUserByEmailAsync(email);
         return Ok(response);
     }
 }

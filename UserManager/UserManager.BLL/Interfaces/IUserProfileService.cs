@@ -1,4 +1,5 @@
-﻿using UserManager.BLL.Dtos.ProfileDto;
+﻿using UserManager.BLL.Dtos.ExternalDtos;
+using UserManager.BLL.Dtos.ProfileDto;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.Common.Models.AvatarImage;
 
@@ -49,4 +50,7 @@ public interface IUserProfileService
 
     Task ChangeUserEmailAsync(Guid userId, SendVerificationEmailDto sendVerificationEmailDto);
     Task VerifyUserEmailAsync(Guid userId, ActivateUserAccountDto activateUser);
+    Task<List<UserDto>> FindUserByEmailAsync(string emailPrefix);
+    Task<UserDto> GetUserByEmailAsync(string email);
+    Task<UserDto> GetUserProfileByIdAsync(Guid userId);
 }
