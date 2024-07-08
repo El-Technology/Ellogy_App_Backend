@@ -230,6 +230,42 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/dev/Profile/getUserProfileById",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/Profile/getUserProfileById",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Profile/findUserProfileByEmail",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/Profile/findUserProfileByEmail",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5281
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/dev/Profile/getUserProfileByEmail",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamPathTemplate": "/api/Profile/getUserProfileByEmail",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5281
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/Tickets/getTickets/{userId}",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/Tickets/tickets/{userId}",

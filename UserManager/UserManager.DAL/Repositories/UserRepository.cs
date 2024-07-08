@@ -59,4 +59,13 @@ public class UserRepository : IUserRepository
     {
         return _context.Users.FirstOrDefaultAsync(e => string.Equals(email.ToLower(), e.Email.ToLower()));
     }
+
+    /// <inheritdoc cref="IUserRepository.FindUserByEmailAsync" />/>
+    public async Task<List<User>> FindUserByEmailAsync(string emailPrefix)
+    {
+        return await _context.Users
+            .Where(u => u.Email.ToLower().StartsWith(emailPrefix.ToLower()))
+            .Take(5)
+            .ToListAsync();
+    }
 }
