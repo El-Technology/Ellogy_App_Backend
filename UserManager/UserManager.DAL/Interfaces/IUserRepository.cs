@@ -53,5 +53,11 @@ public interface IUserRepository
     /// <param name="user"></param>
     /// <returns></returns>
     Task DeleteUserAsync(User user);
+
+    /// <summary>
+    ///    Find user by email
+    /// </summary>
+    /// <param name="emailPrefix"></param>
+    /// <returns></returns>
     Task<List<User>> FindUserByEmailAsync(string emailPrefix);
 }

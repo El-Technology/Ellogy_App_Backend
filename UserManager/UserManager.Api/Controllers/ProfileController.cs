@@ -145,13 +145,13 @@ public class ProfileController : ControllerBase
     /// <summary>
     ///    Finds the user profile by email.
     /// </summary>
-    /// <param name="email"></param>
+    /// <param name="emailPrefix"></param>
     /// <returns></returns>
     [HttpGet]
     [Route("findUserProfileByEmail")]
-    public async Task<IActionResult> FindUserProfileByEmail(string email)
+    public async Task<IActionResult> FindUserProfileByEmail(string emailPrefix)
     {
-        var response = await _userProfileService.FindUserByEmailAsync(email);
+        var response = await _userProfileService.FindUserByEmailAsync(emailPrefix);
         return Ok(response);
     }
 
