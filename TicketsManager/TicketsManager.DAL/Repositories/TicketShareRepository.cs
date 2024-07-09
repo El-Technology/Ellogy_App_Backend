@@ -74,6 +74,13 @@ public class TicketShareRepository : ITicketShareRepository
         await _context.SaveChangesAsync();
     }
 
+    /// <inheritdoc cref="ITicketShareRepository.CreateManyTicketSharesAsync" />
+    public async Task CreateManyTicketSharesAsync(List<TicketShare> ticketShares)
+    {
+        await _context.AddRangeAsync(ticketShares);
+        await _context.SaveChangesAsync();
+    }
+
     /// <inheritdoc cref="ITicketShareRepository.GetTicketSharesAsync" />
     public async Task<PaginationResponseDto<TicketShare>> GetTicketSharesAsync(
         Guid ticketId, PaginationRequestDto paginationRequestDto)

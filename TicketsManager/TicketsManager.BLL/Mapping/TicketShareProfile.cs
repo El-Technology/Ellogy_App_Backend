@@ -24,6 +24,22 @@ public class TicketShareProfile : Profile
             .ForMember(dest => dest.Ticket, opt =>
                 opt.Ignore());
 
+        CreateMap<CreateTicketShareBaseDto, TicketShare>()
+                   .ForMember(dest => dest.Id, opt => opt.Ignore())
+                   .ForMember(dest => dest.GivenAt, opt => opt.Ignore())
+                   .ForMember(dest => dest.Ticket, opt => opt.Ignore())
+                   .ForMember(dest => dest.TicketId, opt => opt.Ignore())
+                   .ForMember(dest => dest.SharedUserId, opt => opt.Ignore())
+                   .ForMember(dest => dest.RevokedAt, opt => opt.Ignore())
+                   .ForMember(dest => dest.Permission, opt => opt.Ignore());
+
+        CreateMap<CreateManyTicketShareDto, TicketShare>()
+            .ForMember(dest => dest.TicketCurrentStep, opt => opt.Ignore())
+            .ForMember(dest => dest.SubStageEnum, opt => opt.Ignore())
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.GivenAt, opt => opt.Ignore())
+            .ForMember(dest => dest.Ticket, opt => opt.Ignore());
+
         CreateMap<PaginationResponseDto<TicketShare>, PaginationResponseDto<GetTicketShareDto>>();
     }
 }

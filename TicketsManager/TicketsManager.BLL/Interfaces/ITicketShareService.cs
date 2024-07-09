@@ -4,6 +4,8 @@ using TicketsManager.Common.Dtos;
 namespace TicketsManager.BLL.Interfaces;
 public interface ITicketShareService
 {
+    Task CreateManyTicketSharesAsync(Guid ownerId, CreateManyTicketShareDto createTicketShareDto);
+
     /// <summary>
     /// Create a new ticket share
     /// </summary>
