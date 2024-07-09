@@ -2,6 +2,7 @@
 using UserManager.BLL.Dtos.PasswordDtos;
 using UserManager.BLL.Exceptions;
 using UserManager.BLL.Interfaces;
+using UserManager.Common.Exceptions;
 using UserManager.Common.Helpers;
 using UserManager.Common.Models.NotificationModels;
 using UserManager.DAL.Interfaces;
@@ -87,6 +88,9 @@ public class PasswordService : IPasswordService
 
         var user = await _userRepository.GetUserByForgetPasswordIdAsync(resetPasswordDto.Id) ??
                    throw new UserNotFoundException();
+
+        if (CryptoHelper.ConfirmPassword(resetPasswordDto.Password, user.Salt, user.Password))
+            throw new PasswordValidationException("Your password should be different from old one");
 
         var newSalt = CryptoHelper.GenerateSalt();
         var hashedNewPassword = CryptoHelper.GetHash(resetPasswordDto.Password, newSalt);
