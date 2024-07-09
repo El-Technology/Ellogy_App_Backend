@@ -178,9 +178,6 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc cref="IUserProfileService.ChangeUserEmailAsync(Guid, SendVerificationEmailDto)" />
     public async Task ChangeUserEmailAsync(Guid userId, SendVerificationEmailDto sendVerificationEmailDto)
     {
-        if (!EmailHelper.IsValidEmail(sendVerificationEmailDto.UserEmail))
-            throw new InvalidEmailException();
-
         if (await _userRepository.CheckEmailIsExistAsync(sendVerificationEmailDto.UserEmail))
             throw new UserAlreadyExistException(sendVerificationEmailDto.UserEmail);
 
@@ -198,9 +195,6 @@ public class UserProfileService : IUserProfileService
     /// <inheritdoc cref="IUserProfileService.VerifyUserEmailAsync(Guid, ActivateUserAccountDto)" />
     public async Task VerifyUserEmailAsync(Guid userId, ActivateUserAccountDto activateUser)
     {
-        if (!EmailHelper.IsValidEmail(activateUser.UserEmail))
-            throw new InvalidEmailException();
-
         if (await _userRepository.CheckEmailIsExistAsync(activateUser.UserEmail))
             throw new UserAlreadyExistException(activateUser.UserEmail);
 

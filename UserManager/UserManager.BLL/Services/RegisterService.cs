@@ -49,9 +49,6 @@ public class RegisterService : IRegisterService
     /// <inheritdoc cref="IRegisterService.RegisterUserAsync" />
     public async Task RegisterUserAsync(UserRegisterRequestDto userRegister)
     {
-        if (!EmailHelper.IsValidEmail(userRegister.Email))
-            throw new InvalidEmailException();
-
         var user = _mapper.Map<User>(userRegister);
 
         if (await _userRepository.CheckEmailIsExistAsync(user.Email))
