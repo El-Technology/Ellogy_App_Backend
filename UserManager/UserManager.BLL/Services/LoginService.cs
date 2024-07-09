@@ -30,11 +30,11 @@ public class LoginService : ILoginService
         var user = await _userRepository.GetUserByEmailAsync(loginUser.Email) ??
                    throw new UserNotFoundException(loginUser.Email);
 
-        if (!user.IsAccountActivated)
-            throw new EmailVerificationException();
-
         if (!CryptoHelper.ConfirmPassword(loginUser.Password, user.Salt, user.Password))
             throw new FailedLoginException();
+
+        if (!user.IsAccountActivated)
+            throw new EmailVerificationException();
 
         var loggedInUser = _mapper.Map<LoginResponseDto>(user);
         loggedInUser.Jwt = await JwtHelper.GenerateJwtAsync(user);
