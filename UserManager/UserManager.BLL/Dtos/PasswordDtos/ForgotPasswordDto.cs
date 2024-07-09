@@ -1,7 +1,10 @@
-﻿namespace UserManager.BLL.Dtos.PasswordDtos;
+﻿using UserManager.Common.Attributes;
+
+namespace UserManager.BLL.Dtos.PasswordDtos;
 
 public class ForgotPasswordDto
 {
-    public string Email { get; set; }
+    [EmailValidation]
+    public string Email { get; set; } = string.Empty;
     public string RedirectUrl { get; set; }
 }
