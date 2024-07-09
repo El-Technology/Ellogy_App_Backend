@@ -50,6 +50,21 @@ public class TicketShareController : Controller
     }
 
     /// <summary>
+    ///   Controller for creating many ticket shares
+    /// </summary>
+    /// <param name="createManyTicketShareDto"></param>
+    /// <returns></returns>
+    [HttpPost("createManyTicketShares")]
+    public async Task<IActionResult> CreateTicketSharesAsync(
+               [FromBody] CreateManyTicketShareDto createManyTicketShareDto)
+    {
+        await _ticketShareService.CreateManyTicketSharesAsync(
+            GetUserIdFromToken(), createManyTicketShareDto);
+
+        return Ok();
+    }
+
+    /// <summary>
     ///   Controller for getting list of shares
     /// </summary>
     /// <param name="paginationRequestDto"></param>

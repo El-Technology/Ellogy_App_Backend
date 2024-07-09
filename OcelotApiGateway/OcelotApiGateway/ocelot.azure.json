@@ -326,6 +326,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/dev/TicketShare/createManyTicketShares",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamPathTemplate": "/api/TicketShare/createManyTicketShares",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5041
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/TicketShare/getListOfShares",
       "UpstreamHttpMethod": [ "Post" ],
       "DownstreamPathTemplate": "/api/TicketShare/getListOfShares",

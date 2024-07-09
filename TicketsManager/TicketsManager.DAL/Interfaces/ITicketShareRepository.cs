@@ -7,6 +7,7 @@ public interface ITicketShareRepository
 {
     Task CheckIfUserHaveAccessToComponentByTicketIdAsync(
         Guid ticketId, Guid userId, TicketCurrentStepEnum currentStepEnum, SharePermissionEnum requireSharePermissionEnum);
+    Task CreateManyTicketSharesAsync(List<TicketShare> ticketShares);
 
     /// <summary>
     /// Create a new ticket share

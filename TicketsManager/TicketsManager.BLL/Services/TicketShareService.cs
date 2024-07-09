@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text;
 using TicketsManager.BLL.Dtos.TicketShareDtos;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.BLL.Interfaces.External;
@@ -44,7 +45,7 @@ public class TicketShareService : ITicketShareService
             throw new InvalidOperationException("Invalid permission enum");
     }
 
-    private void SendNotificationInBackgroundAsync(Guid ownerId, CreateTicketShareDto createTicketShareDto)
+    private void SendNotificationInBackgroundAsync(Guid ownerId, List<TicketShare> createTicketShareDto)
     {
         _ = Task.Run(async () =>
         {
@@ -53,35 +54,38 @@ public class TicketShareService : ITicketShareService
             var ticketShareRepository = scope.ServiceProvider.GetRequiredService<ITicketShareRepository>();
             var serviceBusQueue = scope.ServiceProvider.GetRequiredService<IServiceBusQueue>();
 
-            var accessTo = "All";
+            var accessToBuilder = new StringBuilder();
 
-            if (createTicketShareDto.TicketCurrentStep is not null)
-                accessTo = createTicketShareDto.TicketCurrentStep.ToString();
+            foreach (var share in createTicketShareDto)
+            {
+                if (share.TicketCurrentStep is not null && share.SubStageEnum is null)
+                    accessToBuilder.Append($"{share.TicketCurrentStep.ToString()} ");
 
-            if (createTicketShareDto.TicketCurrentStep == TicketCurrentStepEnum.General
-                && createTicketShareDto.SubStageEnum is not null)
-                accessTo = createTicketShareDto.SubStageEnum.ToString();
+                if (share.TicketCurrentStep == TicketCurrentStepEnum.General
+                    && share.SubStageEnum is not null)
+                    accessToBuilder.Append($"{share.SubStageEnum.ToString()} ");
+            }
 
             var users = await userExternalService.GetUsersByIdsAsync(new List<Guid>
             {
                 ownerId,
-                createTicketShareDto.SharedUserId
+                createTicketShareDto.First().SharedUserId
             });
 
             var ticketTitle = await ticketShareRepository
-                .GetTicketTitleByTicketIdAsync(createTicketShareDto.TicketId);
+                .GetTicketTitleByTicketIdAsync(createTicketShareDto.First().TicketId);
 
             var ownerModel = users.FirstOrDefault(a => a.Id == ownerId) ?? new();
 
             await serviceBusQueue.SendMessageAsync(
                 NotificationHelper.CreateSharingNotification(new SharingNotificationDto
                 {
-                    ConsumerEmail = users.FirstOrDefault(a => a.Id == createTicketShareDto.SharedUserId)!.Email,
-                    AccessTo = $"{accessTo}",
+                    ConsumerEmail = users.FirstOrDefault(a => a.Id == createTicketShareDto.First().SharedUserId)!.Email,
+                    AccessTo = string.IsNullOrEmpty(accessToBuilder.ToString()) ? "All" : accessToBuilder.ToString(),
                     OwnerEmail = ownerModel.Email,
                     OwnerFistName = ownerModel.FirstName,
                     OwnerLastName = ownerModel.LastName,
-                    Permission = createTicketShareDto.Permission.ToString(),
+                    Permission = createTicketShareDto.First().Permission.ToString(),
                     TicketTitle = ticketTitle ?? string.Empty
                 }));
         });
@@ -99,7 +103,29 @@ public class TicketShareService : ITicketShareService
         var ticketShare = _mapper.Map<CreateTicketShareDto, TicketShare>(createTicketShareDto);
         await _ticketShareRepository.CreateTicketShareAsync(ticketShare);
 
-        SendNotificationInBackgroundAsync(ownerId, createTicketShareDto);
+        SendNotificationInBackgroundAsync(ownerId, new() { ticketShare });
+    }
+
+    /// <inheritdoc cref="ITicketShareService.CreateManyTicketSharesAsync" />
+    public async Task CreateManyTicketSharesAsync(Guid ownerId, CreateManyTicketShareDto createManyTicketShareDto)
+    {
+        VerifyPermissionEnum(createManyTicketShareDto.Permission);
+        await VerifyIfUserIsTicketOwnerAsync(ownerId, createManyTicketShareDto.TicketId);
+
+        var ticketShares = _mapper.Map<List<TicketShare>>(createManyTicketShareDto.CreateTicketShareDtos);
+
+        foreach (var ticketShare in ticketShares)
+        {
+            ticketShare.SharedUserId = createManyTicketShareDto.SharedUserId;
+            ticketShare.RevokedAt = createManyTicketShareDto.RevokedAt;
+            ticketShare.Permission = createManyTicketShareDto.Permission;
+            ticketShare.TicketId = createManyTicketShareDto.TicketId;
+            ticketShare.GivenAt = DateTime.UtcNow;
+        }
+
+        await _ticketShareRepository.CreateManyTicketSharesAsync(ticketShares);
+
+        SendNotificationInBackgroundAsync(ownerId, ticketShares);
     }
 
     /// <inheritdoc cref="ITicketShareService.GetListOfSharesAsync" />
