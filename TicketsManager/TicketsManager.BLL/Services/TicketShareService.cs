@@ -97,6 +97,9 @@ public class TicketShareService : ITicketShareService
     public async Task CreateTicketShareAsync(
         Guid ownerId, CreateTicketShareDto createTicketShareDto)
     {
+        if (ownerId == createTicketShareDto.SharedUserId)
+            throw new InvalidOperationException("User can't share ticket with himself");
+
         VerifyPermissionEnum(createTicketShareDto.Permission);
         await VerifyIfUserIsTicketOwnerAsync(ownerId, createTicketShareDto.TicketId);
 
@@ -109,6 +112,9 @@ public class TicketShareService : ITicketShareService
     /// <inheritdoc cref="ITicketShareService.CreateManyTicketSharesAsync" />
     public async Task CreateManyTicketSharesAsync(Guid ownerId, CreateManyTicketShareDto createManyTicketShareDto)
     {
+        if (ownerId == createManyTicketShareDto.SharedUserId)
+            throw new InvalidOperationException("User can't share ticket with himself");
+
         VerifyPermissionEnum(createManyTicketShareDto.Permission);
         await VerifyIfUserIsTicketOwnerAsync(ownerId, createManyTicketShareDto.TicketId);
 
