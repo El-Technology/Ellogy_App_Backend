@@ -2,6 +2,6 @@
 
 public class PasswordResetFailedException : Exception
 {
-    public PasswordResetFailedException() : base("Password reset is failed")
+    public PasswordResetFailedException(string? message = "Password reset is failed") : base(message)
     { }
 }
