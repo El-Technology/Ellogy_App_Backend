@@ -144,8 +144,8 @@ public class PaymentConsumer : StripeBaseService, IHostedService
             StartDate = subscription.CurrentPeriodStart,
             UserId = Guid.Parse(subscription.Metadata[MetadataConstants.UserId]),
             SubscriptionStripeId = subscription.Id
-        }, AccountPlan.Free);
-        await userExternalHttpService.UpdateAccountPlanAsync(Guid.Parse(subscription.Metadata[MetadataConstants.UserId]), AccountPlan.Free);
+        }, AccountPlan.Basic);
+        await userExternalHttpService.UpdateAccountPlanAsync(Guid.Parse(subscription.Metadata[MetadataConstants.UserId]), AccountPlan.Basic);
     }
 
     private async Task<bool> CheckIfFreeSubscriptionWasCreated(Guid userId)

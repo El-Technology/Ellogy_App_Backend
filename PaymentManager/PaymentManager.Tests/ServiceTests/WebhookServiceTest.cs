@@ -305,7 +305,7 @@ public class WebhookServiceTest : StripeBaseServiceForTests
             .ReturnsAsync(currentSubscription);
 
         _productCatalogService.Setup(x => x.GetProductByNameAsync(It.Is<string>(a =>
-            a.Equals(AccountPlan.Free.ToString())))).ReturnsAsync(freeProduct);
+            a.Equals(AccountPlan.Basic.ToString())))).ReturnsAsync(freeProduct);
 
         _subscriptionService.Setup(x => x.UpdateAsync(It.IsAny<string>(), It.IsAny<SubscriptionUpdateOptions>(),
             null, default)).ReturnsAsync(newSubscription);
@@ -325,7 +325,7 @@ public class WebhookServiceTest : StripeBaseServiceForTests
         //Assert
         _subscriptionService.Verify(x => x.GetAsync(It.IsAny<string>(), null, null, default), Times.Once);
         _productCatalogService.Verify(x => x.GetProductByNameAsync(It.Is<string>(a =>
-            a.Equals(AccountPlan.Free.ToString()))), Times.Once);
+            a.Equals(AccountPlan.Basic.ToString()))), Times.Once);
         _subscriptionService.Verify(x => x.UpdateAsync(It.IsAny<string>(), It.IsAny<SubscriptionUpdateOptions>(),
             null, default), Times.Once);
         _invoiceService.Verify(x => x.VoidInvoiceAsync(It.IsAny<string>(), null, null, default), Times.Once);
@@ -399,7 +399,7 @@ public class WebhookServiceTest : StripeBaseServiceForTests
             .ReturnsAsync(currentSubscription);
 
         _productCatalogService.Setup(x => x.GetProductByNameAsync(It.Is<string>(a =>
-            a.Equals(AccountPlan.Free.ToString())))).ReturnsAsync(freeProduct);
+            a.Equals(AccountPlan.Basic.ToString())))).ReturnsAsync(freeProduct);
 
         _subscriptionService.Setup(x => x.UpdateAsync(It.IsAny<string>(), It.IsAny<SubscriptionUpdateOptions>(),
             null, default)).ReturnsAsync(newSubscription);
@@ -419,7 +419,7 @@ public class WebhookServiceTest : StripeBaseServiceForTests
         //Assert
         _subscriptionService.Verify(x => x.GetAsync(It.IsAny<string>(), null, null, default), Times.Once);
         _productCatalogService.Verify(x => x.GetProductByNameAsync(It.Is<string>(a =>
-            a.Equals(AccountPlan.Free.ToString()))), Times.Never);
+            a.Equals(AccountPlan.Basic.ToString()))), Times.Never);
         _subscriptionService.Verify(x => x.UpdateAsync(It.IsAny<string>(), It.IsAny<SubscriptionUpdateOptions>(),
             null, default), Times.Once);
         _invoiceService.Verify(x => x.VoidInvoiceAsync(It.IsAny<string>(), null, null, default), Times.Once);
