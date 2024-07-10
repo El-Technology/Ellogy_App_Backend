@@ -106,7 +106,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
         if (user.AccountPlan is not null)
             throw new Exception("You already have subscription");
 
-        var product = await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString());
+        var product = await _productCatalogService.GetProductByNameAsync(AccountPlan.Basic.ToString());
 
         await IfUserAbleToUsePaymentAsync(user, true);
 
@@ -116,7 +116,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
             Items = new List<SubscriptionItemOptions> { new() { Price = product.PriceId } },
             Metadata = new Dictionary<string, string>
             {
-                { MetadataConstants.AccountPlan, AccountPlan.Free.ToString() },
+                { MetadataConstants.AccountPlan, AccountPlan.Basic.ToString() },
                 { MetadataConstants.UserId, user.Id.ToString() },
                 { MetadataConstants.ProductName, product.Name },
                 { MetadataConstants.ConnectionId, signalRModel.ConnectionId },
@@ -146,7 +146,7 @@ public class PaymentSessionService : StripeBaseService, IPaymentSessionService
 
         var productModel = await _productCatalogService.GetProductAsync(getProductId);
 
-        if (productModel.Name.Contains(AccountPlan.Free.ToString()))
+        if (productModel.Name.Contains(AccountPlan.Basic.ToString()))
             throw new Exception("You can`t cancel Free subscription");
 
         await GetSubscriptionService().UpdateAsync(customerData.Subscriptions.FirstOrDefault()?.Id,

@@ -1,4 +1,4 @@
-﻿namespace UserManager.BLL.Exceptions;
+﻿namespace UserManager.Common.Exceptions;
 public class InvalidEmailException : Exception
 {
     private const string MessageTemplate = "Email {0} is not valid";

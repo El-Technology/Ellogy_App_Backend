@@ -1,4 +1,6 @@
-﻿namespace UserManager.BLL.Dtos.RegisterDtos;
+﻿using UserManager.Common.Attributes;
+
+namespace UserManager.BLL.Dtos.RegisterDtos;
 
 /// <summary>
 /// Represents the data required to register a new user.
@@ -18,7 +20,8 @@ public class UserRegisterRequestDto
     /// <summary>
     /// The email address of the user.
     /// </summary>
-    public string Email { get; set; }
+    [EmailValidation]
+    public string Email { get; set; } = string.Empty;
 
     /// <summary>
     /// The phone number of the user.
@@ -28,7 +31,8 @@ public class UserRegisterRequestDto
     /// <summary>
     /// The password of the user. Will hashed during registration
     /// </summary>
-    public string Password { get; set; }
+    [PasswordValidation]
+    public string Password { get; set; } = string.Empty;
 
     /// <summary>
     /// The organization name of the user.
