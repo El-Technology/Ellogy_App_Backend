@@ -87,13 +87,17 @@ public class TicketsRepository : ITicketsRepository
     }
 
     /// <inheritdoc cref="ITicketsRepository.GetTicketByIdAsync" />
-    public Task<Ticket?> GetTicketByIdAsync(Guid id)
+    public Task<Ticket?> GetTicketByIdAsync(Guid id, Guid userId)
     {
-        return _context.Tickets
-            .Include(e => e.TicketMessages)
-            .Include(e => e.Notifications)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == id);
+        return GetTicketsByUserIdQuery(userId)
+           .FirstOrDefaultAsync(e => e.Id == id);
+
+        //return _context.Tickets
+        //    .Include(e => e.TicketMessages)
+        //    .Include(e => e.Notifications)
+        //    .Include(e=>e.TicketShares.Where(a=>a.SharedUserId == ))
+        //    .AsNoTracking()
+        //    .FirstOrDefaultAsync(e => e.Id == id);
     }
 
     /// <inheritdoc cref="ITicketsRepository.DeleteTicketAsync" />
