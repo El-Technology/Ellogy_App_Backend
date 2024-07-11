@@ -25,7 +25,8 @@ public static class DiExtension
             .AddScoped<IServiceBusQueue, ServiceBusQueue>()
             .AddScoped<ITicketShareExternalService, TicketShareExternalService>()
             .AddScoped<ServiceBusClient>(_ => new(busConnectionString))
-            .AddScoped<ITicketMessageService, TicketMessageService>();
+            .AddScoped<ITicketMessageService, TicketMessageService>()
+            .AddScoped<ITicketNotificationService, TicketNotificationService>();
     }
 
     public static IServiceCollection AddMapping(this IServiceCollection services)

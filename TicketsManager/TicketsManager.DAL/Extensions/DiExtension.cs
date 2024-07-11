@@ -18,6 +18,7 @@ public static class DiExtension
             .AddScoped<ITicketSummaryRepository, TicketSummaryRepository>()
             .AddScoped<IUserStoryTestRepository, UserStoryTestRepository>()
             .AddScoped<ITicketShareRepository, TicketShareRepository>()
-            .AddScoped<ITicketMessageRepository, TicketMessageRepository>();
+            .AddScoped<ITicketMessageRepository, TicketMessageRepository>()
+            .AddScoped<ITicketNotificationRepository, TicketNotificationRepository>();
     }
 }

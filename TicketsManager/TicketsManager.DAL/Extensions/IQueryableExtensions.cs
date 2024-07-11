@@ -7,6 +7,13 @@ namespace TicketsManager.DAL.Extensions;
 
 public static class QueryableExtensions
 {
+    public static async Task<PaginationResponseDto<Notification>> GetFinalResultAsync(
+    this IQueryable<Notification> notification, PaginationRequestDto pagination)
+    {
+        return await notification
+            .GetPaginatedCollectionAsync(pagination);
+    }
+
     public static async Task<PaginationResponseDto<TicketShare>> GetFinalResultAsync(
         this IQueryable<TicketShare> ticketShares, PaginationRequestDto pagination)
     {

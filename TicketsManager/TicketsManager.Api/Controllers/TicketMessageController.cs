@@ -43,6 +43,7 @@ public class TicketMessageController : ControllerBase
     [ProducesResponseType(typeof(PaginationResponseDto<MessageResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [HttpPost]
     [Route("getMessages")]
     public async Task<IActionResult> GetTicketMessagesByTicketIdAsync(
@@ -64,6 +65,7 @@ public class TicketMessageController : ControllerBase
     /// <returns></returns>
     [ProducesResponseType(typeof(MessageResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [HttpPut]
     [Route("updateMessage")]
     public async Task<IActionResult> UpdateMessageAsync(
@@ -84,6 +86,7 @@ public class TicketMessageController : ControllerBase
     /// <returns></returns>
     [ProducesResponseType(typeof(IEnumerable<MessageResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [HttpPut]
     [Route("updateRangeMessages")]
     public async Task<IActionResult> UpdateRangeMessagesAsync(
@@ -104,6 +107,7 @@ public class TicketMessageController : ControllerBase
     /// <returns></returns>
     [ProducesResponseType(typeof(MessageResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [HttpPost]
     [Route("createMessage")]
     public async Task<IActionResult> CreateMessageAsync(
@@ -124,6 +128,7 @@ public class TicketMessageController : ControllerBase
     /// <returns></returns>
     [ProducesResponseType(typeof(IEnumerable<MessageResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [HttpPost]
     [Route("createRangeMessages")]
     public async Task<IActionResult> CreateRangeMessagesAsync(
@@ -145,6 +150,7 @@ public class TicketMessageController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [HttpDelete]
     [Route("deleteMessage")]
     public async Task<IActionResult> DeleteMessageAsync(
@@ -166,6 +172,7 @@ public class TicketMessageController : ControllerBase
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
     [HttpDelete]
     [Route("deleteRangeMessages")]
     public async Task<IActionResult> DeleteRangeMessagesAsync(
