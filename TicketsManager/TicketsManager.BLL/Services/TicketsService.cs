@@ -167,7 +167,7 @@ public class TicketsService : ITicketsService
     /// <inheritdoc cref="ITicketsService.DeleteTicketAsync(Guid, Guid)"/>
     public async Task DeleteTicketAsync(Guid ticketId, Guid userIdFromToken)
     {
-        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId, userIdFromToken)
             ?? throw new TicketNotFoundException(ticketId);
 
         OwnerValidation(ticket.UserId, userIdFromToken);
@@ -182,7 +182,7 @@ public class TicketsService : ITicketsService
         CheckTicketEnums(ticketUpdate.Status, ticketUpdate.CurrentStep);
         CheckMessageUpdateEnums(ticketUpdate.Messages);
 
-        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId, userIdFromToken)
                      ?? throw new TicketNotFoundException(ticketId);
 
         await ValidateUserPermissionAsync(ticketId, userIdFromToken, SharePermissionEnum.ReadWrite);
