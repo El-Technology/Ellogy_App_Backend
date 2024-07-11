@@ -18,6 +18,45 @@ public class TicketShareRepository : ITicketShareRepository
         _context = context;
     }
 
+    public async Task CheckIfUserHaveAccessToSubStageByTicketIdAsync(
+        Guid ticketId, Guid userId, SubStageEnum? subStageEnum, SharePermissionEnum requireSharePermissionEnum)
+    {
+        var ticket = await _context.Tickets
+            .Include(e => e.TicketShares.
+                Where(a =>
+                    a.TicketId == ticketId &&
+                    a.SharedUserId == userId &&
+                    (
+                        a.RevokedAt > DateTime.UtcNow ||
+                        a.RevokedAt == null
+                    ) &&
+                    a.Permission >= requireSharePermissionEnum &&
+                    (
+                        (
+                            a.SubStageEnum == subStageEnum &&
+                            a.TicketCurrentStep == TicketCurrentStepEnum.General
+                        ) ||
+                        a.TicketCurrentStep == null ||
+                        (
+                            a.SubStageEnum == SubStageEnum.FunctionalRequirements &&
+                            requireSharePermissionEnum == SharePermissionEnum.Read
+                        ) ||
+                        (
+                            a.SubStageEnum == null &&
+                            a.TicketCurrentStep == TicketCurrentStepEnum.General
+                        )
+                     )
+                )
+            )
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Id == ticketId);
+
+        if (ticket is not null && ticket.UserId == userId)
+            return;
+        if (ticket is null || ticket.TicketShares.Count == 0)
+            throw new ForbiddenException(userId);
+    }
+
     public async Task CheckIfUserHaveAccessToComponentByTicketIdAsync(
         Guid ticketId, Guid userId, TicketCurrentStepEnum currentStepEnum, SharePermissionEnum requireSharePermissionEnum)
     {

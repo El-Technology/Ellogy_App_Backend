@@ -14,6 +14,13 @@ public static class QueryableExtensions
             .GetPaginatedCollectionAsync(pagination);
     }
 
+    public static async Task<PaginationResponseDto<Message>> GetFinalResultAsync(
+    this IQueryable<Message> messages, PaginationRequestDto pagination)
+    {
+        return await messages
+            .GetPaginatedCollectionAsync(pagination);
+    }
+
     public static async Task<PaginationResponseDto<Ticket>> GetFinalResultAsync(
         this IQueryable<Ticket> tickets, PaginationRequestDto pagination)
     {
