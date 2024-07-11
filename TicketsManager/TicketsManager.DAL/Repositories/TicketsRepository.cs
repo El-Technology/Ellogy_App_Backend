@@ -91,13 +91,6 @@ public class TicketsRepository : ITicketsRepository
     {
         return GetTicketsByUserIdQuery(userId)
            .FirstOrDefaultAsync(e => e.Id == id);
-
-        //return _context.Tickets
-        //    .Include(e => e.TicketMessages)
-        //    .Include(e => e.Notifications)
-        //    .Include(e=>e.TicketShares.Where(a=>a.SharedUserId == ))
-        //    .AsNoTracking()
-        //    .FirstOrDefaultAsync(e => e.Id == id);
     }
 
     /// <inheritdoc cref="ITicketsRepository.DeleteTicketAsync" />
