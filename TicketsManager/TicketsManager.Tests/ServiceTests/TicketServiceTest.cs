@@ -156,7 +156,7 @@ public class TicketServiceTest
         var userIdFromToken = _fixture.Create<Guid>();
         var ticket = _fixture.Create<Ticket>();
 
-        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId))
+        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId, userIdFromToken))
             .ReturnsAsync(ticket);
 
         // Act
@@ -176,7 +176,7 @@ public class TicketServiceTest
         var ticket = _fixture.Create<Ticket>();
         ticket.UserId = userIdFromToken;
 
-        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticket.Id))
+        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticket.Id, userIdFromToken))
             .ReturnsAsync(ticket);
 
         // Act
@@ -193,7 +193,7 @@ public class TicketServiceTest
         var ticketId = _fixture.Create<Guid>();
         var userIdFromToken = _fixture.Create<Guid>();
 
-        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId))
+        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId, userIdFromToken))
             .ReturnsAsync(null as Ticket);
 
         // Act
@@ -214,7 +214,7 @@ public class TicketServiceTest
         var ticket = _fixture.Create<Ticket>();
         ticket.UserId = userIdFromToken;
 
-        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId))
+        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId, userIdFromToken))
             .ReturnsAsync(ticket);
 
         _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
@@ -238,7 +238,7 @@ public class TicketServiceTest
         var ticketUpdateRequestDto = _fixture.Create<TicketUpdateRequestDto>();
         var userIdFromToken = _fixture.Create<Guid>();
 
-        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId))
+        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId, userIdFromToken))
             .ReturnsAsync(null as Ticket);
 
         _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
@@ -265,7 +265,7 @@ public class TicketServiceTest
         var ticket = _fixture.Create<Ticket>();
         ticket.UserId = userIdFromToken;
 
-        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId))
+        _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId, userIdFromToken))
             .ReturnsAsync(ticket);
 
         _ticketsRepository.Setup(x => x.CheckTicketUpdateIds(ticket))
