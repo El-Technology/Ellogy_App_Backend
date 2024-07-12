@@ -37,7 +37,7 @@ public class TicketsService : ITicketsService
     private async Task ValidateUserPermissionAsync(
     Guid ticketId, Guid userIdFromToken, SharePermissionEnum sharePermissionEnum)
     {
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentAsync(
             ticketId,
             userIdFromToken,
             TicketCurrentStepEnum.General,
@@ -91,7 +91,6 @@ public class TicketsService : ITicketsService
 
             CheckEnumValue(message.Action.State, typeof(MessageActionStateEnum), "Action State");
             CheckEnumValue(message.Action.Type, typeof(MessageActionTypeEnum), "Action Type");
-            CheckEnumValue(message.Stage, typeof(MessageStageEnum), "Message Stage");
         }
     }
 
@@ -103,7 +102,6 @@ public class TicketsService : ITicketsService
 
             CheckEnumValue(message.Action.State, typeof(MessageActionStateEnum), "Action State");
             CheckEnumValue(message.Action.Type, typeof(MessageActionTypeEnum), "Action Type");
-            CheckEnumValue(message.Stage, typeof(MessageStageEnum), "Message Stage");
         }
     }
 

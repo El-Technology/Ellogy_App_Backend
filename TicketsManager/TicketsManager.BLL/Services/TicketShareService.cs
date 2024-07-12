@@ -56,16 +56,24 @@ public class TicketShareService : ITicketShareService
 
             var accessToBuilder = new StringBuilder();
 
-            foreach (var share in createTicketShareDto)
+            for (var i = 0; i < createTicketShareDto.Count; i++)
             {
-                if (share.TicketCurrentStep is not null && share.SubStageEnum is null)
-                    accessToBuilder.Append($"{share.TicketCurrentStep.ToString()} ");
+                var share = createTicketShareDto[i];
+                var currentStepText = $"{share.TicketCurrentStep.ToString()}";
 
                 if (share.TicketCurrentStep == TicketCurrentStepEnum.General
                     && share.SubStageEnum is not null)
-                    accessToBuilder.Append($"{share.SubStageEnum.ToString()} ");
-            }
+                {
+                    currentStepText += $": {share.SubStageEnum.ToString()}";
+                }
 
+                accessToBuilder.Append(currentStepText);
+
+                if (i < createTicketShareDto.Count - 1)
+                {
+                    accessToBuilder.Append("<br>");
+                }
+            }
             var users = await userExternalService.GetUsersByIdsAsync(new List<Guid>
             {
                 ownerId,

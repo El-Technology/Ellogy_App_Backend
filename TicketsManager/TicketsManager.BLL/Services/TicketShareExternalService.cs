@@ -18,7 +18,7 @@ public class TicketShareExternalService : ITicketShareExternalService
         TicketCurrentStepEnum currentStepEnum,
         SharePermissionEnum requireSharePermissionEnum)
     {
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentAsync(
             ticketId,
             userId,
             currentStepEnum,

@@ -33,6 +33,20 @@ public interface ITicketNotificationRepository
     Task DeleteNotificationAsync(Guid id);
 
     /// <summary>
+    /// Get notification by id
+    /// </summary>
+    /// <param name="notificationId"></param>
+    /// <returns></returns>
+    Task<Notification?> GetNotificationAsync(Guid notificationId);
+
+    /// <summary>
+    /// Get notifications by ids
+    /// </summary>
+    /// <param name="guids"></param>
+    /// <returns></returns>
+    Task<IEnumerable<Notification>?> GetNotificationRangeAsync(List<Guid> guids);
+
+    /// <summary>
     /// Get notifications by ticket id
     /// </summary>
     /// <param name="ticketId"></param>
