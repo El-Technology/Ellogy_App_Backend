@@ -2,6 +2,7 @@
 using TicketsManager.BLL.Dtos.SummaryAcceptanceCriteriaDtos;
 using TicketsManager.BLL.Dtos.SummaryScenarioDtos;
 using TicketsManager.BLL.Dtos.TicketSummaryDtos;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Models.TicketSummaryModels;
 
 namespace TicketsManager.BLL.Mapping;
@@ -50,5 +51,7 @@ public class TicketSummaryProfile : Profile
             .ForMember(dest => dest.TicketSummary, opt =>
                 opt.Ignore())
             .ReverseMap();
+
+        CreateMap<PaginationResponseDto<TicketSummary>, PaginationResponseDto<TicketSummaryFullDto>>();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using TicketsManager.BLL.Dtos.TicketSummaryDtos;
+using TicketsManager.Common.Dtos;
 
 namespace TicketsManager.BLL.Interfaces;
 
@@ -40,4 +41,5 @@ public interface ITicketSummaryService
     Task DeleteTicketSummaryScenariosAsync(Guid userId, Guid ticketId, List<Guid> summaryScenarioIds);
     Task DeleteTicketSummaryAcceptanceCriteriaAsync(Guid userId, Guid ticketId, List<Guid> summaryAcceptanceCriteriaIds);
     Task DeleteTicketSummariesByIdsAsync(Guid userId, Guid ticketId, List<Guid> summaryIds);
+    Task<PaginationResponseDto<TicketSummaryFullDto>> GetTicketSummariesByTicketIdAsync(Guid userId, Guid ticketId, PaginationRequestDto paginationRequestDto);
 }

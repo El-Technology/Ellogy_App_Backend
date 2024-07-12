@@ -1,4 +1,5 @@
-﻿using TicketsManager.DAL.Models.TicketSummaryModels;
+﻿using TicketsManager.Common.Dtos;
+using TicketsManager.DAL.Models.TicketSummaryModels;
 
 namespace TicketsManager.DAL.Interfaces;
 
@@ -34,4 +35,13 @@ public interface ITicketSummaryRepository
     Task DeleteTicketSummaryScenariosAsync(List<Guid> summaryScenarioIds);
     Task DeleteTicketSummaryAcceptanceCriteriaAsync(List<Guid> summaryAcceptanceCriteriaIds);
     Task DeleteTicketSummariesByIdAsync(List<Guid> summaryIds);
+
+    /// <summary>
+    ///    Get ticket summaries by ticket id with pagination
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <param name="paginationRequestDto"></param>
+    /// <returns></returns>
+    Task<PaginationResponseDto<TicketSummary>> GetTicketSummariesAsync(
+        Guid ticketId, PaginationRequestDto paginationRequestDto);
 }
