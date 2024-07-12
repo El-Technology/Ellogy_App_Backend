@@ -1,14 +1,30 @@
 ﻿using TicketsManager.Common.Dtos;
 using TicketsManager.Common.Helpers;
+using TicketsManager.DAL.Dtos;
 using TicketsManager.DAL.Models.TicketModels;
+using TicketsManager.DAL.Models.TicketSummaryModels;
 using TicketsManager.DAL.Models.UsecaseModels;
 
 namespace TicketsManager.DAL.Extensions;
 
 public static class QueryableExtensions
 {
+    public static async Task<PaginationResponseDto<ReturnUserStoryTestModel>> GetFinalResultAsync(
+        this IQueryable<ReturnUserStoryTestModel> notification, PaginationRequestDto pagination)
+    {
+        return await notification
+            .GetPaginatedCollectionAsync(pagination);
+    }
+
+    public static async Task<PaginationResponseDto<TicketSummary>> GetFinalResultAsync(
+        this IQueryable<TicketSummary> notification, PaginationRequestDto pagination)
+    {
+        return await notification
+            .GetPaginatedCollectionAsync(pagination);
+    }
+
     public static async Task<PaginationResponseDto<Notification>> GetFinalResultAsync(
-    this IQueryable<Notification> notification, PaginationRequestDto pagination)
+        this IQueryable<Notification> notification, PaginationRequestDto pagination)
     {
         return await notification
             .GetPaginatedCollectionAsync(pagination);
@@ -22,7 +38,7 @@ public static class QueryableExtensions
     }
 
     public static async Task<PaginationResponseDto<Message>> GetFinalResultAsync(
-    this IQueryable<Message> messages, PaginationRequestDto pagination)
+        this IQueryable<Message> messages, PaginationRequestDto pagination)
     {
         return await messages
             .GetPaginatedCollectionAsync(pagination);

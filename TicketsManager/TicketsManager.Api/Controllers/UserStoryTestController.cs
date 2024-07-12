@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common.Dtos;
 using TicketsManager.Common.Helpers;
 
 namespace TicketsManager.Api.Controllers;
@@ -57,6 +58,20 @@ public class UserStoryTestController : ControllerBase
     public async Task<IActionResult> GetUserStoryTestsAsync([FromQuery] Guid ticketId)
     {
         return Ok(await _userStoryTestService.GetUserStoryTestsAsync(GetUserIdFromToken(), ticketId));
+    }
+
+    /// <summary>
+    ///     Controller for getting user story tests
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("getUserStoryTests")]
+    public async Task<IActionResult> GetUserStoryTestsAsync(
+        [FromQuery] Guid ticketId, [FromBody] PaginationRequestDto paginationRequest)
+    {
+        return Ok(await _userStoryTestService.GetUserStoryTestsAsync(
+            GetUserIdFromToken(), ticketId, paginationRequest));
     }
 
     /// <summary>

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos.GetDtos;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models.UserStoryTestsModels;
@@ -81,6 +82,20 @@ public class UserStoryTestService : IUserStoryTestService
             await _userStoryTestRepository
                 .GetUserStoryTests(ticketId)
                 .ToListAsync());
+    }
+
+    /// <inheritdoc cref="IUserStoryTestService.GetUserStoryTestsAsync" />
+    public async Task<PaginationResponseDto<GetUserStoryDto>> GetUserStoryTestsAsync(
+        Guid userId, Guid ticketId, PaginationRequestDto paginationRequest)
+    {
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
+            ticketId,
+            userId,
+            TicketCurrentStepEnum.TestCases,
+            SharePermissionEnum.Read);
+
+        return _mapper.Map<PaginationResponseDto<GetUserStoryDto>>(
+            await _userStoryTestRepository.GetUserStoryTestsAsync(ticketId, paginationRequest));
     }
 
     /// <inheritdoc cref="IUserStoryTestService.UpdateUserStoryTestAsync" />

@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Dtos;
+using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models.UserStoryTestsModels;
 
@@ -86,6 +88,14 @@ public class UserStoryTestRepository : IUserStoryTestRepository
     public IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(Guid ticketId)
     {
         return GetUserStoryTestQueryWithFilter(a => a.Usecase!.TicketId == ticketId);
+    }
+
+    /// <inheritdoc cref="IUserStoryTestRepository.GetUserStoryTestsAsync" />
+    public async Task<PaginationResponseDto<ReturnUserStoryTestModel>> GetUserStoryTestsAsync(
+        Guid ticketId, PaginationRequestDto paginationRequest)
+    {
+        return await GetUserStoryTestQueryWithFilter(a => a.Usecase!.TicketId == ticketId)
+            .GetFinalResultAsync(paginationRequest);
     }
 
     /// <inheritdoc cref="IUserStoryTestRepository.UpdateUserStoryTestAsync" />
