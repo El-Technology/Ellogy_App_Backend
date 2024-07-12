@@ -29,7 +29,7 @@ public class UsecasesService : IUsecasesService
     private async Task ValidateUserPermissionAsync(
         Guid ticketId, Guid userIdFromToken, SharePermissionEnum sharePermissionEnum)
     {
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
             ticketId,
             userIdFromToken,
             TicketCurrentStepEnum.Usecases,

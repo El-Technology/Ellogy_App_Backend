@@ -48,7 +48,7 @@ public class UsecasesServiceTest
         _usecasesRepository.Setup(x => x.GetUserIdByTicketIdAsync(It.IsAny<Guid>()))
             .ReturnsAsync(userIdFromToken);
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),
@@ -74,7 +74,7 @@ public class UsecasesServiceTest
         _usecasesRepository.Setup(x => x.GetUsecasesAsync(It.IsAny<PaginationRequestDto>(), It.IsAny<Guid>()))
             .ReturnsAsync(_fixture.Create<PaginationResponseDto<Usecase>>());
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),
@@ -107,7 +107,7 @@ public class UsecasesServiceTest
         _usecasesRepository.Setup(x => x.UpdateUsecaseAsync(It.IsAny<Usecase>()))
             .Returns(Task.CompletedTask);
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),
@@ -133,7 +133,7 @@ public class UsecasesServiceTest
         _usecasesRepository.Setup(x => x.DeleteUsecasesAsync(It.IsAny<Guid>()))
             .Returns(Task.CompletedTask);
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),

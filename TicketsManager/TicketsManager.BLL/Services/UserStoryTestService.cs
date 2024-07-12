@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos.GetDtos;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models.UserStoryTestsModels;
@@ -32,7 +33,7 @@ public class UserStoryTestService : IUserStoryTestService
         var ticketIdByUsecaseId = await _userStoryTestRepository.GetTicketIdByUsecaseIdAsync(
             userStoryTest.FirstOrDefault()!.UsecaseId ?? Guid.Empty);
 
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
             ticketIdByUsecaseId,
             userId,
             TicketCurrentStepEnum.TestCases,
@@ -71,7 +72,7 @@ public class UserStoryTestService : IUserStoryTestService
     /// <inheritdoc cref="IUserStoryTestService.GetUserStoryTestsAsync" />
     public async Task<List<GetUserStoryDto>> GetUserStoryTestsAsync(Guid userId, Guid ticketId)
     {
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
             ticketId,
             userId,
             TicketCurrentStepEnum.TestCases,
@@ -83,13 +84,27 @@ public class UserStoryTestService : IUserStoryTestService
                 .ToListAsync());
     }
 
+    /// <inheritdoc cref="IUserStoryTestService.GetUserStoryTestsAsync" />
+    public async Task<PaginationResponseDto<GetUserStoryDto>> GetUserStoryTestsAsync(
+        Guid userId, Guid ticketId, PaginationRequestDto paginationRequest)
+    {
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
+            ticketId,
+            userId,
+            TicketCurrentStepEnum.TestCases,
+            SharePermissionEnum.Read);
+
+        return _mapper.Map<PaginationResponseDto<GetUserStoryDto>>(
+            await _userStoryTestRepository.GetUserStoryTestsAsync(ticketId, paginationRequest));
+    }
+
     /// <inheritdoc cref="IUserStoryTestService.UpdateUserStoryTestAsync" />
     public async Task UpdateUserStoryTestAsync(Guid userId, List<UpdateUserStoryTestDto> userStoryTest)
     {
         var ticketIdByUsecaseId = await _userStoryTestRepository.GetTicketIdByUsecaseIdAsync(
             userStoryTest.FirstOrDefault()!.UsecaseId ?? Guid.Empty);
 
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
             ticketIdByUsecaseId,
             userId,
             TicketCurrentStepEnum.TestCases,
@@ -102,7 +117,7 @@ public class UserStoryTestService : IUserStoryTestService
     /// <inheritdoc cref="IUserStoryTestService.DeleteUserStoryTestAsync" />
     public async Task DeleteUserStoryTestAsync(Guid userId, Guid ticketId)
     {
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
             ticketId,
             userId,
             TicketCurrentStepEnum.TestCases,
@@ -117,7 +132,7 @@ public class UserStoryTestService : IUserStoryTestService
         var ticketId = await _userStoryTestRepository
             .GetTicketIdByTestCaseIdAsync(listOfTestCaseIds.FirstOrDefault());
 
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
             ticketId,
             userId,
             TicketCurrentStepEnum.TestCases,

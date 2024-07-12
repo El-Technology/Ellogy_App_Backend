@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
+using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models.TicketSummaryModels;
 
@@ -28,6 +30,17 @@ public class TicketSummaryRepository : ITicketSummaryRepository
             .Include(a => a.SummaryAcceptanceCriteria)
             .Include(a => a.SummaryScenarios)
             .Where(a => a.TicketId == ticketId);
+    }
+
+    /// <inheritdoc cref="ITicketSummaryRepository.GetTicketSummariesAsync" />
+    public async Task<PaginationResponseDto<TicketSummary>> GetTicketSummariesAsync(
+        Guid ticketId, PaginationRequestDto paginationRequestDto)
+    {
+        return await _context.TicketSummaries
+            .Include(a => a.SummaryAcceptanceCriteria)
+            .Include(a => a.SummaryScenarios)
+            .Where(a => a.TicketId == ticketId)
+            .GetFinalResultAsync(paginationRequestDto);
     }
 
     /// <inheritdoc cref="ITicketSummaryRepository.UpdateTicketSummariesAsync" />

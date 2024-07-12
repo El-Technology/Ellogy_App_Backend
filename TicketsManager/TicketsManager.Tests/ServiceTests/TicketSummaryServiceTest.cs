@@ -50,7 +50,7 @@ public class TicketSummaryServiceTest
         _ticketSummaryRepository.Setup(x => x.GetTicketSummariesByTicketIdAsync(ticketId))
             .Returns(mockData);
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),
@@ -74,7 +74,7 @@ public class TicketSummaryServiceTest
         _ticketSummaryRepository.Setup(x => x.CreateTicketSummariesAsync(mappedTicketSummaries))
             .Returns(Task.CompletedTask);
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),
@@ -98,7 +98,7 @@ public class TicketSummaryServiceTest
         _ticketSummaryRepository.Setup(x => x.UpdateTicketSummariesAsync(mappedTicketSummaries))
             .Returns(Task.CompletedTask);
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),
@@ -121,7 +121,7 @@ public class TicketSummaryServiceTest
         _ticketSummaryRepository.Setup(x => x.DeleteTicketSummariesAsync(ticketId))
             .Returns(Task.CompletedTask);
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),

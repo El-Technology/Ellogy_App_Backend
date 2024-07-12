@@ -30,6 +30,14 @@ public class ExceptionHandlerMiddleware
         {
             await HandleExceptionAsync(context, ex.Message, HttpStatusCode.NotFound, ex.Message);
         }
+        catch (MessageNotFoundException ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.NotFound, ex.Message);
+        }
+        catch (NotificationNotFoundException ex)
+        {
+            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.NotFound, ex.Message);
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, ex.Message,

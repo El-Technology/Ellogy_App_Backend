@@ -12,7 +12,7 @@ public class Message
     public DateTime SendTime { get; set; }
     public MessageActionTypeEnum? ActionType { get; set; }
     public MessageActionStateEnum? ActionState { get; set; }
-    public MessageStageEnum? Stage { get; set; }
+    public TicketCurrentStepEnum? Stage { get; set; }
     public SubStageEnum? SubStage { get; set; }
 
     public Ticket Ticket { get; set; }

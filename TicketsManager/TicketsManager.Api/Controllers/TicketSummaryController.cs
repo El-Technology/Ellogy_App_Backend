@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TicketsManager.BLL.Dtos.TicketSummaryDtos;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common.Dtos;
 using TicketsManager.Common.Helpers;
 
 namespace TicketsManager.Api.Controllers;
@@ -45,6 +46,23 @@ public class TicketSummaryController : ControllerBase
     {
         var ticketSummaries = await _ticketSummaryService
             .GetTicketSummariesByTicketIdAsync(GetUserIdFromToken(), ticketId);
+
+        return Ok(ticketSummaries);
+    }
+
+    /// <summary>
+    ///     Get all ticket summaries by ticket id
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <param name="paginationRequestDto"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("getTicketSummariesByTicketId")]
+    public async Task<IActionResult> GetTicketSummariesByTicketIdAsync(
+        [FromQuery] Guid ticketId, [FromBody] PaginationRequestDto paginationRequestDto)
+    {
+        var ticketSummaries = await _ticketSummaryService
+            .GetTicketSummariesByTicketIdAsync(GetUserIdFromToken(), ticketId, paginationRequestDto);
 
         return Ok(ticketSummaries);
     }

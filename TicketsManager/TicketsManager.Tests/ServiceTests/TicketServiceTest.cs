@@ -217,7 +217,7 @@ public class TicketServiceTest
         _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId, userIdFromToken))
             .ReturnsAsync(ticket);
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),
@@ -241,7 +241,7 @@ public class TicketServiceTest
         _ticketsRepository.Setup(x => x.GetTicketByIdAsync(ticketId, userIdFromToken))
             .ReturnsAsync(null as Ticket);
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),
@@ -271,7 +271,7 @@ public class TicketServiceTest
         _ticketsRepository.Setup(x => x.CheckTicketUpdateIds(ticket))
             .ThrowsAsync(new Exception());
 
-        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        _ticketShareRepository.Setup(x => x.CheckIfUserHaveAccessToComponentAsync(
             It.IsAny<Guid>(),
             It.IsAny<Guid>(),
             It.IsAny<TicketCurrentStepEnum>(),

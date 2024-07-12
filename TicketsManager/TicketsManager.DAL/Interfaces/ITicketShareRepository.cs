@@ -5,8 +5,44 @@ using TicketsManager.DAL.Models.TicketModels;
 namespace TicketsManager.DAL.Interfaces;
 public interface ITicketShareRepository
 {
-    Task CheckIfUserHaveAccessToComponentByTicketIdAsync(
+    /// <summary>
+    /// Check if a user have access to a component
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <param name="userId"></param>
+    /// <param name="currentStepEnum"></param>
+    /// <param name="requireSharePermissionEnum"></param>
+    /// <returns></returns>
+    Task CheckIfUserHaveAccessToComponentStrictAsync(
         Guid ticketId, Guid userId, TicketCurrentStepEnum currentStepEnum, SharePermissionEnum requireSharePermissionEnum);
+
+    /// <summary>
+    /// Check if a user have access to a component
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <param name="userId"></param>
+    /// <param name="currentStepEnum"></param>
+    /// <param name="requireSharePermissionEnum"></param>
+    /// <returns></returns>
+    Task CheckIfUserHaveAccessToComponentAsync(
+        Guid ticketId, Guid userId, TicketCurrentStepEnum currentStepEnum, SharePermissionEnum requireSharePermissionEnum);
+
+    /// <summary>
+    /// Check if a user have access to a sub stage
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <param name="userId"></param>
+    /// <param name="subStageEnum"></param>
+    /// <param name="requireSharePermissionEnum"></param>
+    /// <returns></returns>
+    Task CheckIfUserHaveAccessToSubStageStrictAsync(
+        Guid ticketId, Guid userId, SubStageEnum? subStageEnum, SharePermissionEnum requireSharePermissionEnum);
+
+    /// <summary>
+    /// Check if a user have access to a sub stage
+    /// </summary>
+    /// <param name="ticketShares"></param>
+    /// <returns></returns>
     Task CreateManyTicketSharesAsync(List<TicketShare> ticketShares);
 
     /// <summary>

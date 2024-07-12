@@ -1,5 +1,6 @@
 ﻿using TicketsManager.BLL.Dtos.UserStoryTestDtos;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos.GetDtos;
+using TicketsManager.Common.Dtos;
 
 namespace TicketsManager.BLL.Interfaces;
 
@@ -44,4 +45,5 @@ public interface IUserStoryTestService
     /// <param name="userId"></param>
     /// <returns></returns>
     Task DeleteTestCasesByIdsAsync(Guid userId, List<Guid> listOfTestCaseIds);
+    Task<PaginationResponseDto<GetUserStoryDto>> GetUserStoryTestsAsync(Guid userId, Guid ticketId, PaginationRequestDto paginationRequest);
 }

@@ -1,4 +1,5 @@
-﻿using TicketsManager.DAL.Dtos;
+﻿using TicketsManager.Common.Dtos;
+using TicketsManager.DAL.Dtos;
 using TicketsManager.DAL.Models.UserStoryTestsModels;
 
 namespace TicketsManager.DAL.Interfaces;
@@ -50,4 +51,12 @@ public interface IUserStoryTestRepository
     Task<Dictionary<Guid, Guid>> GetUsecaseTicketIdRelationAsync(List<Guid> usecaseIds);
     Task<Guid> GetTicketIdByUsecaseIdAsync(Guid usecaseId);
     Task<Guid> GetTicketIdByTestCaseIdAsync(Guid testCaseId);
+
+    /// <summary>
+    ///    Method returns UserStoryTest by ticketId with pagination
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <param name="paginationRequest"></param>
+    /// <returns></returns>
+    Task<PaginationResponseDto<ReturnUserStoryTestModel>> GetUserStoryTestsAsync(Guid ticketId, PaginationRequestDto paginationRequest);
 }

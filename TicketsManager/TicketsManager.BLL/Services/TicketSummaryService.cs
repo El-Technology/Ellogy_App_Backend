@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TicketsManager.BLL.Dtos.TicketSummaryDtos;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models.TicketSummaryModels;
@@ -29,7 +30,7 @@ public class TicketSummaryService : ITicketSummaryService
     private async Task ValidateUserPermissionAsync(
     Guid ticketId, Guid userIdFromToken, SharePermissionEnum sharePermissionEnum)
     {
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
             ticketId,
             userIdFromToken,
             TicketCurrentStepEnum.General,
@@ -45,6 +46,16 @@ public class TicketSummaryService : ITicketSummaryService
 
         return _mapper.Map<List<TicketSummaryFullDto>>(await _ticketSummaryRepository
             .GetTicketSummariesByTicketIdAsync(ticketId).ToListAsync());
+    }
+
+    /// <inheritdoc cref="ITicketSummaryService.GetTicketSummariesByTicketIdAsync" />
+    public async Task<PaginationResponseDto<TicketSummaryFullDto>> GetTicketSummariesByTicketIdAsync(
+        Guid userId, Guid ticketId, PaginationRequestDto paginationRequestDto)
+    {
+        await ValidateUserPermissionAsync(ticketId, userId, SharePermissionEnum.Read);
+
+        return _mapper.Map<PaginationResponseDto<TicketSummaryFullDto>>(await _ticketSummaryRepository
+            .GetTicketSummariesAsync(ticketId, paginationRequestDto));
     }
 
     /// <inheritdoc cref="ITicketSummaryService.CreateTicketSummariesAsync" />

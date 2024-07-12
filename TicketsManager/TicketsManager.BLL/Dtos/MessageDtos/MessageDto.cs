@@ -32,7 +32,7 @@ public class MessageDto
     /// <summary>
     /// Shows at which stage the message was sent
     /// </summary>
-    public MessageStageEnum? Stage { get; set; }
+    public TicketCurrentStepEnum Stage { get; set; }
 
     /// <summary>
     /// Shows at which sub - stage the message was sent
