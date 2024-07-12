@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using TicketsManager.BLL.Dtos.MessageDtos;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.Common.Dtos;
@@ -39,6 +40,7 @@ public class TicketMessageController : ControllerBase
     /// <param name="ticketId"></param>
     /// <param name="paginationRequest"></param>
     /// <param name="subStageEnum"></param>
+    /// <param name="messageStage"></param>
     /// <returns></returns>
     [ProducesResponseType(typeof(PaginationResponseDto<MessageResponseDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
@@ -49,10 +51,18 @@ public class TicketMessageController : ControllerBase
     public async Task<IActionResult> GetTicketMessagesByTicketIdAsync(
         [FromQuery] Guid ticketId,
         [FromQuery] SubStageEnum? subStageEnum,
+        [FromQuery, Required] TicketCurrentStepEnum messageStage,
         [FromBody] PaginationRequestDto paginationRequest)
     {
         var messages = await _ticketMessageService
-            .GetTicketMessagesByTicketIdAsync(ticketId, GetUserIdFromToken(), paginationRequest, subStageEnum);
+            .GetTicketMessagesByTicketIdAsync(new()
+            {
+                TicketId = ticketId,
+                SubStageEnum = subStageEnum,
+                MessageStage = messageStage,
+                PaginationRequest = paginationRequest,
+                UserId = GetUserIdFromToken()
+            });
 
         return Ok(messages);
     }

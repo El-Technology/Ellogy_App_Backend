@@ -1,5 +1,5 @@
 ﻿using TicketsManager.Common.Dtos;
-using TicketsManager.DAL.Enums;
+using TicketsManager.DAL.Dtos;
 using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.DAL.Interfaces;
@@ -52,13 +52,9 @@ public interface ITicketMessageRepository
     /// <summary>
     /// Get ticket messages by ticket id
     /// </summary>
-    /// <param name="ticketId"></param>
-    /// <param name="userId"></param>
-    /// <param name="paginationRequest"></param>
-    /// <param name="subStageEnum"></param>
+    /// <param name="getMessageDto"></param>
     /// <returns></returns>
-    Task<PaginationResponseDto<Message>> GetTicketMessagesByTicketIdAsync(
-        Guid ticketId, Guid userId, PaginationRequestDto paginationRequest, SubStageEnum? subStageEnum);
+    Task<PaginationResponseDto<Message>> GetTicketMessagesByTicketIdAsync(GetMessageDto getMessageDto);
 
     /// <summary>
     /// Update message

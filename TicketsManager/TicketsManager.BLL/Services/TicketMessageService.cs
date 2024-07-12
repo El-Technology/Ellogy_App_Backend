@@ -3,6 +3,7 @@ using TicketsManager.BLL.Dtos.MessageDtos;
 using TicketsManager.BLL.Exceptions;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.Common.Dtos;
+using TicketsManager.DAL.Dtos;
 using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Interfaces;
 using TicketsManager.DAL.Models.TicketModels;
@@ -23,29 +24,18 @@ public class TicketMessageService : ITicketMessageService
         _ticketShareRepository = ticketShareRepository;
     }
 
-    private async Task ValidateUserPermissionAsync(
-        Guid ticketId,
-        Guid userIdFromToken,
-        SharePermissionEnum sharePermissionEnum,
-        SubStageEnum? subStageEnum)
-    {
-        await _ticketShareRepository.CheckIfUserHaveAccessToSubStageByTicketIdAsync(
-            ticketId,
-            userIdFromToken,
-            subStageEnum,
-            sharePermissionEnum);
-    }
-
     /// <inheritdoc cref="ITicketMessageService.GetTicketMessagesByTicketIdAsync" />
     public async Task<PaginationResponseDto<MessageResponseDto>> GetTicketMessagesByTicketIdAsync(
-               Guid ticketId,
-               Guid userId,
-               PaginationRequestDto paginationRequest,
-               SubStageEnum? subStageEnum)
+        GetMessageDto getMessage)
     {
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
+            getMessage.TicketId,
+            getMessage.UserId,
+            getMessage.MessageStage,
+            SharePermissionEnum.Read);
+
         var messages = await _ticketMessageRepository
-            .GetTicketMessagesByTicketIdAsync(
-            ticketId, userId, paginationRequest, subStageEnum);
+            .GetTicketMessagesByTicketIdAsync(getMessage);
 
         if (messages.RecordsReturned == default)
             throw new MessageNotFoundException();
@@ -57,9 +47,18 @@ public class TicketMessageService : ITicketMessageService
     public async Task<MessageResponseDto> UpdateMessageAsync(
         MessageResponseDto messageRequestDto, Guid ticketId, Guid userId)
     {
-        await ValidateUserPermissionAsync(
-            ticketId, userId, SharePermissionEnum.ReadWrite,
-            messageRequestDto.SubStage);
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
+            ticketId,
+            userId,
+            messageRequestDto.Stage,
+            SharePermissionEnum.ReadWrite);
+
+
+        await _ticketShareRepository.CheckIfUserHaveAccessToSubStageStrictAsync(
+            ticketId,
+            userId,
+            messageRequestDto.SubStage,
+            SharePermissionEnum.ReadWrite);
 
         var message = _mapper.Map<Message>(messageRequestDto);
         message.TicketId = ticketId;
@@ -73,15 +72,28 @@ public class TicketMessageService : ITicketMessageService
     public async Task<IEnumerable<MessageResponseDto>> UpdateRangeMessagesAsync(
         List<MessageResponseDto> messageResponseDtos, Guid ticketId, Guid userId)
     {
-        var uniqueSubStages = messageResponseDtos
-            .Select(msg => msg.SubStage)
+        var stagesAndSubStages = messageResponseDtos
+            .Select(msg => new { msg.Stage, msg.SubStage })
             .Distinct()
             .ToList();
 
-        foreach (var subStage in uniqueSubStages)
-            await ValidateUserPermissionAsync(
-                ticketId, userId, SharePermissionEnum.ReadWrite,
-                subStage);
+        foreach (var item in stagesAndSubStages)
+        {
+            await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
+                ticketId,
+                userId,
+                item.Stage,
+                SharePermissionEnum.ReadWrite);
+
+            if (item.SubStage != null)
+            {
+                await _ticketShareRepository.CheckIfUserHaveAccessToSubStageStrictAsync(
+                    ticketId,
+                    userId,
+                    item.SubStage,
+                    SharePermissionEnum.ReadWrite);
+            }
+        }
 
         var messages = _mapper.Map<List<Message>>(messageResponseDtos);
 
@@ -97,9 +109,11 @@ public class TicketMessageService : ITicketMessageService
     public async Task<MessageResponseDto> CreateMessageAsync(
         MessageDto messageDto, Guid ticketId, Guid userId)
     {
-        await ValidateUserPermissionAsync(
-            ticketId, userId, SharePermissionEnum.ReadWrite,
-            messageDto.SubStage);
+        await _ticketShareRepository.CheckIfUserHaveAccessToSubStageStrictAsync(
+            ticketId,
+            userId,
+            messageDto.SubStage,
+            SharePermissionEnum.ReadWrite);
 
         var message = _mapper.Map<Message>(messageDto);
         message.TicketId = ticketId;
@@ -119,9 +133,11 @@ public class TicketMessageService : ITicketMessageService
             .ToList();
 
         foreach (var subStage in uniqueSubStages)
-            await ValidateUserPermissionAsync(
-                ticketId, userId, SharePermissionEnum.ReadWrite,
-                subStage);
+            await _ticketShareRepository.CheckIfUserHaveAccessToSubStageStrictAsync(
+                ticketId,
+                userId,
+                subStage,
+                SharePermissionEnum.ReadWrite);
 
         var messages = _mapper.Map<List<Message>>(messageDtos);
 
@@ -139,8 +155,11 @@ public class TicketMessageService : ITicketMessageService
         var message = await _ticketMessageRepository.GetMessageAsync(messageId, userId)
             ?? throw new MessageNotFoundException();
 
-        await ValidateUserPermissionAsync(
-            ticketId, userId, SharePermissionEnum.Manage, message.SubStage);
+        await _ticketShareRepository.CheckIfUserHaveAccessToSubStageStrictAsync(
+            ticketId,
+            userId,
+            message.SubStage,
+            SharePermissionEnum.Manage);
 
         await _ticketMessageRepository.DeleteMessageAsync(message);
     }
@@ -163,8 +182,11 @@ public class TicketMessageService : ITicketMessageService
             .ToList();
 
         foreach (var subStage in uniqueSubStages)
-            await ValidateUserPermissionAsync(
-                ticketId, userId, SharePermissionEnum.Manage, subStage);
+            await _ticketShareRepository.CheckIfUserHaveAccessToSubStageStrictAsync(
+                ticketId,
+                userId,
+                subStage,
+                SharePermissionEnum.ReadWrite);
 
         await _ticketMessageRepository.DeleteRangeMessagesAsync(messages);
     }

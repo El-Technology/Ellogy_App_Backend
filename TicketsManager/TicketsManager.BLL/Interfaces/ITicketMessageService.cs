@@ -1,6 +1,6 @@
 ﻿using TicketsManager.BLL.Dtos.MessageDtos;
 using TicketsManager.Common.Dtos;
-using TicketsManager.DAL.Enums;
+using TicketsManager.DAL.Dtos;
 
 namespace TicketsManager.BLL.Interfaces;
 public interface ITicketMessageService
@@ -46,16 +46,10 @@ public interface ITicketMessageService
     /// <summary>
     /// Get ticket messages by ticket id
     /// </summary>
-    /// <param name="ticketId"></param>
-    /// <param name="userId"></param>
-    /// <param name="paginationRequest"></param>
-    /// <param name="subStageEnum"></param>
+    /// <param name="getMessage"></param>
     /// <returns></returns>
     Task<PaginationResponseDto<MessageResponseDto>> GetTicketMessagesByTicketIdAsync(
-        Guid ticketId,
-        Guid userId,
-        PaginationRequestDto paginationRequest,
-        SubStageEnum? subStageEnum);
+        GetMessageDto getMessage);
 
     /// <summary>
     /// Update message

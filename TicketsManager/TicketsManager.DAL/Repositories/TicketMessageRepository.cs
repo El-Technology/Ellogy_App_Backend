@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
+using TicketsManager.DAL.Dtos;
 using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
@@ -23,17 +24,19 @@ public class TicketMessageRepository : ITicketMessageRepository
                     msg.Ticket.TicketShares.Any(ts =>
                         ts.SharedUserId == userId &&
                         (
-                            ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.General ||
+                            ts.TicketCurrentStep == TicketCurrentStepEnum.General ||
                             ts.TicketCurrentStep == null ||
-                            ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.Report
+                            ts.TicketCurrentStep == TicketCurrentStepEnum.Report ||
+                            ts.TicketCurrentStep == TicketCurrentStepEnum.Notifications
                         ) &&
+                        msg.Stage == ts.TicketCurrentStep &&
                         (
                             ts.TicketCurrentStep == null ||
                             ts.SubStageEnum == null ||
                             ts.SubStageEnum == msg.SubStage ||
-                            msg.SubStage == Enums.SubStageEnum.FunctionalRequirements
+                            msg.SubStage == SubStageEnum.FunctionalRequirements
                         )
-                    )
+                   )
                 )
                 .OrderBy(a => a.SendTime);
     }
@@ -56,15 +59,12 @@ public class TicketMessageRepository : ITicketMessageRepository
 
     /// <inheritdoc cref="ITicketMessageRepository.GetTicketMessagesByTicketIdAsync" />
     public Task<PaginationResponseDto<Message>> GetTicketMessagesByTicketIdAsync(
-        Guid ticketId,
-        Guid userId,
-        PaginationRequestDto paginationRequest,
-        SubStageEnum? subStageEnum)
+        GetMessageDto getMessage)
     {
-        return GetMessagesByUserIdQuery(userId)
-            .Where(msg => msg.TicketId == ticketId &&
-                (subStageEnum == null || msg.SubStage == subStageEnum))
-            .GetFinalResultAsync(paginationRequest);
+        return GetMessagesByUserIdQuery(getMessage.UserId)
+            .Where(msg => msg.TicketId == getMessage.TicketId &&
+                (getMessage.SubStageEnum == null || msg.SubStage == getMessage.SubStageEnum))
+            .GetFinalResultAsync(getMessage.PaginationRequest);
     }
 
     /// <inheritdoc cref="ITicketMessageRepository.UpdateMessageAsync" />
