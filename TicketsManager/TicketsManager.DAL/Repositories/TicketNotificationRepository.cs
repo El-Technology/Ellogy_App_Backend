@@ -23,6 +23,22 @@ public class TicketNotificationRepository : ITicketNotificationRepository
             .GetFinalResultAsync(paginationRequestDto);
     }
 
+    /// <inheritdoc cref="ITicketNotificationRepository.GetNotificationAsync" />
+    public async Task<Notification?> GetNotificationAsync(Guid notificationId)
+    {
+        return await _context.Notifications
+            .FirstOrDefaultAsync(n => n.Id == notificationId);
+    }
+
+    /// <inheritdoc cref="ITicketNotificationRepository.GetNotificationRangeAsync" />
+    public async Task<IEnumerable<Notification>?> GetNotificationRangeAsync(
+        List<Guid> guids)
+    {
+        return await _context.Notifications
+            .Where(n => guids.Contains(n.Id))
+            .ToListAsync();
+    }
+
     /// <inheritdoc cref="ITicketNotificationRepository.CreateNotificationAsync" />
     public async Task CreateNotificationAsync(Notification notification)
     {

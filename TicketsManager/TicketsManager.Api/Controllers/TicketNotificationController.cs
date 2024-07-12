@@ -155,7 +155,7 @@ public class TicketNotificationController : ControllerBase
     [HttpDelete]
     [Route("deleteNotification")]
     public async Task<IActionResult> DeleteNotificationAsync(
-        [FromBody] Guid notificationId,
+        [FromQuery] Guid notificationId,
         [FromQuery] Guid ticketId)
     {
         await _ticketNotificationService.DeleteNotificationAsync(

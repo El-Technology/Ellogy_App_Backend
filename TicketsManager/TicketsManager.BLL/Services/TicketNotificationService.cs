@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using TicketsManager.BLL.Dtos.NotificationDtos;
+using TicketsManager.BLL.Exceptions;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Enums;
@@ -28,7 +29,7 @@ public class TicketNotificationService : ITicketNotificationService
         Guid userIdFromToken,
         SharePermissionEnum sharePermissionEnum)
     {
-        await _ticketShareRepository.CheckIfUserHaveAccessToComponentByTicketIdAsync(
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentStrictAsync(
             ticketId,
             userIdFromToken,
             TicketCurrentStepEnum.Notifications,
@@ -108,6 +109,9 @@ public class TicketNotificationService : ITicketNotificationService
     {
         await ValidateUserPermissionAsync(ticketId, userIdFromToken, SharePermissionEnum.Manage);
 
+        _ = await _ticketNotificationRepository.GetNotificationAsync(notificationId)
+            ?? throw new NotificationNotFoundException();
+
         await _ticketNotificationRepository.DeleteNotificationAsync(notificationId);
     }
 
@@ -115,6 +119,12 @@ public class TicketNotificationService : ITicketNotificationService
     public async Task DeleteManyNotificationsAsync(List<Guid> notificationIds, Guid ticketId, Guid userIdFromToken)
     {
         await ValidateUserPermissionAsync(ticketId, userIdFromToken, SharePermissionEnum.Manage);
+
+        var notificationsForDelete = await _ticketNotificationRepository.GetNotificationRangeAsync(notificationIds);
+        if (notificationsForDelete is null ||
+            notificationsForDelete.Count() != notificationIds.Count ||
+            notificationsForDelete.Count() == default)
+            throw new NotificationNotFoundException();
 
         await _ticketNotificationRepository.DeleteManyNotificationsAsync(notificationIds);
     }
