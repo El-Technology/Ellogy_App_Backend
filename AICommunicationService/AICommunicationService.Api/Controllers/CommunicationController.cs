@@ -86,7 +86,6 @@ public class CommunicationController : ControllerBase
     ///    Endpoint for retrieving AI response as streaming.
     /// </summary>
     /// <param name="conversationRequest"></param>
-    /// <param name="ticketOwnerId"></param>
     /// <param name="ticketId"></param>
     /// <param name="ticketCurrentStep"></param>
     /// <returns></returns>
@@ -94,12 +93,9 @@ public class CommunicationController : ControllerBase
     [Route("getStreamResponse")]
     public async Task GetStreamResponse(
         [FromBody] CreateConversationRequest conversationRequest,
-        [FromQuery] Guid? ticketOwnerId,
         [FromQuery] Guid? ticketId,
         [FromQuery] TicketCurrentStepEnum? ticketCurrentStep)
     {
-        var ownerId = ticketOwnerId ?? GetUserIdFromToken();
-
         if (ticketId is not null)
             await CheckUserAccessAsync(ticketId ?? Guid.Empty,
                 GetUserIdFromToken(),
@@ -107,7 +103,7 @@ public class CommunicationController : ControllerBase
 
         Response.Headers.Add("Cache-Control", "no-cache");
         Response.Headers.Add("Content-Type", "text/event-stream");
-        await _communicationService.StreamRequestAsync(ownerId, CheckUserPlan(conversationRequest),
+        await _communicationService.StreamRequestAsync(GetUserIdFromToken(), CheckUserPlan(conversationRequest),
             async response =>
             {
                 await Response.WriteAsync($"{response}\n");
@@ -127,19 +123,16 @@ public class CommunicationController : ControllerBase
     [Route("getChatResponse")]
     public async Task<IActionResult> GetChatResponse(
         [FromBody] CreateConversationRequest conversationRequest,
-        [FromQuery] Guid? ticketOwnerId,
         [FromQuery] Guid? ticketId,
         [FromQuery] TicketCurrentStepEnum? ticketCurrentStep)
     {
-        var ownerId = ticketOwnerId ?? GetUserIdFromToken();
-
         if (ticketId is not null)
             await CheckUserAccessAsync(ticketId ?? Guid.Empty,
                 GetUserIdFromToken(),
                 ticketCurrentStep ?? TicketCurrentStepEnum.General);
 
         var response =
-            await _communicationService.ChatRequestAsync(ownerId, CheckUserPlan(conversationRequest));
+            await _communicationService.ChatRequestAsync(GetUserIdFromToken(), CheckUserPlan(conversationRequest));
         return Ok(response);
     }
 
@@ -147,7 +140,6 @@ public class CommunicationController : ControllerBase
     ///     Endpoint for retrieving AI response by Json Example.
     /// </summary>
     /// <param name="requestWithFunction"></param>
-    /// <param name="ticketOwnerId"></param>
     /// <param name="ticketId"></param>
     /// <param name="ticketCurrentStep"></param>
     /// <returns>Returns string data in Json</returns>
@@ -155,19 +147,16 @@ public class CommunicationController : ControllerBase
     [Route("chatWithFunctions")]
     public async Task<IActionResult> GetChatWithFunctions(
         [FromBody] CreateConversationRequest requestWithFunction,
-        [FromQuery] Guid? ticketOwnerId,
         [FromQuery] Guid? ticketId,
         [FromQuery] TicketCurrentStepEnum? ticketCurrentStep)
     {
-        var ownerId = ticketOwnerId ?? GetUserIdFromToken();
-
         if (ticketId is not null)
             await CheckUserAccessAsync(ticketId ?? Guid.Empty,
                 GetUserIdFromToken(),
                 ticketCurrentStep ?? TicketCurrentStepEnum.General);
 
         var response =
-            await _communicationService.ChatRequestWithFunctionAsync(ownerId,
+            await _communicationService.ChatRequestWithFunctionAsync(GetUserIdFromToken(),
                 CheckUserPlan(requestWithFunction));
         return Ok(response);
     }
