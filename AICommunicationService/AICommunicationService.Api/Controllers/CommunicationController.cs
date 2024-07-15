@@ -115,7 +115,6 @@ public class CommunicationController : ControllerBase
     ///     Endpoint for retrieving AI response as string.
     /// </summary>
     /// <param name="conversationRequest">Request params</param>
-    /// <param name="ticketOwnerId"></param>
     /// <param name="ticketId"></param>
     /// <param name="ticketCurrentStep"></param>
     /// <returns>Returns true if request is success</returns>
