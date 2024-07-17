@@ -187,6 +187,28 @@ public class TicketShareRepository : ITicketShareRepository
             throw new InvalidOperationException("Failed to delete ticket share");
     }
 
+    /// <inheritdoc cref="ITicketShareRepository.DeleteManyTicketShareAsync" />
+    public async Task DeleteManyTicketShareAsync(List<Guid> ticketShareIds)
+    {
+        using var transaction = _context.Database.BeginTransaction();
+        try
+        {
+            var numberOfDeletedRows = await _context.TicketShares
+                .Where(ts => ticketShareIds.Contains(ts.Id))
+                .ExecuteDeleteAsync();
+
+            if (numberOfDeletedRows != ticketShareIds.Count)
+                throw new Exception();
+
+            transaction.Commit();
+        }
+        catch (Exception)
+        {
+            transaction.Rollback();
+            throw new InvalidOperationException("Failed to delete ticket share");
+        }
+    }
+
     /// <inheritdoc cref="ITicketShareRepository.GetTicketIdByTicketShareIdAsync" />
     public async Task<Guid> GetTicketIdByTicketShareIdAsync(Guid ticketShareId)
     {

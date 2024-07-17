@@ -16,6 +16,14 @@ public interface ITicketShareService
         Guid ownerId, CreateTicketShareDto createTicketShareDto);
 
     /// <summary>
+    /// Delete many ticket shares
+    /// </summary>
+    /// <param name="ownerId"></param>
+    /// <param name="ticketShareIds"></param>
+    /// <returns></returns>
+    Task DeleteManyTicketShareAsync(Guid ownerId, List<Guid> ticketShareIds);
+
+    /// <summary>
     /// Delete a ticket share
     /// </summary>
     /// <param name="ownerId"></param>

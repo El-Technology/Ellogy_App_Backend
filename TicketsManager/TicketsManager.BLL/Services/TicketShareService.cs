@@ -183,4 +183,13 @@ public class TicketShareService : ITicketShareService
 
         await _ticketShareRepository.DeleteTicketShareAsync(ticketShareId);
     }
+
+    /// <inheritdoc cref="ITicketShareService.DeleteManyTicketShareAsync" />
+    public async Task DeleteManyTicketShareAsync(Guid ownerId, List<Guid> ticketShareIds)
+    {
+        var ticketId = await _ticketShareRepository.GetTicketIdByTicketShareIdAsync(ticketShareIds.First());
+        await VerifyIfUserIsTicketOwnerAsync(ownerId, ticketId);
+
+        await _ticketShareRepository.DeleteManyTicketShareAsync(ticketShareIds);
+    }
 }
