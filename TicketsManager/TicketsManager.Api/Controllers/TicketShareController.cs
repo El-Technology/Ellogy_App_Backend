@@ -110,4 +110,19 @@ public class TicketShareController : Controller
 
         return Ok();
     }
+
+    /// <summary>
+    /// Controller for deleting many ticket shares
+    /// </summary>
+    /// <param name="ticketShareIds"></param>
+    /// <returns></returns>
+    [HttpDelete("deleteManyTicketShare")]
+    public async Task<IActionResult> DeleteManyTicketShareAsync(
+               [FromBody] List<Guid> ticketShareIds)
+    {
+        await _ticketShareService.DeleteManyTicketShareAsync(
+                       GetUserIdFromToken(), ticketShareIds);
+
+        return Ok();
+    }
 }

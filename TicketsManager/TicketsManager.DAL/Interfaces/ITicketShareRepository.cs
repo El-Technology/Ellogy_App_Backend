@@ -98,4 +98,11 @@ public interface ITicketShareRepository
     /// <param name="ticketId"></param>
     /// <returns></returns>
     Task<bool> VerifyIfUserIsTicketOwnerAsync(Guid ownerId, Guid ticketId);
+
+    /// <summary>
+    /// Delete many ticket shares
+    /// </summary>
+    /// <param name="ticketShareIds"></param>
+    /// <returns></returns>
+    Task DeleteManyTicketShareAsync(List<Guid> ticketShareIds);
 }

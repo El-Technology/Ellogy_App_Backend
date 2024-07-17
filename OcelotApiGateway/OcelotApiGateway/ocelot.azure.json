@@ -542,6 +542,18 @@
       ]
     },
     {
+      "UpstreamPathTemplate": "/dev/TicketShare/deleteManyTicketShare",
+      "UpstreamHttpMethod": [ "Delete" ],
+      "DownstreamPathTemplate": "/api/TicketShare/deleteManyTicketShare",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "HostSample",
+          "Port": 5041
+        }
+      ]
+    },
+    {
       "UpstreamPathTemplate": "/dev/TicketSummary/getTicketSummariesByTicketId",
       "UpstreamHttpMethod": [ "Get" ],
       "DownstreamPathTemplate": "/api/TicketSummary/getTicketSummariesByTicketId",
