@@ -1,4 +1,5 @@
-﻿using UserManager.BLL.Dtos.ProfileDto;
+﻿using UserManager.BLL.Dtos.ExternalDtos;
+using UserManager.BLL.Dtos.ProfileDto;
 using UserManager.BLL.Dtos.RegisterDtos;
 using UserManager.Common.Models.AvatarImage;
 
@@ -47,6 +48,40 @@ public interface IUserProfileService
     /// <returns>Returns the URL or identifier of the uploaded user avatar.</returns>
     Task<string> UploadUserAvatarAsync(UploadAvatar uploadAvatar, Guid idFromToken);
 
+    /// <summary>
+    ///    Change the email for a user with the specified user ID.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="sendVerificationEmailDto"></param>
+    /// <returns></returns>
     Task ChangeUserEmailAsync(Guid userId, SendVerificationEmailDto sendVerificationEmailDto);
+
+    /// <summary>
+    ///   Verify the email for a user with the specified user ID.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <param name="activateUser"></param>
+    /// <returns></returns>
     Task VerifyUserEmailAsync(Guid userId, ActivateUserAccountDto activateUser);
+
+    /// <summary>
+    ///    Find users by email prefix asynchronously.
+    /// </summary>
+    /// <param name="emailPrefix"></param>
+    /// <returns></returns>
+    Task<List<UserDto>> FindUserByEmailAsync(string emailPrefix);
+
+    /// <summary>
+    ///   Get user by email asynchronously.
+    /// </summary>
+    /// <param name="email"></param>
+    /// <returns></returns>
+    Task<UserDto> GetUserByEmailAsync(string email);
+
+    /// <summary>
+    ///   Get user profile by id asynchronously.
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    Task<UserDto> GetUserProfileByIdAsync(Guid userId);
 }

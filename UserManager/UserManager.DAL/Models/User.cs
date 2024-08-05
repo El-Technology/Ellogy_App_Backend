@@ -23,6 +23,7 @@ public class User
     public string? StripeCustomerId { get; set; }
     public AccountPlan? AccountPlan { get; set; } = null;
     public RefreshToken RefreshToken { get; set; }
+    public DateTime CreateAt { get; set; }
 
     public ICollection<ForgotPassword> ForgotPasswords { get; set; } = new List<ForgotPassword>();
 }

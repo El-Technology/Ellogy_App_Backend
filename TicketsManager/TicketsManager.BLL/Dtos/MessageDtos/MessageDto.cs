@@ -10,6 +10,11 @@ public class MessageDto
     public string Sender { get; set; }
 
     /// <summary>
+    /// The user id of the sender.
+    /// </summary>
+    public Guid? UserId { get; set; }
+
+    /// <summary>
     /// The content of the message.
     /// </summary>
     public string Content { get; set; }
@@ -27,7 +32,7 @@ public class MessageDto
     /// <summary>
     /// Shows at which stage the message was sent
     /// </summary>
-    public MessageStageEnum? Stage { get; set; }
+    public TicketCurrentStepEnum Stage { get; set; }
 
     /// <summary>
     /// Shows at which sub - stage the message was sent

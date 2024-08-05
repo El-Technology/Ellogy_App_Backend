@@ -5,6 +5,7 @@
         Generate = 0,
         Regenerate = 1,
         Used = 2,
-        Error = 3
+        Error = 3,
+        Invalid = 4
     }
 }

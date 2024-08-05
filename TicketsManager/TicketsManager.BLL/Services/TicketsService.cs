@@ -12,7 +12,7 @@ using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Enums;
 using TicketsManager.DAL.Exceptions;
 using TicketsManager.DAL.Interfaces;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.BLL.Services;
 
@@ -20,17 +20,34 @@ public class TicketsService : ITicketsService
 {
     private readonly IMapper _mapper;
     private readonly ITicketsRepository _ticketsRepository;
+    private readonly ITicketShareRepository _ticketShareRepository;
 
-    public TicketsService(IMapper mapper, ITicketsRepository ticketsRepository)
+    public TicketsService(
+        IMapper mapper,
+        ITicketsRepository ticketsRepository,
+        ITicketShareRepository ticketShareRepository)
     {
         _mapper = mapper;
         _ticketsRepository = ticketsRepository;
+        _ticketShareRepository = ticketShareRepository;
     }
 
-    private static void ValidateUserPermission(Guid inputUserId, Guid userIdFromToken)
+    #region Private methods
+
+    private async Task ValidateUserPermissionAsync(
+    Guid ticketId, Guid userIdFromToken, SharePermissionEnum sharePermissionEnum)
     {
-        if (inputUserId != userIdFromToken)
-            throw new Exception("You don't have permission to access another user data");
+        await _ticketShareRepository.CheckIfUserHaveAccessToComponentAsync(
+            ticketId,
+            userIdFromToken,
+            TicketCurrentStepEnum.General,
+            sharePermissionEnum);
+    }
+
+    private void OwnerValidation(Guid userId, Guid userIdFromToken)
+    {
+        if (userId != userIdFromToken)
+            throw new ForbiddenException(userId);
     }
 
     private static string ConvertBase64ToString(string base64)
@@ -74,7 +91,6 @@ public class TicketsService : ITicketsService
 
             CheckEnumValue(message.Action.State, typeof(MessageActionStateEnum), "Action State");
             CheckEnumValue(message.Action.Type, typeof(MessageActionTypeEnum), "Action Type");
-            CheckEnumValue(message.Stage, typeof(MessageStageEnum), "Message Stage");
         }
     }
 
@@ -86,7 +102,6 @@ public class TicketsService : ITicketsService
 
             CheckEnumValue(message.Action.State, typeof(MessageActionStateEnum), "Action State");
             CheckEnumValue(message.Action.Type, typeof(MessageActionTypeEnum), "Action Type");
-            CheckEnumValue(message.Stage, typeof(MessageStageEnum), "Message Stage");
         }
     }
 
@@ -99,12 +114,13 @@ public class TicketsService : ITicketsService
         }
     }
 
+    #endregion
+
     /// <inheritdoc cref="ITicketsService.GetTicketsAsync(Guid, PaginationRequestDto, Guid)"/>
     public async Task<PaginationResponseDto<TicketResponseDto>> GetTicketsAsync(
         Guid userId, PaginationRequestDto paginateRequest, Guid userIdFromToken)
     {
-        ValidateUserPermission(userId, userIdFromToken);
-
+        OwnerValidation(userId, userIdFromToken);
         try
         {
             var tickets = await _ticketsRepository.GetTicketsAsync(userId, paginateRequest);
@@ -120,8 +136,7 @@ public class TicketsService : ITicketsService
     public async Task<PaginationResponseDto<TicketResponseDto>> SearchTicketsByNameAsync(
         Guid userId, SearchTicketsRequestDto searchRequest, Guid userIdFromToken)
     {
-        ValidateUserPermission(userId, userIdFromToken);
-
+        OwnerValidation(userId, userIdFromToken);
         try
         {
             var findTickets = await _ticketsRepository.FindTicketsAsync(userId, searchRequest);
@@ -137,11 +152,11 @@ public class TicketsService : ITicketsService
     public async Task<TicketResponseDto> CreateTicketAsync(
         TicketCreateRequestDto createTicketRequest, Guid userId, Guid userIdFromToken)
     {
+        OwnerValidation(userId, userIdFromToken);
         CheckTicketEnums(createTicketRequest.Status, createTicketRequest.CurrentStep);
         CheckMessageCreateEnums(createTicketRequest.Messages);
-        ValidateUserPermission(userId, userIdFromToken);
 
-        var mappedTicket = MapCreateTicket(createTicketRequest, userId);
+        var mappedTicket = MapCreateTicket(createTicketRequest, userIdFromToken);
         await _ticketsRepository.CreateTicketAsync(mappedTicket);
 
         return _mapper.Map<TicketResponseDto>(mappedTicket);
@@ -150,10 +165,10 @@ public class TicketsService : ITicketsService
     /// <inheritdoc cref="ITicketsService.DeleteTicketAsync(Guid, Guid)"/>
     public async Task DeleteTicketAsync(Guid ticketId, Guid userIdFromToken)
     {
-        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId, userIdFromToken)
             ?? throw new TicketNotFoundException(ticketId);
 
-        ValidateUserPermission(ticket.UserId, userIdFromToken);
+        OwnerValidation(ticket.UserId, userIdFromToken);
 
         await _ticketsRepository.DeleteTicketAsync(ticket.Id);
     }
@@ -165,10 +180,10 @@ public class TicketsService : ITicketsService
         CheckTicketEnums(ticketUpdate.Status, ticketUpdate.CurrentStep);
         CheckMessageUpdateEnums(ticketUpdate.Messages);
 
-        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId)
+        var ticket = await _ticketsRepository.GetTicketByIdAsync(ticketId, userIdFromToken)
                      ?? throw new TicketNotFoundException(ticketId);
 
-        ValidateUserPermission(ticket.UserId, userIdFromToken);
+        await ValidateUserPermissionAsync(ticketId, userIdFromToken, SharePermissionEnum.ReadWrite);
 
         var mappedTicket = _mapper.Map(ticketUpdate, ticket);
 

@@ -91,10 +91,11 @@ static async Task AddServicesAsync(WebApplicationBuilder builder)
     });
 
     builder.Services.AddHealthChecks();
-
+    builder.Services.RegisterHttpClients();
     builder.Services.AddDataLayer((await EnvironmentVariables.ConnectionString)
                 .Replace(ConfigConstants.DbReplacePattern, ConfigHelper.AppSetting(ConfigConstants.DbName)));
-    builder.Services.AddBusinessLayer();
+    builder.Services.AddBusinessLayer(
+        await EnvironmentVariables.AzureServiceBusConnectionString);
     builder.Services.AddMapping();
 }
 

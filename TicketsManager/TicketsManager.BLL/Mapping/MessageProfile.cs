@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using TicketsManager.BLL.Dtos.MessageDtos;
-using TicketsManager.DAL.Models;
+using TicketsManager.Common.Dtos;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.BLL.Mapping;
 
@@ -18,5 +19,7 @@ public class MessageProfile : Profile
                 opts.MapFrom(_ => _.Action != null ? _.Action.State : null))
             .ForMember(dest => dest.ActionType, opts =>
                 opts.MapFrom(_ => _.Action != null ? _.Action.Type : null));
+
+        CreateMap<PaginationResponseDto<Message>, PaginationResponseDto<MessageResponseDto>>();
     }
 }

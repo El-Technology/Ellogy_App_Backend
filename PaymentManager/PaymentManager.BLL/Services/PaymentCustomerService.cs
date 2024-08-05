@@ -41,7 +41,8 @@ public class PaymentCustomerService : StripeBaseService, IPaymentCustomerService
         if (!string.IsNullOrEmpty(user.StripeCustomerId))
             throw new Exception("Customer is already created");
 
-        await _paymentRepository.CreateUserWalletAsync(userId);
+        _ = await _paymentRepository.GetUserWalletAsync(userId)
+            ?? await _paymentRepository.CreateUserWalletAsync(userId);
 
         var customerData = await GetCustomerService().CreateAsync(new CustomerCreateOptions
         {

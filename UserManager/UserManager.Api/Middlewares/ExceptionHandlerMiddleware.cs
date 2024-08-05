@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using UserManager.BLL.Exceptions;
+using UserManager.Common.Exceptions;
 
 namespace UserManager.Api.Middlewares;
 
@@ -31,50 +32,52 @@ public class ExceptionHandlerMiddleware
         {
             await _next(context);
         }
-        //TODO inherit from base CustomApiException
-        //TODO rewrite with when
         catch (FailedLoginException ex)
         {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.BadRequest, ex.Message);
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message);
         }
         catch (UserAlreadyExistException ex)
         {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.NotFound, ex.Message);
+            await HandleExceptionAsync(context, HttpStatusCode.NotFound, ex.Message);
         }
         catch (UserNotFoundException ex)
         {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.NotFound, ex.Message);
+            await HandleExceptionAsync(context, HttpStatusCode.NotFound, ex.Message);
         }
         catch (PasswordResetFailedException ex)
         {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.BadRequest, ex.Message);
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message);
         }
         catch (InvalidJwtException ex)
         {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.Unauthorized, ex.Message);
+            await HandleExceptionAsync(context, HttpStatusCode.Unauthorized, ex.Message);
         }
         catch (InvalidRefreshTokenException ex)
         {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.Unauthorized, ex.Message);
+            await HandleExceptionAsync(context, HttpStatusCode.Unauthorized, ex.Message);
         }
         catch (EmailVerificationException ex)
         {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.Forbidden, ex.Message);
+            await HandleExceptionAsync(context, HttpStatusCode.Forbidden, ex.Message);
         }
         catch (InvalidEmailException ex)
         {
-            await HandleExceptionAsync(context, ex.Message, HttpStatusCode.BadRequest, ex.Message);
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message);
+        }
+        catch (PasswordValidationException ex)
+        {
+            await HandleExceptionAsync(context, HttpStatusCode.PreconditionFailed, ex.Message);
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, ex.Message,
+            await HandleExceptionAsync(context,
                 responseMessage: string.IsNullOrEmpty(ex.Message)
                     ? StandartResponseMessage
                     : ex.Message);
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, string errorMessage,
+    private static async Task HandleExceptionAsync(HttpContext context,
         HttpStatusCode httpStatusCode = StandartHttpStatusCode, string responseMessage = StandartResponseMessage)
     {
         context.Response.ContentType = "text/plain";

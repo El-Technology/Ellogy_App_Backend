@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using TicketsManager.BLL.Dtos.TicketDtos;
 using TicketsManager.Common.Dtos;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.BLL.Mapping;
 
@@ -23,7 +23,13 @@ public class TicketProfile : Profile
 
         CreateMap<Ticket, TicketResponseDto>()
             .ForMember(dest => dest.Messages, opts =>
-                opts.MapFrom(_ => _.TicketMessages));
+                opts.MapFrom(_ => _.TicketMessages))
+            .ForMember(dest => dest.Permissions, opts =>
+                opts.MapFrom(_ => _.TicketShares
+                    .Where(a => a.RevokedAt > DateTime.UtcNow ||
+                                a.RevokedAt == null)))
+            .ForMember(dest => dest.TicketOwnerId, opts =>
+                opts.MapFrom(_ => _.UserId));
 
         CreateMap<TicketUpdateRequestDto, Ticket>()
             .ForMember(dest => dest.TicketMessages, opts =>

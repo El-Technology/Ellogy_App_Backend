@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos;
 using TicketsManager.BLL.Interfaces;
+using TicketsManager.Common.Dtos;
+using TicketsManager.Common.Helpers;
 
 namespace TicketsManager.Api.Controllers;
 
@@ -26,6 +28,14 @@ public class UserStoryTestController : ControllerBase
     }
 
     /// <summary>
+    /// This method retrieves the user id from the JWT token
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    private Guid GetUserIdFromToken() =>
+        TokenParseHelper.GetUserId(User);
+
+    /// <summary>
     ///     Controller for creating user story tests
     /// </summary>
     /// <param name="userStoryTest"></param>
@@ -35,7 +45,7 @@ public class UserStoryTestController : ControllerBase
     public async Task<IActionResult> AddUserStoryTestAsync(
         [FromBody] List<CreateUserStoryTestDto> userStoryTest)
     {
-        return Ok(await _userStoryTestService.AddUserStoryTestAsync(userStoryTest));
+        return Ok(await _userStoryTestService.AddUserStoryTestAsync(GetUserIdFromToken(), userStoryTest));
     }
 
     /// <summary>
@@ -47,7 +57,22 @@ public class UserStoryTestController : ControllerBase
     [Route("getUserStoryTests")]
     public async Task<IActionResult> GetUserStoryTestsAsync([FromQuery] Guid ticketId)
     {
-        return Ok(await _userStoryTestService.GetUserStoryTestsAsync(ticketId));
+        return Ok(await _userStoryTestService.GetUserStoryTestsAsync(GetUserIdFromToken(), ticketId));
+    }
+
+    /// <summary>
+    ///     Controller for getting user story tests
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <param name="paginationRequest"></param>
+    /// <returns></returns>
+    [HttpPost]
+    [Route("getUserStoryTests")]
+    public async Task<IActionResult> GetUserStoryTestsAsync(
+        [FromQuery] Guid ticketId, [FromBody] PaginationRequestDto paginationRequest)
+    {
+        return Ok(await _userStoryTestService.GetUserStoryTestsAsync(
+            GetUserIdFromToken(), ticketId, paginationRequest));
     }
 
     /// <summary>
@@ -60,7 +85,7 @@ public class UserStoryTestController : ControllerBase
     public async Task<IActionResult> UpdateUserStoryTestAsync(
         [FromBody] List<UpdateUserStoryTestDto> userStoryTest)
     {
-        await _userStoryTestService.UpdateUserStoryTestAsync(userStoryTest);
+        await _userStoryTestService.UpdateUserStoryTestAsync(GetUserIdFromToken(), userStoryTest);
         return Ok();
     }
 
@@ -73,7 +98,7 @@ public class UserStoryTestController : ControllerBase
     [Route("deleteUserStoryTests")]
     public async Task<IActionResult> DeleteUserStoryTestAsync([FromQuery] Guid ticketId)
     {
-        await _userStoryTestService.DeleteUserStoryTestAsync(ticketId);
+        await _userStoryTestService.DeleteUserStoryTestAsync(GetUserIdFromToken(), ticketId);
         return Ok();
     }
 
@@ -86,7 +111,7 @@ public class UserStoryTestController : ControllerBase
     [Route("deleteTestCases")]
     public async Task<IActionResult> DeleteTestCasesByIds([FromBody] List<Guid> listOfTestCaseIds)
     {
-        await _userStoryTestService.DeleteTestCasesByIdsAsync(listOfTestCaseIds);
+        await _userStoryTestService.DeleteTestCasesByIdsAsync(GetUserIdFromToken(), listOfTestCaseIds);
         return Ok();
     }
 }

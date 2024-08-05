@@ -3,7 +3,7 @@ using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.DAL.Repositories;
 
@@ -16,15 +16,57 @@ public class TicketsRepository : ITicketsRepository
         _context = context;
     }
 
+    private IQueryable<Ticket> GetTicketsByUserIdQuery(Guid userId)
+    {
+        return _context.Tickets
+            .Include(e => e.TicketShares.Where(a => a.SharedUserId == userId))
+            .Include(e => e.TicketMessages
+                .Where(msg =>
+                    msg.Ticket.UserId == userId ||
+                    msg.Ticket.TicketShares.Any(ts =>
+                        ts.SharedUserId == userId &&
+                        (
+                            ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.General ||
+                            ts.TicketCurrentStep == null ||
+                            ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.Report
+                        ) &&
+                        (
+                            ts.TicketCurrentStep == null ||
+                            ts.SubStageEnum == null ||
+                            ts.SubStageEnum == msg.SubStage ||
+                            msg.SubStage == Enums.SubStageEnum.FunctionalRequirements
+                        )
+                    )
+                )
+                .OrderBy(a => a.SendTime)
+            )
+            .Include(e => e.Notifications
+                .Where(notification =>
+                    notification.Ticket.UserId == userId ||
+                    notification.Ticket.TicketShares.Any(ts =>
+                        ts.SharedUserId == userId &&
+                        (
+                            ts.TicketCurrentStep == null ||
+                            ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.Notifications ||
+                            ts.TicketCurrentStep == Enums.TicketCurrentStepEnum.Report
+                        )
+                    )
+                )
+            )
+            .AsNoTracking()
+            .Where(a =>
+                a.UserId == userId ||
+                a.TicketShares.Any(ts =>
+                    ts.SharedUserId == userId &&
+                    (ts.RevokedAt > DateTime.UtcNow || ts.RevokedAt == null))
+            );
+    }
+
     /// <inheritdoc cref="ITicketsRepository.GetTicketsAsync" />
     public async Task<PaginationResponseDto<Ticket>> GetTicketsAsync(
         Guid userId, PaginationRequestDto paginateRequest)
     {
-        return await _context.Tickets
-            .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
-            .Include(e => e.Notifications)
-            .AsNoTracking()
-            .Where(a => a.UserId == userId)
+        return await GetTicketsByUserIdQuery(userId)
             .GetFinalResultAsync(paginateRequest);
     }
 
@@ -32,11 +74,7 @@ public class TicketsRepository : ITicketsRepository
     public async Task<PaginationResponseDto<Ticket>> FindTicketsAsync(Guid userId,
         SearchTicketsRequestDto searchTicketsRequest)
     {
-        return await _context.Tickets
-            .Include(e => e.TicketMessages.OrderBy(e => e.SendTime))
-            .Include(e => e.Notifications)
-            .AsNoTracking()
-            .Where(a => a.UserId == userId)
+        return await GetTicketsByUserIdQuery(userId)
             .Where(e => e.Title.ToLower().Contains(searchTicketsRequest.TicketTitle.ToLower()))
             .GetFinalResultAsync(searchTicketsRequest.Pagination);
     }
@@ -49,13 +87,10 @@ public class TicketsRepository : ITicketsRepository
     }
 
     /// <inheritdoc cref="ITicketsRepository.GetTicketByIdAsync" />
-    public Task<Ticket?> GetTicketByIdAsync(Guid id)
+    public Task<Ticket?> GetTicketByIdAsync(Guid id, Guid userId)
     {
-        return _context.Tickets
-            .Include(e => e.TicketMessages)
-            .Include(e => e.Notifications)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(e => e.Id == id);
+        return GetTicketsByUserIdQuery(userId)
+           .FirstOrDefaultAsync(e => e.Id == id);
     }
 
     /// <inheritdoc cref="ITicketsRepository.DeleteTicketAsync" />

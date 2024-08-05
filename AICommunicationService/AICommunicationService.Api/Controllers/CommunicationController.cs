@@ -1,5 +1,6 @@
 ﻿using AICommunicationService.BLL.Dtos;
 using AICommunicationService.BLL.Interfaces;
+using AICommunicationService.BLL.Interfaces.HttpInterfaces;
 using AICommunicationService.Common;
 using AICommunicationService.Common.Enums;
 using AICommunicationService.Common.Helpers;
@@ -19,14 +20,19 @@ namespace AICommunicationService.Controllers;
 public class CommunicationController : ControllerBase
 {
     private readonly ICommunicationService _communicationService;
+    private readonly ITicketExternalHttpService _ticketExternalHttpService;
 
     /// <summary>
     ///    Constructor for CommunicationController
     /// </summary>
     /// <param name="communicationService"></param>
-    public CommunicationController(ICommunicationService communicationService)
+    /// <param name="ticketExternalHttpService"></param>
+    public CommunicationController(
+        ICommunicationService communicationService,
+        ITicketExternalHttpService ticketExternalHttpService)
     {
         _communicationService = communicationService;
+        _ticketExternalHttpService = ticketExternalHttpService;
     }
 
     /// <summary>
@@ -52,6 +58,21 @@ public class CommunicationController : ControllerBase
         };
     }
 
+    /// <summary>
+    ///    This method checks if the user has access to the ticket.
+    /// </summary>
+    /// <param name="ticketId"></param>
+    /// <param name="userId"></param>
+    /// <param name="currentStepEnum"></param>
+    /// <returns></returns>
+    private async Task CheckUserAccessAsync(
+        Guid ticketId, Guid userId, TicketCurrentStepEnum currentStepEnum)
+    {
+        var requireSharePermissionEnum = SharePermissionEnum.ReadWrite;
+        await _ticketExternalHttpService.CheckUserAccessAsync(
+            ticketId, userId, currentStepEnum, requireSharePermissionEnum);
+    }
+
 
     /// <summary>
     ///     This method retrieves the user id from the JWT token
@@ -65,11 +86,21 @@ public class CommunicationController : ControllerBase
     ///    Endpoint for retrieving AI response as streaming.
     /// </summary>
     /// <param name="conversationRequest"></param>
+    /// <param name="ticketId"></param>
+    /// <param name="ticketCurrentStep"></param>
     /// <returns></returns>
     [HttpPost]
     [Route("getStreamResponse")]
-    public async Task GetStreamResponse([FromBody] CreateConversationRequest conversationRequest)
+    public async Task GetStreamResponse(
+        [FromBody] CreateConversationRequest conversationRequest,
+        [FromQuery] Guid? ticketId,
+        [FromQuery] TicketCurrentStepEnum? ticketCurrentStep)
     {
+        if (ticketId is not null)
+            await CheckUserAccessAsync(ticketId ?? Guid.Empty,
+                GetUserIdFromToken(),
+                ticketCurrentStep ?? TicketCurrentStepEnum.General);
+
         Response.Headers.Add("Cache-Control", "no-cache");
         Response.Headers.Add("Content-Type", "text/event-stream");
         await _communicationService.StreamRequestAsync(GetUserIdFromToken(), CheckUserPlan(conversationRequest),
@@ -84,11 +115,21 @@ public class CommunicationController : ControllerBase
     ///     Endpoint for retrieving AI response as string.
     /// </summary>
     /// <param name="conversationRequest">Request params</param>
+    /// <param name="ticketId"></param>
+    /// <param name="ticketCurrentStep"></param>
     /// <returns>Returns true if request is success</returns>
     [HttpPost]
     [Route("getChatResponse")]
-    public async Task<IActionResult> GetChatResponse([FromBody] CreateConversationRequest conversationRequest)
+    public async Task<IActionResult> GetChatResponse(
+        [FromBody] CreateConversationRequest conversationRequest,
+        [FromQuery] Guid? ticketId,
+        [FromQuery] TicketCurrentStepEnum? ticketCurrentStep)
     {
+        if (ticketId is not null)
+            await CheckUserAccessAsync(ticketId ?? Guid.Empty,
+                GetUserIdFromToken(),
+                ticketCurrentStep ?? TicketCurrentStepEnum.General);
+
         var response =
             await _communicationService.ChatRequestAsync(GetUserIdFromToken(), CheckUserPlan(conversationRequest));
         return Ok(response);
@@ -98,11 +139,21 @@ public class CommunicationController : ControllerBase
     ///     Endpoint for retrieving AI response by Json Example.
     /// </summary>
     /// <param name="requestWithFunction"></param>
+    /// <param name="ticketId"></param>
+    /// <param name="ticketCurrentStep"></param>
     /// <returns>Returns string data in Json</returns>
     [HttpPost]
     [Route("chatWithFunctions")]
-    public async Task<IActionResult> GetChatWithFunctions([FromBody] CreateConversationRequest requestWithFunction)
+    public async Task<IActionResult> GetChatWithFunctions(
+        [FromBody] CreateConversationRequest requestWithFunction,
+        [FromQuery] Guid? ticketId,
+        [FromQuery] TicketCurrentStepEnum? ticketCurrentStep)
     {
+        if (ticketId is not null)
+            await CheckUserAccessAsync(ticketId ?? Guid.Empty,
+                GetUserIdFromToken(),
+                ticketCurrentStep ?? TicketCurrentStepEnum.General);
+
         var response =
             await _communicationService.ChatRequestWithFunctionAsync(GetUserIdFromToken(),
                 CheckUserPlan(requestWithFunction));

@@ -1,5 +1,6 @@
 ﻿using TicketsManager.BLL.Dtos.MessageDtos;
 using TicketsManager.BLL.Dtos.NotificationDtos;
+using TicketsManager.BLL.Dtos.TicketShareDtos;
 using TicketsManager.DAL.Enums;
 
 namespace TicketsManager.BLL.Dtos.TicketDtos;
@@ -13,6 +14,11 @@ public class TicketResponseDto
     ///     The unique identifier of the ticket.
     /// </summary>
     public Guid Id { get; set; }
+
+    /// <summary>
+    ///    The unique identifier of the user who owns the ticket.
+    /// </summary>
+    public Guid TicketOwnerId { get; set; }
 
     /// <summary>
     ///     The title of the ticket.
@@ -73,4 +79,9 @@ public class TicketResponseDto
     ///    The business impact of the ticket.
     /// </summary>
     public string? BusinessImpact { get; set; }
+
+    /// <summary>
+    ///  Returns information about user permissions for this ticket or null if user is owner
+    /// </summary>
+    public List<PermissionDto>? Permissions { get; set; }
 }

@@ -25,5 +25,4 @@ public class PaymentExternalHttpService : IPaymentExternalHttpService
         var result = await _httpClient.GetAsync($"api/PaymentExternal/check-if-user-allowed-to-create-request?userId={userId}&userMinimum={userMinimum}");
         return JsonConvert.DeserializeObject<bool>(await result.Content.ReadAsStringAsync());
     }
-
 }

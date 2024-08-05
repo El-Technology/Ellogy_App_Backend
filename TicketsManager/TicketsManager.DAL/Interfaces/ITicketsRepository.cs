@@ -1,5 +1,5 @@
 ﻿using TicketsManager.Common.Dtos;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketModels;
 
 namespace TicketsManager.DAL.Interfaces;
 
@@ -35,7 +35,7 @@ public interface ITicketsRepository
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Task<Ticket?> GetTicketByIdAsync(Guid id);
+    public Task<Ticket?> GetTicketByIdAsync(Guid id, Guid userId);
 
     /// <summary>
     /// Update a ticket

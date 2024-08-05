@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos.GetDtos;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Dtos;
-using TicketsManager.DAL.Models.UserStoryTests;
+using TicketsManager.DAL.Models.UserStoryTestsModels;
 
 namespace TicketsManager.BLL.Mapping;
 
@@ -42,5 +43,7 @@ public class UserStoryTestProfile : Profile
             .ReverseMap();
 
         CreateMap<UpdateUserStoryTestDto, UserStoryTest>();
+
+        CreateMap<PaginationResponseDto<ReturnUserStoryTestModel>, PaginationResponseDto<GetUserStoryDto>>();
     }
 }

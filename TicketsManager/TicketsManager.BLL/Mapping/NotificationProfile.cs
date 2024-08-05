@@ -1,23 +1,25 @@
 ﻿using AutoMapper;
 using TicketsManager.BLL.Dtos.NotificationDtos;
-using TicketsManager.DAL.Models;
+using TicketsManager.Common.Dtos;
+using TicketsManager.DAL.Models.TicketModels;
 
-namespace TicketsManager.BLL.Mapping
+namespace TicketsManager.BLL.Mapping;
+
+public class NotificationProfile : Profile
 {
-    public class NotificationProfile : Profile
+    public NotificationProfile()
     {
-        public NotificationProfile()
-        {
-            CreateMap<NotificationDto, Notification>()
-                .ForMember(dest => dest.Id, opts =>
-                    opts.MapFrom(new GuidValueResolver()))
-                .ForMember(dest => dest.TicketId, opts =>
-                    opts.Ignore())
-                .ForMember(dest => dest.Ticket, opts =>
-                    opts.Ignore());
+        CreateMap<NotificationDto, Notification>()
+            .ForMember(dest => dest.Id, opts =>
+                opts.MapFrom(new GuidValueResolver()))
+            .ForMember(dest => dest.TicketId, opts =>
+                opts.Ignore())
+            .ForMember(dest => dest.Ticket, opts =>
+                opts.Ignore());
 
-            CreateMap<Notification, NotificationFullDto>()
-                .ReverseMap();
-        }
+        CreateMap<Notification, NotificationFullDto>()
+            .ReverseMap();
+
+        CreateMap<PaginationResponseDto<Notification>, PaginationResponseDto<NotificationFullDto>>();
     }
 }

@@ -17,7 +17,7 @@ public static class SubscriptionHelper
         return accountPlan switch
         {
             AccountPlan.Starter => 0, //unlimited access
-            AccountPlan.Free => 20000,
+            AccountPlan.Basic => 0, //20k will be given, when wallet will be created firstly
             _ => 0
         };
     }

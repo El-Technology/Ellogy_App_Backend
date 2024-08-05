@@ -1,9 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
 using TicketsManager.DAL.Dtos;
+using TicketsManager.DAL.Extensions;
 using TicketsManager.DAL.Interfaces;
-using TicketsManager.DAL.Models.UserStoryTests;
+using TicketsManager.DAL.Models.UserStoryTestsModels;
 
 namespace TicketsManager.DAL.Repositories;
 
@@ -14,6 +16,22 @@ public class UserStoryTestRepository : IUserStoryTestRepository
     public UserStoryTestRepository(TicketsManagerDbContext context)
     {
         _context = context;
+    }
+
+    public async Task<Guid> GetTicketIdByTestCaseIdAsync(Guid testCaseId)
+    {
+        return await _context.TestCases
+            .Where(tc => tc.Id == testCaseId)
+            .Select(tc => tc.UserStoryTest!.Usecase!.TicketId)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<Guid> GetTicketIdByUsecaseIdAsync(Guid usecaseId)
+    {
+        return await _context.Usecases
+            .Where(u => u.Id == usecaseId)
+            .Select(u => u.TicketId)
+            .FirstOrDefaultAsync();
     }
 
     public async Task<Dictionary<Guid, Guid>> GetUsecaseTicketIdRelationAsync(List<Guid> usecaseIds)
@@ -70,6 +88,14 @@ public class UserStoryTestRepository : IUserStoryTestRepository
     public IQueryable<ReturnUserStoryTestModel> GetUserStoryTests(Guid ticketId)
     {
         return GetUserStoryTestQueryWithFilter(a => a.Usecase!.TicketId == ticketId);
+    }
+
+    /// <inheritdoc cref="IUserStoryTestRepository.GetUserStoryTestsAsync" />
+    public async Task<PaginationResponseDto<ReturnUserStoryTestModel>> GetUserStoryTestsAsync(
+        Guid ticketId, PaginationRequestDto paginationRequest)
+    {
+        return await GetUserStoryTestQueryWithFilter(a => a.Usecase!.TicketId == ticketId)
+            .GetFinalResultAsync(paginationRequest);
     }
 
     /// <inheritdoc cref="IUserStoryTestRepository.UpdateUserStoryTestAsync" />

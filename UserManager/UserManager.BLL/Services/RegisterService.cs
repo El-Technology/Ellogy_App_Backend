@@ -27,8 +27,8 @@ public class RegisterService : IRegisterService
         Way = NotificationWayEnum.Email
     };
 
-    private readonly INotificationQueueService _notificationQueueService;
     private readonly IUserRepository _userRepository;
+    private readonly IServiceBusQueue _notificationQueueService;
 
     /// <summary>
     ///     Constructor
@@ -37,8 +37,9 @@ public class RegisterService : IRegisterService
     /// <param name="userRepository"></param>
     /// <param name="paymentRepository"></param>
     /// <param name="notificationQueueService"></param>
-    public RegisterService(IMapper mapper, IUserRepository userRepository,
-        INotificationQueueService notificationQueueService)
+    public RegisterService(IMapper mapper,
+        IUserRepository userRepository,
+        IServiceBusQueue notificationQueueService)
     {
         _mapper = mapper;
         _userRepository = userRepository;
@@ -48,9 +49,6 @@ public class RegisterService : IRegisterService
     /// <inheritdoc cref="IRegisterService.RegisterUserAsync" />
     public async Task RegisterUserAsync(UserRegisterRequestDto userRegister)
     {
-        if (!EmailHelper.IsValidEmail(userRegister.Email))
-            throw new InvalidEmailException();
-
         var user = _mapper.Map<User>(userRegister);
 
         if (await _userRepository.CheckEmailIsExistAsync(user.Email))
@@ -105,6 +103,6 @@ public class RegisterService : IRegisterService
         _notificationModel.MetaData = new Dictionary<string, string>
             { { FirstName, user.FirstName }, { VerifyEmailAddressLink, verifyEmailUrl } };
 
-        await _notificationQueueService.SendNotificationAsync(_notificationModel);
+        await _notificationQueueService.SendMessageAsync(_notificationModel);
     }
 }

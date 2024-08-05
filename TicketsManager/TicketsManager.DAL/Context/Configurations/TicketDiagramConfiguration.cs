@@ -1,25 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.UsecaseModels;
 
-namespace TicketsManager.DAL.Context.Configurations
+namespace TicketsManager.DAL.Context.Configurations;
+
+public class TicketDiagramConfiguration : IEntityTypeConfiguration<TicketDiagram>
 {
-    public class TicketDiagramConfiguration : IEntityTypeConfiguration<TicketDiagram>
+    public void Configure(EntityTypeBuilder<TicketDiagram> builder)
     {
-        public void Configure(EntityTypeBuilder<TicketDiagram> builder)
-        {
-            builder.ToTable("TicketDiagrams");
-            builder.HasKey(t => t.Id);
-            builder.Property(t => t.Title)
-                .IsRequired();
-            builder.Property(t => t.Description)
-                .IsRequired();
-            builder.Property(t => t.PictureLink)
-                .IsRequired();
+        builder.ToTable("TicketDiagrams");
+        builder.HasKey(t => t.Id);
+        builder.Property(t => t.Title)
+            .IsRequired();
+        builder.Property(t => t.Description)
+            .IsRequired();
+        builder.Property(t => t.PictureLink)
+            .IsRequired();
 
-            builder.HasOne(a => a.Usecase)
-                .WithMany(a => a.Diagrams)
-                .HasForeignKey(a => a.UsecaseId);
-        }
+        builder.HasOne(a => a.Usecase)
+            .WithMany(a => a.Diagrams)
+            .HasForeignKey(a => a.UsecaseId);
     }
 }

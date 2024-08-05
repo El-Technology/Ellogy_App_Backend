@@ -42,6 +42,7 @@ public class LoginServiceTest
     {
         // Arrange
         var loginUser = _fixture.Create<LoginRequestDto>();
+        loginUser.Email = "test@gmail.com";
 
         _userRepository.Setup(x => x.GetUserByEmailAsync(loginUser.Email)).ReturnsAsync(null as User);
 
@@ -54,7 +55,9 @@ public class LoginServiceTest
     {
         // Arrange
         var loginUser = _fixture.Create<LoginRequestDto>();
+        loginUser.Email = "test@gmail.com";
         var user = _fixture.Build<User>().With(x => x.IsAccountActivated, false).Create();
+        user.Email = loginUser.Email;
 
         _userRepository.Setup(x => x.GetUserByEmailAsync(loginUser.Email)).ReturnsAsync(user);
 
@@ -67,7 +70,9 @@ public class LoginServiceTest
     {
         // Arrange
         var loginUser = _fixture.Create<LoginRequestDto>();
+        loginUser.Email = "test@gmail.com";
         var user = _fixture.Build<User>().With(x => x.IsAccountActivated, true).With(x => x.Role, RoleEnum.Admin).Create();
+        user.Email = loginUser.Email;
 
         _userRepository.Setup(x => x.GetUserByEmailAsync(loginUser.Email)).ReturnsAsync(user);
 

@@ -3,7 +3,8 @@ using TicketsManager.BLL.Dtos.TicketUsecaseDtos;
 using TicketsManager.BLL.Dtos.TicketUsecaseDtos.FullDtos;
 using TicketsManager.BLL.Dtos.TicketUsecaseDtos.UsecasesDtos;
 using TicketsManager.Common.Dtos;
-using TicketsManager.DAL.Models;
+using TicketsManager.DAL.Models.TicketSummaryModels;
+using TicketsManager.DAL.Models.UsecaseModels;
 
 namespace TicketsManager.BLL.Mapping;
 

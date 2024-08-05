@@ -157,7 +157,7 @@ public class WebhookService : StripeBaseService, IWebhookService
 
         if (invoice.PeriodEnd < invoice.WebhooksDeliveredAt)
         {
-            var freeProduct = await _productCatalogService.GetProductByNameAsync(AccountPlan.Free.ToString());
+            var freeProduct = await _productCatalogService.GetProductByNameAsync(AccountPlan.Basic.ToString());
             var newSubscription = await UpdateSubscriptionPaymentFailCaseAsync(subscription, freeProduct.PriceId);
 
             await _subscriptionRepository.UpdateSubscriptionAsync(new DAL.Models.Subscription
@@ -170,8 +170,8 @@ public class WebhookService : StripeBaseService, IWebhookService
                 IsActive = true,
                 UserId = userId,
                 IsCanceled = newSubscription.CancelAtPeriodEnd
-            }, AccountPlan.Free);
-            await _userExternalHttpService.UpdateAccountPlanAsync(userId, AccountPlan.Free);
+            }, AccountPlan.Basic);
+            await _userExternalHttpService.UpdateAccountPlanAsync(userId, AccountPlan.Basic);
         }
         else
             await UpdateSubscriptionPaymentFailCaseAsync(subscription, invoice.Lines.Data.FirstOrDefault()?.Price.Id);
@@ -221,7 +221,8 @@ public class WebhookService : StripeBaseService, IWebhookService
         }, accountPlanEnum);
         await _userExternalHttpService.UpdateAccountPlanAsync(userId, accountPlanEnum);
 
-        await UpdateUserBalanceAsync(userId, amountOfTokens);
+        if (amountOfTokens != default)
+            await UpdateUserBalanceAsync(userId, amountOfTokens);
 
         await _paymentRepository.CreatePaymentAsync(new Payment
         {
