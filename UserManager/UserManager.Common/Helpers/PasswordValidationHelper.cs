@@ -5,6 +5,11 @@ public static class PasswordValidationHelper
 {
     private const int MinPasswordLength = 12;
 
+    private static bool IsSpecialCharacter(char c)
+    {
+        return char.IsSymbol(c) || char.IsPunctuation(c) || c == '_' || c == '-';
+    }
+
     public static void ValidatePassword(string password)
     {
         if (string.IsNullOrWhiteSpace(password))
@@ -22,7 +27,7 @@ public static class PasswordValidationHelper
         if (!password.Any(char.IsLower))
             throw new PasswordValidationException("Password must contain at least one lowercase letter");
 
-        if (!password.Any(char.IsSymbol))
+        if (!password.Any(IsSpecialCharacter))
             throw new PasswordValidationException("Password must contain at least one special character");
     }
 }
