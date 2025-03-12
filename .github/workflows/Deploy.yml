@@ -2,21 +2,42 @@ name: Build and push microservices
 on:
   push:
     branches:
-      - 'Ellogy_prod'
+      - 'customer_kahrama'
     paths:
-      - TicketsManager/**
-      - UserManager/**
       - AICommunicationService/**
-      - PaymentManager/**
+      - '!AICommunicationService/AICommunicationService.Api/appsettings.json'
+      
       - NotificationManager/**
+      - '!NotificationManager/NotificationManager.API/appsettings.json'
+
+      - PaymentManager/**
+      - '!PaymentManager/PaymentManager.API/appsettings.json'
+      
+      - TicketsManager/**
+      - '!TicketsManager/TicketsManager.Api/appsettings.json'
+      
+      - UserManager/**
+      - '!UserManager/UserManager.Api/appsettings.json'
+      
       - .github/workflows/Deploy.yml
-      - .github/actions/**
+      - .github/actions/** 
+      
+      # - '!UserManager/NotificationService/**'
       
 env:
-  SSH_HOST: ${{ secrets.SSH_HOST_prod }}
+  SSH_HOST: ${{ secrets.SSH_HOST_KAHRAMA }}
   SSH_USER: ${{ vars.REMOTE_USER }}
-  SSH_KEY: ${{ secrets.SSH_KEY_prod }}
+  SSH_KEY: ${{ secrets.SSH_KEY_KAHRAMA }}
   ENVNAME: ${{ vars.ENVNAME }}
+
+  ACR_SERVER: ${{ vars.ACR_SERVER_KAHRAMA }}
+  ACR_USERNAME: ${{ secrets.ACR_USERNAME_KAHRAMA }}
+  ACR_PASSWD: ${{ secrets.ACR_PASSWD_KAHRAMA }}
+
+  # MicroSRVC_PM_name: payment_manager
+  # MicroSRVC_AICS_name: ai_communication_service
+  # MicroSRVC_UM_name: user_manager
+  # MicroSRVC_TM_name: ticket_manager
 
 jobs:
   changes:
@@ -24,10 +45,11 @@ jobs:
 
     outputs:
       AICommunicationService: ${{ steps.changes.outputs.AICommunicationService }}
-      UserManager: ${{ steps.changes.outputs.UserManager }}
-      TicketsManager: ${{ steps.changes.outputs.TicketsManager }}
-      PaymentManager: ${{ steps.changes.outputs.PaymentManager }}
       NotificationManager: ${{ steps.changes.outputs.NotificationManager }}
+      PaymentManager: ${{ steps.changes.outputs.PaymentManager }}
+      TicketsManager: ${{ steps.changes.outputs.TicketsManager }}
+      UserManager: ${{ steps.changes.outputs.UserManager }}
+
       Workflow: ${{ steps.changes.outputs.Workflow }}
       
     steps:
@@ -42,32 +64,89 @@ jobs:
            filters: |
               AICommunicationService:
                 - 'AICommunicationService/**'
-              UserManager:
-                - 'UserManager/**'
-              TicketsManager:
-                - 'TicketsManager/**'
-              PaymentManager:
-                - 'PaymentManager/**'
               NotificationManager:
                 - 'NotificationManager/**'
+              PaymentManager:
+                - 'PaymentManager/**'
+              TicketsManager:
+                - 'TicketsManager/**'
+              UserManager:
+                - 'UserManager/**'
               Workflow:
                 - '.github/**'
-  
+
+  #==================================================================
+  #    AI Communication service
+  #------------------------------------------------------------------
+  build_ai_communication_service:
+    permissions: write-all
+
+    env:
+      MICROSERVICE_NAME: 'ai_communication_service'
+      
+      PROJECT_PATH: './AICommunicationService/'
+      DOCKERFILEPATH: './AICommunicationService.Api/Dockerfile'
+      CONTEXT: '.'
+    
+    outputs:
+      MicroserviceName: ${{ steps.build-n-push_AICS.outputs.MicroSRVC_Name }}
+      MicroserviceImage: ${{ steps.build-n-push_AICS.outputs.MicroSRVC_Image }}
+      
+    needs: changes
+    if: ${{ github.event.deleted == false && (needs.changes.outputs.AICommunicationService == 'true' || needs.changes.outputs.Workflow == 'true') }}
+    
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v4
+
+      # - name: Run Tests
+      #   run: |
+      #       dotnet test AiCommunicationService.Tests/AiCommunicationService.Tests.csproj --logger 'console;verbosity=normal'
+      #       if [ $? -ne 0 ]; then
+      #           echo 'Tests failed, deployment canceled.'
+      #           exit 1
+      #       else
+      #           echo 'Tests passed, continuing with deployment.'
+      #       fi
+      #   working-directory: ${{ env.PROJECT_PATH }}
+      
+      - name: Build and push image of AICommunicationService
+        id: build-n-push_AICS
+        uses: ./.github/actions/Build-n-push
+        with: 
+          Project_path: ${{ env.PROJECT_PATH }}
+          Dockerfile_path: ${{ env.DOCKERFILEPATH }}
+          Context: ${{ env.CONTEXT }}
+
+          Customer_ID: kahrama
+          Microservice_name: ${{ env.MICROSERVICE_NAME }}
+          Environment: ${{ env.ENVNAME }}
+          Image_tag_num: ${{ github.run_number }}
+          
+          ACR_server: ${{ env.ACR_SERVER }}
+          ACR_username: ${{ env.ACR_USERNAME }}
+          ACR_passwd: ${{ env.ACR_PASSWD }}
+
+  #==================================================================
+  #    Notification Manager
+  #------------------------------------------------------------------
   build_notification_manager:
     permissions: write-all
 
     env:
       MICROSERVICE_NAME: 'notification_manager'
+
       PROJECT_PATH: './NotificationManager/'
-      CONTEXT: '.'
       DOCKERFILEPATH: './NotificationManager.API/Dockerfile'
+      CONTEXT: '.'   
 
     outputs:
-      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
-      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
+      MicroserviceName: ${{ steps.build-n-push_NM.outputs.MicroSRVC_Name }}
+      MicroserviceImage: ${{ steps.build-n-push_NM.outputs.MicroSRVC_Image }}
 
     needs: changes
-    if: ${{ ( needs.changes.outputs.NotificationManager == 'true' || needs.changes.outputs.Workflow == 'true' ) && true }}
+    if: ${{ github.event.deleted == false && (( needs.changes.outputs.NotificationManager == 'true' || needs.changes.outputs.Workflow == 'true' ) && true) }}
 
     runs-on: ubuntu-latest
     steps:
@@ -75,180 +154,177 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Build and push image of NotificationManager
-        id: build-n-push
+        id: build-n-push_NM
         uses: ./.github/actions/Build-n-push
         with: 
-          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
-          Environment: ${{ env.ENVNAME }}
-          ProjectPath: ${{ env.PROJECT_PATH }}
+          Project_path: ${{ env.PROJECT_PATH }}
+          Dockerfile_path: ${{ env.DOCKERFILEPATH }}
           Context: ${{ env.CONTEXT }}
-          DockerfilePath: ${{ env.DOCKERFILEPATH }}
-          Token: ${{ secrets.GITHUB_TOKEN }}
 
+          Customer_ID: kahrama
+          Microservice_name: ${{ env.MICROSERVICE_NAME }}          
+          Environment: ${{ env.ENVNAME }}
+          Image_tag_num: ${{ github.run_number }}
+
+          ACR_server: ${{ env.ACR_SERVER }}
+          ACR_username: ${{ env.ACR_USERNAME }}
+          ACR_passwd: ${{ env.ACR_PASSWD }}
+
+  #==================================================================
+  #    Payment Manager
+  #------------------------------------------------------------------
   build_payment_manager:
     permissions: write-all
 
     env:
       MICROSERVICE_NAME: 'payment_manager'
+
       PROJECT_PATH: './PaymentManager/'
-      CONTEXT: '.'
       DOCKERFILEPATH: './PaymentManager.API/Dockerfile'
+      CONTEXT: '.'
 
     outputs:
-      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
-      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
+      MicroserviceName: ${{ steps.build-n-push_PM.outputs.MicroSRVC_Name }}
+      MicroserviceImage: ${{ steps.build-n-push_PM.outputs.MicroSRVC_Image }}
 
     needs: changes
-    if: ${{ ( needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' ) && true }}
+    if: ${{ github.event.deleted == false && (( needs.changes.outputs.PaymentManager == 'true' || needs.changes.outputs.Workflow == 'true' ) && false) }}
+    
 
     runs-on: ubuntu-latest
     steps:
       - name: Get Code
         uses: actions/checkout@v4
 
-      - name: Run Tests
-        run: |
-            dotnet test PaymentManager.Tests/PaymentManager.Tests.csproj --logger 'console;verbosity=normal'
-            if [ $? -ne 0 ]; then
-                echo 'Tests failed, deployment canceled.'
-                exit 1
-            else
-                echo 'Tests passed, continuing with deployment.'
-            fi
-        working-directory: ${{ env.PROJECT_PATH }}
+      # - name: Run Tests
+      #   run: |
+      #       dotnet test PaymentManager.Tests/PaymentManager.Tests.csproj --logger 'console;verbosity=normal'
+      #       if [ $? -ne 0 ]; then
+      #           echo 'Tests failed, deployment canceled.'
+      #           exit 1
+      #       else
+      #           echo 'Tests passed, continuing with deployment.'
+      #       fi
+      #   working-directory: ${{ env.PROJECT_PATH }}
       
       - name: Build and push image of PaymentManager
-        id: build-n-push
+        id: build-n-push_PM
         uses: ./.github/actions/Build-n-push
         with: 
-          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
-          Environment: ${{ env.ENVNAME }}
-          ProjectPath: ${{ env.PROJECT_PATH }}
+          Project_path: ${{ env.PROJECT_PATH }}
+          Dockerfile_path: ${{ env.DOCKERFILEPATH }}
           Context: ${{ env.CONTEXT }}
-          DockerfilePath: ${{ env.DOCKERFILEPATH }}
-          Token: ${{ secrets.GITHUB_TOKEN }}
 
-  build_ai_communication_service:
-    permissions: write-all
-
-    env:
-      MICROSERVICE_NAME: 'ai_communication_service'
-      PROJECT_PATH: './AICommunicationService/'
-      CONTEXT: '.'
-      DOCKERFILEPATH: './AICommunicationService.Api/Dockerfile'
-    
-    outputs:
-      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
-      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
-      
-    needs: changes
-    if: ${{ needs.changes.outputs.AICommunicationService == 'true' || needs.changes.outputs.Workflow == 'true' }}
-    
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get Code
-        uses: actions/checkout@v4
-
-      - name: Run Tests
-        run: |
-            dotnet test AiCommunicationService.Tests/AiCommunicationService.Tests.csproj --logger 'console;verbosity=normal'
-            if [ $? -ne 0 ]; then
-                echo 'Tests failed, deployment canceled.'
-                exit 1
-            else
-                echo 'Tests passed, continuing with deployment.'
-            fi
-        working-directory: ${{ env.PROJECT_PATH }}
-      
-      - name: Build and push image of AICommunicationService
-        id: build-n-push
-        uses: ./.github/actions/Build-n-push
-        with: 
-          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
+          Customer_ID: kahrama
+          Microservice_name: ${{ env.MICROSERVICE_NAME }}
           Environment: ${{ env.ENVNAME }}
-          ProjectPath: ${{ env.PROJECT_PATH }}
-          Context: ${{ env.CONTEXT }}
-          DockerfilePath: ${{ env.DOCKERFILEPATH }}
-          Token: ${{ secrets.GITHUB_TOKEN }}
-
-  build_user_manager:
-    permissions: write-all
-
-    env:
-      MICROSERVICE_NAME: 'user_manager'
-      PROJECT_PATH: './UserManager/'
-      CONTEXT: '.'
-      DOCKERFILEPATH: './UserManager.Api/Dockerfile'
-    
-    outputs:
-      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
-      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
-      
-    needs: changes
-    if: ${{ needs.changes.outputs.UserManager == 'true' || needs.changes.outputs.Workflow == 'true' }}
-    
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get Code
-        uses: actions/checkout@v4
-      
-      - name: Build and push image of User Manager
-        id: build-n-push
-        uses: ./.github/actions/Build-n-push
-        with: 
-          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
-          Environment: ${{ env.ENVNAME }}
-          ProjectPath: ${{ env.PROJECT_PATH }}
-          Context: ${{ env.CONTEXT }}
-          DockerfilePath: ${{ env.DOCKERFILEPATH }}
-          Token: ${{ secrets.GITHUB_TOKEN }}
-
+          Image_tag_num: ${{ github.run_number }}
+          
+          ACR_server: ${{ env.ACR_SERVER }}
+          ACR_username: ${{ env.ACR_USERNAME }}
+          ACR_passwd: ${{ env.ACR_PASSWD }}
+  
+  #==================================================================
+  #    Tickets Manager
+  #------------------------------------------------------------------
   build_ticket_manager:
     permissions: write-all
 
     env:
       MICROSERVICE_NAME: 'ticket_manager'
+      
       PROJECT_PATH: './TicketsManager/'
-      CONTEXT: '.'
       DOCKERFILEPATH: './TicketsManager.Api/Dockerfile'
-  
+      CONTEXT: '.'
+
     outputs:
-      MicroserviceName: ${{ steps.build-n-push.outputs.MicroserviceName }}
-      MicroserviceImage: ${{ steps.build-n-push.outputs.MicroserviceImage }}
+      MicroserviceName: ${{ steps.build-n-push_TM.outputs.MicroSRVC_Name }}
+      MicroserviceImage: ${{ steps.build-n-push_TM.outputs.MicroSRVC_Image }}
       
     needs: changes
-    if: ${{ needs.changes.outputs.TicketsManager == 'true' || needs.changes.outputs.Workflow == 'true' }}   
+    if: ${{ github.event.deleted == false && (needs.changes.outputs.TicketsManager == 'true' || needs.changes.outputs.Workflow == 'true') }}   
     
     runs-on: ubuntu-latest
     steps:
       - name: Get Code
         uses: actions/checkout@v4
 
-      - name: Run Tests
-        run: |
-            dotnet test TicketsManager.Tests/TicketsManager.Tests.csproj --logger 'console;verbosity=normal'
-            if [ $? -ne 0 ]; then
-                echo 'Tests failed, deployment canceled.'
-                exit 1
-            else
-                echo 'Tests passed, continuing with deployment.'
-            fi
-        working-directory: ${{ env.PROJECT_PATH }}
+      # - name: Run Tests
+      #   run: |
+      #       dotnet test TicketsManager.Tests/TicketsManager.Tests.csproj --logger 'console;verbosity=normal'
+      #       if [ $? -ne 0 ]; then
+      #           echo 'Tests failed, deployment canceled.'
+      #           exit 1
+      #       else
+      #           echo 'Tests passed, continuing with deployment.'
+      #       fi
+      #   working-directory: ${{ env.PROJECT_PATH }}
 
-      - name: Build and push image of User Manager
-        id: build-n-push
+      - name: Build and push image of Ticket Manager
+        id: build-n-push_TM
         uses: ./.github/actions/Build-n-push
         with: 
-          MicroserviceName: ${{ env.MICROSERVICE_NAME }}
-          Environment: ${{ env.ENVNAME }}
-          ProjectPath: ${{ env.PROJECT_PATH }}
+          Project_path: ${{ env.PROJECT_PATH }}
+          Dockerfile_path: ${{ env.DOCKERFILEPATH }}
           Context: ${{ env.CONTEXT }}
-          DockerfilePath: ${{ env.DOCKERFILEPATH }}
-          Token: ${{ secrets.GITHUB_TOKEN }}
 
+          Customer_ID: kahrama
+          Microservice_name: ${{ env.MICROSERVICE_NAME }}
+          Environment: ${{ env.ENVNAME }}
+          Image_tag_num: ${{ github.run_number }}
+          
+          ACR_server: ${{ env.ACR_SERVER }}
+          ACR_username: ${{ env.ACR_USERNAME }}
+          ACR_passwd: ${{ env.ACR_PASSWD }}
+  
+  #==================================================================
+  #    User manager
+  #------------------------------------------------------------------
+  build_user_manager:
+    permissions: write-all
+
+    env:
+      MICROSERVICE_NAME: 'user_manager'
+      
+      PROJECT_PATH: './UserManager/'
+      DOCKERFILEPATH: './UserManager.Api/Dockerfile'
+      CONTEXT: '.'
+    
+    outputs:
+      MicroserviceName: ${{ steps.build-n-push_UM.outputs.MicroSRVC_Name }}
+      MicroserviceImage: ${{ steps.build-n-push_UM.outputs.MicroSRVC_Image }}
+      
+    needs: changes
+    if: ${{ github.event.deleted == false && (needs.changes.outputs.UserManager == 'true' || needs.changes.outputs.Workflow == 'true') }}
+    
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v4
+      
+      - name: Build and push image of User Manager
+        id: build-n-push_UM
+        uses: ./.github/actions/Build-n-push
+        with: 
+          Project_path: ${{ env.PROJECT_PATH }}
+          Dockerfile_path: ${{ env.DOCKERFILEPATH }}
+          Context: ${{ env.CONTEXT }}
+
+          Customer_ID: kahrama
+          Microservice_name: ${{ env.MICROSERVICE_NAME }}
+          Environment: ${{ env.ENVNAME }}
+          Image_tag_num: ${{ github.run_number }}
+          
+          ACR_SERVER: ${{ env.ACR_SERVER }}
+          ACR_USERNAME: ${{ env.ACR_USERNAME }}
+          ACR_PASSWD: ${{ env.ACR_PASSWD }}
+
+  #==================================================================
+  #    -------- Deploy All ----------
+  #------------------------------------------------------------------
   deploy_microservices:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
-    needs: [build_user_manager, build_ticket_manager, build_ai_communication_service, build_payment_manager, build_notification_manager]
+    needs: [build_ai_communication_service, build_notification_manager, build_payment_manager, build_ticket_manager, build_user_manager]
 
     runs-on: ubuntu-latest
     steps:
@@ -269,7 +345,7 @@ jobs:
       env:
         SERVICE_NAME1: ${{ needs.build_ai_communication_service.outputs.MicroserviceName }}
         SERVICE_IMAGE1: ${{ needs.build_ai_communication_service.outputs.MicroserviceImage }}
-
+        
         SERVICE_NAME2: ${{ needs.build_user_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE2: ${{ needs.build_user_manager.outputs.MicroserviceImage }}
         
@@ -281,36 +357,29 @@ jobs:
 
         SERVICE_NAME5: ${{ needs.build_notification_manager.outputs.MicroserviceName }}
         SERVICE_IMAGE5: ${{ needs.build_notification_manager.outputs.MicroserviceImage }}
-        
+
       run: |
         ssh VM bash -s <<EOF
         sudo su
           
         sudo snap install yq
 
-        docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-
+        # docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+        # echo "${{ secrets.ACR_PASSWD_KAHRAMA }}" | docker login kahramabackend.azurecr.io -u ${{ secrets.ACR_USERNAME }} --password-stdin
+        # echo $DOCKER_TOKEN | docker login kahramabackend.azurecr.io -u ${{ secrets.ACR_USERNAME }} --password-stdin
+        
+        docker login kahramabackend.azurecr.io -u $ACR_USERNAME -p $ACR_PASSWD
+        
         cd Ellogy
-        docker-compose down
+        # docker-compose down
 
-        export SERVICE_NAME1=$SERVICE_NAME1
-        export SERVICE_IMAGE1=$SERVICE_IMAGE1
-        export SERVICE_NAME2=$SERVICE_NAME2
-        export SERVICE_IMAGE2=$SERVICE_IMAGE2
-        export SERVICE_NAME3=$SERVICE_NAME3
-        export SERVICE_IMAGE3=$SERVICE_IMAGE3
-        export SERVICE_NAME4=$SERVICE_NAME4
-        export SERVICE_IMAGE4=$SERVICE_IMAGE4
-        export SERVICE_NAME5=$SERVICE_NAME5
-        export SERVICE_IMAGE5=$SERVICE_IMAGE5
+        yq e -i '.services.$SERVICE_NAME1.image="$SERVICE_IMAGE1"' docker-compose.yaml
+        yq e -i '.services.$SERVICE_NAME2.image="$SERVICE_IMAGE2"' docker-compose.yaml
+        yq e -i '.services.$SERVICE_NAME3.image="$SERVICE_IMAGE3"' docker-compose.yaml
+        yq e -i '.services.$SERVICE_NAME4.image="$SERVICE_IMAGE4"' docker-compose.yaml
+        yq e -i '.services.$SERVICE_NAME5.image="$SERVICE_IMAGE5"' docker-compose.yaml
 
-        yq e -i '.services.$SERVICE_NAME1.image=env(SERVICE_IMAGE1)' docker-compose.yaml
-        yq e -i '.services.$SERVICE_NAME2.image=env(SERVICE_IMAGE2)' docker-compose.yaml
-        yq e -i '.services.$SERVICE_NAME3.image=env(SERVICE_IMAGE3)' docker-compose.yaml
-        yq e -i '.services.$SERVICE_NAME4.image=env(SERVICE_IMAGE4)' docker-compose.yaml
-        yq e -i '.services.$SERVICE_NAME5.image=env(SERVICE_IMAGE5)' docker-compose.yaml
-
-        if [ "true" == "true" ]
+        if [ "false" == "true" ]
           then 
             docker-compose --profile payments up -d
           else
