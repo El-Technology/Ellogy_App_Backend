@@ -1,65 +1,79 @@
 name: Build image and push
 
 inputs:
-  MicroserviceName:
+  ACR_server:
     required: true
-  Environment:
+  ACR_username:
     required: true
-  ProjectPath:
+  ACR_passwd:
+    required: true
+
+  Project_path:
+    required: true
+  Dockerfile_path:
     required: true
   Context:
     required: true
-  DockerfilePath:
-    required: true
-  Token:
-    required: true
 
+  Customer_ID:
+    required: true
+  Microservice_name:
+    required: true
+  Environment:
+    required: true
+  Image_tag_num:
+    required: true
+    
 outputs:
-  MicroserviceName: 
-    value: ${{ inputs.MicroserviceName }}
-  MicroserviceImage:
-    value: ${{ steps.imageName-lowercase.outputs.lowercase }}
+  MicroSRVC_Name:
+    value: ${{ steps.build-n-push_image.outputs.MicroSRVC_Name }}         # Expose the output
+  MicroSRVC_Image:
+    value: ${{ steps.build-n-push_image.outputs.MicroSRVC_Image }}        # Expose the output
 
+ 
 runs:
   using: "composite"
   steps:
-    - name: Login to GitHub Packages
-      shell: bash
-      run: echo "${{ inputs.Token }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-
-    - name: Convert to repository name lowercase
-      id: imageName-lowercase
-      uses: ASzc/change-string-case-action@v6
-      env:
-        REPO_NAME: docker.pkg.github.com/${{ github.repository }}/${{ inputs.MicroserviceName }}_prod:${{ inputs.Environment }}-${{ github.run_number }}
+    - name: Login to ACR (AzureContainerRepository)
+      id: container-repository
+      uses: azure/docker-login@v2
       with:
-        string: ${{ env.REPO_NAME }}
+        login-server: ${{ inputs.ACR_server }}
+        username: ${{ inputs.ACR_username }}
+        password: ${{ inputs.ACR_passwd }}
 
     - name: Build, tag, and push docker image to GitHub Packages
-      id: build-image
+      id: build-n-push_image
       shell: bash
       env:
-        REPOSITORY_NAME: ${{ steps.imageName-lowercase.outputs.lowercase }}
-        PROJECT_PATH: ${{ inputs.ProjectPath }}
-        CONTEXT: ${{ inputs.Context }}
-        FILEPATH: ${{ inputs.DockerfilePath }}
+        MicroSRVC_name: ${{ inputs.Microservice_name }}
+        MicroSRVC_image: ${{ inputs.ACR_server }}/${{ inputs.Customer_ID }}/${{ inputs.Microservice_name }}:${{ inputs.Environment }}-${{ inputs.Image_tag_num }}
       run: |
-        cd ${PROJECT_PATH}
-        docker build -t ${REPOSITORY_NAME} -f ${FILEPATH} ${CONTEXT}
-        docker push ${REPOSITORY_NAME}
+        cd ${{ inputs.Project_path }}
+        docker build -t ${MicroSRVC_image} -f ${{ inputs.Dockerfile_path }} ${{ inputs.Context }}
+        docker push ${MicroSRVC_image}
 
-    - name: Get lowercase package name
-      id: packageName-lowercase
-      uses: ASzc/change-string-case-action@v6
-      env:
-        PACKAGE_NAME: ${{ github.event.repository.name }}/${{ inputs.MicroserviceName }}_prod
-      with:
-        string: ${{ env.PACKAGE_NAME }}
+        echo "MicroSRVC_Name=${MicroSRVC_name}" >> $GITHUB_OUTPUT           # Set output
+        echo "MicroSRVC_Image=${MicroSRVC_image}" >> $GITHUB_OUTPUT           # Set output
+
+
+#===============================================================================================
+#   Delete old images
+#-----------------------------------------------------------------------------------------------
+    # - name: Get lowercase package name
+    #   id: Repo-Name_lowercase
+    #   uses: ASzc/change-string-case-action@v6
+    #   env:
+    #     PACKAGE_NAME: ${{ inputs.ACR_SERVER }}/${{ inputs.Customer_ID }}/${{ inputs.Microservice_name }}
+    #   with:
+    #     string: ${{ env.PACKAGE_NAME }}
 
     - name: Delete old images
       id: delete-images
-      uses: actions/delete-package-versions@v5.0.0
+      continue-on-error: true
+      uses: actions/delete-package-versions@v5
       with:
-        package-name: ${{ steps.packageName-lowercase.outputs.lowercase }}
+        package-name: ${{ inputs.ACR_server }}/${{ inputs.Customer_ID }}/${{ inputs.Microservice_name }}
         package-type: 'container'
         min-versions-to-keep: 2
+        
