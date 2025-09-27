@@ -1,4 +1,5 @@
-﻿using TicketsManager.Common.Dtos;
+﻿using System.Collections.Generic;
+using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Dtos;
 using TicketsManager.DAL.Models.UserStoryTestsModels;
 
@@ -51,6 +52,14 @@ public interface IUserStoryTestRepository
     Task<Dictionary<Guid, Guid>> GetUsecaseTicketIdRelationAsync(List<Guid> usecaseIds);
     Task<Guid> GetTicketIdByUsecaseIdAsync(Guid usecaseId);
     Task<Guid> GetTicketIdByTestCaseIdAsync(Guid testCaseId);
+
+    /// <summary>
+    ///    Replaces the traceability links for a given user story test.
+    /// </summary>
+    /// <param name="userStoryTestId"></param>
+    /// <param name="ticketSummaryIds"></param>
+    /// <returns></returns>
+    Task ReplaceRelatedSummariesAsync(Guid userStoryTestId, IEnumerable<Guid> ticketSummaryIds);
 
     /// <summary>
     ///    Method returns UserStoryTest by ticketId with pagination

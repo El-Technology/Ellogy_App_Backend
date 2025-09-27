@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using TicketsManager.Common.Dtos;
 using TicketsManager.DAL.Context;
@@ -63,6 +65,7 @@ public class UserStoryTestRepository : IUserStoryTestRepository
         return _context.UserStoryTests
         .Include(a => a.TestCases)
         .Include(a => a.TestPlan)
+        .Include(a => a.RelatedSummaries)
         .Where(filterExpression)
         .OrderBy(a => a.Order)
         .Select(a => new ReturnUserStoryTestModel
@@ -72,7 +75,16 @@ public class UserStoryTestRepository : IUserStoryTestRepository
             TestCases = a.TestCases,
             TestPlan = a.TestPlan,
             UsecaseId = a.UsecaseId,
-            UsecaseTitle = a.Usecase!.Title
+            UsecaseTitle = a.Usecase!.Title,
+            RelatedSummaries = a.RelatedSummaries
+                .Select(rs => new UserStoryTestTicketSummary
+                {
+                    Id = rs.Id,
+                    TicketSummaryId = rs.TicketSummaryId,
+                    UserStoryTestId = rs.UserStoryTestId,
+                    CreatedAt = rs.CreatedAt
+                })
+                .ToList()
         });
     }
 
@@ -102,6 +114,39 @@ public class UserStoryTestRepository : IUserStoryTestRepository
     public async Task UpdateUserStoryTestAsync(List<UserStoryTest> userStoryTests)
     {
         _context.UserStoryTests.UpdateRange(userStoryTests);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task ReplaceRelatedSummariesAsync(Guid userStoryTestId, IEnumerable<Guid> ticketSummaryIds)
+    {
+        var existing = await _context.UserStoryTestTicketSummaries
+            .Where(rs => rs.UserStoryTestId == userStoryTestId)
+            .ToListAsync();
+
+        var desired = ticketSummaryIds.Distinct().ToHashSet();
+
+        var toRemove = existing.Where(rs => !desired.Contains(rs.TicketSummaryId)).ToList();
+        if (toRemove.Count > 0)
+        {
+            _context.UserStoryTestTicketSummaries.RemoveRange(toRemove);
+        }
+
+        var existingIds = existing.Select(rs => rs.TicketSummaryId).ToHashSet();
+        var toAdd = desired
+            .Where(id => !existingIds.Contains(id))
+            .Select(id => new UserStoryTestTicketSummary
+            {
+                Id = Guid.NewGuid(),
+                UserStoryTestId = userStoryTestId,
+                TicketSummaryId = id
+            })
+            .ToList();
+
+        if (toAdd.Count > 0)
+        {
+            await _context.UserStoryTestTicketSummaries.AddRangeAsync(toAdd);
+        }
+
         await _context.SaveChangesAsync();
     }
 

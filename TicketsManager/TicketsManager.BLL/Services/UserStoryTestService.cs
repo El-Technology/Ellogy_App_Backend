@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos;
 using TicketsManager.BLL.Dtos.UserStoryTestDtos.GetDtos;
@@ -112,6 +113,13 @@ public class UserStoryTestService : IUserStoryTestService
 
         var mappedUserStoryTest = _mapper.Map<List<UserStoryTest>>(userStoryTest);
         await _userStoryTestRepository.UpdateUserStoryTestAsync(mappedUserStoryTest);
+
+        foreach (var dto in userStoryTest)
+        {
+            await _userStoryTestRepository.ReplaceRelatedSummariesAsync(
+                dto.Id,
+                dto.RelatedSummaryIds ?? Enumerable.Empty<Guid>());
+        }
     }
 
     /// <inheritdoc cref="IUserStoryTestService.DeleteUserStoryTestAsync" />

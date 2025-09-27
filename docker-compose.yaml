@@ -7,6 +7,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT:
       OCELOT_CONF:
+      SSH_HOST:
     ports:
       - "7060:443"
       - "5211:80"
@@ -23,6 +24,10 @@ services:
       JWT_SECRET_KEY:
       COMMUNICATION_SERVICE_CONNECTION_STRING:
       ASPNETCORE_ENVIRONMENT:
+      AZURE_TENANT_ID:
+      AZURE_CLIENT_ID:
+      AZURE_CLIENT_SECRET:
+      AZURE_SUBSCRIPTION_ID:
     ports:
       - "7077:443"
       - "5281:80"
@@ -38,6 +43,10 @@ services:
       CONNECTION_STRING:
       ASPNETCORE_ENVIRONMENT:
       JWT_SECRET_KEY:
+      AZURE_TENANT_ID:
+      AZURE_CLIENT_ID:
+      AZURE_CLIENT_SECRET:
+      AZURE_SUBSCRIPTION_ID:
     ports:
       - "7188:443"
       - "5041:80"

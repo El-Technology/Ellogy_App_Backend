@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace TicketsManager.DAL.Models.TicketModels;
 
@@ -7,15 +7,15 @@ namespace TicketsManager.DAL.Models.TicketModels;
 /// Represents a row from the vw_TraceabilityMatrix database view.
 /// This view aggregates user stories, scenarios, acceptance criteria, and linked test cases.
 /// </summary>
+[Keyless]
 [Table("vw_TraceabilityMatrix")]
 public class TraceabilityMatrixView
 {
-    [Key]
     public Guid TicketId { get; set; }
 
     public Guid UserStoryId { get; set; }
     public string UserStory { get; set; } = string.Empty;
-    public string? SubStage { get; set; }
+    public int? SubStage { get; set; }
 
     public Guid? ScenarioId { get; set; }
     public string? ScenarioTitle { get; set; }
