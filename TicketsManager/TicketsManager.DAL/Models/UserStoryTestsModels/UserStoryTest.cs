@@ -12,4 +12,7 @@ public class UserStoryTest
 
     public Usecase? Usecase { get; set; }
     public Guid? UsecaseId { get; set; }
+
+    // Many-to-many relationship with TicketSummaries for traceability
+    public ICollection<UserStoryTestTicketSummary> RelatedSummaries { get; set; } = new List<UserStoryTestTicketSummary>();
 }

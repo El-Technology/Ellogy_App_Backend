@@ -17,6 +17,7 @@ public class TicketsManagerDbContext : DbContext
     }
 
     public DbSet<UserStoryTest> UserStoryTests { get; set; } = null!;
+    public DbSet<UserStoryTestTicketSummary> UserStoryTestTicketSummaries { get; set; } = null!;
     public DbSet<TestCase> TestCases { get; set; } = null!;
     public DbSet<TestPlan> TestPlans { get; set; } = null!;
     public DbSet<ActionHistory> ActionHistories { get; set; } = null!;
@@ -30,6 +31,7 @@ public class TicketsManagerDbContext : DbContext
     public DbSet<SummaryScenario> SummaryScenarios { get; set; } = null!;
     public DbSet<SummaryAcceptanceCriteria> SummaryAcceptanceCriteria { get; set; } = null!;
     public DbSet<TicketShare> TicketShares { get; set; } = null!;
+    public DbSet<TraceabilityMatrixView> TraceabilityMatrixView { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

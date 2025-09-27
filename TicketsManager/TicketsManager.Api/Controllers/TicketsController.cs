@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using TicketsManager.BLL.Dtos.TicketDtos;
+using TicketsManager.BLL.Dtos.TraceabilityDtos;
 using TicketsManager.BLL.Interfaces;
 using TicketsManager.Common.Dtos;
 using TicketsManager.Common.Helpers;
@@ -18,14 +19,17 @@ namespace TicketsManager.Api.Controllers;
 public class TicketsController : Controller
 {
     private readonly ITicketsService _ticketsService;
+    private readonly ITraceabilityService _traceabilityService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TicketsController"/> class.
     /// </summary>
     /// <param name="ticketsService"></param>
-    public TicketsController(ITicketsService ticketsService)
+    /// <param name="traceabilityService"></param>
+    public TicketsController(ITicketsService ticketsService, ITraceabilityService traceabilityService)
     {
         _ticketsService = ticketsService;
+        _traceabilityService = traceabilityService;
     }
 
     /// <summary>
@@ -144,5 +148,24 @@ public class TicketsController : Controller
             file,
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "Report.docx");
+    }
+
+    /// <summary>
+    /// Retrieves the traceability matrix for a specific ticket.
+    /// </summary>
+    /// <param name="ticketId">The unique identifier of the ticket.</param>
+    /// <returns>Returns the traceability matrix containing user stories, scenarios, acceptance criteria, and linked test cases.</returns>
+    [ProducesResponseType(typeof(TraceabilityMatrixResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+    [HttpGet]
+    [Route("{ticketId:guid}/traceability")]
+    public async Task<IActionResult> GetTraceabilityMatrix([Required] Guid ticketId)
+    {
+        var traceabilityMatrix = await _traceabilityService.GetTraceabilityMatrixAsync(
+            ticketId, GetUserIdFromToken());
+
+        return Ok(traceabilityMatrix);
     }
 }

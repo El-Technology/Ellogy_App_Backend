@@ -8,4 +8,5 @@ public class UpdateUserStoryTestDto
     public IEnumerable<GetTestCaseDto>? TestCases { get; set; }
     public GetTestPlanDto? TestPlan { get; set; }
     public Guid? UsecaseId { get; set; }
+    public IEnumerable<Guid> RelatedSummaryIds { get; set; } = new List<Guid>();
 }
